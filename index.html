@@ -1469,7 +1469,16 @@ function renderTopbar(){
 /* ═══════════════ PILOTE, Mon lieu ═══════════════ */
 function renderTabA(){
   const el=document.getElementById('view-a');
-  if(S.profile==='pilote') el.innerHTML=dashHTML()+pilotLieu();
+  if(S.profile==='pilote'){
+    const sub=S.lieuSub||'dash';
+    const tabs=[['dash','📊 Tableau de bord'],['espaces','🏡 Mes Espaces'],['recompenses','🏅 Mes Récompenses']];
+    let h=defiBanner();
+    h+=`<div class="biblio-tabs">${tabs.map(t=>`<button class="biblio-tab ${sub===t[0]?'active':''}" onclick="S.lieuSub='${t[0]}';render()">${t[1]}</button>`).join('')}</div>`;
+    if(sub==='dash') h+=dashHTML({noBadges:true});
+    else if(sub==='espaces') h+=pilotLieu();
+    else h+=recompensesHTML();
+    el.innerHTML=h;
+  }
   else if(S.profile==='batisseur') el.innerHTML=batisseurMissions();
   else el.innerHTML=semeurFinance();
 }
@@ -1482,7 +1491,7 @@ function renderTabB(){
 
 /* ---- PILOTE : lieu ---- */
 function pilotLieu(){
-  let h = defiBanner();
+  let h = '';
   h+=`<div class="lieu-edit-head"><h2>🏡 ${escapeHtml(S.lieuName)}</h2><button class="sp-edit" title="Renommer le lieu" onclick="renameLieu()">✏️</button></div>
       <div class="sect-sub">Compose ton lieu : renomme-le, ajoute des espaces, installe des solutions de la Bibliothèque et mesure-les avec des ICI. Reconnaître l'existant est ta première quête.</div>`;
   // barre d'ajout d'espaces
@@ -2108,7 +2117,7 @@ function semeurRefs(){
 function refCoverage(k){ let n=0; S.financed.forEach(f=>{ if(!f.pending && ICI[SOL[f.sol].ici].refs.some(r=>r.startsWith(k))) n++; }); return n; }
 
 /* ═══════════════ TABLEAU DE BORD ═══════════════ */
-function dashHTML(){
+function dashHTML(opts){
   const P=PROFILS[S.profile];
   const vad = S.profile==='semeur'?S.vaditeFin:S.vadite;
   const prog = Math.min(100, vad/P.goal*100);
@@ -2156,12 +2165,7 @@ function dashHTML(){
     <div style="font-size:.74rem;color:var(--moss);opacity:.85;line-height:1.5">${VADE[S.vade].desc.charAt(0).toUpperCase()+VADE[S.vade].desc.slice(1)}. Cliquez « Saison ▸ » en haut pour faire avancer le temps : vos espaces produisent, les revenus tombent, les aléas arrivent.</div>
   </div>`;
   // badges
-  h+=`<div class="sect-title" style="font-size:1rem">🏅 Badges · ${S.badges.size}/${Object.keys(BADGES).length}</div>
-    <div class="badges-grid">`;
-  Object.entries(BADGES).forEach(([k,b])=>{
-    h+=`<div class="badge ${S.badges.has(k)?'got':''}"><div class="b-ic">${b.ic}</div><div class="b-name">${b.name}</div></div>`;
-  });
-  h+=`</div>`;
+  if(!(opts&&opts.noBadges)) h+=badgesHTML();
   // rapport semeur
   if(S.profile==='semeur' && S.vaditeFin>=P.goal){
     h+=`<div style="height:1rem"></div><button class="btn btn-primary" style="width:100%" onclick="produceReport()">📄 Produire mon rapport d'impact</button>`;
@@ -2169,6 +2173,20 @@ function dashHTML(){
   return h;
 }
 function renderDash(){ document.getElementById('view-dash').innerHTML=dashHTML(); }
+function badgesHTML(){
+  let h=`<div class="sect-title" style="font-size:1rem">🏅 Badges · ${S.badges.size}/${Object.keys(BADGES).length}</div>
+    <div class="badges-grid">`;
+  Object.entries(BADGES).forEach(([k,b])=>{
+    h+=`<div class="badge ${S.badges.has(k)?'got':''}"><div class="b-ic">${b.ic}</div><div class="b-name">${b.name}</div></div>`;
+  });
+  h+=`</div>`;
+  return h;
+}
+function recompensesHTML(){
+  let h=`<div class="sect-sub">Tes hauts faits de Pilote. Chaque badge se débloque en agissant : tisser des boucles, parer un aléa, prouver ton impact, animer le réseau…</div>`;
+  h+=badgesHTML();
+  return h;
+}
 function dashStat(ic,num,lab){ return `<div class="dash-stat"><div class="ds-num">${ic} ${num}</div><div class="ds-lab">${lab}</div></div>`; }
 function countProven(){ let n=0; S.spaces.forEach(sp=>{ if(sp.existant&&sp.ici)n++; sp.sols.forEach(x=>{if(x.ici)n++;}); }); return n; }
 function goalLabel(){
