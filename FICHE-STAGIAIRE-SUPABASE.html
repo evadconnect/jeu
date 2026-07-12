@@ -29,15 +29,15 @@ strong{color:#0d3c2e}
 <p><strong>Projet :</strong> EVAD Le Jeu (<code>evadconnect/jeu</code>, fichier <code>index.html</code>) <strong>Mission :</strong> sortir les données <strong>Solutions</strong>, <strong>ICI</strong> et <strong>Compétences</strong> du HTML pour les gérer dans <strong>3 tables Supabase</strong>, puis les rebrancher dans le jeu. <strong>Durée estimée :</strong> 3 à 5 jours.</p>
 <hr>
 <h2>1. Contexte</h2>
-<p>Le jeu est un <strong>fichier HTML autonome</strong> (aucun build, aucune dépendance, tout en JavaScript inline). Aujourd'hui, les cartes du jeu sont écrites en dur dans <code>index.html</code> sous forme de tableaux/objets JavaScript :</p>
+<p>Le jeu est un <strong>fichier HTML sans build</strong> (aucune dépendance, tout en JavaScript inline) et sera <strong>hébergé en ligne sur <code>jeu.evad.org</code></strong>. Aujourd'hui, les cartes du jeu sont écrites en dur dans <code>index.html</code> sous forme de tableaux/objets JavaScript :</p>
 <ul><li><code>SOLUTIONS</code> (les solutions à installer) : ligne ~821</li><li><code>ICI</code> (les indicateurs de mesure) : ligne ~909</li><li><code>COMPETENCES</code> (compétences Bâtisseur) : ligne ~927 et <code>PCOMP</code> (compétences Pilote) : ligne ~871</li></ul>
 <p>Le but est que l'équipe puisse <strong>ajouter ou modifier une carte sans toucher au code</strong>, via Supabase.</p>
 <p>Le jeu sait déjà parler à Supabase : le formulaire de feedback fait un <code>INSERT</code> REST direct (voir <code>EVAD_STATS_SUPABASE</code>, ligne ~1226). Tu vas t'appuyer sur le même mécanisme, mais en <strong>lecture</strong>.</p>
-<h3>Contrainte non négociable</h3>
-<p>Le jeu doit <strong>rester jouable hors-ligne</strong>. L'appel Supabase est une <strong>amélioration progressive</strong> : si le réseau ou Supabase ne répond pas, le jeu retombe sur les données embarquées (celles déjà dans le HTML). On ne casse jamais l'expérience si Supabase est indisponible.</p>
+<h3>Chargement des données</h3>
+<p>Le jeu étant en ligne, <strong>Supabase est la source de vérité</strong> : au démarrage, les 3 tables sont chargées depuis Supabase, puis le jeu se lance. Pas besoin de mode hors-ligne. Gère juste proprement le cas d'erreur réseau (message clair + éventuel bouton « réessayer ») pour ne pas laisser un écran vide si l'appel échoue.</p>
 <hr>
 <h2>2. Ce que tu dois livrer</h2>
-<ol><li>Un script SQL (<code>supabase/schema.sql</code>) qui crée les 3 tables + les politiques RLS.</li><li>Un script SQL (<code>supabase/seed.sql</code>) qui insère les données actuelles (reprises depuis le HTML).</li><li>La modification de <code>index.html</code> : au démarrage, le jeu charge les 3 tables depuis Supabase et remplace les données embarquées, <strong>avec fallback</strong> si l'appel échoue.</li><li>Une courte doc (<code>supabase/README.md</code>) : comment se connecter, où sont les clés, comment ajouter une carte.</li></ol>
+<ol><li>Un script SQL (<code>supabase/schema.sql</code>) qui crée les 3 tables + les politiques RLS.</li><li>Un script SQL (<code>supabase/seed.sql</code>) qui insère les données actuelles (reprises depuis le HTML).</li><li>La modification de <code>index.html</code> : au démarrage, le jeu charge les 3 tables depuis Supabase avant de se lancer, avec une <strong>gestion d'erreur propre</strong> si l'appel échoue.</li><li>Une courte doc (<code>supabase/README.md</code>) : comment se connecter, où sont les clés, comment ajouter une carte.</li></ol>
 <hr>
 <h2>3. Accès &amp; sécurité</h2>
 <ul><li><strong>Projet Supabase</strong> existant : <code>https://lmhhrccmgebztioesmik.supabase.co</code> (demande à Romain l'accès au dashboard).</li><li>Pour la <strong>lecture publique</strong> depuis le jeu : on utilise la <strong>clé anon / publishable</strong> (comme pour le feedback). Elle peut vivre dans le HTML, c'est fait pour.</li><li>Pour <strong>écrire/administrer</strong> (créer les tables, insérer) : passe par le dashboard Supabase (SQL Editor) ou une clé <code>service_role</code>. <strong>La <code>service_role</code> ne doit JAMAIS être commitée ni mise dans le HTML.</strong></li><li>Active la <strong>RLS</strong> sur les 3 tables avec une policy <strong>lecture seule</strong> pour le rôle <code>anon</code> (voir §5). Aucune écriture publique.</li></ul>
@@ -147,33 +147,37 @@ insert into solutions
 const rows = await r.json(); // tableau d'objets</code></pre>
 <hr>
 <h2>7. Intégration côté jeu (<code>index.html</code>)</h2>
-<p>L'idée : au chargement, tenter de récupérer les 3 tables, puis <strong>écraser</strong> les données embarquées avant le premier rendu. Si ça échoue, on garde les données embarquées.</p>
+<p>L'idée : au chargement, récupérer les 3 tables et <strong>remplir</strong> les structures du jeu, <strong>avant</strong> le premier rendu. Le jeu ne démarre qu'une fois les données prêtes.</p>
 <p>Points d'attention :</p>
-<ol><li><strong>Garde les tableaux actuels comme fallback.</strong> Ne supprime pas <code>SOLUTIONS</code> / <code>ICI</code> / <code>COMPETENCES</code> / <code>PCOMP</code> du HTML : ils restent la version hors-ligne.</li><li>Les objets <code>SOL</code>, <code>SOL_COUT</code>, <code>SOL_LOCK</code> sont <strong>dérivés</strong> de <code>SOLUTIONS</code>. Après avoir chargé depuis Supabase, il faut <strong>reconstruire</strong> <code>SOL</code> (<code>Object.fromEntries(...)</code>) et reporter <code>cout</code> / <code>competence_requise</code> sur chaque solution (aujourd'hui fait lignes ~865-868). Regroupe cette logique dans une fonction pour pouvoir la rejouer après le fetch.</li><li><strong>Mapping des noms</strong> : la base utilise <code>ici_id</code>, <code>capacites</code>, <code>flux_in/out</code>, <code>competence_requise</code>, <code>protege</code> ; le JS attend <code>ici</code>, <code>cap</code>, <code>flux:{in,out}</code>, <code>lock</code>, <code>protects</code>. Fais une petite fonction d'adaptation (base → format JS) pour ne pas avoir à renommer partout dans le code.</li><li>Le point d'entrée du jeu (le <code>DOMContentLoaded</code> / la fonction d'init) doit devenir <strong>async</strong> : <code>await loadData()</code> avant de lancer l'écran d'accueil. Prévois un timeout court (2-3 s) pour ne pas bloquer si Supabase traîne.</li></ol>
+<ol><li><strong>Une fois la base branchée, les tableaux en dur ne servent plus.</strong> Tu peux les vider (ou les retirer) : la source de vérité est Supabase. Garde-en éventuellement un jeu minimal pour tes tests locaux, mais ce n'est plus la version de prod.</li><li>Les objets <code>SOL</code>, <code>SOL_COUT</code>, <code>SOL_LOCK</code> sont <strong>dérivés</strong> de <code>SOLUTIONS</code>. Après avoir chargé depuis Supabase, il faut <strong>reconstruire</strong> <code>SOL</code> (<code>Object.fromEntries(...)</code>) et reporter <code>cout</code> / <code>competence_requise</code> sur chaque solution (aujourd'hui fait lignes ~865-868). Regroupe cette logique dans une fonction pour la rejouer après le fetch.</li><li><strong>Mapping des noms</strong> : la base utilise <code>ici_id</code>, <code>capacites</code>, <code>flux_in/out</code>, <code>competence_requise</code>, <code>protege</code> ; le JS attend <code>ici</code>, <code>cap</code>, <code>flux:{in,out}</code>, <code>lock</code>, <code>protects</code>. Fais une petite fonction d'adaptation (base → format JS) pour ne pas avoir à renommer partout dans le code.</li><li>Le point d'entrée du jeu (le <code>DOMContentLoaded</code> / la fonction d'init) doit devenir <strong>async</strong> : <code>await loadData()</code> avant de lancer l'écran d'accueil. Affiche un petit écran de chargement pendant le fetch, et un message d'erreur clair (avec bouton « réessayer ») si Supabase ne répond pas.</li></ol>
 <p>Squelette indicatif :</p>
 <pre class="code"><code>const EVAD_DATA_SUPABASE = { url:'https://...supabase.co', anonKey:'sb_publishable_...' };
 
 async function loadData(){
   const cfg = EVAD_DATA_SUPABASE;
-  if(!cfg.url || !cfg.anonKey) return; // pas de config → fallback embarqué
-  try {
-    const h = { apikey: cfg.anonKey, Authorization: 'Bearer ' + cfg.anonKey };
-    const [sol, ici, comp] = await Promise.all([
-      fetch(cfg.url+'/rest/v1/solutions?select=*&amp;order=ordre', {headers:h}).then(r=&gt;r.json()),
-      fetch(cfg.url+'/rest/v1/ici?select=*', {headers:h}).then(r=&gt;r.json()),
-      fetch(cfg.url+'/rest/v1/competences?select=*', {headers:h}).then(r=&gt;r.json()),
-    ]);
-    if(Array.isArray(sol) &amp;&amp; sol.length) applySolutions(sol);   // → remap + reconstruit SOL
-    if(Array.isArray(ici) &amp;&amp; ici.length) applyIci(ici);
-    if(Array.isArray(comp) &amp;&amp; comp.length) applyCompetences(comp); // → répartit pilote/batisseur
-  } catch(e){
-    console.warn('Supabase indisponible, données embarquées utilisées', e);
-  }
+  const h = { apikey: cfg.anonKey, Authorization: 'Bearer ' + cfg.anonKey };
+  const [sol, ici, comp] = await Promise.all([
+    fetch(cfg.url+'/rest/v1/solutions?select=*&amp;order=ordre', {headers:h}).then(r=&gt;r.json()),
+    fetch(cfg.url+'/rest/v1/ici?select=*', {headers:h}).then(r=&gt;r.json()),
+    fetch(cfg.url+'/rest/v1/competences?select=*', {headers:h}).then(r=&gt;r.json()),
+  ]);
+  applySolutions(sol);    // → remap + reconstruit SOL / SOL_COUT / SOL_LOCK
+  applyIci(ici);
+  applyCompetences(comp); // → répartit pilote / batisseur
+}
+
+// init
+try {
+  showLoader();
+  await loadData();
+  startGame();
+} catch(e){
+  showError('Impossible de charger les données du jeu.', e); // + bouton réessayer
 }</code></pre>
 <hr>
 <h2>8. Critères d'acceptation (Definition of Done)</h2>
-<ul><li class="task"><input type="checkbox" disabled > Les 3 tables existent avec RLS <strong>lecture seule</strong> anon activée.</li><li class="task"><input type="checkbox" disabled > Toutes les données actuelles du HTML sont présentes dans Supabase (13 solutions, 8 ICI, compétences Pilote + Bâtisseur).</li><li class="task"><input type="checkbox" disabled > Le jeu chargé en ligne affiche <strong>exactement</strong> les mêmes cartes qu'avant (aucune régression visuelle).</li><li class="task"><input type="checkbox" disabled > Modifier une ligne dans Supabase (ex. renommer une solution) se voit dans le jeu <strong>après rechargement</strong>, sans toucher au code.</li><li class="task"><input type="checkbox" disabled > <strong>Test hors-ligne</strong> : couper le réseau → le jeu fonctionne toujours avec les cartes embarquées.</li><li class="task"><input type="checkbox" disabled > Aucune clé <code>service_role</code> dans le dépôt.</li><li class="task"><input type="checkbox" disabled > Doc <code>supabase/README.md</code> livrée (connexion, ajout d'une carte).</li></ul>
+<ul><li class="task"><input type="checkbox" disabled > Les 3 tables existent avec RLS <strong>lecture seule</strong> anon activée.</li><li class="task"><input type="checkbox" disabled > Toutes les données actuelles du HTML sont présentes dans Supabase (13 solutions, 8 ICI, compétences Pilote + Bâtisseur).</li><li class="task"><input type="checkbox" disabled > Le jeu chargé en ligne affiche <strong>exactement</strong> les mêmes cartes qu'avant (aucune régression visuelle).</li><li class="task"><input type="checkbox" disabled > Modifier une ligne dans Supabase (ex. renommer une solution) se voit dans le jeu <strong>après rechargement</strong>, sans toucher au code.</li><li class="task"><input type="checkbox" disabled > Si Supabase ne répond pas, le jeu affiche un <strong>message d'erreur clair</strong> (pas d'écran vide) avec une possibilité de réessayer.</li><li class="task"><input type="checkbox" disabled > Aucune clé <code>service_role</code> dans le dépôt.</li><li class="task"><input type="checkbox" disabled > Doc <code>supabase/README.md</code> livrée (connexion, ajout d'une carte).</li></ul>
 <h2>9. Étapes conseillées</h2>
-<ol><li>Lire ce fichier + repérer les 4 blocs de données dans <code>index.html</code> (<code>SOLUTIONS</code>, <code>ICI</code>, <code>COMPETENCES</code>, <code>PCOMP</code>) et leurs dérivés (<code>SOL</code>, <code>SOL_COUT</code>, <code>SOL_LOCK</code>).</li><li>Écrire <code>schema.sql</code>, l'exécuter dans le SQL Editor de Supabase.</li><li>Générer <code>seed.sql</code> depuis le HTML (un petit script Node/Python qui transforme les tableaux JS en <code>INSERT</code> fait gagner du temps et évite les fautes de recopie).</li><li>Vérifier la lecture via l'URL REST directement dans le navigateur.</li><li>Brancher <code>loadData()</code> + les fonctions <code>apply*</code> avec le remapping, tester en ligne.</li><li>Tester le fallback hors-ligne.</li><li>Écrire la doc, ouvrir une PR.</li></ol>
+<ol><li>Lire ce fichier + repérer les 4 blocs de données dans <code>index.html</code> (<code>SOLUTIONS</code>, <code>ICI</code>, <code>COMPETENCES</code>, <code>PCOMP</code>) et leurs dérivés (<code>SOL</code>, <code>SOL_COUT</code>, <code>SOL_LOCK</code>).</li><li>Écrire <code>schema.sql</code>, l'exécuter dans le SQL Editor de Supabase.</li><li>Générer <code>seed.sql</code> depuis le HTML (un petit script Node/Python qui transforme les tableaux JS en <code>INSERT</code> fait gagner du temps et évite les fautes de recopie).</li><li>Vérifier la lecture via l'URL REST directement dans le navigateur.</li><li>Brancher <code>loadData()</code> + les fonctions <code>apply*</code> avec le remapping, tester en ligne.</li><li>Tester le cas d'erreur (Supabase injoignable) : message clair, bouton réessayer.</li><li>Écrire la doc, ouvrir une PR.</li></ol>
 <h2>10. Questions à poser avant de démarrer</h2>
 <ul><li>Accès au dashboard Supabase (rôle éditeur) ?</li><li>Confirme-t-on <strong>une seule</strong> table <code>competences</code> (avec <code>profil</code>) plutôt que deux tables séparées ?</li><li>Faut-il aussi externaliser les <strong>catégories</strong> (<code>CATS</code>) et <strong>référentiels</strong> (<code>REFS</code>), ou on les garde en dur pour la V1 ?</li></ul></div></body></html>

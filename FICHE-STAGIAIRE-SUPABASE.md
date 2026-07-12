@@ -8,7 +8,7 @@
 
 ## 1. Contexte
 
-Le jeu est un **fichier HTML autonome** (aucun build, aucune dépendance, tout en JavaScript inline). Aujourd'hui, les cartes du jeu sont écrites en dur dans `index.html` sous forme de tableaux/objets JavaScript :
+Le jeu est un **fichier HTML sans build** (aucune dépendance, tout en JavaScript inline) et sera **hébergé en ligne sur `jeu.evad.org`**. Aujourd'hui, les cartes du jeu sont écrites en dur dans `index.html` sous forme de tableaux/objets JavaScript :
 
 - `SOLUTIONS` (les solutions à installer) : ligne ~821
 - `ICI` (les indicateurs de mesure) : ligne ~909
@@ -18,9 +18,9 @@ Le but est que l'équipe puisse **ajouter ou modifier une carte sans toucher au 
 
 Le jeu sait déjà parler à Supabase : le formulaire de feedback fait un `INSERT` REST direct (voir `EVAD_STATS_SUPABASE`, ligne ~1226). Tu vas t'appuyer sur le même mécanisme, mais en **lecture**.
 
-### Contrainte non négociable
+### Chargement des données
 
-Le jeu doit **rester jouable hors-ligne**. L'appel Supabase est une **amélioration progressive** : si le réseau ou Supabase ne répond pas, le jeu retombe sur les données embarquées (celles déjà dans le HTML). On ne casse jamais l'expérience si Supabase est indisponible.
+Le jeu étant en ligne, **Supabase est la source de vérité** : au démarrage, les 3 tables sont chargées depuis Supabase, puis le jeu se lance. Pas besoin de mode hors-ligne. Gère juste proprement le cas d'erreur réseau (message clair + éventuel bouton « réessayer ») pour ne pas laisser un écran vide si l'appel échoue.
 
 ---
 
@@ -28,7 +28,7 @@ Le jeu doit **rester jouable hors-ligne**. L'appel Supabase est une **améliorat
 
 1. Un script SQL (`supabase/schema.sql`) qui crée les 3 tables + les politiques RLS.
 2. Un script SQL (`supabase/seed.sql`) qui insère les données actuelles (reprises depuis le HTML).
-3. La modification de `index.html` : au démarrage, le jeu charge les 3 tables depuis Supabase et remplace les données embarquées, **avec fallback** si l'appel échoue.
+3. La modification de `index.html` : au démarrage, le jeu charge les 3 tables depuis Supabase avant de se lancer, avec une **gestion d'erreur propre** si l'appel échoue.
 4. Une courte doc (`supabase/README.md`) : comment se connecter, où sont les clés, comment ajouter une carte.
 
 ---
@@ -220,14 +220,14 @@ const rows = await r.json(); // tableau d'objets
 
 ## 7. Intégration côté jeu (`index.html`)
 
-L'idée : au chargement, tenter de récupérer les 3 tables, puis **écraser** les données embarquées avant le premier rendu. Si ça échoue, on garde les données embarquées.
+L'idée : au chargement, récupérer les 3 tables et **remplir** les structures du jeu, **avant** le premier rendu. Le jeu ne démarre qu'une fois les données prêtes.
 
 Points d'attention :
 
-1. **Garde les tableaux actuels comme fallback.** Ne supprime pas `SOLUTIONS` / `ICI` / `COMPETENCES` / `PCOMP` du HTML : ils restent la version hors-ligne.
-2. Les objets `SOL`, `SOL_COUT`, `SOL_LOCK` sont **dérivés** de `SOLUTIONS`. Après avoir chargé depuis Supabase, il faut **reconstruire** `SOL` (`Object.fromEntries(...)`) et reporter `cout` / `competence_requise` sur chaque solution (aujourd'hui fait lignes ~865-868). Regroupe cette logique dans une fonction pour pouvoir la rejouer après le fetch.
+1. **Une fois la base branchée, les tableaux en dur ne servent plus.** Tu peux les vider (ou les retirer) : la source de vérité est Supabase. Garde-en éventuellement un jeu minimal pour tes tests locaux, mais ce n'est plus la version de prod.
+2. Les objets `SOL`, `SOL_COUT`, `SOL_LOCK` sont **dérivés** de `SOLUTIONS`. Après avoir chargé depuis Supabase, il faut **reconstruire** `SOL` (`Object.fromEntries(...)`) et reporter `cout` / `competence_requise` sur chaque solution (aujourd'hui fait lignes ~865-868). Regroupe cette logique dans une fonction pour la rejouer après le fetch.
 3. **Mapping des noms** : la base utilise `ici_id`, `capacites`, `flux_in/out`, `competence_requise`, `protege` ; le JS attend `ici`, `cap`, `flux:{in,out}`, `lock`, `protects`. Fais une petite fonction d'adaptation (base → format JS) pour ne pas avoir à renommer partout dans le code.
-4. Le point d'entrée du jeu (le `DOMContentLoaded` / la fonction d'init) doit devenir **async** : `await loadData()` avant de lancer l'écran d'accueil. Prévois un timeout court (2-3 s) pour ne pas bloquer si Supabase traîne.
+4. Le point d'entrée du jeu (le `DOMContentLoaded` / la fonction d'init) doit devenir **async** : `await loadData()` avant de lancer l'écran d'accueil. Affiche un petit écran de chargement pendant le fetch, et un message d'erreur clair (avec bouton « réessayer ») si Supabase ne répond pas.
 
 Squelette indicatif :
 
@@ -236,20 +236,24 @@ const EVAD_DATA_SUPABASE = { url:'https://...supabase.co', anonKey:'sb_publishab
 
 async function loadData(){
   const cfg = EVAD_DATA_SUPABASE;
-  if(!cfg.url || !cfg.anonKey) return; // pas de config → fallback embarqué
-  try {
-    const h = { apikey: cfg.anonKey, Authorization: 'Bearer ' + cfg.anonKey };
-    const [sol, ici, comp] = await Promise.all([
-      fetch(cfg.url+'/rest/v1/solutions?select=*&order=ordre', {headers:h}).then(r=>r.json()),
-      fetch(cfg.url+'/rest/v1/ici?select=*', {headers:h}).then(r=>r.json()),
-      fetch(cfg.url+'/rest/v1/competences?select=*', {headers:h}).then(r=>r.json()),
-    ]);
-    if(Array.isArray(sol) && sol.length) applySolutions(sol);   // → remap + reconstruit SOL
-    if(Array.isArray(ici) && ici.length) applyIci(ici);
-    if(Array.isArray(comp) && comp.length) applyCompetences(comp); // → répartit pilote/batisseur
-  } catch(e){
-    console.warn('Supabase indisponible, données embarquées utilisées', e);
-  }
+  const h = { apikey: cfg.anonKey, Authorization: 'Bearer ' + cfg.anonKey };
+  const [sol, ici, comp] = await Promise.all([
+    fetch(cfg.url+'/rest/v1/solutions?select=*&order=ordre', {headers:h}).then(r=>r.json()),
+    fetch(cfg.url+'/rest/v1/ici?select=*', {headers:h}).then(r=>r.json()),
+    fetch(cfg.url+'/rest/v1/competences?select=*', {headers:h}).then(r=>r.json()),
+  ]);
+  applySolutions(sol);    // → remap + reconstruit SOL / SOL_COUT / SOL_LOCK
+  applyIci(ici);
+  applyCompetences(comp); // → répartit pilote / batisseur
+}
+
+// init
+try {
+  showLoader();
+  await loadData();
+  startGame();
+} catch(e){
+  showError('Impossible de charger les données du jeu.', e); // + bouton réessayer
 }
 ```
 
@@ -261,7 +265,7 @@ async function loadData(){
 - [ ] Toutes les données actuelles du HTML sont présentes dans Supabase (13 solutions, 8 ICI, compétences Pilote + Bâtisseur).
 - [ ] Le jeu chargé en ligne affiche **exactement** les mêmes cartes qu'avant (aucune régression visuelle).
 - [ ] Modifier une ligne dans Supabase (ex. renommer une solution) se voit dans le jeu **après rechargement**, sans toucher au code.
-- [ ] **Test hors-ligne** : couper le réseau → le jeu fonctionne toujours avec les cartes embarquées.
+- [ ] Si Supabase ne répond pas, le jeu affiche un **message d'erreur clair** (pas d'écran vide) avec une possibilité de réessayer.
 - [ ] Aucune clé `service_role` dans le dépôt.
 - [ ] Doc `supabase/README.md` livrée (connexion, ajout d'une carte).
 
@@ -272,7 +276,7 @@ async function loadData(){
 3. Générer `seed.sql` depuis le HTML (un petit script Node/Python qui transforme les tableaux JS en `INSERT` fait gagner du temps et évite les fautes de recopie).
 4. Vérifier la lecture via l'URL REST directement dans le navigateur.
 5. Brancher `loadData()` + les fonctions `apply*` avec le remapping, tester en ligne.
-6. Tester le fallback hors-ligne.
+6. Tester le cas d'erreur (Supabase injoignable) : message clair, bouton réessayer.
 7. Écrire la doc, ouvrir une PR.
 
 ## 10. Questions à poser avant de démarrer
