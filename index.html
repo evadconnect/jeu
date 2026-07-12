@@ -163,7 +163,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .content{padding:1rem clamp(.85rem,2.4vw,1.6rem) 5rem;max-width:1120px}
 
 /* VADE spiral */
-.vade-bar{display:flex;align-items:center;gap:.55rem;padding:.45rem 0;overflow-x:auto}
+.vade-bar{display:flex;align-items:center;flex-wrap:wrap;gap:.55rem;row-gap:.4rem;padding:.45rem 0}
 .vade-step{display:flex;align-items:center;gap:.4rem;flex-shrink:0}
 .vade-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   font-size:.78rem;font-weight:900;color:#fff;background:#cdddd5;transition:all .3s}
@@ -172,6 +172,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .vade-step.done .vade-dot{opacity:.85}
 .vade-arrow{color:#c3d6cd;font-size:.7rem;flex-shrink:0}
 .vade-cycle{font-size:.62rem;font-weight:800;color:var(--lavender);background:rgba(122,110,168,.14);border-radius:100px;padding:.22rem .55rem;margin-right:.3rem;flex-shrink:0;white-space:nowrap}
+.vade-sep{width:1px;height:22px;background:var(--line);flex-shrink:0;margin:0 .35rem}
+.vade-mission{font-size:.66rem;font-weight:700;color:var(--moss);background:rgba(1,130,98,.07);border:1px solid rgba(1,130,98,.16);border-radius:100px;padding:.3rem .75rem;flex-shrink:0;white-space:nowrap;line-height:1.2}
+.vade-mission b{color:var(--forest)}
 
 /* ─── Responsive : sidebar → rail d'icônes ─── */
 @media(max-width:820px){
@@ -766,6 +769,27 @@ const VADE = [
   {k:'D', label:'Développer', color:'#c8732a', desc:'faire système'},
   {k:'E', label:'Essaimer',   color:'#6b5b95', desc:'passer au réel & inspirer'},
 ];
+/* Mission en cours (par profil, par phase VADE) pour passer à l'étape suivante */
+const VADE_MISSIONS = {
+  pilote: [
+    'Reconnais et mesure tes espaces existants',
+    'Attache des ICI et prouve ton impact',
+    'Tisse des boucles entre tes espaces',
+    'Fais essaimer ton lieu et boucle le cycle',
+  ],
+  batisseur: [
+    'Accepte et accomplis une première mission',
+    'Enchaîne les missions et monte en compétence',
+    'Vise des missions à fort impact',
+    'Confirme ton expertise et boucle le cycle',
+  ],
+  semeur: [
+    'Finance un premier besoin vérifié',
+    'Diversifie tes financements et couvre des référentiels',
+    'Renforce la Vadité financée de ton portefeuille',
+    'Produis ton rapport et boucle le cycle',
+  ],
+};
 const SEASONS = [
   {name:'Printemps', ic:'🌸', hazard:'gel'},
   {name:'Été',       ic:'☀️', hazard:'canicule'},
@@ -1463,7 +1487,7 @@ function renderTopbar(){
       <div class="vade-dot" style="background:${bg}">${v.k}</div>
       <div class="vt">${v.label}</div>
     </div>${i<3?'<span class="vade-arrow">➜</span>':''}`;
-  }).join('');
+  }).join('') + vadeNextMission();
 }
 
 /* ═══════════════ PILOTE, Mon lieu ═══════════════ */
@@ -2481,6 +2505,30 @@ function markFirstAct(act){ S.firstActs.add(act);
 function progressValue(){ return S.profile==='pilote'?S.vadite : (S.profile==='batisseur'?S.missionsDone : S.vaditeFin); }
 /* Spirale VADE cyclique : chaque cycle enchaîne V→A→D→E ; en atteignant le palier du cycle,
    on repart de V « un cran plus haut » (cycle N+1). 3 cycles jusqu'à l'objectif. */
+function vadeNextMission(){
+  if(!S) return '';
+  const goal=PROFILS[S.profile].goal, seg=goal/3, prog=progressValue();
+  const cyc=S.vadeCycle||1, base=(cyc-1)*seg, phase=S.vade;
+  if(S.won) return `<span class="vade-sep"></span><span class="vade-mission" style="border-color:rgba(1,130,98,.32)">🌳 <b>Spirale accomplie</b> · un cran plus haut</span>`;
+  const thr=[0,0.2,0.45,0.7];
+  let nextIdx, targetProg, loop=false;
+  if(phase<3){ nextIdx=phase+1; targetProg=base+thr[nextIdx]*seg; }
+  else { loop=true; nextIdx=0; targetProg=cyc*seg; }
+  let rem=targetProg-prog; if(rem<0) rem=0;
+  const isMissions=S.profile==='batisseur';
+  const remDisp=isMissions?Math.max(0,Math.ceil(rem)):round1(rem);
+  const unit=isMissions?(remDisp>=2?'missions':'mission'):(remDisp>=2?'pts Vadité':'pt Vadité');
+  const nextV=VADE[nextIdx];
+  const mission=(VADE_MISSIONS[S.profile]||VADE_MISSIONS.pilote)[phase]||'';
+  let tail;
+  if(rem>0.05){
+    const goalTxt = loop?`repartir de <b>V · Valoriser</b> (cycle ${cyc+1}/3)`:`passer à <b>${nextV.k} · ${nextV.label}</b>`;
+    tail=`encore <b>${remDisp} ${unit}</b> pour ${goalTxt}`;
+  } else {
+    tail = loop?`<b>prêt à reboucler vers V ✨</b>`:`<b>presque à ${nextV.k} · ${nextV.label} ✨</b>`;
+  }
+  return `<span class="vade-sep"></span><span class="vade-mission">🎯 ${mission} · ${tail}</span>`;
+}
 function checkVade(){
   const goal=PROFILS[S.profile].goal, seg=goal/3, prog=progressValue();
   let cyc=Math.floor(prog/seg)+1; if(cyc<1)cyc=1; if(cyc>3)cyc=3;
