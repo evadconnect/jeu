@@ -970,9 +970,9 @@ function introDeva(){
 function devaIntroModal(){
   openOnboarding(`
     <div class="ob-head"><div class="ob-av deva-av"></div><div class="ob-hmeta"><div class="ob-dname">Deva</div><div class="ob-dsub">l'esprit régénératif d'EVAD</div></div></div>
-    <div class="ob-bubble">Bonjour 🌿 Je suis <b>Deva</b>, l'IA frugale qui fait vivre <b>EVAD</b> — l'outil commun d'un réseau de lieux qui régénèrent leur territoire, sans attendre les subventions, par la preuve.</div>
+    <div class="ob-bubble">Bonjour 🌿 Je suis <b>Deva</b>, l'IA frugale qui fait vivre <b>EVAD</b>, l'outil commun d'un réseau de lieux qui régénèrent leur territoire, sans attendre les subventions, par la preuve.</div>
     <div class="ob-bubble">Ici, la confiance se cultive comme le reste : <b>vérifié bat certifié</b>. On installe des solutions (une promesse, la <b>Vadance ✨</b>), on les mesure (une preuve, la <b>Vadité 🌿</b>), et l'impact converge vers tous les référentiels : ODD, ESRS, PCAET, RSE.</div>
-    <div class="ob-bubble">Trois profils font tourner l'écosystème. Pour tout découvrir, tu vas les incarner l'un après l'autre — une <b>session de ~30 min</b>, ~10 min chacun : 🏡 <b>Pilote</b>, 🌿 <b>Bâtisseur</b>, 🌾 <b>Semeur</b>.</div>
+    <div class="ob-bubble">Trois profils font tourner l'écosystème. Pour tout découvrir, tu vas les incarner l'un après l'autre, une <b>session de ~30 min</b>, ~10 min chacun : 🏡 <b>Pilote</b>, 🌿 <b>Bâtisseur</b>, 🌾 <b>Semeur</b>.</div>
     <div class="ob-actions"><button class="ob-skip" onclick="introFreeExplore()">Explorer librement</button><button class="ob-next" onclick="startSession()">Commencer l'acte 1 · Pilote →</button></div>
   `);
 }
@@ -1057,7 +1057,7 @@ function buildTourSteps(){
   const nm=S.playerName&&S.playerName!=='toi'?(' '+escapeHtml(S.playerName)):'';
   const where = S.profile==='pilote' ? ('ton lieu « '+escapeHtml(S.lieuName||'')+' »') : 'ton espace';
   return [
-    {sel:'#deva-pill', side:'top', title:`Bravo${nm}, c'est parti ! 🎉`, text:`${where.charAt(0).toUpperCase()+where.slice(1)} est prêt. Je te montre l'essentiel en quelques secondes — clique « Suivant », ou « Passer » si tu préfères explorer seul·e.`},
+    {sel:'#deva-pill', side:'top', title:`Bravo${nm}, c'est parti ! 🎉`, text:`${where.charAt(0).toUpperCase()+where.slice(1)} est prêt. Je te montre l'essentiel en quelques secondes, clique « Suivant », ou « Passer » si tu préfères explorer seul·e.`},
     {sel:navSel('dash'), side:'right', title:'📊 Tableau de bord', text:'Ta progression, tes badges et ta quête finale, en un coup d\'œil.'},
     {sel:navSel('a'), side:'right', title:nav[1].ic+' '+nav[1].label, text:AB.a},
     {sel:navSel('b'), side:'right', title:nav[2].ic+' '+nav[2].label, text:AB.b},
@@ -1596,7 +1596,7 @@ function openSolutionDetail(id){
       ${tags?`<div class="det-tags">${tags}</div>`:''}
       <div class="det-sec"><div class="det-sec-t">🔗 Référentiels couverts (via l'ICI)</div><div class="det-refs">${ici.refs.map(r=>`<span class="pill" style="background:#f1eef7;color:var(--lavender)">${r}</span>`).join('')}</div></div>
       ${(s.flux.in.length||s.flux.out.length)?`<div class="det-sec"><div class="det-sec-t">🔄 Flux & boucles circulaires</div><div class="det-flux">${flux.join(' · ')}</div></div>`:''}
-      ${locked?`<div class="det-lock">🔒 Nécessite la compétence <b>${PCOMP[s.lock].ic} ${PCOMP[s.lock].name}</b> — à acquérir dans l'onglet Compétences.</div>`:''}
+      ${locked?`<div class="det-lock">🔒 Nécessite la compétence <b>${PCOMP[s.lock].ic} ${PCOMP[s.lock].name}</b>, à acquérir dans l'onglet Compétences.</div>`:''}
       <button class="btn btn-primary det-action" onclick="detailInstall('${id}')" ${locked?'disabled':''}>${locked?'🔒 Verrouillé':'Sélectionner pour installer →'}</button>
     </div>`);
 }
@@ -1684,7 +1684,7 @@ function installSelected(spaceId){
   const s=SOL[S.sel.id];
   if(!spaceAccepts(sp,S.sel.id)) return;
   if(s.lock && !S.pcomps.has(s.lock)){ toast(`🔒 Nécessite la compétence ${PCOMP[s.lock].ic} ${PCOMP[s.lock].name}`,'warn'); return; }
-  if(sp.sols.length>=MAX_PER_SPACE){ toast(`Cet espace est complet (${MAX_PER_SPACE} solutions max) — aménage un nouvel espace`,'warn'); return; }
+  if(sp.sols.length>=MAX_PER_SPACE){ toast(`Cet espace est complet (${MAX_PER_SPACE} solutions max), aménage un nouvel espace`,'warn'); return; }
   if(S.graines < s.cout){ toast(`Pas assez de Graines (${s.cout}🌰)`,'warn'); return; }
   S.graines -= s.cout;
   const vad = s.vadance + ((s.clim==='fraicheur' && S.pcomps.has('eau')) ? 1 : 0);
@@ -1798,7 +1798,7 @@ function ecoSection(){
   const em=S.ecoMissions||{};
   const proven=Object.values(em).filter(v=>v==='proven').length;
   let h=`<div class="lieu-title" style="margin-top:.3rem">🌍 Défis écolo du quotidien <span style="font-size:.66rem;opacity:.7;font-weight:600">· ${proven} prouvé(s)</span></div>`;
-  h+=`<div class="hint">💡 La règle d'or d'EVAD, à vivre ici : <b>relever un défi = une promesse (Vadance ✨)</b>. <b>Fournir la preuve = de la Vadité 🌿 vérifiée</b> — et des Graines à dépenser à la place de marché. Vérifié bat certifié.</div>`;
+  h+=`<div class="hint">💡 La règle d'or d'EVAD, à vivre ici : <b>relever un défi = une promesse (Vadance ✨)</b>. <b>Fournir la preuve = de la Vadité 🌿 vérifiée</b>, et des Graines à dépenser à la place de marché. Vérifié bat certifié.</div>`;
   h+=`<div class="cards-grid" style="margin-bottom:1.3rem">`;
   ECO_MISSIONS.forEach(m=>{
     const st=em[m.id];
@@ -1826,7 +1826,7 @@ function proofModal(id){
   openModal(`
     <div class="mb-ic">📎</div>
     <h2>Prouver : ${m.t}</h2>
-    <p>Une promesse (<b>Vadance ✨</b>) ne compte vraiment qu'une fois <b>prouvée</b>. Ta preuve la transforme en <b>Vadité 🌿</b> vérifiée — c'est tout l'esprit d'EVAD.</p>
+    <p>Une promesse (<b>Vadance ✨</b>) ne compte vraiment qu'une fois <b>prouvée</b>. Ta preuve la transforme en <b>Vadité 🌿</b> vérifiée, c'est tout l'esprit d'EVAD.</p>
     <div class="mb-detail">📸 <b>Preuve attendue :</b> ${m.proof}</div>
     <textarea id="proof-txt" placeholder="Décris ta preuve, colle un lien ou une note…" style="width:100%;border:1px solid var(--line);border-radius:12px;padding:.7rem;font-family:var(--font);font-size:.85rem;min-height:70px;margin-bottom:.5rem;resize:vertical"></textarea>
     <button class="btn btn-primary" style="width:100%" onclick="submitProof('${id}')">Envoyer la preuve au Pilote ✅</button>
@@ -2057,7 +2057,7 @@ function renderDash(){
         <div class="det-fact"><div class="df-lab">💶 Total investi</div><div class="df-val">${invest} €</div></div>
         <div class="det-fact"><div class="df-lab">🏷️ Référentiels couverts</div><div class="df-val">${S.refs.size} / 4</div></div>
       </div>
-      <div style="font-size:.72rem;color:var(--moss);opacity:.88;line-height:1.5"><b>${vf} points de Vadité vérifiée</b> pour ${invest} € investis — soit <b>${roer} points pour 100 €</b>. La preuve fidélise : ta Vadité financée renouvelle ton budget chaque saison. Investir dans le prouvé, c'est un actif, pas une charge.</div>
+      <div style="font-size:.72rem;color:var(--moss);opacity:.88;line-height:1.5"><b>${vf} points de Vadité vérifiée</b> pour ${invest} € investis, soit <b>${roer} points pour 100 €</b>. La preuve fidélise : ta Vadité financée renouvelle ton budget chaque saison. Investir dans le prouvé, c'est un actif, pas une charge.</div>
     </div>`;
   }
   // saison / VADE
@@ -2136,12 +2136,12 @@ function carteClick(type,id){
     const l=carteLieux().find(x=>x.id===id); if(!l) return;
     if(l.you){ toast('🌟 La Friche des Possibles, ton lieu. Reconnu, il inspirera dix autres lieux.','win'); return; }
     let msg=`🏡 ${l.name} · ${l.ville}`;
-    if(S.profile==='semeur'){ if(l.fin) msg+=` — 🌿 ${lieuVadite(l.id)} points de Vadité financée ici`; else if(l.openF) msg+=` — ${l.openF} besoin(s) à financer`; }
-    else if(S.profile==='batisseur'){ if(l.done) msg+=` — ✅ ${l.done} mission(s) accomplie(s)`; else if(l.openM) msg+=` — ${l.openM} mission(s) ouverte(s)`; }
-    else msg+=' — lieu du réseau EVAD';
+    if(S.profile==='semeur'){ if(l.fin) msg+=`, 🌿 ${lieuVadite(l.id)} points de Vadité financée ici`; else if(l.openF) msg+=`, ${l.openF} besoin(s) à financer`; }
+    else if(S.profile==='batisseur'){ if(l.done) msg+=`, ✅ ${l.done} mission(s) accomplie(s)`; else if(l.openM) msg+=`, ${l.openM} mission(s) ouverte(s)`; }
+    else msg+=', lieu du réseau EVAD';
     toast(msg,'win');
-  } else if(type==='bat'){ const b=carteBats().find(x=>x.id===id); if(b) toast(`🌿 ${b.name}${b.you?' (toi)':''} — ${b.metier} · ${b.ville}`); }
-  else { const s=carteSems().find(x=>x.id===id); if(s) toast(`🌾 ${s.name}${s.you?' (toi)':''}${s.meta?' — '+s.meta:''}`); }
+  } else if(type==='bat'){ const b=carteBats().find(x=>x.id===id); if(b) toast(`🌿 ${b.name}${b.you?' (toi)':''}, ${b.metier} · ${b.ville}`); }
+  else { const s=carteSems().find(x=>x.id===id); if(s) toast(`🌾 ${s.name}${s.you?' (toi)':''}${s.meta?', '+s.meta:''}`); }
 }
 function renderCarte(){
   const el=document.getElementById('view-carte');
@@ -2244,7 +2244,7 @@ const MKT_OFFERS=[
 function renderMarche(){
   const el=document.getElementById('view-marche');
   const f=S.mktFilter||'all';
-  let h=`<div class="sect-sub">La <b>place de marché</b> du réseau EVAD : convertis tes Graines gagnées en <b>avantages locaux</b> proposés par les lieux — alimentation, formation, artisanat, services. Les Graines circulent, l'économie locale vit. <i>Les Graines ne s'achètent pas en euros : elles se gagnent par l'action.</i></div>`;
+  let h=`<div class="sect-sub">La <b>place de marché</b> du réseau EVAD : convertis tes Graines gagnées en <b>avantages locaux</b> proposés par les lieux, alimentation, formation, artisanat, services. Les Graines circulent, l'économie locale vit. <i>Les Graines ne s'achètent pas en euros : elles se gagnent par l'action.</i></div>`;
   h+=`<div style="font-size:.74rem;color:var(--moss);opacity:.85;margin-bottom:.7rem;font-weight:700">🌰 ${S.graines} Graines à dépenser${(S.purchases&&S.purchases.length)?' · 🎒 '+S.purchases.length+' échange(s) réalisé(s)':''}</div>`;
   const cats=[['all','Tout']].concat(Object.keys(MKT_CATS).map(k=>[k,MKT_CATS[k].label]));
   h+=`<div class="cats">${cats.map(c=>{const on=f===c[0];const col=c[0]==='all'?'var(--forest)':MKT_CATS[c[0]].color;return `<button class="cat-pill ${on?'on':''}" style="${on?`background:${col};border-color:${col}`:''}" onclick="S.mktFilter='${c[0]}';render()">${c[1]}</button>`;}).join('')}</div><div style="height:.7rem"></div>`;
@@ -2329,7 +2329,7 @@ function reseauPost(p){
   </div>`;
 }
 function reseauCta(kind,who){
-  const m={quete:'🙌 Tu rejoins la quête de '+who+' — rendez-vous sur place !',rencontre:'📅 Créneau proposé à '+who+', à confirmer.',info:'👀 Fiche du lieu bientôt disponible.'}[kind]||'Envoyé.';
+  const m={quete:'🙌 Tu rejoins la quête de '+who+', rendez-vous sur place !',rencontre:'📅 Créneau proposé à '+who+', à confirmer.',info:'👀 Fiche du lieu bientôt disponible.'}[kind]||'Envoyé.';
   S.badges.add('reseau'); markFirstAct('reseau');
   toast(m,'win'); render();
 }
@@ -2676,7 +2676,7 @@ function renderDevaChat(){
     : `<div class="dm-deva"><div class="dm-tag">DEVA</div><div class="dm-body">${m.html}</div></div>`).join('');
   box.scrollTop=box.scrollHeight;
 }
-// Coût estimé d'UNE question (ordre de grandeur, modèle frugal) — fixe, comme le prototype.
+// Coût estimé d'UNE question (ordre de grandeur, modèle frugal), fixe, comme le prototype.
 const ECO_PER_MSG={wh:1.5,water:18,co2:0.9};
 function ecoWh(wh){ return wh>=1000?(wh/1000).toFixed(2).replace('.',',')+' kWh':(wh<10?wh.toFixed(1).replace('.',','):Math.round(wh))+' Wh'; }
 function ecoWater(ml){ return ml>=1000?(ml/1000).toFixed(ml>=10000?1:2).replace('.',',')+' L':Math.round(ml)+' mL'; }
