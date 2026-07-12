@@ -235,6 +235,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .seal{position:absolute;top:-8px;right:-6px;font-size:.9rem}
 .mini-btn{border-radius:8px;padding:.28rem .5rem;font-size:.62rem;font-weight:800;background:var(--cream);color:var(--moss);white-space:nowrap}
 .mini-btn.gold{background:#fff5da;color:var(--amber)}
+.mini-btn.sem{background:#e9f2fb;color:var(--sky)}
+.prove-btns{display:flex;flex-direction:column;gap:.28rem;flex-shrink:0}
 
 /* Bibliothèque cards */
 .biblio-head{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.8rem}
@@ -1338,7 +1340,7 @@ const HOWTO = {
     goal:`Atteindre <b>30 points de Vadité</b> (impact prouvé) pour que ton lieu devienne un living lab reconnu du réseau.`,
     steps:[
       ['🧩',`Installe des <b>solutions</b> de la Bibliothèque dans tes espaces : elles créent de la <b>Vadance</b> (impact promis).`],
-      ['📊',`Mesure-les avec un <b>ICI</b>, puis fais <b>valider la preuve par un Bâtisseur</b> : ta Vadance devient <b>Vadité</b> (impact prouvé). Vérifié bat certifié.`],
+      ['📊',`Mesure-les avec un <b>ICI</b>, puis fais valider la preuve par le réseau, un <b>Bâtisseur</b> (terrain) ou un <b>Semeur</b> (financement) : ta Vadance devient <b>Vadité</b>. Vérifié bat certifié.`],
       ['🔄',`Relie tes espaces en <b>boucles</b> circulaires pour récolter des <b>Graines</b> 🌰 chaque saison.`],
       ['⏳',`Clique <b>« Saison ▸ »</b> en haut pour faire avancer le temps : ça produit, ça rapporte, des aléas surviennent.`],
       ['🎯',`Suis la <b>mission en cours</b> sous la spirale VADE : elle t'indique quoi faire pour passer à l'étape suivante.`],
@@ -1669,8 +1671,8 @@ function spaceCard(sp){
   }
   sp.sols.forEach(inst=>{
     const s=SOL[inst.id]; const meas=inst.ici; const proven=inst.ici&&inst.proven; const vad=inst.vad||s.vadance;
-    const stateTxt = proven ? '✅ Prouvé par un Bâtisseur · '+ICI[inst.ici].ic+' '+ICI[inst.ici].name
-      : meas ? '🕓 Mesuré · preuve en attente d\'un Bâtisseur'
+    const stateTxt = proven ? (inst.finance?'✅ Prouvé · financé par un Semeur · ':'✅ Prouvé par un Bâtisseur · ')+ICI[inst.ici].ic+' '+ICI[inst.ici].name
+      : meas ? '🕓 Mesuré · preuve à valider (Bâtisseur ou Semeur)'
       : '✨ '+vad+' '+pts(vad)+' de Vadance, à mesurer';
     const stateCol = proven ? 'var(--forest)' : (meas ? 'var(--sky)' : 'var(--amber)');
     h+=`<div class="sol-chip ${proven?'vadite':'vadance'}">
@@ -1678,7 +1680,7 @@ function spaceCard(sp){
       <span class="sic">${s.ic}</span>
       <div class="sinfo"><div class="sname">${s.name}</div>
       <div class="sstate" style="color:${stateCol}">${stateTxt}</div></div>
-      ${!meas?measureBtn(sp.id,inst.id,selIci):(!proven?`<button class="mini-btn gold" onclick="event.stopPropagation();proveByBatisseur('${sp.id}','${inst.id}')">🌿 Preuve d'un Bâtisseur</button>`:'')}
+      ${!meas?measureBtn(sp.id,inst.id,selIci):(!proven?`<div class="prove-btns"><button class="mini-btn gold" onclick="event.stopPropagation();proveByBatisseur('${sp.id}','${inst.id}')">🌿 Preuve · Bâtisseur</button><button class="mini-btn sem" onclick="event.stopPropagation();proveBySemeur('${sp.id}','${inst.id}')">🌾 Financer · Semeur</button></div>`:'')}
     </div>`;
   });
   h+=`</div>`;
@@ -1701,7 +1703,7 @@ function pilotBiblio(){
     const sols=(S.catFilter&&S.catFilter!=='all')?SOLUTIONS.filter(s=>s.cat===S.catFilter):SOLUTIONS;
     h+=`<div class="cards-grid">${sols.map(s=>solutionCard(s.id)).join('')}</div>`;
   } else if(bt==='ici'){
-    h+=`<div class="biblio-row-desc">Sélectionne un ICI, puis clique « Mesurer » sur une solution. La mesure devient <b>Vadité vérifiée</b> quand un <b>Bâtisseur en fournit la preuve</b> (bouton « Preuve d'un Bâtisseur » sur la solution).</div>`;
+    h+=`<div class="biblio-row-desc">Sélectionne un ICI, puis clique « Mesurer » sur une solution. La mesure devient <b>Vadité vérifiée</b> quand la preuve est apportée par le réseau : un <b>Bâtisseur</b> (vérification de terrain) ou un <b>Semeur</b> (finance la vérification).</div>`;
     h+=`<div class="cards-grid">${Object.keys(ICI).map(iciCard).join('')}</div>`;
   } else {
     h+=`<div class="biblio-row-desc">Acquiers des compétences pour <b>débloquer</b> des solutions et <b>booster</b> ta production chaque saison.</div>`;
@@ -1937,10 +1939,21 @@ function proveByBatisseur(spaceId, solId){
   const sp=S.spaces.find(x=>x.id===spaceId); if(!sp) return;
   const inst = solId ? sp.sols.find(x=>x.id===solId) : sp;
   if(!inst || !inst.ici || inst.proven) return;
-  inst.proven=true;
-  S.badges.add('reseau'); markFirstAct('reseau');
+  inst.proven=true; inst.finance=false;
+  S.reseauBat=true; S.badges.add('reseau'); markFirstAct('reseau');
   const s = solId ? SOL[inst.id] : null;
   toast(`🌿 Un Bâtisseur a fourni la preuve pour « ${s?s.name:sp.name} » : ta Vadité est validée ✅`,'win');
+  render();
+}
+function proveBySemeur(spaceId, solId){
+  const sp=S.spaces.find(x=>x.id===spaceId); if(!sp) return;
+  const inst = solId ? sp.sols.find(x=>x.id===solId) : sp;
+  if(!inst || !inst.ici || inst.proven) return;
+  inst.proven=true; inst.finance=true;
+  S.reseauSem=true; S.badges.add('reseau'); markFirstAct('reseau');
+  S.refs = new Set([...S.refs, ...ICI[inst.ici].refs.map(r=>r.split(' ')[0])]);
+  const s = solId ? SOL[inst.id] : null;
+  toast(`🌾 Un Semeur a financé la vérification de « ${s?s.name:sp.name} » : Vadité validée, référentiels couverts ✅`,'win');
   render();
 }
 function acquireComp(id){
