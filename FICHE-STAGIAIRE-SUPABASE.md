@@ -35,7 +35,7 @@ Le jeu étant en ligne, **Supabase est la source de vérité** : au démarrage, 
 
 ## 3. Accès & sécurité
 
-- **Projet Supabase** existant : `https://lmhhrccmgebztioesmik.supabase.co` (demande à Romain l'accès au dashboard).
+- **Projet Supabase** existant : `https://lmhhrccmgebztioesmik.supabase.co` (tu y as déjà accès).
 - Pour la **lecture publique** depuis le jeu : on utilise la **clé anon / publishable** (comme pour le feedback). Elle peut vivre dans le HTML, c'est fait pour.
 - Pour **écrire/administrer** (créer les tables, insérer) : passe par le dashboard Supabase (SQL Editor) ou une clé `service_role`. **La `service_role` ne doit JAMAIS être commitée ni mise dans le HTML.**
 - Active la **RLS** sur les 3 tables avec une policy **lecture seule** pour le rôle `anon` (voir §5). Aucune écriture publique.
@@ -281,6 +281,5 @@ try {
 
 ## 10. Questions à poser avant de démarrer
 
-- Accès au dashboard Supabase (rôle éditeur) ?
 - Confirme-t-on **une seule** table `competences` (avec `profil`) plutôt que deux tables séparées ?
 - Faut-il aussi externaliser les **catégories** (`CATS`) et **référentiels** (`REFS`), ou on les garde en dur pour la V1 ?
