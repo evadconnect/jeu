@@ -368,19 +368,7 @@ try {
 - [ ] Aucune clé `service_role` dans le dépôt.
 - [ ] Doc `supabase/README.md` livrée (connexion, ajout d'une carte, validation par le CR).
 
-## 10. Étapes conseillées
-
-1. Lire ce fichier + repérer les 4 blocs de données dans `index.html` (`SOLUTIONS`, `ICI`, `COMPETENCES`, `PCOMP`) et leurs dérivés (`SOL`, `SOL_COUT`, `SOL_LOCK`).
-2. Écrire `schema.sql` (tables + colonnes de validation + RLS), l'exécuter dans le SQL Editor de Supabase.
-3. Générer `seed.sql` depuis le HTML, au statut `valide` (un petit script Node/Python qui transforme les tableaux JS en `INSERT` fait gagner du temps et évite les fautes de recopie).
-4. Vérifier la lecture `anon` via l'URL REST dans le navigateur (on ne voit que le `valide`).
-5. Brancher `loadData()` + les fonctions `apply*` avec le remapping, tester le jeu en ligne.
-6. Développer l'**interface de validation CR** : connexion lien magique, file `en_revue`, valider / rejeter.
-7. Tester le circuit complet : créer une proposition `en_revue`, la valider dans l'interface, vérifier qu'elle apparaît dans le jeu après rechargement.
-8. Tester le cas d'erreur (Supabase injoignable) : message clair, bouton réessayer.
-9. Écrire la doc, ouvrir une PR.
-
-## 11. Questions à poser avant de démarrer
+## 10. Questions à poser avant de démarrer
 
 - Confirme-t-on **une seule** table `competences` (avec `profil`) plutôt que deux tables séparées ?
 - Faut-il aussi externaliser les **catégories** (`CATS`) et **référentiels** (`REFS`), ou on les garde en dur pour la V1 ?
