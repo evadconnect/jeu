@@ -1004,10 +1004,11 @@ window.addEventListener('resize',()=>{ if(S&&S.tour){ const st=S.tour.steps[S.to
 /* ═══════════════ ONBOARDING DEVA ═══════════════ */
 /* Remontée anonyme des retours Bâtisseur vers Supabase (même table `feedback` que le prototype). */
 const EVAD_STATS_SUPABASE={ url:'https://lmhhrccmgebztioesmik.supabase.co', anonKey:'sb_publishable_M_1-SinRmo1T8exi8_gkvw_RTiHznag', table:'feedback' };
-function sendStat(profile, comp, motivation, free){
+function sendStat(profile, comp, motivation, free, type){
   free=(free||'').trim();
   if(!motivation && !free) return;
   let idee='motivation: '+(motivation||'?');
+  if(type) idee='type: '+type+' · '+idee;
   if(profile==='batisseur' && comp) idee+=' · compétence: '+comp;
   if(free) idee+=' · remarque: '+free.slice(0,500);
   const row={ categorie:'onboarding-'+profile, idee:idee, role:profile, page:'jeu-evad' };
@@ -1016,7 +1017,7 @@ function sendStat(profile, comp, motivation, free){
     try{ fetch(cfg.url.replace(/\/+$/,'')+'/rest/v1/'+cfg.table, { method:'POST', headers:{'Content-Type':'application/json','apikey':cfg.anonKey,'Authorization':'Bearer '+cfg.anonKey,'Prefer':'return=minimal'}, body:JSON.stringify(row) }).catch(()=>{}); }catch(e){}
   }
 }
-function obSteps(){ if(S.profile==='pilote') return ['name','lieuName','type','spaces','motivation']; if(S.profile==='batisseur') return ['name','comp','motivation']; return ['name','motivation']; }
+function obSteps(){ if(S.profile==='pilote') return ['name','lieuName','type','spaces','motivation']; if(S.profile==='batisseur') return ['name','comp','motivation']; return ['name','type','motivation']; }
 const MOTIVATIONS_BY_PROFILE={
   pilote:[
     {id:'faire-pousser', ic:'🌱', label:'Faire pousser un lieu vivant'},
@@ -1040,12 +1041,18 @@ const MOTIVATIONS_BY_PROFILE={
     {id:'decouvrir', ic:'🌾', label:'Découvrir des projets régénératifs'},
   ],
 };
+const SEMEUR_TYPES=[
+  {id:'fondation', ic:'🏛️', name:'Fondation / fonds d\'impact', desc:'Un fonds dédié à l\'impact social et écologique.'},
+  {id:'entreprise', ic:'🏢', name:'Entreprise', desc:'Une société qui investit sa RSE dans le territoire.'},
+  {id:'particulier', ic:'🙋', name:'Particulier', desc:'Un citoyen qui finance à son échelle.'},
+  {id:'collectivite', ic:'🏦', name:'Collectivité', desc:'Un financeur public : région, agence, commune.'},
+];
 function obSelectComp(k){ S.ob.comp=k; renderOnboardingStep(); }
 function obCaptureFree(){ const t=document.getElementById('ob-free'); if(t) S.ob.freeText=t.value; }
 function obSelectMotiv(k){ obCaptureFree(); S.ob.motivation=k; renderOnboardingStep(); }
 function devaOnboarding(){
   if(S.onboarded) return;
-  if(!S.ob) S.ob={step:0, name:'', lieuName:'La Friche des Possibles', type:'jardin', spaces:new Set(), comp:'jardiner', motivation:null, freeText:''};
+  if(!S.ob) S.ob={step:0, name:'', lieuName:'La Friche des Possibles', type:(S.profile==='semeur'?'fondation':'jardin'), spaces:new Set(), comp:'jardiner', motivation:null, freeText:''};
   renderOnboardingStep();
 }
 function renderOnboardingStep(){
@@ -1059,8 +1066,13 @@ function renderOnboardingStep(){
     msg=`Enchantée, <b>${nm}</b> 🌱 Quel <b>nom</b> donnes-tu au lieu que tu vas faire grandir ?`;
     body=`<input class="ob-input" id="ob-lieu" placeholder="Ex. La Canopée, Les Jardins d'Aïcha…" value="${escapeHtml(ob.lieuName)}" maxlength="40" onkeydown="if(event.key==='Enter')obNext()">`;
   } else if(key==='type'){
-    msg=`Beau projet ! Quel <b>type de lieu</b> « ${escapeHtml(ob.lieuName)} » va-t-il devenir ?`;
-    body=`<div class="ob-types">${LIEU_TYPES.map(t=>`<div class="ob-type ${ob.type===t.id?'sel':''}" onclick="obSelectType('${t.id}')"><div class="ot-ic">${t.ic}</div><div class="ot-name">${t.name}</div><div class="ot-desc">${t.desc}</div></div>`).join('')}</div>`;
+    if(S.profile==='semeur'){
+      msg=`Pour mieux te connaître, <b>${nm}</b> : <b>quel type de financeur es-tu ?</b>`;
+      body=`<div class="ob-types">${SEMEUR_TYPES.map(t=>`<div class="ob-type ${ob.type===t.id?'sel':''}" onclick="obSelectType('${t.id}')"><div class="ot-ic">${t.ic}</div><div class="ot-name">${t.name}</div><div class="ot-desc">${t.desc}</div></div>`).join('')}</div>`;
+    } else {
+      msg=`Beau projet ! Quel <b>type de lieu</b> « ${escapeHtml(ob.lieuName)} » va-t-il devenir ?`;
+      body=`<div class="ob-types">${LIEU_TYPES.map(t=>`<div class="ob-type ${ob.type===t.id?'sel':''}" onclick="obSelectType('${t.id}')"><div class="ot-ic">${t.ic}</div><div class="ot-name">${t.name}</div><div class="ot-desc">${t.desc}</div></div>`).join('')}</div>`;
+    }
   } else if(key==='spaces'){
     const t=LIEU_TYPES.find(x=>x.id===ob.type)||LIEU_TYPES[0];
     msg=`Dernière étape : <b>compose tes espaces</b> de départ. Tu pourras en ajouter, en renommer ou en retirer à tout moment.`;
@@ -1112,7 +1124,7 @@ function obNext(){
   renderOnboardingStep();
 }
 function obBack(){ obCaptureFree(); if(S.ob.step>0){ S.ob.step--; renderOnboardingStep(); } }
-function obSelectType(id){ S.ob.type=id; S.ob.spaces=new Set(LIEU_TYPES.find(x=>x.id===id).spaces); renderOnboardingStep(); }
+function obSelectType(id){ S.ob.type=id; const lt=LIEU_TYPES.find(x=>x.id===id); if(lt) S.ob.spaces=new Set(lt.spaces); renderOnboardingStep(); }
 function obToggleSpace(tp){ const s=S.ob.spaces; if(s.has(tp)) s.delete(tp); else s.add(tp); renderOnboardingStep(); }
 function obSkip(){
   const ob=S.ob;
@@ -1140,8 +1152,10 @@ function obFinish(){
   }
   S.motivation=ob.motivation||null;
   const _free=(ob.freeText||'').trim();
-  try{ const prev=JSON.parse(localStorage.getItem('evad_onboarding_stats')||'[]'); prev.push({profile:S.profile, comp:(S.profile==='batisseur'?ob.comp:null), motivation:S.motivation, free:_free.slice(0,500), t:new Date().toISOString()}); localStorage.setItem('evad_onboarding_stats', JSON.stringify(prev.slice(-300))); }catch(e){}
-  sendStat(S.profile, ob.comp, S.motivation, _free);
+  const _type = S.profile==='batisseur' ? null : ob.type;
+  if(S.profile==='semeur') S.semeurType=ob.type;
+  try{ const prev=JSON.parse(localStorage.getItem('evad_onboarding_stats')||'[]'); prev.push({profile:S.profile, type:_type, comp:(S.profile==='batisseur'?ob.comp:null), motivation:S.motivation, free:_free.slice(0,500), t:new Date().toISOString()}); localStorage.setItem('evad_onboarding_stats', JSON.stringify(prev.slice(-300))); }catch(e){}
+  sendStat(S.profile, ob.comp, S.motivation, _free, _type);
   S.ob=null;
   closeModal();
   setupNav();
