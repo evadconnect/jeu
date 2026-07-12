@@ -89,7 +89,8 @@ Le cœur du jeu. Une carte = un objet de `SOLUTIONS`, enrichi par `SOL_COUT` (co
 | `id` | `text` PK | `potager` | clé métier |
 | `nom` | `text` | `Potager en pleine terre` | |
 | `icone` | `text` | `🥬` | emoji |
-| `categorie` | `text` | `alim` | une de : `fraicheur`, `alim`, `energie`, `circulaire` (voir objet `CATS`) |
+| `categorie` | `text` | `alimentaire` | une des 7 catégories (voir tableau ci-dessous) |
+| `complexite` | `text` | `simple` | `simple`, `moderee` ou `complexe` (voir tableau ci-dessous) |
 | `description` | `text` | `Légumes de saison en circuit court.` | |
 | `capacites` | `text[]` | `{terre}` | espaces acceptés : `terre`, `toit`, `piece`, `mur` |
 | `vadance` | `int` | `4` | impact promis à l'installation |
@@ -107,9 +108,33 @@ Le cœur du jeu. Une carte = un objet de `SOLUTIONS`, enrichi par `SOL_COUT` (co
 
 **Relations :**
 - `solutions.ici_id` → `ici.id`
-- `solutions.categorie` → valeur de `CATS` (garde ça en simple `text` + `check`, ou fais une table `categories` si tu veux)
+- `solutions.categorie` → un des 7 codes ci-dessous (`text` + `check`, ou une table `categories` si tu veux)
 - `solutions.competence_requise` → `competences.id` (famille `pilote`)
 - `competences.couvre[]` référence des `solutions.id` (famille `batisseur`)
+
+### Catégories (7) et complexité (3)
+
+Taxonomie officielle des solutions (valeurs autorisées de `categorie`) :
+
+| code | libellé | icône |
+|---|---|---|
+| `eau` | Eau | 💧 |
+| `energie` | Énergie | ⚡ |
+| `construction` | Construction | 🧱 |
+| `alimentaire` | Alimentaire | 🌱 |
+| `dechets` | Déchets | ♻️ |
+| `biodiversite` | Biodiversité | 🌿 |
+| `social` | Social | 🤝 |
+
+Niveau de complexité de mise en œuvre (valeurs autorisées de `complexite`) :
+
+| code | libellé | pastille |
+|---|---|---|
+| `simple` | Simple | 🟢 |
+| `moderee` | Modérée | 🟡 |
+| `complexe` | Complexe | 🔴 |
+
+> **À réconcilier avec le jeu :** aujourd'hui le jeu n'a que **4** catégories (`fraicheur`, `alim`, `energie`, `circulaire`, objet `CATS`) et ne connaît pas la complexité. En adoptant ces 7 catégories, il faut : (1) re-mapper les 13 solutions existantes sur les nouveaux codes, (2) mettre à jour `CATS` (libellés + couleurs) et les boosts `PCOMP` qui ciblent une catégorie (« +1🌰/saison par solution Alimentation/Énergie/Réparation »), (3) décider de l'usage de `complexite` en jeu (simple affichage, ou effet sur le coût/la durée). À caler avec Romain avant de coder le remap.
 
 ---
 
@@ -164,7 +189,8 @@ create table solutions (
   id text primary key,
   nom text not null,
   icone text,
-  categorie text check (categorie in ('fraicheur','alim','energie','circulaire')),
+  categorie text check (categorie in ('eau','energie','construction','alimentaire','dechets','biodiversite','social')),
+  complexite text check (complexite in ('simple','moderee','complexe')),
   description text,
   capacites text[] default '{}',
   vadance int default 0,
@@ -222,8 +248,8 @@ insert into competences (id, profil, nom, icone, cout, description, couleur) val
    '+1🌰/saison par solution Alimentation. Débloque la Serre bioclimatique.', '#2e6b47');
 
 insert into solutions
-  (id, nom, icone, categorie, description, capacites, vadance, graines, cout, ici_id, flux_in, flux_out, dormant, competence_requise, ordre, statut) values
-  ('potager', 'Potager en pleine terre', '🥬', 'alim',
+  (id, nom, icone, categorie, complexite, description, capacites, vadance, graines, cout, ici_id, flux_in, flux_out, dormant, competence_requise, ordre, statut) values
+  ('potager', 'Potager en pleine terre', '🥬', 'alimentaire', 'simple',
    'Légumes de saison en circuit court.', '{terre}', 4, 3, 3, 'biodiv',
    '{compost,eau}', '{legumes,biodechets}', true, null, 10, 'valide');
 ```
@@ -323,7 +349,7 @@ Points d'attention :
 
 1. **Une fois la base branchée, les tableaux en dur ne servent plus.** Tu peux les vider (ou les retirer) : la source de vérité est Supabase. Garde-en éventuellement un jeu minimal pour tes tests locaux, mais ce n'est plus la version de prod.
 2. Les objets `SOL`, `SOL_COUT`, `SOL_LOCK` sont **dérivés** de `SOLUTIONS`. Après avoir chargé depuis Supabase, il faut **reconstruire** `SOL` (`Object.fromEntries(...)`) et reporter `cout` / `competence_requise` sur chaque solution (aujourd'hui fait lignes ~865-868). Regroupe cette logique dans une fonction pour la rejouer après le fetch.
-3. **Mapping des noms** : la base utilise `ici_id`, `capacites`, `flux_in/out`, `competence_requise`, `protege` ; le JS attend `ici`, `cap`, `flux:{in,out}`, `lock`, `protects`. Fais une petite fonction d'adaptation (base → format JS) pour ne pas avoir à renommer partout dans le code.
+3. **Mapping des noms** : la base utilise `ici_id`, `categorie`, `capacites`, `flux_in/out`, `competence_requise`, `protege` ; le JS attend `ici`, `cat`, `cap`, `flux:{in,out}`, `lock`, `protects`. Fais une petite fonction d'adaptation (base → format JS) pour ne pas avoir à renommer partout dans le code. Le champ `complexite` est nouveau (voir §4) : décide de son usage en jeu avec Romain.
 4. Le point d'entrée du jeu (le `DOMContentLoaded` / la fonction d'init) doit devenir **async** : `await loadData()` avant de lancer l'écran d'accueil. Affiche un petit écran de chargement pendant le fetch, et un message d'erreur clair (avec bouton « réessayer ») si Supabase ne répond pas.
 
 Squelette indicatif :
