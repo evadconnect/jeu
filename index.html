@@ -261,6 +261,33 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .defi-banner .df-d{font-size:.82rem;font-weight:700;color:var(--ink);line-height:1.3}
 .defi-banner .df-reward{font-size:.72rem;font-weight:800;color:var(--amber);white-space:nowrap}
 
+/* ══════════════════ VISITE GUIDÉE (coach-marks) ══════════════════ */
+#tour-overlay{position:fixed;inset:0;z-index:44;display:none;background:transparent}
+#tour-overlay.on{display:block}
+.tour-highlight{position:relative;z-index:45;box-shadow:0 0 0 3px var(--sun),0 0 0 9px rgba(240,200,74,.28)!important;border-radius:12px!important;transition:box-shadow .2s}
+#tour-tip{position:fixed;z-index:46;width:min(322px,calc(100vw - 1.6rem));background:#fff;border-radius:18px;
+  box-shadow:0 22px 60px rgba(1,90,68,.32);padding:1.05rem 1.15rem;display:none;animation:pop .22s}
+#tour-tip.on{display:block}
+.tt-caret{position:absolute;width:15px;height:15px;background:#fff;transform:rotate(45deg);box-shadow:0 0 0 rgba(0,0,0,0)}
+#tour-tip.side-bottom .tt-caret{top:-7px}
+#tour-tip.side-top .tt-caret{bottom:-7px}
+#tour-tip.side-right .tt-caret{left:-7px}
+#tour-tip.side-left .tt-caret{right:-7px}
+#tour-tip.side-none .tt-caret{display:none}
+.tt-close{position:absolute;top:.7rem;right:.7rem;width:28px;height:28px;border-radius:50%;background:rgba(1,130,98,.08);color:var(--moss);border:none;cursor:pointer;font-size:.78rem;display:flex;align-items:center;justify-content:center}
+.tt-close:hover{background:rgba(1,130,98,.16)}
+.tt-title{font-size:1rem;font-weight:900;color:var(--ink);margin-bottom:.35rem;padding-right:1.6rem;line-height:1.2}
+.tt-text{font-size:.85rem;line-height:1.5;color:#33564a;margin-bottom:.9rem}
+.tt-foot{display:flex;align-items:center;gap:.55rem}
+.tt-dots{display:flex;gap:.26rem;flex:1;flex-wrap:wrap;align-items:center}
+.tt-dot{width:7px;height:7px;border-radius:50%;background:#cdddd5;transition:all .2s}
+.tt-dot.done{background:var(--sage)}
+.tt-dot.on{background:var(--forest);transform:scale(1.25)}
+.tt-skip{background:none;border:none;color:var(--moss);opacity:.75;font-size:.8rem;font-weight:700;cursor:pointer;flex-shrink:0;font-family:var(--font)}
+.tt-skip:hover{opacity:1}
+.tt-next{background:var(--forest);color:#fff;border:none;border-radius:100px;padding:.55rem 1.1rem;font-weight:800;font-size:.82rem;cursor:pointer;flex-shrink:0;font-family:var(--font);box-shadow:0 5px 14px rgba(1,130,98,.26)}
+.tt-next:hover{background:var(--moss)}
+
 /* ══════════════════ ONBOARDING DEVA ══════════════════ */
 .modal-box.deva-ob{background:linear-gradient(180deg,#123c2e 0%,#0b241b 100%);color:var(--mist);text-align:left;padding:1.35rem;max-width:440px}
 .ob-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.9rem}
@@ -556,6 +583,20 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 <div id="toasts"></div>
 <div id="modal"><div class="modal-box" id="modal-box"></div></div>
 
+<!-- Visite guidée (coach-marks Deva) -->
+<div id="tour-overlay"></div>
+<div id="tour-tip">
+  <div class="tt-caret"></div>
+  <button class="tt-close" onclick="endTour()" title="Fermer">✕</button>
+  <div class="tt-title"></div>
+  <div class="tt-text"></div>
+  <div class="tt-foot">
+    <div class="tt-dots"></div>
+    <button class="tt-skip" onclick="endTour()">Passer</button>
+    <button class="tt-next" onclick="tourNext()">Suivant →</button>
+  </div>
+</div>
+
 <script>
 /* ═══════════════════════════════════════════════════════════════
    EVAD · LE JEU, moteur
@@ -801,9 +842,88 @@ function showOnboarding(){
   `);
 }
 
+/* ═══════════════ VISITE GUIDÉE DEVA ═══════════════ */
+function buildTourSteps(){
+  const nav=NAV[S.profile];
+  const navSel=k=>`.nav-item[data-tab="${k}"]`;
+  const AB={
+    pilote:{a:'Compose tes espaces, installe des solutions et mesure-les avec des ICI pour prouver ton impact.', b:'Le catalogue complet : Solutions à installer, ICI pour mesurer, Compétences pour débloquer et booster.'},
+    batisseur:{a:'Les chantiers ouverts sur les trois lieux du réseau. Accepte une mission, réalise-la, gagne des Graines.', b:'Apprends de nouvelles compétences pour débloquer davantage de missions.'},
+    semeur:{a:'Finance des besoins en euros : la solution ET son ICI sont posés, ta Vadité arrive déjà vérifiée.', b:'Une seule saisie de terrain couvre tous les langages : ODD, ESRS, PCAET, RSE.'},
+  }[S.profile];
+  const nm=S.playerName&&S.playerName!=='toi'?(' '+escapeHtml(S.playerName)):'';
+  const where = S.profile==='pilote' ? ('ton lieu « '+escapeHtml(S.lieuName||'')+' »') : 'ton espace';
+  return [
+    {sel:'#deva-pill', side:'top', title:`Bravo${nm}, c'est parti ! 🎉`, text:`${where.charAt(0).toUpperCase()+where.slice(1)} est prêt. Je te montre l'essentiel en quelques secondes — clique « Suivant », ou « Passer » si tu préfères explorer seul·e.`},
+    {sel:navSel('dash'), side:'right', title:'📊 Tableau de bord', text:'Ta progression, tes badges et ta quête finale, en un coup d\'œil.'},
+    {sel:navSel('a'), side:'right', title:nav[1].ic+' '+nav[1].label, text:AB.a},
+    {sel:navSel('b'), side:'right', title:nav[2].ic+' '+nav[2].label, text:AB.b},
+    {sel:navSel('carte'), side:'right', title:'🗺️ Carte de l\'écosystème', text:'Tu y retrouves tous les lieux de la communauté et leurs quêtes, près de chez toi.'},
+    {sel:'#stats', side:'bottom', title:'Tes ressources', text:'🌰 <b>Graines</b> (agir), ✨ <b>Vadance</b> (impact promis) et 🌿 <b>Vadité</b> (impact prouvé, ta devise).'},
+    {sel:'.season-btn', side:'bottom', title:'⏳ Le temps qui passe', text:'Ce bouton fait avancer la saison : tes espaces produisent, les revenus tombent, et les aléas climatiques arrivent.'},
+    {sel:'#vade-bar', side:'bottom', title:'🌀 La spirale VADE', text:'Valoriser → Activer → Développer → Essaimer : le fil rouge de ta partie, phase après phase.'},
+    {sel:'#deva-pill', side:'top', title:'🌱 Moi, Deva', text:`Un doute, une question ? Clique-moi et demande. À toi de jouer${nm} !`},
+  ];
+}
+function startTour(){
+  if(S.tourDone) return;
+  S.tour={steps:buildTourSteps(), i:0};
+  document.getElementById('tour-overlay').classList.add('on');
+  showTourStep(0);
+}
+function showTourStep(i){
+  const t=S.tour; if(!t) return;
+  if(i>=t.steps.length){ endTour(); return; }
+  t.i=i;
+  const st=t.steps[i];
+  const target=document.querySelector(st.sel);
+  document.querySelectorAll('.tour-highlight').forEach(e=>e.classList.remove('tour-highlight'));
+  if(target) target.classList.add('tour-highlight');
+  const tip=document.getElementById('tour-tip');
+  tip.querySelector('.tt-title').innerHTML=st.title;
+  tip.querySelector('.tt-text').innerHTML=st.text;
+  tip.querySelector('.tt-dots').innerHTML=t.steps.map((_,k)=>`<span class="tt-dot ${k===i?'on':(k<i?'done':'')}"></span>`).join('');
+  tip.querySelector('.tt-next').textContent = i<t.steps.length-1 ? 'Suivant →' : 'C\'est parti ✦';
+  tip.classList.add('on');
+  positionTip(tip, target, st.side);
+}
+function positionTip(tip, target, side){
+  tip.classList.remove('side-top','side-bottom','side-left','side-right','side-none');
+  const tw=tip.offsetWidth, th=tip.offsetHeight, m=14, vw=window.innerWidth, vh=window.innerHeight;
+  if(!target){ tip.style.left=(vw/2-tw/2)+'px'; tip.style.top=(vh/2-th/2)+'px'; tip.classList.add('side-none'); return; }
+  const r=target.getBoundingClientRect();
+  let s=side;
+  const sp={top:r.top, bottom:vh-r.bottom, left:r.left, right:vw-r.right};
+  if(s==='bottom' && sp.bottom<th+m) s='top';
+  else if(s==='top' && sp.top<th+m) s='bottom';
+  if(s==='right' && sp.right<tw+m) s='left';
+  else if(s==='left' && sp.left<tw+m) s='right';
+  let left, top;
+  if(s==='bottom'){ top=r.bottom+m; left=r.left+r.width/2-tw/2; }
+  else if(s==='top'){ top=r.top-th-m; left=r.left+r.width/2-tw/2; }
+  else if(s==='right'){ left=r.right+m; top=r.top+r.height/2-th/2; }
+  else { left=r.left-tw-m; top=r.top+r.height/2-th/2; }
+  left=Math.max(m, Math.min(left, vw-tw-m));
+  top=Math.max(m, Math.min(top, vh-th-m));
+  tip.style.left=left+'px'; tip.style.top=top+'px';
+  tip.classList.add('side-'+s);
+  const caret=tip.querySelector('.tt-caret');
+  if(s==='bottom'||s==='top'){ caret.style.left=Math.max(14,Math.min(r.left+r.width/2-left, tw-14))+'px'; caret.style.top=''; }
+  else { caret.style.top=Math.max(14,Math.min(r.top+r.height/2-top, th-14))+'px'; caret.style.left=''; }
+}
+function tourNext(){ if(S.tour) showTourStep(S.tour.i+1); }
+function endTour(){
+  S.tourDone=true; S.tour=null;
+  document.querySelectorAll('.tour-highlight').forEach(e=>e.classList.remove('tour-highlight'));
+  document.getElementById('tour-tip').classList.remove('on');
+  document.getElementById('tour-overlay').classList.remove('on');
+}
+window.addEventListener('resize',()=>{ if(S&&S.tour){ const st=S.tour.steps[S.tour.i]; positionTip(document.getElementById('tour-tip'), document.querySelector(st.sel), st.side); } });
+
 /* ═══════════════ ONBOARDING DEVA ═══════════════ */
 function obSteps(){ return S.profile==='pilote' ? ['name','lieuName','type','spaces'] : ['name','welcome']; }
 function devaOnboarding(){
+  if(S.onboarded) return;
   if(!S.ob) S.ob={step:0, name:'', lieuName:'La Friche des Possibles', type:'jardin', spaces:new Set()};
   renderOnboardingStep();
 }
@@ -879,6 +999,7 @@ function buildLieu(ob){
 }
 function obFinish(){
   const ob=S.ob;
+  S.onboarded=true;
   S.playerName = ob.name || 'toi';
   if(S.profile==='pilote'){ S.lieuName=ob.lieuName||'La Friche des Possibles'; S.lieuType=ob.type; buildLieu(ob); }
   S.ob=null;
@@ -887,6 +1008,7 @@ function obFinish(){
   S.devaMsgs=[{role:'deva',html:`Ravie de t'accueillir, <b>${escapeHtml(S.playerName)}</b> 🌿 ${devaTip()}`}];
   render();
   toast(`🌿 Bienvenue ${escapeHtml(S.playerName)} !${S.profile==='pilote'?' « '+escapeHtml(S.lieuName)+' » prend racine.':''}`,'win');
+  setTimeout(()=>startTour(), 550);
 }
 
 /* ═══════════════ NAVIGATION (sidebar) ═══════════════ */
