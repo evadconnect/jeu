@@ -134,7 +134,29 @@ Niveau de complexité de mise en œuvre (valeurs autorisées de `complexite`) :
 | `moderee` | Modérée | 🟡 |
 | `complexe` | Complexe | 🔴 |
 
-> **À réconcilier avec le jeu :** aujourd'hui le jeu n'a que **4** catégories (`fraicheur`, `alim`, `energie`, `circulaire`, objet `CATS`) et ne connaît pas la complexité. En adoptant ces 7 catégories, il faut : (1) re-mapper les 13 solutions existantes sur les nouveaux codes, (2) mettre à jour `CATS` (libellés + couleurs) et les boosts `PCOMP` qui ciblent une catégorie (« +1🌰/saison par solution Alimentation/Énergie/Réparation »), (3) décider de l'usage de `complexite` en jeu (simple affichage, ou effet sur le coût/la durée). À caler avec Romain avant de coder le remap.
+### Re-mapping des 13 solutions existantes
+
+Correspondance ancienne catégorie (jeu actuel, objet `CATS` à 4 valeurs) vers la nouvelle taxonomie, avec la complexité proposée. **Ce sont les valeurs à mettre dans le `seed.sql`.**
+
+| id | nom | ancienne cat | **catégorie** | **complexité** |
+|---|---|---|---|---|
+| `potager` | Potager en pleine terre | alim | `alimentaire` | `simple` |
+| `serre` | Serre bioclimatique | alim | `alimentaire` | `moderee` |
+| `rucher` | Rucher partagé | alim | `biodiversite` | `moderee` |
+| `poulailler` | Poulailler | alim | `alimentaire` | `simple` |
+| `compost` | Composteur | circulaire | `dechets` | `simple` |
+| `recup-eau` | Récupérateur d'eau de pluie | fraicheur | `eau` | `simple` |
+| `mur-vegetal` | Mur végétalisé | fraicheur | `biodiversite` | `moderee` |
+| `ombriere` | Ombrière solaire | fraicheur | `energie` | `complexe` |
+| `phyto` | Phytoépuration | fraicheur | `eau` | `complexe` |
+| `solaire` | Panneaux photovoltaïques | energie | `energie` | `moderee` |
+| `atelier` | Atelier de réparation | circulaire | `dechets` | `moderee` |
+| `recyclerie` | Recyclerie de quartier | circulaire | `dechets` | `simple` |
+| `cuisine` | Cuisine partagée | alim | `alimentaire` | `moderee` |
+
+Répartition : `alimentaire` (4), `dechets` (3), `biodiversite` (2), `eau` (2), `energie` (2). Les catégories `construction` et `social` n'ont pas encore de solution : elles serviront aux futures propositions validées par le CR.
+
+> **À réconcilier côté jeu (`index.html`) :** le jeu tourne encore sur les 4 anciennes catégories. En plus du re-mapping ci-dessus, il faudra (1) mettre à jour `CATS` (libellés + couleurs des 7 catégories), (2) adapter les boosts `PCOMP` qui ciblent une catégorie (« +1🌰/saison par solution Alimentation/Énergie/Réparation » pointent vers `alim`/`energie`/`circulaire`), (3) décider de l'usage de `complexite` en jeu (badge d'affichage, ou effet sur le coût/la durée). Le champ `clim: 'fraicheur'` des solutions est indépendant de la catégorie : la parade canicule n'est pas impactée.
 
 ---
 
