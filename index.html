@@ -345,6 +345,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .ob-chips{display:flex;flex-wrap:wrap;gap:.5rem}
 .ob-chip{background:rgba(255,255,255,.06);border:1.5px solid rgba(130,184,148,.2);border-radius:100px;padding:.5rem .9rem;cursor:pointer;color:var(--mist);font-weight:700;font-size:.8rem;transition:all .15s;font-family:var(--font)}
 .ob-chip.on{background:var(--fern);color:#06231a;border-color:var(--fern)}
+.mm-svg{width:100%;max-width:400px;display:block;margin:.1rem auto .5rem}
+.mm-sat{transition:opacity .15s}
+.mm-sat:hover{opacity:.82}
 .ob-list{display:flex;flex-direction:column;gap:.4rem}
 .ob-opt{display:flex;align-items:center;gap:.6rem;text-align:left;width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(130,184,148,.2);border-radius:12px;padding:.65rem .8rem;cursor:pointer;color:var(--mist);font-weight:600;font-size:.84rem;font-family:var(--font);transition:all .15s}
 .ob-opt:hover{background:rgba(255,255,255,.09)}
@@ -1234,6 +1237,33 @@ const SEMEUR_TYPES=[
 function obSelectComp(k){ S.ob.comp=k; renderOnboardingStep(); }
 function obCaptureFree(){ const t=document.getElementById('ob-free'); if(t) S.ob.freeText=t.value; }
 function obSelectMotiv(k){ obCaptureFree(); S.ob.motivation=k; renderOnboardingStep(); }
+function obLieuMindMap(ob){
+  const cx=190, cy=148, cr=40, sr=31;
+  const layout={ terre:[80,70], toit:[300,70], piece:[300,226], mur:[80,226] };
+  const order=['terre','toit','piece','mur'];
+  const FERN='#4aab8f', FOREST='#018262', SAGE='rgba(130,184,148,.32)', MIST='rgba(225,238,228,.82)';
+  let lines='', nodes='';
+  order.forEach(tp=>{
+    const m=TYPE_META[tp]; if(!m) return;
+    const p=layout[tp], x=p[0], y=p[1], on=ob.spaces.has(tp);
+    lines+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="${on?FERN:SAGE}" stroke-width="${on?2:1.5}" stroke-opacity="${on?.85:.45}" ${on?'':'stroke-dasharray="4 5"'}/>`;
+    nodes+=`<g class="mm-sat" onclick="obToggleSpace('${tp}')" style="cursor:pointer">
+      <circle cx="${x}" cy="${y}" r="${sr}" fill="${on?'rgba(74,171,143,.18)':'rgba(255,255,255,.04)'}" stroke="${on?FERN:SAGE}" stroke-width="${on?2:1.5}" ${on?'':'stroke-dasharray="4 5"'}/>
+      <text x="${x}" y="${y+7}" text-anchor="middle" font-size="22">${m.ic}</text>
+      <text x="${x}" y="${y+sr+16}" text-anchor="middle" font-size="12" font-weight="700" fill="${MIST}" font-family="var(--font)">${m.name}</text>
+      <circle cx="${x+sr-7}" cy="${y-sr+7}" r="10" fill="${on?FERN:'rgba(255,255,255,.08)'}" stroke="${on?FERN:SAGE}" stroke-width="1.5"/>
+      <text x="${x+sr-7}" y="${y-sr+11}" text-anchor="middle" font-size="13" font-weight="800" fill="${on?'#06231a':MIST}">${on?'✓':'+'}</text>
+    </g>`;
+  });
+  const nm=ob.lieuName||'Ton lieu', nmShort=nm.length>16?nm.slice(0,15)+'…':nm;
+  const center=`<g>
+    <circle cx="${cx}" cy="${cy}" r="${cr+6}" fill="none" stroke="${FERN}" stroke-opacity=".22" stroke-width="2"/>
+    <circle cx="${cx}" cy="${cy}" r="${cr}" fill="${FOREST}" stroke="${FERN}" stroke-width="2.5"/>
+    <text x="${cx}" y="${cy+3}" text-anchor="middle" font-size="30">🏡</text>
+    <text x="${cx}" y="${cy+cr+20}" text-anchor="middle" font-size="13" font-weight="800" fill="#fff" font-family="var(--font)">${escapeHtml(nmShort)}</text>
+  </g>`;
+  return `<svg viewBox="0 0 380 300" class="mm-svg">${lines}${center}${nodes}</svg>`;
+}
 function devaOnboarding(){
   if(S.onboarded) return;
   if(!S.ob) S.ob={step:0, name:(SESSION&&SESSION.playerName)||PLAYER_NAME||'', lieuName:'La Friche des Possibles', type:(S.profile==='semeur'?'fondation':'jardin'), spaces:new Set(), comp:'jardiner', motivation:null, freeText:''};
@@ -1259,10 +1289,10 @@ function renderOnboardingStep(){
     }
   } else if(key==='spaces'){
     const t=LIEU_TYPES.find(x=>x.id===ob.type)||LIEU_TYPES[0];
-    msg=`Dernière étape : <b>compose tes espaces</b> de départ. Tu pourras en ajouter, en renommer ou en retirer à tout moment.`;
-    body=`<div class="ob-existants">🏡 <b>Déjà en place</b> dans ton lieu : ${t.existants.map(e=>e.ic+' '+e.name).join(' · ')}</div>
-      <div style="font-size:.72rem;color:var(--sage);opacity:.85;margin-bottom:.45rem">Espaces à créer (clique pour activer) :</div>
-      <div class="ob-chips">${['terre','toit','piece','mur'].map(tp=>`<button class="ob-chip ${ob.spaces.has(tp)?'on':''}" onclick="obToggleSpace('${tp}')">${TYPE_META[tp].ic} ${TYPE_META[tp].name}</button>`).join('')}</div>`;
+    const n=ob.spaces.size;
+    msg=`On dessine <b>${escapeHtml(ob.lieuName)}</b> 🌿 Touche un espace pour le faire pousser autour de ton lieu.${n?` <b>${n} espace${n>1?'s':''}</b> pour l'instant.`:''} Rien n'est figé, tu changeras tout plus tard.`;
+    body=`${obLieuMindMap(ob)}
+      <div class="ob-existants">🏡 <b>Déjà en place</b> dans ton lieu : ${t.existants.map(e=>e.ic+' '+e.name).join(' · ')}</div>`;
     nextLabel='Continuer →';
   } else if(key==='comp'){
     msg=`Bienvenue, <b>${nm}</b> 🌿 Chaque Bâtisseur a sa spécialité. <b>Quelle compétence</b> veux-tu maîtriser en arrivant ? Tu démarreras avec.`;
