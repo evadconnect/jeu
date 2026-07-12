@@ -840,7 +840,7 @@ function showOnboarding(){
       <div class="vocab"><span class="v-ic">💶</span><div><div class="v-t">Euros</div><div class="v-d">Monnaie des financements. Circuit séparé.</div></div></div>
       <div class="vocab"><span class="v-ic">✨</span><div><div class="v-t">Vadance</div><div class="v-d">L'impact <i>promis</i>, installé, pas encore mesuré.</div></div></div>
       <div class="vocab"><span class="v-ic">🌿</span><div><div class="v-t">Vadité</div><div class="v-d">L'impact <i>prouvé</i>, un ICI est attaché. Vérifié bat certifié.</div></div></div>
-      <div class="vocab"><span class="v-ic">📊</span><div><div class="v-t">ICI · Indicateur de Convergence d'Impact</div><div class="v-d">Indicateur de terrain qui converge vers ODD, ESRS, PCAET, RSE.</div></div></div>
+      <div class="vocab"><span class="v-ic">📊</span><div><div class="v-t">ICI · Indicateur de Changement d'Impact</div><div class="v-d">Indicateur de terrain qui converge vers ODD, ESRS, PCAET, RSE.</div></div></div>
       <div class="vocab"><span class="v-ic deva-av" style="width:1.5rem;height:1.5rem;display:inline-block"></span><div><div class="v-t">Deva</div><div class="v-d">Votre assistante frugale, en bas à gauche.</div></div></div>
     </div>
     <div class="mb-detail">🎯 <b>Votre première quête (Valoriser) :</b><br>${goalTxt}</div>
@@ -2063,7 +2063,7 @@ function devaAnswer(qraw){
   const q=qraw.toLowerCase();
   const has=(...w)=>w.some(x=>q.includes(x));
   if(has('bonjour','salut','coucou','hello','hey')) return `Bonjour 🌱 Demande-moi ce qu'est un <b>ICI</b>, une <b>boucle</b>, la différence entre <b>Vadance</b> et <b>Vadité</b>, ou comment avancer.<br><br>${devaTip()}`;
-  if(has('ici','indicateur','mesur','prouv')) return `Un <b>ICI</b> (Indicateur de Convergence d'Impact) mesure une chose concrète du terrain (m³ d'eau, repas servis, objets réparés…) et converge automatiquement vers <b>ODD, ESRS, PCAET, RSE</b>. Attache-en un à une solution : sa <b>Vadance</b> (promesse) devient de la <b>Vadité</b> (preuve) 🌿.`;
+  if(has('ici','indicateur','mesur','prouv')) return `Un <b>ICI</b> (Indicateur de Changement d'Impact) mesure une chose concrète du terrain (m³ d'eau, repas servis, objets réparés…) et converge automatiquement vers <b>ODD, ESRS, PCAET, RSE</b>. Attache-en un à une solution : sa <b>Vadance</b> (promesse) devient de la <b>Vadité</b> (preuve) 🌿.`;
   if(has('vadance') && has('vadité','vadite')) return `<b>Vadance</b> ✨ = l'impact <i>promis</i> (installé mais pas mesuré). <b>Vadité</b> 🌿 = l'impact <i>prouvé</i> (un ICI le mesure). Le réseau ne fait confiance qu'à la Vadité : vérifié bat certifié.`;
   if(has('vadance')) return `La <b>Vadance</b> ✨ c'est l'impact <i>promis</i> : tu installes une solution, elle promet un impact. Attache un ICI et cette promesse se convertit en <b>Vadité</b> prouvée, saison après saison.`;
   if(has('vadité','vadite')) return `La <b>Vadité</b> 🌿 c'est l'impact <i>prouvé</i> : dès qu'un ICI mesure une solution, sa Vadance devient Vadité. C'est la devise du réseau.<br><br>${devaTip()}`;
