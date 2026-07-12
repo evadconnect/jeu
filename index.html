@@ -1083,6 +1083,7 @@ function showOnboarding(){
 function buildTourSteps(){
   const nav=NAV[S.profile];
   const navSel=k=>`.nav-item[data-tab="${k}"]`;
+  const navBy=k=>nav.find(n=>n.k===k)||{ic:'',label:''};
   const AB={
     pilote:{a:'Compose tes espaces, installe des solutions et mesure-les avec des ICI pour prouver ton impact.', b:'Le catalogue complet : Solutions à installer, ICI pour mesurer, Compétences pour débloquer et booster.'},
     batisseur:{a:'Les chantiers ouverts sur les trois lieux du réseau. Accepte une mission, réalise-la, gagne des Graines.', b:'Apprends de nouvelles compétences pour débloquer davantage de missions.'},
@@ -1090,11 +1091,11 @@ function buildTourSteps(){
   }[S.profile];
   const nm=S.playerName&&S.playerName!=='toi'?(' '+escapeHtml(S.playerName)):'';
   const where = S.profile==='pilote' ? ('ton lieu « '+escapeHtml(S.lieuName||'')+' »') : 'ton espace';
-  return [
+  const _steps=[
     {sel:'#deva-pill', side:'top', title:`Bravo${nm}, c'est parti ! 🎉`, text:`${where.charAt(0).toUpperCase()+where.slice(1)} est prêt. Je te montre l'essentiel en quelques secondes, clique « Suivant », ou « Passer » si tu préfères explorer seul·e.`},
     {sel:navSel('dash'), side:'right', title:'📊 Tableau de bord', text:'Ta progression, tes badges et ta quête finale, en un coup d\'œil.'},
-    {sel:navSel('a'), side:'right', title:nav[1].ic+' '+nav[1].label, text:AB.a},
-    {sel:navSel('b'), side:'right', title:nav[2].ic+' '+nav[2].label, text:AB.b},
+    {sel:navSel('a'), side:'right', title:navBy('a').ic+' '+navBy('a').label, text:AB.a},
+    {sel:navSel('b'), side:'right', title:navBy('b').ic+' '+navBy('b').label, text:AB.b},
     {sel:navSel('reseau'), side:'right', title:'🌐 Réseau EVAD', text:'La communauté des trois profils. C\'est ici qu\'un lieu propose une quête, qu\'un bâtisseur donne un coup de main, qu\'un semeur avance des fonds.'},
     {sel:navSel('carte'), side:'right', title:'🗺️ Carte de l\'écosystème', text:'Tu y retrouves tous les lieux de la communauté et leurs quêtes, près de chez toi.'},
     {sel:'#stats', side:'bottom', title:'Tes ressources', text:'🌰 <b>Graines</b> (agir), ✨ <b>Vadance</b> (impact promis) et 🌿 <b>Vadité</b> (impact prouvé, ta devise).'},
@@ -1102,6 +1103,7 @@ function buildTourSteps(){
     {sel:'#vade-bar', side:'bottom', title:'🌀 La spirale VADE', text:'Valoriser → Activer → Développer → Essaimer : le fil rouge de ta partie, phase après phase.'},
     {sel:'#deva-pill', side:'top', title:'🌱 Moi, Deva', text:`Un doute, une question ? Clique-moi et demande. À toi de jouer${nm} !`},
   ];
+  return _steps.filter(s=>!/nav-item/.test(s.sel) || document.querySelector(s.sel));
 }
 function startTour(){
   if(S.tourDone) return;
@@ -1329,8 +1331,7 @@ const RESEAU_NAV = {k:'reseau',ic:'🌐',label:'Réseau',title:'Réseau EVAD',su
 const MARCHE_NAV = {k:'marche',ic:'🛒',label:'Place de marché',title:'Place de marché',sub:'Convertis tes Graines en avantages locaux proposés par les lieux du réseau EVAD.'};
 const NAV = {
   pilote:[
-    {k:'dash',ic:'📊',label:'Tableau de bord',title:'Tableau de bord',sub:'Ta progression, tes boucles, tes badges et ta quête finale.'},
-    {k:'a',ic:'🏡',label:'Mon lieu',title:'Mon lieu · La Friche des Possibles',sub:'Compose tes espaces, installe des solutions, attache des ICI et tisse des boucles circulaires.'},
+    {k:'a',ic:'🏡',label:'Mon lieu',title:'Mon lieu · La Friche des Possibles',sub:'Ton tableau de bord et ton lieu réunis : suis ta progression, compose, installe et mesure.'},
     {k:'b',ic:'📚',label:'Bibliothèque',title:'Bibliothèque complète',sub:'Solutions, ICI et compétences. Sélectionne une carte, puis place-la dans ton lieu.'},
     RESEAU_NAV,
     CARTE_NAV,
@@ -1413,7 +1414,7 @@ function renderTopbar(){
 /* ═══════════════ PILOTE, Mon lieu ═══════════════ */
 function renderTabA(){
   const el=document.getElementById('view-a');
-  if(S.profile==='pilote') el.innerHTML=pilotLieu();
+  if(S.profile==='pilote') el.innerHTML=dashHTML()+pilotLieu();
   else if(S.profile==='batisseur') el.innerHTML=batisseurMissions();
   else el.innerHTML=semeurFinance();
 }
@@ -2052,8 +2053,7 @@ function semeurRefs(){
 function refCoverage(k){ let n=0; S.financed.forEach(f=>{ if(!f.pending && ICI[SOL[f.sol].ici].refs.some(r=>r.startsWith(k))) n++; }); return n; }
 
 /* ═══════════════ TABLEAU DE BORD ═══════════════ */
-function renderDash(){
-  const el=document.getElementById('view-dash');
+function dashHTML(){
   const P=PROFILS[S.profile];
   const vad = S.profile==='semeur'?S.vaditeFin:S.vadite;
   const prog = Math.min(100, vad/P.goal*100);
@@ -2111,8 +2111,9 @@ function renderDash(){
   if(S.profile==='semeur' && S.vaditeFin>=P.goal){
     h+=`<div style="height:1rem"></div><button class="btn btn-primary" style="width:100%" onclick="produceReport()">📄 Produire mon rapport d'impact</button>`;
   }
-  el.innerHTML=h;
+  return h;
 }
+function renderDash(){ document.getElementById('view-dash').innerHTML=dashHTML(); }
 function dashStat(ic,num,lab){ return `<div class="dash-stat"><div class="ds-num">${ic} ${num}</div><div class="ds-lab">${lab}</div></div>`; }
 function countProven(){ let n=0; S.spaces.forEach(sp=>{ if(sp.existant&&sp.ici)n++; sp.sols.forEach(x=>{if(x.ici)n++;}); }); return n; }
 function goalLabel(){
