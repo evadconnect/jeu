@@ -813,49 +813,52 @@ const SEASONS = [
    clim : 'fraicheur' (parade canicule) · protects : aléa protégé
 */
 const CATS = {
-  fraicheur:  {label:'🌊 Fraîcheur',   color:'#3a6e8c'},
-  alim:       {label:'🌾 Alimentation',color:'#2e6b47'},
-  energie:    {label:'☀️ Énergie',     color:'#c8732a'},
-  circulaire: {label:'♻️ Réparation',  color:'#a06c00'},
+  eau:          {label:'💧 Eau',          color:'#3a6e8c'},
+  energie:      {label:'⚡ Énergie',       color:'#c8732a'},
+  construction: {label:'🧱 Construction',  color:'#8a6d3b'},
+  alimentaire:  {label:'🌱 Alimentaire',   color:'#2e6b47'},
+  dechets:      {label:'♻️ Déchets',       color:'#a06c00'},
+  biodiversite: {label:'🌿 Biodiversité',  color:'#4aab8f'},
+  social:       {label:'🤝 Social',        color:'#7a6ea8'},
 };
 const SOLUTIONS = [
-  {id:'potager',   name:'Potager en pleine terre', ic:'🥬', cat:'alim', cap:['terre'],
+  {id:'potager',   name:'Potager en pleine terre', ic:'🥬', cat:'alimentaire', cap:['terre'],
    desc:'Légumes de saison en circuit court.', vadance:4, graines:3, ici:'biodiv',
    flux:{in:['compost','eau'],out:['legumes','biodechets']}, dormant:true},
-  {id:'serre',     name:'Serre bioclimatique', ic:'🏡', cat:'alim', cap:['terre'],
+  {id:'serre',     name:'Serre bioclimatique', ic:'🏡', cat:'alimentaire', cap:['terre'],
    desc:'Produit même l\'hiver, protège du gel.', vadance:5, graines:4, ici:'biodiv',
    flux:{in:['eau'],out:['legumes']}, protects:'gel', winter:true},
-  {id:'rucher',    name:'Rucher partagé', ic:'🐝', cat:'alim', cap:['terre','toit'],
+  {id:'rucher',    name:'Rucher partagé', ic:'🐝', cat:'biodiversite', cap:['terre','toit'],
    desc:'Pollinisation et miel local.', vadance:3, graines:2, ici:'biodiv',
    flux:{in:[],out:['pollinisation']}, dormant:true},
-  {id:'poulailler',name:'Poulailler', ic:'🐔', cat:'alim', cap:['terre'],
+  {id:'poulailler',name:'Poulailler', ic:'🐔', cat:'alimentaire', cap:['terre'],
    desc:'Œufs, et valorise les restes de cuisine.', vadance:3, graines:3, ici:'biodechets',
    flux:{in:['restes'],out:['fumier']}, dormant:true},
-  {id:'compost',   name:'Composteur', ic:'🪱', cat:'circulaire', cap:['terre','piece'],
+  {id:'compost',   name:'Composteur', ic:'🪱', cat:'dechets', cap:['terre','piece'],
    desc:'Transforme les biodéchets en terreau.', vadance:3, graines:2, ici:'dechets',
    flux:{in:['biodechets'],out:['compost']}},
-  {id:'recup-eau', name:'Récupérateur d\'eau de pluie', ic:'💧', cat:'fraicheur', cap:['toit'],
+  {id:'recup-eau', name:'Récupérateur d\'eau de pluie', ic:'💧', cat:'eau', cap:['toit'],
    desc:'Stocke la pluie pour arroser et rafraîchir.', vadance:4, graines:2, ici:'eau',
    flux:{in:[],out:['eau']}, clim:'fraicheur', protects:'secheresse'},
-  {id:'mur-vegetal',name:'Mur végétalisé', ic:'🌿', cat:'fraicheur', cap:['mur','terre'],
+  {id:'mur-vegetal',name:'Mur végétalisé', ic:'🌿', cat:'biodiversite', cap:['mur','terre'],
    desc:'Rafraîchit et accueille la biodiversité.', vadance:4, graines:2, ici:'biodiv',
    flux:{in:['eau'],out:[]}, clim:'fraicheur'},
-  {id:'ombriere',  name:'Ombrière solaire', ic:'⛱️', cat:'fraicheur', cap:['toit'],
+  {id:'ombriere',  name:'Ombrière solaire', ic:'⛱️', cat:'energie', cap:['toit'],
    desc:'De l\'ombre l\'été, du courant toute l\'année.', vadance:5, graines:3, ici:'energie',
    flux:{in:[],out:['energie']}, clim:'fraicheur'},
-  {id:'phyto',     name:'Phytoépuration', ic:'🪷', cat:'fraicheur', cap:['terre'],
+  {id:'phyto',     name:'Phytoépuration', ic:'🪷', cat:'eau', cap:['terre'],
    desc:'Épure les eaux grises par les plantes.', vadance:4, graines:2, ici:'eau',
    flux:{in:['eauxusees'],out:['eau']}, clim:'fraicheur', protects:'secheresse'},
   {id:'solaire',   name:'Panneaux photovoltaïques', ic:'🔆', cat:'energie', cap:['toit'],
    desc:'Électricité renouvelable et autonomie.', vadance:5, graines:3, ici:'energie',
    flux:{in:[],out:['energie']}},
-  {id:'atelier',   name:'Atelier de réparation', ic:'🔧', cat:'circulaire', cap:['piece'],
+  {id:'atelier',   name:'Atelier de réparation', ic:'🔧', cat:'dechets', cap:['piece'],
    desc:'Répare objets et vélos, protège des tempêtes.', vadance:4, graines:3, ici:'objets',
    flux:{in:[],out:[]}, protects:'tempete'},
-  {id:'recyclerie',name:'Recyclerie de quartier', ic:'♻️', cat:'circulaire', cap:['piece'],
+  {id:'recyclerie',name:'Recyclerie de quartier', ic:'♻️', cat:'dechets', cap:['piece'],
    desc:'Donne une seconde vie aux objets.', vadance:3, graines:2, ici:'dechets',
    flux:{in:[],out:[]}},
-  {id:'cuisine',   name:'Cuisine partagée', ic:'🍲', cat:'alim', cap:['piece'],
+  {id:'cuisine',   name:'Cuisine partagée', ic:'🍲', cat:'alimentaire', cap:['piece'],
    desc:'Repas locaux, et nourrit compost & poulailler.', vadance:4, graines:3, ici:'repas',
    flux:{in:['legumes'],out:['biodechets','restes']}},
 ];
@@ -869,10 +872,10 @@ SOLUTIONS.forEach(s=>{ s.cout=SOL_COUT[s.id]||3; if(SOL_LOCK[s.id]) s.lock=SOL_L
 
 /* ---------- Compétences du Pilote (débloquent & boostent) ---------- */
 const PCOMP={
-  maraichage:{ic:'🌱',name:'Maraîchage',cost:6,desc:'+1🌰/saison par solution Alimentation. Débloque la Serre bioclimatique.'},
+  maraichage:{ic:'🌱',name:'Maraîchage',cost:6,desc:'+1🌰/saison par solution Alimentaire. Débloque la Serre bioclimatique.'},
   energie:{ic:'🔆',name:'Énergie citoyenne',cost:7,desc:'+1🌰/saison par solution Énergie. Débloque Panneaux & Ombrière.'},
   eau:{ic:'💧',name:'Gestion de l\'eau',cost:6,desc:'+1 Vadance à l\'installation des solutions Fraîcheur. Débloque la Phytoépuration.'},
-  reparation:{ic:'🔧',name:'Low-tech & réparation',cost:5,desc:'+1🌰/saison par solution Réparation.'},
+  reparation:{ic:'🔧',name:'Low-tech & réparation',cost:5,desc:'+1🌰/saison par solution Déchets.'},
   mesure:{ic:'📊',name:'Mesure & données',cost:6,desc:'Tes ICI convertissent la Vadance en Vadité deux fois plus vite.'},
   animation:{ic:'🤝',name:'Animation & communs',cost:5,desc:'+1🌰/saison par espace existant (mobilisation citoyenne).'},
 };
@@ -1673,12 +1676,16 @@ function pilotBiblio(){
 }
 /* ═══════════════ ILLUSTRATIONS SOLARPUNK (SVG) ═══════════════ */
 const SKY={
-  alim:{sky:'#dcf0df',hb:'#bfe3c4',hf:'#9bcfa6',sun:'#f2c14e'},
-  fraicheur:{sky:'#d6ecf5',hb:'#bfe0e8',hf:'#a6d5cf',sun:'#f4d06a'},
+  alimentaire:{sky:'#dcf0df',hb:'#bfe3c4',hf:'#9bcfa6',sun:'#f2c14e'},
+  eau:{sky:'#d6ecf5',hb:'#bfe0e8',hf:'#a6d5cf',sun:'#f4d06a'},
   energie:{sky:'#fbe7c9',hb:'#f2d29a',hf:'#e9b978',sun:'#f5a83a'},
-  circulaire:{sky:'#efe7d6',hb:'#ddd0b6',hf:'#c9b894',sun:'#eabf5f'},
+  dechets:{sky:'#efe7d6',hb:'#ddd0b6',hf:'#c9b894',sun:'#eabf5f'},
+  biodiversite:{sky:'#dcf0e8',hb:'#bfe3d4',hf:'#9bcfbb',sun:'#f2c14e'},
+  construction:{sky:'#efe7db',hb:'#ddd0bb',hf:'#c9b894',sun:'#eabf5f'},
+  social:{sky:'#ece6f2',hb:'#dbd0ea',hf:'#c6b6e0',sun:'#efce74'},
   ici:{sky:'#e2e8f2',hb:'#cdd7ea',hf:'#b3c2e0',sun:'#efce74'},
   comp:{sky:'#ece6f2',hb:'#dbd0ea',hf:'#c6b6e0',sun:'#efce74'},
+  alim:{sky:'#dcf0df',hb:'#bfe3c4',hf:'#9bcfa6',sun:'#f2c14e'},
 };
 const MOTIF={
   garden:`<ellipse cx="100" cy="92" rx="46" ry="8" fill="#7d5636"/><rect x="99" y="70" width="2" height="14" fill="#2f7a45"/><circle cx="80" cy="84" r="8" fill="#41a05c"/><circle cx="100" cy="80" r="10" fill="#4cb267"/><circle cx="120" cy="84" r="8" fill="#41a05c"/><circle cx="90" cy="88" r="6" fill="#3f9d5a"/><circle cx="110" cy="88" r="6" fill="#3f9d5a"/>`,
@@ -2619,7 +2626,7 @@ function advanceSeason(){
         const solDorm = dorm && s.dormant && !s.winter;
         if(solDorm) return;
         gains+=Math.max(1,Math.round(s.graines*0.6));
-        if(s.cat==='alim')nAlim++; else if(s.cat==='energie')nEner++; else if(s.cat==='circulaire')nCirc++;
+        if(s.cat==='alimentaire')nAlim++; else if(s.cat==='energie')nEner++; else if(s.cat==='dechets')nCirc++;
         if(inst.ici) vaditeGain+=(inst.vad||s.vadance)*conv;
       });
     });
