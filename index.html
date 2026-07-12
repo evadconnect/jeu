@@ -1007,7 +1007,7 @@ function newState(profile){
     vade:0, vadeCycle:1, badges:new Set(), missionsDone:0, refs:new Set(),
     tab:'a', devaOpen:false,
     // pilote
-    hand:[], spaces:null, sel:null, pcomps:new Set(), lieuName:'La Friche des Possibles', lieuType:'jardin', ob:null, playerName:'', loopsActive:0, loopBadgeShown:false,
+    hand:[], spaces:null, sel:null, pcomps:new Set(), lieuName:'La Friche des Possibles', lieuType:'jardin', ob:null, playerName:'', loopsActive:0, loopBadgeShown:false, vadanceBonus:0,
     mktFilter:'all', purchases:[], ecoMissions:{},
     // batisseur
     comps:new Set(['jardiner','bricoler']), missions:[], // missions actives
@@ -1558,7 +1558,7 @@ function renderTopbar(){
   // stats
   let html=`<span class="stat">🌰 ${S.graines}<span class="lab">Graines</span></span>`;
   if(S.profile==='semeur') html+=`<span class="stat">💶 ${S.euros}<span class="lab">€</span></span>`;
-  html+=`<span class="stat">✨ ${round1(S.vadance)} ${pts(S.vadance)}<span class="lab">Vadance</span></span>`;
+  html+=`<span class="stat">✨ ${round1(curVadance())} ${pts(curVadance())}<span class="lab">Vadance</span></span>`;
   const vad = S.profile==='semeur'?S.vaditeFin:S.vadite;
   html+=`<span class="stat vadite">🌿 ${round1(vad)} / ${PROFILS[S.profile].goal} points<span class="lab">Vadité</span></span>`;
   document.getElementById('stats').innerHTML=html;
@@ -1907,7 +1907,6 @@ function installSelected(spaceId){
   S.graines -= s.cout;
   const vad = s.vadance + ((s.clim==='fraicheur' && S.pcomps.has('eau')) ? 1 : 0);
   sp.sols.push({id:s.id, ici:null, vad});
-  S.vadance += vad;
   S.sel=null;
   markFirstAct('installed');
   toast(`${s.ic} ${s.name} installé · −${s.cout}🌰 · +${vad} ${pts(vad)} de Vadance ✨`,'win');
@@ -2254,7 +2253,7 @@ function dashHTML(opts){
   h+=`<div class="dash-grid">`;
   h+=dashStat('🌰',S.graines,'Graines');
   if(S.profile==='semeur') h+=dashStat('💶',S.euros,'Budget €');
-  h+=dashStat('✨',round1(S.vadance)+' '+pts(S.vadance),'Vadance (promise)');
+  h+=dashStat('✨',round1(curVadance())+' '+pts(curVadance()),'Vadance (promise)');
   h+=dashStat('🌿',round1(vad)+' '+pts(vad),'Vadité (prouvée)');
   if(S.profile==='pilote'){ h+=dashStat('🔄',fluxLoops(installedIds()).length,'Boucles'); h+=dashStat('📊',countProven(),'ICI attachés'); }
   if(S.profile==='batisseur'){ h+=dashStat('✅',S.missionsDone,'Missions faites'); h+=dashStat('🎓',S.comps.size,'Compétences'); }
@@ -2575,21 +2574,21 @@ function reseauActions(){
 }
 function reseauGoto(tab,msg){ S.badges.add('reseau'); markFirstAct('reseau'); if(tab==='a'&&S.profile==='batisseur') S.batSub='missions'; switchTab(tab); toast(msg,'win'); }
 function reseauFreeInstall(cands, measured){
-  for(const id of cands){ const sp=S.spaces.find(x=>!x.existant && x.sols.length===0 && SOL[id].cap.includes(x.type)); if(sp){ sp.sols.push({id, ici: measured?SOL[id].ici:null, vad:SOL[id].vadance}); S.vadance+=SOL[id].vadance; if(measured) S.refs=new Set([...S.refs, ...ICI[SOL[id].ici].refs.map(r=>r.split(' ')[0])]); return {id,sp}; } }
+  for(const id of cands){ const sp=S.spaces.find(x=>!x.existant && x.sols.length===0 && SOL[id].cap.includes(x.type)); if(sp){ sp.sols.push({id, ici: measured?SOL[id].ici:null, vad:SOL[id].vadance}); if(measured) S.refs=new Set([...S.refs, ...ICI[SOL[id].ici].refs.map(r=>r.split(' ')[0])]); return {id,sp}; } }
   return null;
 }
 function reseauOfferBat(){
   S.reseauBat=true; S.badges.add('reseau'); markFirstAct('reseau');
   const done=reseauFreeInstall(['compost','potager','atelier','recyclerie','poulailler','recup-eau','mur-vegetal'], false);
   if(done) toast(`🌿 Léa (Bâtisseuse) a installé ${SOL[done.id].ic} ${SOL[done.id].name} dans « ${done.sp.name} » · +${SOL[done.id].vadance} ${pts(SOL[done.id].vadance)} de Vadance ✨`,'win');
-  else { S.vadance+=3; toast('🌿 Léa a donné un coup de main : +3 points de Vadance ✨ (ton lieu est déjà bien rempli)','win'); }
+  else { addVadance(3); toast('🌿 Léa a donné un coup de main : +3 points de Vadance ✨ (ton lieu est déjà bien rempli)','win'); }
   checkLoops(true); render();
 }
 function reseauOfferSem(){
   S.reseauSem=true; S.badges.add('reseau'); markFirstAct('reseau');
   const done=reseauFreeInstall(['recup-eau','mur-vegetal','phyto','solaire','compost'], true);
   if(done) toast(`🌾 Un Semeur a financé ${SOL[done.id].ic} ${SOL[done.id].name} avec son ICI dans « ${done.sp.name} » · installé ET mesuré 🌿`,'win');
-  else { S.vadance+=4; toast('🌾 Un Semeur t\'a fait une avance : +4 points de Vadance ✨','win'); }
+  else { addVadance(4); toast('🌾 Un Semeur t\'a fait une avance : +4 points de Vadance ✨','win'); }
   checkLoops(true); render();
 }
 
@@ -2598,6 +2597,14 @@ function markFirstAct(act){ S.firstActs.add(act);
   if(!S.badges.has('premiere')){ S.badges.add('premiere'); setTimeout(()=>toastBadge('premiere'),400); }
 }
 function progressValue(){ return S.profile==='pilote'?S.vadite : (S.profile==='batisseur'?S.missionsDone : S.vaditeFin); }
+/* Pilote : la Vadance se calcule à partir des solutions présentes dans les espaces (+ un modificateur d'aléas/entraide) */
+function pilotSolVadance(){ let v=0; (S.spaces||[]).forEach(sp=>sp.sols.forEach(inst=>{ const s=SOL[inst.id]; if(s) v+=(inst.vad!=null?inst.vad:s.vadance); })); return v; }
+function pilotVadance(){ return Math.max(0, pilotSolVadance() + (S.vadanceBonus||0)); }
+function curVadance(){ return S.profile==='pilote' ? pilotVadance() : S.vadance; }
+function addVadance(delta){
+  if(S.profile==='pilote'){ S.vadanceBonus=(S.vadanceBonus||0)+delta; const base=pilotSolVadance(); if(base+S.vadanceBonus<0) S.vadanceBonus=-base; }
+  else { S.vadance=Math.max(0, S.vadance+delta); }
+}
 /* Spirale VADE cyclique : chaque cycle enchaîne V→A→D→E ; en atteignant le palier du cycle,
    on repart de V « un cran plus haut » (cycle N+1). 3 cycles jusqu'à l'objectif. */
 function vadeNextMission(){
@@ -2702,7 +2709,7 @@ function advanceSeason(){
   }
 
   S.graines+=gains;
-  if(S.profile==='pilote'){ S.vadite+=vaditeGain; S.vadance=Math.max(0,S.vadance-vaditeGain); }
+  if(S.profile==='pilote'){ S.vadite+=vaditeGain; }
 
   // 3) aléa climatique
   const hazMsg = rollHazard(sz, yr, msgs);
@@ -2735,8 +2742,8 @@ function rollHazard(sz, yr, msgs){
   if(haz==='canicule'){
     const protectedByFresh = pilotHasFresh() || S.profile!=='pilote';
     if(S.profile==='pilote'){
-      if(pilotHasFresh()){ S.vadance+=3; S.badges.add('fraicheur'); msgs.push('🌊 Îlot de fraîcheur : le quartier se retrouve chez vous · +3 points de Vadance ✨'); }
-      else { S.vadance=Math.max(0,S.vadance-3); msgs.push('🌡️ Sans solution de fraîcheur, votre lieu perd 3 points de Vadance'); }
+      if(pilotHasFresh()){ addVadance(3); S.badges.add('fraicheur'); msgs.push('🌊 Îlot de fraîcheur : le quartier se retrouve chez vous · +3 points de Vadance ✨'); }
+      else { addVadance(-3); msgs.push('🌡️ Sans solution de fraîcheur, votre lieu perd 3 points de Vadance'); }
     }
     return {haz, ic:'🌡️', title:'Canicule', txt:'Un lieu équipé de solutions 🌊 Fraîcheur (eau de pluie, mur végétal, ombrière, phytoépuration) devient un îlot de fraîcheur où le quartier se retrouve, et il gagne. Les autres perdent de la Vadance. Chez les Bâtisseurs, les missions de fraîcheur paient double !'};
   }
@@ -2744,7 +2751,7 @@ function rollHazard(sz, yr, msgs){
     if(S.profile==='pilote'){
       const hasSerre=S.spaces.some(sp=>sp.sols.some(x=>SOL[x.id].winter));
       const hasJardin=S.spaces.some(sp=>sp.type==='jardin'&&sp.sols.length);
-      if(hasJardin && !hasSerre){ S.vadance=Math.max(0,S.vadance-2); msgs.push('❄️ Gel tardif : vos jardins sans serre trinquent · −2 points de Vadance'); }
+      if(hasJardin && !hasSerre){ addVadance(-2); msgs.push('❄️ Gel tardif : vos jardins sans serre trinquent · −2 points de Vadance'); }
       else if(hasSerre){ msgs.push('🏡 Votre serre bioclimatique protège les cultures du gel ✅'); }
     }
     return {haz, ic:'❄️', title:'Gel tardif', txt:'Les jardins sans serre trinquent. Une serre bioclimatique protège les cultures.'};
@@ -2760,8 +2767,8 @@ function rollHazard(sz, yr, msgs){
   if(haz==='secheresse'){
     if(S.profile==='pilote'){
       const hasEau=S.spaces.some(sp=>sp.sols.some(x=>SOL[x.id].protects==='secheresse'));
-      if(hasEau){ S.vadance+=2; msgs.push('💧 Vos réserves d\'eau font la différence · +2 points de Vadance'); }
-      else { S.vadance=Math.max(0,S.vadance-2); msgs.push('☀️ Sécheresse : sans réserve d\'eau, −2 points de Vadance'); }
+      if(hasEau){ addVadance(2); msgs.push('💧 Vos réserves d\'eau font la différence · +2 points de Vadance'); }
+      else { addVadance(-2); msgs.push('☀️ Sécheresse : sans réserve d\'eau, −2 points de Vadance'); }
     }
     return {haz, ic:'☀️', title:'Sécheresse', txt:'Les réserves d\'eau (récupérateur, phytoépuration) font la différence.'};
   }
