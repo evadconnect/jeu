@@ -320,6 +320,48 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .ob-next{margin-left:auto;background:var(--fern);color:#06231a;border:none;border-radius:100px;padding:.7rem 1.4rem;font-weight:800;font-size:.88rem;cursor:pointer;font-family:var(--font);box-shadow:0 6px 18px rgba(1,130,98,.3);transition:background .15s}
 .ob-next:hover{background:var(--sage)}
 
+/* ══════════════════ CARTES RICHES + DÉTAIL ══════════════════ */
+.card2{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform .16s,box-shadow .16s,border-color .16s;display:flex;flex-direction:column}
+.card2:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:rgba(74,140,92,.4)}
+.card2.sel{border-color:var(--forest);box-shadow:0 0 0 3px rgba(1,130,98,.18)}
+.card2.locked{opacity:.62;filter:grayscale(.35)}
+.card2.locked:hover{transform:none;box-shadow:var(--shadow)}
+.c2-media{height:84px;display:flex;align-items:center;justify-content:center;position:relative}
+.c2-emoji{font-size:2.5rem;filter:drop-shadow(0 3px 5px rgba(0,0,0,.12))}
+.c2-flag{position:absolute;top:.5rem;left:.5rem;background:rgba(255,255,255,.92);color:var(--sky);font-size:.58rem;font-weight:800;border-radius:100px;padding:.2rem .5rem;backdrop-filter:blur(3px)}
+.c2-lock{position:absolute;top:.5rem;right:.5rem;background:rgba(255,255,255,.94);color:var(--terracotta);font-size:.56rem;font-weight:800;border-radius:100px;padding:.2rem .5rem}
+.c2-body{padding:.7rem .8rem .75rem;display:flex;flex-direction:column;flex:1}
+.c2-cat{display:flex;align-items:center;gap:.35rem;font-size:.6rem;font-weight:800;color:var(--moss);text-transform:uppercase;letter-spacing:.02em;opacity:.85;margin-bottom:.3rem}
+.c2-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.c2-title{font-size:.9rem;font-weight:800;line-height:1.15;color:var(--ink);margin-bottom:.25rem}
+.c2-desc{font-size:.69rem;color:var(--moss);opacity:.85;line-height:1.35;flex:1;margin-bottom:.6rem}
+.c2-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:.5rem;border-top:1px solid var(--line);padding-top:.5rem}
+.c2-metric .c2-mlab{font-size:.55rem;color:var(--moss);opacity:.7;font-weight:700;text-transform:uppercase;letter-spacing:.02em}
+.c2-metric .c2-mval{font-size:1.02rem;font-weight:900;color:var(--forest);line-height:1.1}
+.c2-cost{font-size:.72rem;font-weight:800;color:var(--amber);background:#f3ede2;border-radius:8px;padding:.25rem .5rem;white-space:nowrap;align-self:center}
+.modal-box.det-modal{padding:0;max-width:480px;text-align:left;overflow:hidden}
+.det-media{height:148px;display:flex;align-items:center;justify-content:center;position:relative}
+.det-emoji{font-size:3.9rem;filter:drop-shadow(0 5px 9px rgba(0,0,0,.16))}
+.det-close{position:absolute;top:.8rem;right:.8rem;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.85);border:none;cursor:pointer;font-size:.9rem;color:var(--ink);display:flex;align-items:center;justify-content:center;transition:background .15s}
+.det-close:hover{background:#fff}
+.det-body{padding:1.15rem 1.3rem 1.35rem}
+.det-title{font-size:1.35rem;font-weight:900;margin:.35rem 0 .4rem;color:var(--ink);line-height:1.15}
+.det-desc{font-size:.9rem;line-height:1.55;color:#33564a;margin-bottom:1rem}
+.det-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-bottom:.9rem}
+.det-fact{background:var(--cream);border-radius:12px;padding:.6rem .7rem}
+.df-lab{font-size:.58rem;font-weight:800;color:var(--moss);opacity:.75;text-transform:uppercase;letter-spacing:.02em;margin-bottom:.2rem}
+.df-val{font-size:.82rem;font-weight:800;color:var(--ink);line-height:1.25}
+.det-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.9rem}
+.det-tag{font-size:.68rem;font-weight:700;border-radius:100px;padding:.3rem .65rem}
+.det-tag.fr{background:#e6f2f8;color:var(--sky)}
+.det-sec{margin-bottom:.85rem}
+.det-sec-t{font-size:.68rem;font-weight:800;color:var(--moss);margin-bottom:.4rem}
+.det-refs{display:flex;flex-wrap:wrap;gap:.35rem}
+.det-refs .pill{font-size:.66rem;padding:.28rem .6rem}
+.det-flux{font-size:.78rem;color:#33564a;line-height:1.5;background:var(--cream);border-radius:10px;padding:.55rem .7rem}
+.det-lock{font-size:.78rem;color:var(--terracotta);background:#fbe9e4;border-radius:10px;padding:.55rem .7rem;margin-bottom:.9rem;line-height:1.45}
+.det-action{width:100%;margin-top:.2rem}
+
 /* ══════════════════ PILOTE : personnalisation & biblio ══════════════════ */
 .lieu-edit-head{display:flex;align-items:center;gap:.5rem;margin:.2rem 0 .1rem}
 .lieu-edit-head h2{font-size:1.3rem;font-weight:900;color:var(--ink)}
@@ -685,6 +727,7 @@ const SOL = Object.fromEntries(SOLUTIONS.map(s=>[s.id,s]));
 /* ---------- Coûts d'installation (Graines) & verrous de compétence ---------- */
 const SOL_COUT={potager:3,serre:5,rucher:2,poulailler:3,compost:2,'recup-eau':3,'mur-vegetal':3,ombriere:5,phyto:4,solaire:5,atelier:3,recyclerie:3,cuisine:3};
 const SOL_LOCK={serre:'maraichage',solaire:'energie',ombriere:'energie',phyto:'eau'};
+const FLUX_LABEL={compost:'compost',eau:'eau',legumes:'légumes',biodechets:'biodéchets',restes:'restes de cuisine',fumier:'fumier',energie:'énergie',pollinisation:'pollinisation',eauxusees:'eaux grises'};
 SOLUTIONS.forEach(s=>{ s.cout=SOL_COUT[s.id]||3; if(SOL_LOCK[s.id]) s.lock=SOL_LOCK[s.id]; });
 
 /* ---------- Compétences du Pilote (débloquent & boostent) ---------- */
@@ -1212,32 +1255,98 @@ function solutionCard(id){
   const s=SOL[id], c=CATS[s.cat];
   const sel=S.sel&&S.sel.type==='solution'&&S.sel.id===id;
   const locked=s.lock&&!S.pcomps.has(s.lock);
-  let tags=`<span class="sc-tag cost">🌰 ${s.cout}</span>
-    <span class="sc-tag">📍 ${s.cap.map(capLabel).join('/')}</span>
-    <span class="sc-tag">✨ ${s.vadance}</span>
-    <span class="sc-tag">${ICI[s.ici].ic} ${ICI[s.ici].name.split(' ')[0]}</span>`;
-  if(s.clim==='fraicheur') tags+=`<span class="sc-tag fr">🌊</span>`;
-  if(s.protects) tags+=`<span class="sc-tag fr">🛡️ ${hazName(s.protects)}</span>`;
-  if(locked) tags+=`<span class="sc-tag" style="background:#fbe9e4;color:var(--terracotta)">🔒 ${PCOMP[s.lock].name}</span>`;
-  const onclick = locked ? `toast('🔒 Débloque « '+PCOMP['${s.lock}'].name+' » dans les Compétences','warn')` : `selectCard('solution','${id}')`;
-  return `<div class="scard ${sel?'sel':''} ${locked?'locked':''}" onclick="${onclick}">
-    <span class="scat" style="background:${c.color}">${c.label.split(' ')[0]}</span>
-    <div class="sc-ic">${s.ic}</div>
-    <div class="sc-name">${s.name}</div>
-    <div class="sc-desc">${s.desc}</div>
-    <div class="sc-tags">${tags}</div>
+  return `<div class="card2 ${sel?'sel':''} ${locked?'locked':''}" onclick="openSolutionDetail('${id}')">
+    <div class="c2-media" style="background:linear-gradient(135deg,${c.color}26,${c.color}0d)">
+      <span class="c2-emoji">${s.ic}</span>
+      ${s.clim==='fraicheur'?'<span class="c2-flag">🌊 Fraîcheur</span>':''}
+      ${locked?`<span class="c2-lock">🔒 ${PCOMP[s.lock].name}</span>`:''}
+    </div>
+    <div class="c2-body">
+      <div class="c2-cat"><span class="c2-dot" style="background:${c.color}"></span>Solution · ${c.label}</div>
+      <div class="c2-title">${s.name}</div>
+      <div class="c2-desc">${s.desc}</div>
+      <div class="c2-foot">
+        <div class="c2-metric"><div class="c2-mlab">Impact promis</div><div class="c2-mval">+${s.vadance} ✨</div></div>
+        <span class="c2-cost">🌰 ${s.cout}</span>
+      </div>
+    </div>
   </div>`;
 }
 function iciCard(id){
   const i=ICI[id]; const sel=S.sel&&S.sel.type==='ici'&&S.sel.id===id;
-  return `<div class="scard ${sel?'sel':''}" onclick="selectCard('ici','${id}')">
-    <span class="scat" style="background:var(--sky)">ICI</span>
-    <div class="sc-ic">${i.ic}</div>
-    <div class="sc-name">${i.name}</div>
-    <div class="sc-desc">Mesuré en ${i.unit}. Convertit la Vadance en Vadité.</div>
-    <div class="sc-tags">${i.refs.map(r=>`<span class="sc-tag">${r}</span>`).join('')}</div>
+  return `<div class="card2 ${sel?'sel':''}" onclick="openIciDetail('${id}')">
+    <div class="c2-media" style="background:linear-gradient(135deg,#3a6e8c26,#3a6e8c0d)"><span class="c2-emoji">${i.ic}</span></div>
+    <div class="c2-body">
+      <div class="c2-cat"><span class="c2-dot" style="background:var(--sky)"></span>Indicateur · ICI</div>
+      <div class="c2-title">${i.name}</div>
+      <div class="c2-desc">Mesuré en ${i.unit}. Convertit la Vadance en Vadité vérifiée.</div>
+      <div class="c2-foot">
+        <div class="c2-metric"><div class="c2-mlab">Référentiels couverts</div><div class="c2-mval" style="color:var(--sky)">${i.refs.length}</div></div>
+        <span class="c2-cost" style="background:#e6f2f8;color:var(--sky)">🔗 ${i.refs.length}</span>
+      </div>
+    </div>
   </div>`;
 }
+/* ---- Détail carte (ouverture en grand) ---- */
+function openDetailModal(html){ const b=document.getElementById('modal-box'); b.className='modal-box det-modal'; b.innerHTML=html; document.getElementById('modal').classList.add('open'); }
+function openSolutionDetail(id){
+  const s=SOL[id], c=CATS[s.cat]; const locked=s.lock&&!S.pcomps.has(s.lock); const ici=ICI[s.ici];
+  const flux=[];
+  const fl=a=>a.map(f=>FLUX_LABEL[f]||f).join(', ');
+  if(s.flux.in.length) flux.push('<b>Consomme</b> : '+fl(s.flux.in));
+  if(s.flux.out.length) flux.push('<b>Produit</b> : '+fl(s.flux.out));
+  let tags='';
+  if(s.clim==='fraicheur') tags+='<span class="det-tag fr">🌊 Îlot de fraîcheur (parade canicule)</span>';
+  if(s.protects) tags+='<span class="det-tag fr">🛡️ Protège : '+hazName(s.protects)+'</span>';
+  openDetailModal(`
+    <div class="det-media" style="background:linear-gradient(135deg,${c.color}30,${c.color}12)">
+      <button class="det-close" onclick="closeModal()">✕</button>
+      <span class="det-emoji">${s.ic}</span>
+    </div>
+    <div class="det-body">
+      <div class="c2-cat"><span class="c2-dot" style="background:${c.color}"></span>Solution · ${c.label}</div>
+      <h2 class="det-title">${s.name}</h2>
+      <p class="det-desc">${s.desc}</p>
+      <div class="det-grid">
+        <div class="det-fact"><div class="df-lab">📍 Où l'installer</div><div class="df-val">${s.cap.map(capLabel).join(', ')}</div></div>
+        <div class="det-fact"><div class="df-lab">🌰 Coût</div><div class="df-val">${s.cout} Graines</div></div>
+        <div class="det-fact"><div class="df-lab">✨ Vadance</div><div class="df-val">+${s.vadance} points</div></div>
+        <div class="det-fact"><div class="df-lab">📊 Mesuré par</div><div class="df-val">${ici.ic} ${ici.name}</div></div>
+      </div>
+      ${tags?`<div class="det-tags">${tags}</div>`:''}
+      <div class="det-sec"><div class="det-sec-t">🔗 Référentiels couverts (via l'ICI)</div><div class="det-refs">${ici.refs.map(r=>`<span class="pill" style="background:#f1eef7;color:var(--lavender)">${r}</span>`).join('')}</div></div>
+      ${(s.flux.in.length||s.flux.out.length)?`<div class="det-sec"><div class="det-sec-t">🔄 Flux & boucles circulaires</div><div class="det-flux">${flux.join(' · ')}</div></div>`:''}
+      ${locked?`<div class="det-lock">🔒 Nécessite la compétence <b>${PCOMP[s.lock].ic} ${PCOMP[s.lock].name}</b> — à acquérir dans l'onglet Compétences.</div>`:''}
+      <button class="btn btn-primary det-action" onclick="detailInstall('${id}')" ${locked?'disabled':''}>${locked?'🔒 Verrouillé':'Sélectionner pour installer →'}</button>
+    </div>`);
+}
+function detailInstall(id){
+  const s=SOL[id]; if(s.lock&&!S.pcomps.has(s.lock)) return;
+  S.sel={type:'solution',id}; closeModal(); S.tab='a'; render();
+  toast(`${s.ic} ${s.name} sélectionné · clique un espace compatible dans « Mon lieu »`);
+}
+function openIciDetail(id){
+  const i=ICI[id];
+  const fits=SOLUTIONS.filter(s=>s.ici===id).map(s=>s.ic+' '+s.name);
+  openDetailModal(`
+    <div class="det-media" style="background:linear-gradient(135deg,#3a6e8c30,#3a6e8c12)">
+      <button class="det-close" onclick="closeModal()">✕</button>
+      <span class="det-emoji">${i.ic}</span>
+    </div>
+    <div class="det-body">
+      <div class="c2-cat"><span class="c2-dot" style="background:var(--sky)"></span>Indicateur · ICI</div>
+      <h2 class="det-title">${i.name}</h2>
+      <p class="det-desc">Mesuré en <b>${i.unit}</b>. Attaché à une solution, il transforme sa Vadance (promesse) en Vadité (preuve vérifiée), saison après saison.</p>
+      <div class="det-sec"><div class="det-sec-t">🔗 Référentiels couverts</div><div class="det-refs">${i.refs.map(r=>`<span class="pill" style="background:#f1eef7;color:var(--lavender)">${r}</span>`).join('')}</div></div>
+      ${fits.length?`<div class="det-sec"><div class="det-sec-t">🧩 Mesure typiquement</div><div class="det-flux">${fits.join(' · ')}</div></div>`:''}
+      <button class="btn btn-primary det-action" onclick="detailSelectIci('${id}')">Sélectionner pour mesurer →</button>
+    </div>`);
+}
+function detailSelectIci(id){
+  S.sel={type:'ici',id}; closeModal(); S.tab='a'; render();
+  toast(`${ICI[id].ic} ICI sélectionné · clique « Mesurer » sur une solution dans « Mon lieu »`);
+}
+document.addEventListener('click',(e)=>{ if(e.target && e.target.id==='modal' && document.getElementById('modal-box').classList.contains('det-modal')) closeModal(); });
 function pcompCard(id){
   const c=PCOMP[id]; const owned=S.pcomps.has(id);
   return `<div class="comp ${owned?'owned':''}" style="text-align:left">
