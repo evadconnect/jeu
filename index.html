@@ -54,6 +54,16 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .sb-next{background:var(--fern);color:#06231a;border:none;border-radius:100px;padding:.42rem .95rem;font-weight:800;font-size:.73rem;cursor:pointer;font-family:var(--font)}
 .sb-next:hover{background:var(--sage)}
 .vade-schema-box{background:#f4f9f6;border:1px solid rgba(130,184,148,.2);border-radius:16px;padding:.7rem .5rem;margin:.2rem 0}
+.vade-hover{font-size:.75rem;color:var(--mist);opacity:.9;line-height:1.45;text-align:left;margin-top:.6rem;min-height:2.8em;background:rgba(255,255,255,.05);border-radius:12px;padding:.6rem .75rem}
+.vade-hover b{color:var(--cream)}
+.intro-profiles{display:flex;flex-direction:column;gap:.5rem;margin:.2rem 0}
+.intro-prof{display:flex;align-items:center;gap:.7rem;background:rgba(255,255,255,.05);border:1.5px solid rgba(130,184,148,.2);border-radius:14px;padding:.7rem .85rem;cursor:pointer;text-align:left;transition:all .15s;font-family:var(--font);width:100%}
+.intro-prof:hover{background:rgba(74,140,92,.2);border-color:var(--fern)}
+.intro-prof .ip-ic{font-size:1.55rem;flex-shrink:0}
+.intro-prof .ip-txt{flex:1;min-width:0}
+.intro-prof .ip-name{font-weight:800;font-size:.86rem;color:var(--cream)}
+.intro-prof .ip-role{font-size:.68rem;color:var(--sage);opacity:.9}
+.intro-prof .ip-goal{font-size:.66rem;font-weight:800;color:#a8e6cf;background:rgba(122,201,176,.16);border-radius:100px;padding:.3rem .6rem;flex-shrink:0;white-space:nowrap}
 
 /* ══════════════════ SPLASH ══════════════════ */
 #splash{position:fixed;inset:0;z-index:60;overflow-y:auto;
@@ -919,6 +929,7 @@ const BADGES = {
 /* ═══════════════ ÉTAT ═══════════════ */
 let S = null;
 let SESSION = null;
+let PLAYER_NAME = '';
 function newState(profile){
   return {
     profile, seasonIdx:0, graines: profile==='pilote'?16:12, euros: profile==='semeur'?600:0,
@@ -969,7 +980,14 @@ function introDeva(){
   setTimeout(()=>{ iv.style.display='none'; devaIntroModal(); }, 550);
 }
 let INTRO=null;
-const VADE_SCHEMA=`<svg viewBox="0 0 360 350" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto"><path d="M180 73 A112 112 0 0 1 292 185" fill="none" stroke="#2e8b6e" stroke-width="3.2"/><path d="M292 185 A112 112 0 0 1 180 297" fill="none" stroke="#2d6a9f" stroke-width="3.2"/><path d="M180 297 A112 112 0 0 1 68 185" fill="none" stroke="#c8732a" stroke-width="3.2"/><path d="M68 185 A120 120 0 0 1 176 34" fill="none" stroke="#6b5b95" stroke-width="3.2"/><polygon points="176,26 169,40 184,39" fill="#6b5b95"/><text x="176" y="16" text-anchor="middle" font-size="12" font-weight="700" fill="#018262">un cran plus haut</text><circle cx="180" cy="185" r="60" fill="#e6f4ec"/><text x="180" y="176" text-anchor="middle" font-size="9.5" font-weight="700" letter-spacing="3" fill="#4aab8f">SPIRALE</text><text x="180" y="197" text-anchor="middle" font-size="21" font-weight="900" fill="#0d2b22">VADE</text><text x="180" y="222" text-anchor="middle" font-size="15">🏡 🌿 🌾</text><circle cx="180" cy="73" r="22" fill="#fff" stroke="#018262" stroke-width="2.4"/><text x="180" y="81" text-anchor="middle" font-size="19" font-weight="900" fill="#018262">V</text><text x="180" y="44" text-anchor="middle" font-size="12.5" font-weight="700" fill="#3a4a42">Valoriser</text><circle cx="292" cy="185" r="22" fill="#fff" stroke="#2d6a9f" stroke-width="2.4"/><text x="292" y="193" text-anchor="middle" font-size="19" font-weight="900" fill="#2d6a9f">A</text><text x="292" y="150" text-anchor="middle" font-size="12.5" font-weight="700" fill="#3a4a42">Activer</text><circle cx="180" cy="297" r="22" fill="#fff" stroke="#c8732a" stroke-width="2.4"/><text x="180" y="305" text-anchor="middle" font-size="19" font-weight="900" fill="#c8732a">D</text><text x="180" y="336" text-anchor="middle" font-size="12.5" font-weight="700" fill="#3a4a42">Développer</text><circle cx="68" cy="185" r="22" fill="#fff" stroke="#6b5b95" stroke-width="2.4"/><text x="68" y="193" text-anchor="middle" font-size="19" font-weight="900" fill="#6b5b95">E</text><text x="68" y="222" text-anchor="middle" font-size="12.5" font-weight="700" fill="#3a4a42">Essaimer</text></svg>`;
+const VADE_DESC={
+  V:{t:'Valoriser le potentiel', d:'Connaître la base : les ressources, les forces et les limites. Ce socle pose la Vadance, la promesse d\'impact.'},
+  A:{t:'Activer les solutions', d:'Puiser dans la bibliothèque commune (low-tech, permaculture, gouvernance), générer fiche et tableau de bord. La promesse s\'outille.'},
+  D:{t:'Développer l\'écosystème', d:'Mettre les quêtes en ligne, mobiliser la communauté, sécuriser le financement, documenter chaque preuve. La Vadance se change en résultats mesurés.'},
+  E:{t:'Essaimer preuves et pratiques', d:'La promesse devient Vadité. Les apprentissages essaiment dans les communs et relancent la spirale un cran plus haut.'},
+};
+function vadeHover(k){ const el=document.getElementById('vade-hover'); if(!el) return; if(k&&VADE_DESC[k]){ el.innerHTML='<b>'+VADE_DESC[k].t+'</b> · '+VADE_DESC[k].d; } else { el.innerHTML='Survole une phase pour la découvrir 🌀'; } }
+const VADE_SCHEMA=`<svg viewBox="0 0 400 366" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto"><path d="M200 80 A112 112 0 0 1 312 192" fill="none" stroke="#2e8b6e" stroke-width="3.4"/><path d="M312 192 A112 112 0 0 1 200 304" fill="none" stroke="#2d6a9f" stroke-width="3.4"/><path d="M200 304 A112 112 0 0 1 88 192" fill="none" stroke="#c8732a" stroke-width="3.4"/><path d="M88 192 A128 128 0 0 1 140 70" fill="none" stroke="#6b5b95" stroke-width="3.4"/><polygon points="139,60 132,74 148,73" fill="#6b5b95"/><text x="120" y="44" text-anchor="middle" font-size="12.5" font-weight="700" fill="#018262">un cran plus haut</text><circle cx="200" cy="192" r="60" fill="#e6f4ec"/><text x="200" y="184" text-anchor="middle" font-size="9.5" font-weight="700" letter-spacing="3" fill="#4aab8f">SPIRALE</text><text x="200" y="205" text-anchor="middle" font-size="21" font-weight="900" fill="#0d2b22">VADE</text><text x="200" y="230" text-anchor="middle" font-size="15">🏡 🌿 🌾</text><g class="vnode" onmouseover="vadeHover('V')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Valoriser le potentiel : reconnaître ressources, forces et limites.</title><circle cx="200" cy="80" r="24" fill="#fff" stroke="#018262" stroke-width="2.6"/><text x="200" y="87" text-anchor="middle" font-size="20" font-weight="900" fill="#018262">V</text><text x="234" y="60" text-anchor="start" font-size="13" font-weight="800" fill="#2f4038">Valoriser</text></g><g class="vnode" onmouseover="vadeHover('A')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Activer les solutions : puiser dans la bibliothèque commune, outiller la promesse.</title><circle cx="312" cy="192" r="24" fill="#fff" stroke="#2d6a9f" stroke-width="2.6"/><text x="312" y="199" text-anchor="middle" font-size="20" font-weight="900" fill="#2d6a9f">A</text><text x="348" y="196" text-anchor="middle" font-size="13" font-weight="800" fill="#2f4038">Activer</text></g><g class="vnode" onmouseover="vadeHover('D')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Développer l'écosystème : quêtes, communauté, financement, preuves mesurées.</title><circle cx="200" cy="304" r="24" fill="#fff" stroke="#c8732a" stroke-width="2.6"/><text x="200" y="311" text-anchor="middle" font-size="20" font-weight="900" fill="#c8732a">D</text><text x="200" y="338" text-anchor="middle" font-size="13" font-weight="800" fill="#2f4038">Développer</text></g><g class="vnode" onmouseover="vadeHover('E')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Essaimer preuves et pratiques : la promesse devient Vadité et relance la spirale.</title><circle cx="88" cy="192" r="24" fill="#fff" stroke="#6b5b95" stroke-width="2.6"/><text x="88" y="199" text-anchor="middle" font-size="20" font-weight="900" fill="#6b5b95">E</text><text x="52" y="196" text-anchor="middle" font-size="13" font-weight="800" fill="#2f4038">Essaimer</text></g></svg>`;
 const INTRO_STEPS=5;
 function devaIntroModal(){ INTRO={step:0,name:''}; introStep(0); }
 function introStep(n){
@@ -987,16 +1005,21 @@ function introStep(n){
       <input class="ob-input" id="intro-name" placeholder="Ton prénom…" value="${nm}" maxlength="24" onkeydown="if(event.key==='Enter')introNameNext()">`;
     actions=back(0)+`<button class="ob-next" onclick="introNameNext()">Continuer →</button>`;
   } else if(n===2){
-    body=`<div class="ob-bubble">Enchantée, <b>${nm}</b> 🌱 Laisse-moi te présenter <b>EVAD</b>.<br><br>Nous sommes en 2030. Partout, des <b>laboratoires vivants régénératifs</b> (regen living labs) régénèrent leur territoire et y testent de nouvelles solutions face aux catastrophes naturelles : énergie du soleil, nourriture des toits et des cours, réparation, partage. Ces lieux se sont fédérés en un <b>réseau</b> qui cultive la confiance <b>par la preuve</b>. EVAD en est l'outil commun.</div>`;
+    body=`<div class="ob-bubble">Enchantée, <b>${nm}</b> 🌱 Laisse-moi te présenter <b>EVAD</b>.<br><br>Nous sommes en 2030. Partout, des <b>laboratoires vivants régénératifs</b> (tiers-lieu, écolieu, jardin partagé...) développent leur territoire et y testent de nouvelles solutions face aux catastrophes naturelles : énergie du soleil, nourriture des toits et des cours, réparation, partage. Ces lieux se sont fédérés en un <b>réseau</b> qui cultive la confiance <b>par la preuve</b>. <b>EVAD en est l'outil commun.</b></div>`;
     actions=back(1)+`<button class="ob-next" onclick="introStep(3)">Suivant →</button>`;
   } else if(n===3){
     body=`<div class="ob-bubble">Chaque projet suit la <b>spirale VADE</b> : quatre phases qui s'enchaînent, puis <b>recommencent un cran plus haut</b>. C'est le cœur d'EVAD.</div>
       <div class="vade-schema-box">${VADE_SCHEMA}</div>
-      <div class="ob-bubble" style="margin-top:.7rem"><b>V</b>aloriser l'existant → <b>A</b>ctiver la mesure → <b>D</b>évelopper des boucles → <b>E</b>ssaimer, puis on repart de V, plus haut. Un lieu reconnu valorise de nouveaux espaces, et ainsi de suite.</div>`;
+      <div id="vade-hover" class="vade-hover">Survole une phase pour la découvrir 🌀</div>`;
     actions=back(2)+`<button class="ob-next" onclick="introStep(4)">Suivant →</button>`;
   } else {
-    body=`<div class="ob-bubble">Tu es prêt·e, <b>${nm}</b> ✨ Pour tout découvrir, tu vas incarner les <b>trois profils</b> l'un après l'autre, une <b>session de ~30 min</b>, ~10 min chacun :<br><br>🏡 <b>Pilote</b> (opérer un lieu) · 🌿 <b>Bâtisseur</b> (contribuer et prouver) · 🌾 <b>Semeur</b> (financer le vérifié).</div>`;
-    actions=back(3)+`<button class="ob-next" onclick="introLaunch()">Commencer l'acte 1 · Pilote →</button>`;
+    body=`<div class="ob-bubble">Tu es prêt·e, <b>${nm}</b> ✨ Le mieux pour tout comprendre : incarner les <b>trois profils</b> l'un après l'autre (session de ~30 min). Mais si tu préfères, va directement sur celui qui t'attire :</div>
+      <div class="intro-profiles">
+        <button class="intro-prof" onclick="startProfileDirect('pilote')"><span class="ip-ic">🏡</span><div class="ip-txt"><div class="ip-name">Pilote d'impact</div><div class="ip-role">Opérer un lieu</div></div><span class="ip-goal">🎯 30 Vadité</span></button>
+        <button class="intro-prof" onclick="startProfileDirect('batisseur')"><span class="ip-ic">🌿</span><div class="ip-txt"><div class="ip-name">Bâtisseur d'impact</div><div class="ip-role">Contribuer et prouver</div></div><span class="ip-goal">🎯 5 missions</span></button>
+        <button class="intro-prof" onclick="startProfileDirect('semeur')"><span class="ip-ic">🌾</span><div class="ip-txt"><div class="ip-name">Semeur d'impact</div><div class="ip-role">Financer le vérifié</div></div><span class="ip-goal">🎯 25 Vadité</span></button>
+      </div>`;
+    actions=back(3)+`<button class="ob-next" onclick="introLaunch()">Découvrir les 3 · session ~30 min →</button>`;
   }
   openOnboarding(head+body+`<div class="ob-actions">${actions}</div>`);
   if(n===1) setTimeout(()=>{ const i=document.getElementById('intro-name'); if(i){ i.focus(); i.setSelectionRange(i.value.length,i.value.length); } },70);
@@ -1007,9 +1030,11 @@ function introNameNext(){
   INTRO.name=v.slice(0,24); introStep(2);
 }
 function introLaunch(){
-  SESSION={act:1, playerName:INTRO.name||'toi', started:Date.now()};
+  PLAYER_NAME=INTRO.name||'toi';
+  SESSION={act:1, playerName:PLAYER_NAME, started:Date.now()};
   closeModal(); startAct('pilote');
 }
+function startProfileDirect(profile){ PLAYER_NAME=(INTRO&&INTRO.name)||PLAYER_NAME; SESSION=null; closeModal(); chooseProfile(profile); }
 function introFreeExplore(){ closeModal(); SESSION=null; document.getElementById('splash').style.display='block'; document.getElementById('app').style.display='none'; }
 function startSession(){ SESSION={act:1, playerName:null, started:Date.now()}; closeModal(); startAct('pilote'); }
 function startAct(profile){ closeModal(); chooseProfile(profile); }
@@ -1176,7 +1201,7 @@ function sendStat(profile, comp, motivation, free, type){
     try{ fetch(cfg.url.replace(/\/+$/,'')+'/rest/v1/'+cfg.table, { method:'POST', headers:{'Content-Type':'application/json','apikey':cfg.anonKey,'Authorization':'Bearer '+cfg.anonKey,'Prefer':'return=minimal'}, body:JSON.stringify(row) }).catch(()=>{}); }catch(e){}
   }
 }
-function obSteps(){ let s = S.profile==='pilote'?['name','lieuName','type','spaces','motivation'] : (S.profile==='batisseur'?['name','comp','motivation'] : ['name','type','motivation']); if(SESSION && SESSION.playerName) s=s.filter(x=>x!=='name'); return s; }
+function obSteps(){ let s = S.profile==='pilote'?['name','lieuName','type','spaces','motivation'] : (S.profile==='batisseur'?['name','comp','motivation'] : ['name','type','motivation']); if((SESSION&&SESSION.playerName)||PLAYER_NAME) s=s.filter(x=>x!=='name'); return s; }
 const MOTIVATIONS_BY_PROFILE={
   pilote:[
     {id:'faire-pousser', ic:'🌱', label:'Faire pousser un lieu vivant'},
@@ -1211,7 +1236,7 @@ function obCaptureFree(){ const t=document.getElementById('ob-free'); if(t) S.ob
 function obSelectMotiv(k){ obCaptureFree(); S.ob.motivation=k; renderOnboardingStep(); }
 function devaOnboarding(){
   if(S.onboarded) return;
-  if(!S.ob) S.ob={step:0, name:(SESSION&&SESSION.playerName)?SESSION.playerName:'', lieuName:'La Friche des Possibles', type:(S.profile==='semeur'?'fondation':'jardin'), spaces:new Set(), comp:'jardiner', motivation:null, freeText:''};
+  if(!S.ob) S.ob={step:0, name:(SESSION&&SESSION.playerName)||PLAYER_NAME||'', lieuName:'La Friche des Possibles', type:(S.profile==='semeur'?'fondation':'jardin'), spaces:new Set(), comp:'jardiner', motivation:null, freeText:''};
   renderOnboardingStep();
 }
 function renderOnboardingStep(){
@@ -1304,7 +1329,7 @@ function obFinish(){
   const ob=S.ob;
   S.onboarded=true;
   S.playerName = ob.name || 'toi';
-  if(SESSION) SESSION.playerName = S.playerName;
+  PLAYER_NAME=S.playerName; if(SESSION) SESSION.playerName = S.playerName;
   if(S.profile==='pilote'){ S.lieuName=ob.lieuName||'La Friche des Possibles'; S.lieuType=ob.type; buildLieu(ob); }
   if(S.profile==='batisseur'){
     S.comps=new Set([ob.comp||'jardiner']);
