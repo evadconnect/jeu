@@ -1469,8 +1469,7 @@ const NAV = {
     MARCHE_NAV,
   ],
   batisseur:[
-    {k:'dash',ic:'📊',label:'Tableau de bord',title:'Tableau de bord',sub:'Ta progression, tes badges et ta quête finale.'},
-    {k:'a',ic:'🛠️',label:'Missions',title:'Missions du réseau',sub:'Trois lieux ont besoin de tes compétences : installe, mesure, anime.'},
+    {k:'a',ic:'🛠️',label:'Missions',title:'Missions du réseau',sub:'Tes chantiers et ta progression, réunis : accepte une mission, installe, mesure, anime.'},
     {k:'b',ic:'🎓',label:'Compétences',title:'Tes compétences',sub:'Apprends de nouvelles compétences pour débloquer plus de missions.'},
     RESEAU_NAV,
     CARTE_NAV,
@@ -1555,7 +1554,13 @@ function renderTabA(){
     else h+=recompensesHTML();
     el.innerHTML=h;
   }
-  else if(S.profile==='batisseur') el.innerHTML=batisseurMissions();
+  else if(S.profile==='batisseur'){
+    const sub=S.batSub||'missions';
+    const tabs=[['missions','🛠️ Missions'],['dash','📊 Tableau de bord']];
+    let h=`<div class="biblio-tabs">${tabs.map(t=>`<button class="biblio-tab ${sub===t[0]?'active':''}" onclick="S.batSub='${t[0]}';render()">${t[1]}</button>`).join('')}</div>`;
+    h+= sub==='dash' ? dashHTML() : batisseurMissions();
+    el.innerHTML=h;
+  }
   else el.innerHTML=semeurFinance();
 }
 function renderTabB(){
@@ -2530,7 +2535,7 @@ function reseauActions(){
   }
   return h;
 }
-function reseauGoto(tab,msg){ S.badges.add('reseau'); markFirstAct('reseau'); switchTab(tab); toast(msg,'win'); }
+function reseauGoto(tab,msg){ S.badges.add('reseau'); markFirstAct('reseau'); if(tab==='a'&&S.profile==='batisseur') S.batSub='missions'; switchTab(tab); toast(msg,'win'); }
 function reseauFreeInstall(cands, measured){
   for(const id of cands){ const sp=S.spaces.find(x=>!x.existant && x.sols.length===0 && SOL[id].cap.includes(x.type)); if(sp){ sp.sols.push({id, ici: measured?SOL[id].ici:null, vad:SOL[id].vadance}); S.vadance+=SOL[id].vadance; if(measured) S.refs=new Set([...S.refs, ...ICI[SOL[id].ici].refs.map(r=>r.split(' ')[0])]); return {id,sp}; } }
   return null;
