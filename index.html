@@ -320,6 +320,28 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .ob-next{margin-left:auto;background:var(--fern);color:#06231a;border:none;border-radius:100px;padding:.7rem 1.4rem;font-weight:800;font-size:.88rem;cursor:pointer;font-family:var(--font);box-shadow:0 6px 18px rgba(1,130,98,.3);transition:background .15s}
 .ob-next:hover{background:var(--sage)}
 
+/* ══════════════════ RÉSEAU ══════════════════ */
+.reseau-filters{display:flex;gap:.35rem;flex-wrap:wrap;margin:.3rem 0 1rem}
+.reseau-filter{border-radius:100px;padding:.42rem .85rem;font-size:.74rem;font-weight:800;background:#fff;border:1px solid var(--line);color:var(--moss);cursor:pointer;transition:all .15s;font-family:var(--font)}
+.reseau-filter:hover{background:var(--cream)}
+.reseau-filter.on{background:var(--forest);color:#fff;border-color:var(--forest)}
+.reseau-feed{display:flex;flex-direction:column;gap:.75rem;max-width:640px}
+.rz-post{background:#fff;border:1px solid var(--line);border-radius:16px;padding:.9rem 1rem;box-shadow:var(--shadow)}
+.rz-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.55rem}
+.rz-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0}
+.rz-meta{flex:1;min-width:0}
+.rz-author{font-size:.85rem;font-weight:800;color:var(--ink);line-height:1.15}
+.rz-sub{font-size:.63rem;color:var(--moss);opacity:.72;font-weight:600;margin-top:.1rem}
+.rz-vade{font-size:.56rem;font-weight:800;border-radius:100px;padding:.24rem .55rem;flex-shrink:0;white-space:nowrap}
+.rz-text{font-size:.85rem;line-height:1.5;color:#33564a;margin-bottom:.7rem}
+.rz-cta{border-radius:100px;padding:.45rem 1rem;font-size:.75rem;font-weight:800;background:var(--cream);color:var(--moss);border:1px solid rgba(1,130,98,.15);cursor:pointer;transition:background .15s;font-family:var(--font)}
+.rz-cta:hover{background:var(--mist)}
+.rz-offer{border:1.5px solid rgba(1,130,98,.2);border-radius:16px;padding:1rem 1.1rem;margin-bottom:.7rem;background:linear-gradient(135deg,var(--cream),#fff);max-width:640px;box-shadow:var(--shadow)}
+.rz-offer.bat{border-color:rgba(240,176,50,.45);background:linear-gradient(135deg,#fffaf0,#fff)}
+.rz-offer.sem{border-color:rgba(37,99,168,.32);background:linear-gradient(135deg,#f0f6fc,#fff)}
+.rz-offer-t{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem}
+.rz-offer-d{font-size:.88rem;font-weight:700;color:var(--ink);line-height:1.4;margin-bottom:.75rem}
+
 /* ══════════════════ CARTES RICHES + DÉTAIL ══════════════════ */
 .card2{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform .16s,box-shadow .16s,border-color .16s;display:flex;flex-direction:column}
 .card2:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:rgba(74,140,92,.4)}
@@ -593,6 +615,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
       <div class="view" id="view-a"></div>
       <div class="view" id="view-b"></div>
       <div class="view" id="view-dash"></div>
+      <div class="view" id="view-reseau"></div>
       <div class="view" id="view-carte"></div>
     </div>
   </main>
@@ -819,6 +842,7 @@ const BADGES = {
   triple:     {ic:'🏅', name:'Triple défi'},
   premiere:   {ic:'🌰', name:'Premier acte posé'},
   essaime:    {ic:'✨', name:'Lieu essaimé'},
+  reseau:     {ic:'🔗', name:'Réseau tissé'},
 };
 
 /* ═══════════════ ÉTAT ═══════════════ */
@@ -907,6 +931,7 @@ function buildTourSteps(){
     {sel:navSel('dash'), side:'right', title:'📊 Tableau de bord', text:'Ta progression, tes badges et ta quête finale, en un coup d\'œil.'},
     {sel:navSel('a'), side:'right', title:nav[1].ic+' '+nav[1].label, text:AB.a},
     {sel:navSel('b'), side:'right', title:nav[2].ic+' '+nav[2].label, text:AB.b},
+    {sel:navSel('reseau'), side:'right', title:'🌐 Réseau Territoires Vivants', text:'La communauté des trois profils. C\'est ici qu\'un lieu propose une quête, qu\'un bâtisseur donne un coup de main, qu\'un semeur avance des fonds.'},
     {sel:navSel('carte'), side:'right', title:'🗺️ Carte de l\'écosystème', text:'Tu y retrouves tous les lieux de la communauté et leurs quêtes, près de chez toi.'},
     {sel:'#stats', side:'bottom', title:'Tes ressources', text:'🌰 <b>Graines</b> (agir), ✨ <b>Vadance</b> (impact promis) et 🌿 <b>Vadité</b> (impact prouvé, ta devise).'},
     {sel:'.season-btn', side:'bottom', title:'⏳ Le temps qui passe', text:'Ce bouton fait avancer la saison : tes espaces produisent, les revenus tombent, et les aléas climatiques arrivent.'},
@@ -1062,23 +1087,27 @@ function obFinish(){
 
 /* ═══════════════ NAVIGATION (sidebar) ═══════════════ */
 const CARTE_NAV = {k:'carte',ic:'🗺️',label:'Carte',title:'Carte de l\'écosystème',sub:'Découvre la communauté engagée près de chez toi et connecte-toi à l\'écosystème local.'};
+const RESEAU_NAV = {k:'reseau',ic:'🌐',label:'Réseau',title:'Réseau Territoires Vivants',sub:'La communauté des Pilotes, Bâtisseurs et Semeurs : c\'est ici que les trois profils se relient.'};
 const NAV = {
   pilote:[
     {k:'dash',ic:'📊',label:'Tableau de bord',title:'Tableau de bord',sub:'Ta progression, tes boucles, tes badges et ta quête finale.'},
     {k:'a',ic:'🏡',label:'Mon lieu',title:'Mon lieu · La Friche des Possibles',sub:'Compose tes espaces, installe des solutions, attache des ICI et tisse des boucles circulaires.'},
     {k:'b',ic:'📚',label:'Bibliothèque',title:'Bibliothèque complète',sub:'Solutions, ICI et compétences. Sélectionne une carte, puis place-la dans ton lieu.'},
+    RESEAU_NAV,
     CARTE_NAV,
   ],
   batisseur:[
     {k:'dash',ic:'📊',label:'Tableau de bord',title:'Tableau de bord',sub:'Ta progression, tes badges et ta quête finale.'},
     {k:'a',ic:'🛠️',label:'Missions',title:'Missions du réseau',sub:'Trois lieux ont besoin de tes compétences : installe, mesure, anime.'},
     {k:'b',ic:'🎓',label:'Compétences',title:'Tes compétences',sub:'Apprends de nouvelles compétences pour débloquer plus de missions.'},
+    RESEAU_NAV,
     CARTE_NAV,
   ],
   semeur:[
     {k:'dash',ic:'📊',label:'Tableau de bord',title:'Tableau de bord',sub:'Ta Vadité financée, tes référentiels couverts, ton rapport.'},
     {k:'a',ic:'💶',label:'Financer',title:'Financer la régénération',sub:'Chaque financement installe la solution et son ICI : ta Vadité arrive vérifiée.'},
     {k:'b',ic:'🏷️',label:'Référentiels',title:'Tes référentiels',sub:'Une saisie de terrain, tous les langages : ODD, ESRS, PCAET, RSE.'},
+    RESEAU_NAV,
     CARTE_NAV,
   ],
 };
@@ -1102,11 +1131,12 @@ function render(){
   renderTopbar();
   document.querySelectorAll('.nav-item').forEach(t=>t.classList.toggle('active', t.dataset.tab===S.tab));
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  const VIEWMAP={dash:'view-dash',a:'view-a',b:'view-b',carte:'view-carte'};
+  const VIEWMAP={dash:'view-dash',a:'view-a',b:'view-b',reseau:'view-reseau',carte:'view-carte'};
   document.getElementById(VIEWMAP[S.tab]||'view-a').classList.add('active');
   if(S.tab==='dash') renderDash();
   else if(S.tab==='a') renderTabA();
   else if(S.tab==='b') renderTabB();
+  else if(S.tab==='reseau') renderReseau();
   else if(S.tab==='carte') renderCarte();
   checkVade();
 }
@@ -1853,6 +1883,95 @@ function renderCarte(){
   el.innerHTML=`<div class="carte-wrap"><div class="carte-map">${filterBar}${mapSvg}</div>${panel}</div>`;
 }
 
+
+/* ═══════════════ RÉSEAU (fil communautaire + liens entre profils) ═══════════════ */
+const RESEAU_PROF={
+  pilote:{ic:'🏡',color:'#2e6b47',bg:'rgba(46,107,71,.14)',label:'Pilote'},
+  batisseur:{ic:'🌿',color:'#a06c00',bg:'rgba(240,176,50,.20)',label:'Bâtisseur'},
+  semeur:{ic:'🌾',color:'#2563a8',bg:'rgba(37,99,168,.14)',label:'Semeur'},
+};
+const RESEAU_FEED=[
+  {prof:'pilote', author:"Darwin Écosystème", lieu:"Bordeaux", time:"il y a 1 h", vade:'d', cta:'quete',
+   text:"On agrandit la ferme urbaine 🌱 4 bras ce samedi pour planter et installer le compost des événements. Tous niveaux !"},
+  {prof:'batisseur', author:"Hugo D.", lieu:"Bègles", time:"il y a 3 h", vade:'v', cta:'rencontre',
+   text:"Charpentier dispo ce week-end pour un chantier bois & paille 🔨 Un lieu près de Bordeaux a besoin d un coup de main ?"},
+  {prof:'semeur', author:"Région Nouvelle-Aquitaine", lieu:"Bordeaux", time:"il y a 5 h", vade:'a', cta:'quete',
+   text:"On finance 5 quêtes énergie & alimentation ce trimestre 🌍 Lieux à impact, candidatez avant fin mars !"},
+  {prof:'pilote', author:"La Halle des Douves", lieu:"Bordeaux", time:"hier", vade:'a', cta:'quete',
+   text:"On rénove la cuisine partagée 🔧 Besoin de bricoleurs et de dons de matériel. On compte sur le réseau bordelais !"},
+  {prof:'batisseur', author:"Karim T.", lieu:"Bordeaux", time:"hier", vade:'v', cta:'rencontre',
+   text:"Électricien solaire, je peux dimensionner une installation PV pour un lieu en transition ☀️ Qui démarre ?"},
+  {prof:'semeur', author:"ADEME Nouvelle-Aquitaine", lieu:"Cenon", time:"il y a 2 j", vade:'a', cta:'quete',
+   text:"Appel à projets économie circulaire ouvert ♻️ Diagnostic déchets financé pour les lieux engagés."},
+  {prof:'batisseur', author:"Manon L.", lieu:"Bordeaux", time:"il y a 2 j", vade:'e', cta:'quete',
+   text:"Atelier compostage de quartier terminé ✅ 12 foyers équipés. On remet ça le mois prochain, qui s inscrit ?"},
+  {prof:'pilote', author:"Le Jardin de ta Sœur", lieu:"Bordeaux", time:"il y a 3 j", vade:'d', cta:'quete',
+   text:"Quête verger 🌳 Tailler et pailler les 22 arbres fruitiers avant l hiver. 5 mains motivées recherchées !"},
+  {prof:'semeur', author:"MAIF", lieu:"Niort", time:"il y a 3 j", vade:'v', cta:'rencontre',
+   text:"Notre fonds d impact cherche des lieux à utilité sociale et écologique 💚 Présentez-nous vos projets !"},
+];
+const VADE_KEY={v:0,a:1,d:2,e:3};
+function renderReseau(){
+  const el=document.getElementById('view-reseau');
+  const f=S.reseauFilter||'tous';
+  let h=`<div class="sect-sub">Le réseau <b>Territoires Vivants</b> relie Pilotes, Bâtisseurs et Semeurs. C'est ici que les profils se rencontrent : un lieu propose une quête, un bâtisseur un coup de main, un semeur une avance.</div>`;
+  h+=reseauActions();
+  const pills=[['tous','Tous'],['pilote','🏡 Pilotes'],['batisseur','🌿 Bâtisseurs'],['semeur','🌾 Semeurs']];
+  h+=`<div class="reseau-filters">${pills.map(x=>`<button class="reseau-filter ${f===x[0]?'on':''}" onclick="S.reseauFilter='${x[0]}';render()">${x[1]}</button>`).join('')}</div>`;
+  const posts=RESEAU_FEED.filter(p=>f==='tous'||p.prof===f);
+  h+=`<div class="reseau-feed">${posts.map(reseauPost).join('')}</div>`;
+  el.innerHTML=h;
+}
+function reseauPost(p){
+  const pr=RESEAU_PROF[p.prof], vd=VADE[VADE_KEY[p.vade]];
+  const cta={quete:'Rejoindre la quête',rencontre:'Proposer un créneau',info:'Voir le lieu'}[p.cta]||'Voir';
+  return `<div class="rz-post">
+    <div class="rz-head">
+      <div class="rz-av" style="background:${pr.bg}">${pr.ic}</div>
+      <div class="rz-meta"><div class="rz-author">${p.author}</div><div class="rz-sub">${pr.label} · 📍 ${p.lieu} · ${p.time}</div></div>
+      <span class="rz-vade" style="background:${vd.color}1a;color:${vd.color}">${vd.k} · ${vd.label}</span>
+    </div>
+    <div class="rz-text">${p.text}</div>
+    <button class="rz-cta" onclick="reseauCta('${p.cta}',&quot;${p.author}&quot;)">${cta}</button>
+  </div>`;
+}
+function reseauCta(kind,who){
+  const m={quete:'🙌 Tu rejoins la quête de '+who+' — rendez-vous sur place !',rencontre:'📅 Créneau proposé à '+who+', à confirmer.',info:'👀 Fiche du lieu bientôt disponible.'}[kind]||'Envoyé.';
+  S.badges.add('reseau'); markFirstAct('reseau');
+  toast(m,'win'); render();
+}
+function reseauActions(){
+  let h='';
+  if(S.profile==='pilote'){
+    if(!S.reseauBat) h+=`<div class="rz-offer bat"><div class="rz-offer-t" style="color:var(--batisseur)">🌿 Un Bâtisseur te propose son aide</div><div class="rz-offer-d">« Léa, Bâtisseuse, peut venir installer une solution chez toi ce week-end, bénévolement. »</div><button class="btn btn-primary" onclick="reseauOfferBat()">Accepter le coup de main</button></div>`;
+    if(!S.reseauSem) h+=`<div class="rz-offer sem"><div class="rz-offer-t" style="color:var(--semeur)">🌾 Un Semeur te propose une avance</div><div class="rz-offer-d">« Un fonds d'impact finance une solution + son ICI dans ton lieu : installée ET déjà mesurée. »</div><button class="btn btn-primary" onclick="reseauOfferSem()">Accepter le financement</button></div>`;
+    if(S.reseauBat&&S.reseauSem) h+=`<div class="hint">✅ Tu as tissé des liens avec un Bâtisseur et un Semeur. Le réseau, c'est ta force : chaque impact prouvé attire de nouveaux soutiens.</div>`;
+  } else if(S.profile==='batisseur'){
+    h+=`<div class="rz-offer"><div class="rz-offer-t" style="color:var(--pilote)">🏡 Des Pilotes cherchent tes compétences</div><div class="rz-offer-d">Trois lieux du réseau ont des chantiers ouverts. Rejoins-en un pour gagner des Graines et faire grandir un lieu.</div><button class="btn btn-primary" onclick="reseauGoto('a','🌿 Direction les missions ! Choisis un chantier.')">Voir les missions →</button></div>`;
+  } else {
+    h+=`<div class="rz-offer"><div class="rz-offer-t" style="color:var(--pilote)">🏡 Des lieux ont besoin de financement</div><div class="rz-offer-d">Les Pilotes du réseau publient leurs besoins. Finance-les : la solution ET son ICI sont posés, ta Vadité arrive vérifiée.</div><button class="btn btn-primary" onclick="reseauGoto('a','🌾 Direction les financements !')">Voir les besoins à financer →</button></div>`;
+  }
+  return h;
+}
+function reseauGoto(tab,msg){ S.badges.add('reseau'); markFirstAct('reseau'); switchTab(tab); toast(msg,'win'); }
+function reseauFreeInstall(cands, measured){
+  for(const id of cands){ const sp=S.spaces.find(x=>!x.existant && x.sols.length===0 && SOL[id].cap.includes(x.type)); if(sp){ sp.sols.push({id, ici: measured?SOL[id].ici:null, vad:SOL[id].vadance}); S.vadance+=SOL[id].vadance; if(measured) S.refs=new Set([...S.refs, ...ICI[SOL[id].ici].refs.map(r=>r.split(' ')[0])]); return {id,sp}; } }
+  return null;
+}
+function reseauOfferBat(){
+  S.reseauBat=true; S.badges.add('reseau'); markFirstAct('reseau');
+  const done=reseauFreeInstall(['compost','potager','atelier','recyclerie','poulailler','recup-eau','mur-vegetal'], false);
+  if(done) toast(`🌿 Léa (Bâtisseuse) a installé ${SOL[done.id].ic} ${SOL[done.id].name} dans « ${done.sp.name} » · +${SOL[done.id].vadance} ${pts(SOL[done.id].vadance)} de Vadance ✨`,'win');
+  else { S.vadance+=3; toast('🌿 Léa a donné un coup de main : +3 points de Vadance ✨ (ton lieu est déjà bien rempli)','win'); }
+  checkLoops(true); render();
+}
+function reseauOfferSem(){
+  S.reseauSem=true; S.badges.add('reseau'); markFirstAct('reseau');
+  const done=reseauFreeInstall(['recup-eau','mur-vegetal','phyto','solaire','compost'], true);
+  if(done) toast(`🌾 Un Semeur a financé ${SOL[done.id].ic} ${SOL[done.id].name} avec son ICI dans « ${done.sp.name} » · installé ET mesuré 🌿`,'win');
+  else { S.vadance+=4; toast('🌾 Un Semeur t\'a fait une avance : +4 points de Vadance ✨','win'); }
+  checkLoops(true); render();
+}
 
 /* ═══════════════ SPIRALE VADE, progression ═══════════════ */
 function markFirstAct(act){ S.firstActs.add(act);
