@@ -313,6 +313,11 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .ob-chips{display:flex;flex-wrap:wrap;gap:.5rem}
 .ob-chip{background:rgba(255,255,255,.06);border:1.5px solid rgba(130,184,148,.2);border-radius:100px;padding:.5rem .9rem;cursor:pointer;color:var(--mist);font-weight:700;font-size:.8rem;transition:all .15s;font-family:var(--font)}
 .ob-chip.on{background:var(--fern);color:#06231a;border-color:var(--fern)}
+.ob-list{display:flex;flex-direction:column;gap:.4rem}
+.ob-opt{display:flex;align-items:center;gap:.6rem;text-align:left;width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(130,184,148,.2);border-radius:12px;padding:.65rem .8rem;cursor:pointer;color:var(--mist);font-weight:600;font-size:.84rem;font-family:var(--font);transition:all .15s}
+.ob-opt:hover{background:rgba(255,255,255,.09)}
+.ob-opt.on{border-color:var(--fern);background:rgba(74,140,92,.22);color:var(--cream)}
+.ob-opt .oo-ic{font-size:1.2rem;flex-shrink:0}
 .ob-actions{display:flex;align-items:center;gap:.6rem;margin-top:1.15rem}
 .ob-back{background:rgba(255,255,255,.06);border:none;color:var(--mist);border-radius:100px;padding:.6rem 1rem;font-weight:700;font-size:.82rem;cursor:pointer;font-family:var(--font)}
 .ob-back:hover{background:rgba(255,255,255,.12)}
@@ -996,10 +1001,19 @@ function endTour(){
 window.addEventListener('resize',()=>{ if(S&&S.tour){ const st=S.tour.steps[S.tour.i]; positionTip(document.getElementById('tour-tip'), document.querySelector(st.sel), st.side); } });
 
 /* ═══════════════ ONBOARDING DEVA ═══════════════ */
-function obSteps(){ return S.profile==='pilote' ? ['name','lieuName','type','spaces'] : ['name','welcome']; }
+function obSteps(){ if(S.profile==='pilote') return ['name','lieuName','type','spaces']; if(S.profile==='batisseur') return ['name','comp','motivation','welcome']; return ['name','welcome']; }
+const MOTIVATIONS=[
+  {id:'terrain', ic:'🛠️', label:'Agir concrètement sur le terrain'},
+  {id:'apprendre', ic:'🎓', label:'Apprendre de nouvelles compétences'},
+  {id:'communaute', ic:'🤝', label:'Rencontrer et faire partie d\'une communauté'},
+  {id:'impact', ic:'🌍', label:'Avoir un impact écologique mesurable'},
+  {id:'reconnaissance', ic:'🌰', label:'Être reconnu·e et récompensé·e'},
+];
+function obSelectComp(k){ S.ob.comp=k; renderOnboardingStep(); }
+function obSelectMotiv(k){ S.ob.motivation=k; renderOnboardingStep(); }
 function devaOnboarding(){
   if(S.onboarded) return;
-  if(!S.ob) S.ob={step:0, name:'', lieuName:'La Friche des Possibles', type:'jardin', spaces:new Set()};
+  if(!S.ob) S.ob={step:0, name:'', lieuName:'La Friche des Possibles', type:'jardin', spaces:new Set(), comp:'jardiner', motivation:null};
   renderOnboardingStep();
 }
 function renderOnboardingStep(){
@@ -1022,9 +1036,15 @@ function renderOnboardingStep(){
       <div style="font-size:.72rem;color:var(--sage);opacity:.85;margin-bottom:.45rem">Espaces à créer (clique pour activer) :</div>
       <div class="ob-chips">${['terre','toit','piece','mur'].map(tp=>`<button class="ob-chip ${ob.spaces.has(tp)?'on':''}" onclick="obToggleSpace('${tp}')">${TYPE_META[tp].ic} ${TYPE_META[tp].name}</button>`).join('')}</div>`;
     nextLabel='Créer mon lieu 🌿';
+  } else if(key==='comp'){
+    msg=`Bienvenue, <b>${nm}</b> 🌿 Chaque Bâtisseur a sa spécialité. <b>Quelle compétence</b> veux-tu maîtriser en arrivant ? Tu démarreras avec.`;
+    body=`<div class="ob-types">${Object.entries(COMPETENCES).map(([k,c])=>`<div class="ob-type ${ob.comp===k?'sel':''}" onclick="obSelectComp('${k}')"><div class="ot-ic">${c.ic}</div><div class="ot-name">${c.name}</div></div>`).join('')}</div>`;
+  } else if(key==='motivation'){
+    msg=`Dis-m'en un peu plus, <b>${nm}</b> : <b>qu'est-ce qui te donne le plus envie de contribuer ?</b> Ça nous aide à améliorer EVAD 🌱`;
+    body=`<div class="ob-list">${MOTIVATIONS.map(m=>`<button class="ob-opt ${ob.motivation===m.id?'on':''}" onclick="obSelectMotiv('${m.id}')"><span class="oo-ic">${m.ic}</span><span>${m.label}</span></button>`).join('')}</div>`;
   } else if(key==='welcome'){
     const wp={
-      batisseur:`Ravie de t'accueillir, <b>${nm}</b> 🌿 Tu contribues à l'écosystème avec tes compétences. Ta première quête : <b>accepte une mission</b> dans l'onglet Missions.`,
+      batisseur:`Ravie de t'accueillir, <b>${nm}</b> 🌿 Avec ta spécialité ${COMPETENCES[ob.comp]?COMPETENCES[ob.comp].ic+' <b>'+COMPETENCES[ob.comp].name+'</b>':''}, tu es prêt·e. Ta première quête : <b>accepte une mission</b> dans l'onglet Missions.`,
       semeur:`Ravie de t'accueillir, <b>${nm}</b> 🌾 Tu finances la régénération. Ta première quête : <b>finance un besoin</b> dans l'onglet Financer, l'ICI est installé avec.`,
     }[S.profile];
     msg=wp; nextLabel="C'est parti →";
@@ -1049,6 +1069,7 @@ function obNext(){
   const ob=S.ob, steps=obSteps(), key=steps[ob.step], last=ob.step===steps.length-1;
   if(key==='name'){ const v=(document.getElementById('ob-name').value||'').trim(); if(!v){ toast('Dis-moi juste ton prénom 🌱','warn'); return; } ob.name=v.slice(0,24); }
   if(key==='lieuName'){ const v=(document.getElementById('ob-lieu').value||'').trim(); if(!v){ toast('Donne un nom à ton lieu 🌿','warn'); return; } ob.lieuName=v.slice(0,40); }
+  if(key==='motivation' && !ob.motivation){ toast('Choisis ce qui te motive le plus 🌱','warn'); return; }
   if(last){ obFinish(); return; }
   ob.step++;
   if(obSteps()[ob.step]==='spaces' && ob.spaces.size===0){ new Set(LIEU_TYPES.find(x=>x.id===ob.type).spaces).forEach(s=>ob.spaces.add(s)); }
@@ -1077,6 +1098,12 @@ function obFinish(){
   S.onboarded=true;
   S.playerName = ob.name || 'toi';
   if(S.profile==='pilote'){ S.lieuName=ob.lieuName||'La Friche des Possibles'; S.lieuType=ob.type; buildLieu(ob); }
+  if(S.profile==='batisseur'){
+    const chosen=ob.comp||'jardiner', second= chosen==='bricoler'?'jardiner':'bricoler';
+    S.comps=new Set([chosen, second]);
+    S.motivation=ob.motivation||null;
+    try{ const prev=JSON.parse(localStorage.getItem('evad_bat_stats')||'[]'); prev.push({comp:chosen, motivation:S.motivation, t:new Date().toISOString()}); localStorage.setItem('evad_bat_stats', JSON.stringify(prev.slice(-200))); }catch(e){}
+  }
   S.ob=null;
   closeModal();
   setupNav();
