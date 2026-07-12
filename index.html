@@ -140,6 +140,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .vade-step.on .vt{color:var(--ink)}
 .vade-step.done .vade-dot{opacity:.85}
 .vade-arrow{color:#c3d6cd;font-size:.7rem;flex-shrink:0}
+.vade-cycle{font-size:.62rem;font-weight:800;color:var(--lavender);background:rgba(122,110,168,.14);border-radius:100px;padding:.22rem .55rem;margin-right:.3rem;flex-shrink:0;white-space:nowrap}
 
 /* ─── Responsive : sidebar → rail d'icônes ─── */
 @media(max-width:820px){
@@ -771,6 +772,7 @@ const PCOMP={
 };
 
 /* ---------- Types d'espaces (personnalisation du lieu) ---------- */
+const MEASURE_COST=2, ADD_SPACE_COST=3, MAX_PER_SPACE=2, VADITE_CAP=3; // rééquilibrage : sinks de Graines & contrainte d'espace
 const TYPE_META={
   terre:{ic:'🌱',name:'Pleine terre',bg:'#e7f6ec'},
   toit:{ic:'🏢',name:'Toiture',bg:'#eef1f5'},
@@ -858,7 +860,7 @@ function newState(profile){
   return {
     profile, seasonIdx:0, graines: profile==='pilote'?16:12, euros: profile==='semeur'?600:0,
     vadance:0, vadite:0, vaditeFin:0,
-    vade:0, badges:new Set(), missionsDone:0, refs:new Set(),
+    vade:0, vadeCycle:1, badges:new Set(), missionsDone:0, refs:new Set(),
     tab:'a', devaOpen:false,
     // pilote
     hand:[], spaces:null, sel:null, pcomps:new Set(), lieuName:'La Friche des Possibles', lieuType:'jardin', ob:null, playerName:'', loopsActive:0, loopBadgeShown:false,
@@ -1235,7 +1237,7 @@ function renderTopbar(){
   html+=`<span class="stat vadite">🌿 ${round1(vad)} / ${PROFILS[S.profile].goal} points<span class="lab">Vadité</span></span>`;
   document.getElementById('stats').innerHTML=html;
   // VADE bar
-  document.getElementById('vade-bar').innerHTML = VADE.map((v,i)=>{
+  document.getElementById('vade-bar').innerHTML = `<span class="vade-cycle">🌀 Cycle ${S.vadeCycle||1}/3</span>` + VADE.map((v,i)=>{
     const cls = i<S.vade?'done':(i===S.vade?'on':'');
     const bg = i<=S.vade?v.color:'#cdddd5';
     return `<div class="vade-step ${cls}">
@@ -1265,7 +1267,7 @@ function pilotLieu(){
   h+=`<div class="lieu-edit-head"><h2>🏡 ${escapeHtml(S.lieuName)}</h2><button class="sp-edit" title="Renommer le lieu" onclick="renameLieu()">✏️</button></div>
       <div class="sect-sub">Compose ton lieu : renomme-le, ajoute des espaces, installe des solutions de la Bibliothèque et mesure-les avec des ICI. Reconnaître l'existant est ta première quête.</div>`;
   // barre d'ajout d'espaces
-  h+=`<div class="add-space-bar"><span class="asb-lab">＋ Ajouter un espace :</span>`;
+  h+=`<div class="add-space-bar"><span class="asb-lab">＋ Aménager un espace (${ADD_SPACE_COST}🌰) :</span>`;
   ['terre','toit','piece','mur'].forEach(t=>{ h+=`<button class="add-space-btn" onclick="addSpace('${t}')">${TYPE_META[t].ic} ${TYPE_META[t].name}</button>`; });
   h+=`</div>`;
   // hint selon sélection
@@ -1292,7 +1294,7 @@ function pilotLieu(){
 function measureBtn(spaceId, solId, selIci){
   const sid = solId?`'${solId}'`:'null';
   if(selIci){ const i=S.sel.id; return `<button class="mini-btn gold" onclick="event.stopPropagation();attachICI('${spaceId}',${sid},'${i}')">📊 ${ICI[i].ic} Mesurer</button>`; }
-  return `<button class="mini-btn" onclick="event.stopPropagation();attachICI('${spaceId}',${sid})">📊 Mesurer</button>`;
+  return `<button class="mini-btn" onclick="event.stopPropagation();attachICI('${spaceId}',${sid})">📊 Mesurer · ${MEASURE_COST}🌰</button>`;
 }
 function spaceCard(sp){
   const selSol = S.sel&&S.sel.type==='solution';
@@ -1552,6 +1554,7 @@ function installSelected(spaceId){
   const s=SOL[S.sel.id];
   if(!spaceAccepts(sp,S.sel.id)) return;
   if(s.lock && !S.pcomps.has(s.lock)){ toast(`🔒 Nécessite la compétence ${PCOMP[s.lock].ic} ${PCOMP[s.lock].name}`,'warn'); return; }
+  if(sp.sols.length>=MAX_PER_SPACE){ toast(`Cet espace est complet (${MAX_PER_SPACE} solutions max) — aménage un nouvel espace`,'warn'); return; }
   if(S.graines < s.cout){ toast(`Pas assez de Graines (${s.cout}🌰)`,'warn'); return; }
   S.graines -= s.cout;
   const vad = s.vadance + ((s.clim==='fraicheur' && S.pcomps.has('eau')) ? 1 : 0);
@@ -1567,12 +1570,16 @@ function attachICI(spaceId, solId, iciId){
   const sp=S.spaces.find(x=>x.id===spaceId);
   if(!solId && !sp.existant) return; // un espace de création se mesure via ses solutions
   if(!iciId) iciId = solId ? SOL[solId].ici : sp.iciType;
-  if(solId){ const inst=sp.sols.find(x=>x.id===solId); if(!inst||inst.ici) return; inst.ici=iciId; }
-  else { if(sp.ici) return; sp.ici=iciId; }
+  let inst=null;
+  if(solId){ inst=sp.sols.find(x=>x.id===solId); if(!inst||inst.ici) return; }
+  else { if(sp.ici) return; }
+  if(S.graines < MEASURE_COST){ toast(`Attacher un ICI coûte ${MEASURE_COST}🌰 (aller mesurer sur le terrain)`,'warn'); return; }
+  S.graines -= MEASURE_COST;
+  if(solId) inst.ici=iciId; else sp.ici=iciId;
   S.refs = new Set([...S.refs, ...ICI[iciId].refs.map(r=>r.split(' ')[0])]);
   if(S.sel && S.sel.type==='ici') S.sel=null;
   markFirstAct('measured');
-  toast(`📊 ICI « ${ICI[iciId].name} » attaché · la Vadance devient Vadité 🌿`,'win');
+  toast(`📊 ICI « ${ICI[iciId].name} » attaché · −${MEASURE_COST}🌰 · la Vadance devient Vadité 🌿`,'win');
   render();
 }
 function acquireComp(id){
@@ -1589,10 +1596,12 @@ function acquireComp(id){
 function addSpace(type){
   const creation=S.spaces.filter(s=>!s.existant).length;
   if(creation>=8){ toast('Ton lieu est déjà bien rempli (8 espaces max)','warn'); return; }
+  if(S.graines < ADD_SPACE_COST){ toast(`Aménager un espace coûte ${ADD_SPACE_COST}🌰`,'warn'); return; }
+  S.graines -= ADD_SPACE_COST;
   const m=TYPE_META[type];
   const n=S.spaces.filter(s=>s.type===type).length+1;
   S.spaces.push({id:type+'-'+Date.now(), name:m.name+(n>1?' '+n:''), ic:m.ic, bg:m.bg, type, existant:false, sols:[]});
-  toast(`➕ Espace « ${m.name} » ajouté`,'win');
+  toast(`➕ Espace « ${m.name} » aménagé · −${ADD_SPACE_COST}🌰`,'win');
   render();
 }
 function removeSpace(id){
@@ -1610,7 +1619,7 @@ function renameSpace(id){
   const v=prompt('Nom de l\'espace :', sp.name);
   if(v && v.trim()){ sp.name=v.trim().slice(0,32); render(); }
 }
-function spaceAccepts(sp, id){ return !sp.existant && SOL[id].cap.includes(sp.type); }
+function spaceAccepts(sp, id){ return !sp.existant && sp.sols.length<MAX_PER_SPACE && SOL[id].cap.includes(sp.type); }
 function installedIds(){ let ids=[]; S.spaces.forEach(sp=>sp.sols.forEach(x=>ids.push(x.id))); return ids.filter(i=>SOL[i]); }
 function isDormantSpace(sp){
   if(SEASONS[S.seasonIdx%4].name!=='Hiver') return false;
@@ -2096,23 +2105,20 @@ function reseauOfferSem(){
 function markFirstAct(act){ S.firstActs.add(act);
   if(!S.badges.has('premiere')){ S.badges.add('premiere'); setTimeout(()=>toastBadge('premiere'),400); }
 }
+function progressValue(){ return S.profile==='pilote'?S.vadite : (S.profile==='batisseur'?S.missionsDone : S.vaditeFin); }
+/* Spirale VADE cyclique : chaque cycle enchaîne V→A→D→E ; en atteignant le palier du cycle,
+   on repart de V « un cran plus haut » (cycle N+1). 3 cycles jusqu'à l'objectif. */
 function checkVade(){
-  const before=S.vade;
-  const vad = S.profile==='semeur'?S.vaditeFin:S.vadite;
-  if(S.profile==='pilote'){
-    if(S.vade<1 && (S.firstActs.has('measured')||S.firstActs.has('installed'))) S.vade=1;
-    if(S.vade<2 && countProven()>=1 && S.firstActs.has('installed')) S.vade=2;
-    if(S.vade<3 && fluxLoops(installedIds()).length>=1) S.vade=3;
-  } else if(S.profile==='batisseur'){
-    if(S.vade<1 && (S.missions.length>0||S.missionsDone>0)) S.vade=1;
-    if(S.vade<2 && S.comps.size>2) S.vade=2;
-    if(S.vade<3 && S.missionsDone>=3) S.vade=3;
-  } else {
-    if(S.vade<1 && S.financed.length>0) S.vade=1;
-    if(S.vade<2 && S.vaditeFin>0) S.vade=2;
-    if(S.vade<3 && new Set(S.financed.map(f=>f.lieu)).size>=2) S.vade=3;
-  }
-  if(S.vade>before){ const v=VADE[S.vade]; setTimeout(()=>toast(`🌀 Spirale VADE : ${v.k} · ${v.label}, ${v.desc}`,'win'),300); renderTopbar(); }
+  const goal=PROFILS[S.profile].goal, seg=goal/3, prog=progressValue();
+  let cyc=Math.floor(prog/seg)+1; if(cyc<1)cyc=1; if(cyc>3)cyc=3;
+  const p=Math.max(0,(prog-(cyc-1)*seg)/seg); // 0..1 dans le cycle
+  let phase = p>=0.7?3 : (p>=0.45?2 : (p>=0.2?1 : 0));
+  if(prog>=goal) phase=3;
+  const before=S.vade, beforeCyc=S.vadeCycle||1;
+  S.vade=phase; S.vadeCycle=cyc;
+  if(!S.won && cyc>beforeCyc){ setTimeout(()=>toast(`🌀 Spirale bouclée ! On repart de V · Valoriser, un cran plus haut (cycle ${cyc}/3).`,'gold'),200); }
+  else if(phase>before){ const v=VADE[phase]; setTimeout(()=>toast(`🌀 Spirale VADE : ${v.k} · ${v.label}`,'win'),200); }
+  renderTopbar();
 }
 
 /* ═══════════════ SAISON ═══════════════ */
@@ -2126,15 +2132,15 @@ function advanceSeason(){
 
   // 2) production selon profil
   if(S.profile==='pilote'){
-    const conv = S.pcomps.has('mesure') ? 1 : 0.5; // « Mesure & données » convertit 2× plus vite
+    const conv = S.pcomps.has('mesure') ? 0.35 : 0.22; // conversion progressive (rééquilibrée)
     let nAlim=0,nEner=0,nCirc=0,nExist=0;
     S.spaces.forEach(sp=>{
       const dorm=isDormantSpace(sp);
-      if(sp.existant){ if(!dorm){ gains+=sp.graines; nExist++; if(sp.ici) vaditeGain+=sp.vadance*conv; } }
+      if(sp.existant){ if(!dorm){ gains+=Math.round(sp.graines*0.6); nExist++; if(sp.ici) vaditeGain+=sp.vadance*conv; } }
       sp.sols.forEach(inst=>{ const s=SOL[inst.id];
         const solDorm = dorm && s.dormant && !s.winter;
         if(solDorm) return;
-        gains+=s.graines;
+        gains+=Math.max(1,Math.round(s.graines*0.6));
         if(s.cat==='alim')nAlim++; else if(s.cat==='energie')nEner++; else if(s.cat==='circulaire')nCirc++;
         if(inst.ici) vaditeGain+=(inst.vad||s.vadance)*conv;
       });
@@ -2146,10 +2152,12 @@ function advanceSeason(){
     if(S.pcomps.has('reparation')) cb+=nCirc;
     if(S.pcomps.has('animation')) cb+=nExist;
     if(cb){ gains+=cb; msgs.push(`🎓 Bonus compétences · +${cb}🌰`); }
+    // la vérification prend du temps : plafond de Vadité prouvée par saison
+    vaditeGain = Math.min(vaditeGain, VADITE_CAP + (S.pcomps.has('mesure')?1:0));
     // boucles
     const loops=fluxLoops(installedIds()).length;
-    let mult=1; if(loops>=5)mult=2; else if(loops>=3)mult=1.5;
-    const loopGain=Math.round(loops*2*mult);
+    let mult=1; if(loops>=7)mult=2; else if(loops>=4)mult=1.5;
+    const loopGain=Math.round(loops*mult*0.4);
     gains+=loopGain;
     if(loops) msgs.push(`🔄 ${loops} boucle(s)${mult>1?' ×'+mult:''} · +${loopGain}🌰`);
   }
@@ -2283,8 +2291,8 @@ function checkBadges(){
   const before=S.badges.size;
   if(S.profile==='pilote'){
     const loops=fluxLoops(installedIds()).length;
-    if(loops>=3) S.badges.add('eco');
-    if(loops>=5) S.badges.add('foret');
+    if(loops>=4) S.badges.add('eco');
+    if(loops>=7) S.badges.add('foret');
   }
   if(S.badges.size>before){
     [...S.badges].slice(before).forEach(()=>{});
@@ -2296,9 +2304,9 @@ function checkLoops(notify){
   S.loopsActive=loops;
 }
 function loopMultLabel(n, short){
-  if(n>=5) return short?'Forêt nourricière ×2 🌲':'🌲 Forêt nourricière : multiplicateur ×2.';
-  if(n>=3) return short?'Écosystème vivant ×1,5 🌳':'🌳 Écosystème vivant : multiplicateur ×1,5.';
-  return short?'':'3 boucles = Écosystème vivant (×1,5) · 5 boucles = Forêt nourricière (×2). La topologie paie plus que l\'accumulation.';
+  if(n>=7) return short?'Forêt nourricière ×2 🌲':'🌲 Forêt nourricière : multiplicateur ×2.';
+  if(n>=4) return short?'Écosystème vivant ×1,5 🌳':'🌳 Écosystème vivant : multiplicateur ×1,5.';
+  return short?'':'4 boucles = Écosystème vivant (×1,5) · 7 boucles = Forêt nourricière (×2). La topologie paie plus que l\'accumulation.';
 }
 
 /* ---- victoire ---- */
