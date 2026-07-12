@@ -37,7 +37,7 @@ strong{color:#0d3c2e}
 <p>Le jeu étant en ligne, <strong>Supabase est la source de vérité</strong> : au démarrage, les 3 tables sont chargées depuis Supabase, puis le jeu se lance. Pas besoin de mode hors-ligne. Gère juste proprement le cas d'erreur réseau (message clair + éventuel bouton « réessayer ») pour ne pas laisser un écran vide si l'appel échoue.</p>
 <hr>
 <h2>2. Ce que tu dois livrer</h2>
-<ol><li>Un script SQL (<code>supabase/schema.sql</code>) qui crée les 3 tables + les politiques RLS.</li><li>Un script SQL (<code>supabase/seed.sql</code>) qui insère les données actuelles (reprises depuis le HTML).</li><li>La modification de <code>index.html</code> : au démarrage, le jeu charge les 3 tables depuis Supabase avant de se lancer, avec une <strong>gestion d'erreur propre</strong> si l'appel échoue.</li><li>Une courte doc (<code>supabase/README.md</code>) : comment se connecter, où sont les clés, comment ajouter une carte.</li></ol>
+<ol><li>Un script SQL (<code>supabase/schema.sql</code>) qui crée les 3 tables (avec le <strong>cycle de validation</strong>, voir §6) + les politiques RLS.</li><li>Un script SQL (<code>supabase/seed.sql</code>) qui insère les données actuelles (reprises depuis le HTML), au statut <code>valide</code>.</li><li>La modification de <code>index.html</code> : au démarrage, le jeu charge les 3 tables depuis Supabase (<strong>uniquement les entrées validées</strong>) avant de se lancer, avec une <strong>gestion d'erreur propre</strong> si l'appel échoue.</li><li><strong>Une interface de validation pour le Conseil Régénératif (CR)</strong> : une page où les membres du CR se connectent, voient les propositions en attente, et les valident ou les rejettent (voir §6).</li><li>Une courte doc (<code>supabase/README.md</code>) : comment se connecter, où sont les clés, comment ajouter une carte, comment le CR valide.</li></ol>
 <hr>
 <h2>3. Accès &amp; sécurité</h2>
 <ul><li><strong>Projet Supabase</strong> existant : <code>https://lmhhrccmgebztioesmik.supabase.co</code> (tu y as déjà accès).</li><li>Pour la <strong>lecture publique</strong> depuis le jeu : on utilise la <strong>clé anon / publishable</strong> (comme pour le feedback). Elle peut vivre dans le HTML, c'est fait pour.</li><li>Pour <strong>écrire/administrer</strong> (créer les tables, insérer) : passe par le dashboard Supabase (SQL Editor) ou une clé <code>service_role</code>. <strong>La <code>service_role</code> ne doit JAMAIS être commitée ni mise dans le HTML.</strong></li><li>Active la <strong>RLS</strong> sur les 3 tables avec une policy <strong>lecture seule</strong> pour le rôle <code>anon</code> (voir §5). Aucune écriture publique.</li></ul>
@@ -60,13 +60,26 @@ strong{color:#0d3c2e}
 <ul><li><code>solutions.ici_id</code> → <code>ici.id</code></li><li><code>solutions.categorie</code> → valeur de <code>CATS</code> (garde ça en simple <code>text</code> + <code>check</code>, ou fais une table <code>categories</code> si tu veux)</li><li><code>solutions.competence_requise</code> → <code>competences.id</code> (famille <code>pilote</code>)</li><li><code>competences.couvre[]</code> référence des <code>solutions.id</code> (famille <code>batisseur</code>)</li></ul>
 <hr>
 <h2>5. SQL de départ (à adapter)</h2>
+<p>Chaque table porte aussi <strong>5 colonnes de validation</strong> communes (le cycle est décrit en §6) :</p>
+<pre class="code"><code>-- Colonnes de validation à ajouter aux 3 tables :
+--   statut text not null default 'brouillon'
+--     check (statut in ('brouillon','en_revue','valide','rejete')),
+--   propose_par text,                         -- qui a soumis (email libre ou uid)
+--   valide_par  uuid references auth.users,   -- membre du CR qui a tranché
+--   valide_le   timestamptz,
+--   commentaire_cr text                       -- motif en cas de rejet / note</code></pre>
 <pre class="code"><code>-- ICI
 create table ici (
   id text primary key,
   nom text not null,
   icone text,
   unite text,
-  referentiels text[] default '{}'
+  referentiels text[] default '{}',
+  statut text not null default 'brouillon' check (statut in ('brouillon','en_revue','valide','rejete')),
+  propose_par text,
+  valide_par uuid references auth.users,
+  valide_le timestamptz,
+  commentaire_cr text
 );
 
 -- COMPETENCES (pilote + batisseur)
@@ -78,7 +91,12 @@ create table competences (
   description text,
   cout int,
   couvre text[] default '{}',
-  couleur text
+  couleur text,
+  statut text not null default 'brouillon' check (statut in ('brouillon','en_revue','valide','rejete')),
+  propose_par text,
+  valide_par uuid references auth.users,
+  valide_le timestamptz,
+  commentaire_cr text
 );
 
 -- SOLUTIONS
@@ -100,17 +118,33 @@ create table solutions (
   dormant boolean default false,
   hiver boolean default false,
   competence_requise text references competences(id),
-  ordre int
+  ordre int,
+  statut text not null default 'brouillon' check (statut in ('brouillon','en_revue','valide','rejete')),
+  propose_par text,
+  valide_par uuid references auth.users,
+  valide_le timestamptz,
+  commentaire_cr text
 );
 
--- RLS : lecture publique seule
+-- RLS
 alter table ici enable row level security;
 alter table competences enable row level security;
 alter table solutions enable row level security;
 
-create policy "lecture publique ici"        on ici         for select to anon using (true);
-create policy "lecture publique competences" on competences for select to anon using (true);
-create policy "lecture publique solutions"   on solutions   for select to anon using (true);</code></pre>
+-- 1) Le jeu (anon) ne lit QUE le validé
+create policy "jeu lit le valide - ici"         on ici         for select to anon using (statut = 'valide');
+create policy "jeu lit le valide - competences" on competences for select to anon using (statut = 'valide');
+create policy "jeu lit le valide - solutions"   on solutions   for select to anon using (statut = 'valide');
+
+-- 2) Le CR (connecté) voit tout et peut valider / rejeter (mettre à jour)
+create policy "CR lit tout - ici"         on ici         for select to authenticated using (true);
+create policy "CR lit tout - competences" on competences for select to authenticated using (true);
+create policy "CR lit tout - solutions"   on solutions   for select to authenticated using (true);
+
+create policy "CR met a jour - ici"         on ici         for update to authenticated using (true) with check (true);
+create policy "CR met a jour - competences" on competences for update to authenticated using (true) with check (true);
+create policy "CR met a jour - solutions"   on solutions   for update to authenticated using (true) with check (true);</code></pre>
+<blockquote>Ici, tout compte <strong>connecté</strong> est considéré comme membre du CR (tu n'invites que le CR). Si tu veux verrouiller davantage, crée une table <code>membres_cr(user_id)</code> et remplace <code>using (true)</code> par <code>using (auth.uid() in (select user_id from membres_cr))</code>.</blockquote>
 <p>Exemples de <code>INSERT</code> (à générer pour toutes les lignes en reprenant le HTML) :</p>
 <pre class="code"><code>insert into ici (id, nom, icone, unite, referentiels) values
   ('eau', 'Eau de pluie récupérée', '💧', 'm³', '{ODD 6,ESRS E3,PCAET}');
@@ -123,12 +157,41 @@ insert into competences (id, profil, nom, icone, cout, description, couleur) val
    '+1🌰/saison par solution Alimentation. Débloque la Serre bioclimatique.', '#2e6b47');
 
 insert into solutions
-  (id, nom, icone, categorie, description, capacites, vadance, graines, cout, ici_id, flux_in, flux_out, dormant, competence_requise, ordre) values
+  (id, nom, icone, categorie, description, capacites, vadance, graines, cout, ici_id, flux_in, flux_out, dormant, competence_requise, ordre, statut) values
   ('potager', 'Potager en pleine terre', '🥬', 'alim',
    'Légumes de saison en circuit court.', '{terre}', 4, 3, 3, 'biodiv',
-   '{compost,eau}', '{legumes,biodechets}', true, null, 10);</code></pre>
+   '{compost,eau}', '{legumes,biodechets}', true, null, 10, 'valide');</code></pre>
+<blockquote><strong>Important :</strong> les données reprises du HTML existent déjà en prod, donc <strong>insère-les au statut <code>valide</code></strong> (comme ci-dessus), sinon elles resteraient en <code>brouillon</code> et n'apparaîtraient pas dans le jeu. Si tu oublies, rattrape avec <code>update solutions set statut='valide';</code> (idem <code>ici</code>, <code>competences</code>).</blockquote>
 <hr>
-<h2>6. Comment le jeu lit Supabase (modèle à réutiliser)</h2>
+<h2>6. Workflow de validation (Conseil Régénératif)</h2>
+<p>Le <strong>Conseil Régénératif (CR)</strong> doit valider chaque Solution, ICI ou Compétence avant qu'elle apparaisse dans le jeu. C'est le cœur de la démarche EVAD : « le vérifié bat le certifié ».</p>
+<h3>Le cycle de statut</h3>
+<pre class="code"><code>brouillon  -&gt;  en_revue  -&gt;  valide     (visible dans le jeu)
+                    |
+                    +------&gt;  rejete     (avec un commentaire du CR)</code></pre>
+<ul><li><code>brouillon</code> : en cours de rédaction (par l'équipe ou une proposition externe).</li><li><code>en_revue</code> : soumis au CR, en attente de décision.</li><li><code>valide</code> : approuvé par le CR. <strong>Seul statut lu par le jeu.</strong></li><li><code>rejete</code> : refusé, avec un motif dans <code>commentaire_cr</code> (l'auteur peut corriger et re-soumettre).</li></ul>
+<p>Le passage <code>valide -&gt; en_revue</code> (repasser en revue une carte modifiée) est autorisé aussi : une carte déjà en jeu qu'on veut retoucher redevient <code>en_revue</code> le temps d'une nouvelle validation.</p>
+<h3>L'interface de validation (à développer)</h3>
+<p>Une <strong>page séparée</strong>, dans le même esprit que le jeu (HTML + JS, sans build), par exemple <code>validation.html</code>. Elle sera hébergée à part et <strong>réservée au CR</strong> (idée d'URL : <code>conseil.evad.org</code> ou <code>jeu.evad.org/validation</code>). Elle n'est <strong>pas</strong> livrée dans le jeu public.</p>
+<p>Fonctionnalités attendues :</p>
+<ol><li><strong>Connexion CR via Supabase Auth</strong>, de préférence par <strong>lien magique par e-mail</strong> (magic link) : le membre saisit son e-mail, reçoit un lien, se connecte. Pas de mot de passe à gérer, idéal pour des membres non techniques.</li><li><strong>File d'attente</strong> : la liste des entrées <code>en_revue</code>, regroupées par type (Solutions / ICI / Compétences), avec un compteur.</li><li><strong>Fiche lisible</strong> de chaque proposition : afficher son contenu de façon claire (nom, icône, description, catégorie, ICI associé, flux, etc.), pas un JSON brut, pour que le CR juge sur le fond.</li><li><strong>Deux actions</strong> par entrée :</li></ol>
+<p>   - <strong>Valider</strong> -&gt; <code>statut = 'valide'</code>, renseigne <code>valide_par = auth.uid()</code> et <code>valide_le = now()</code>.    - <strong>Rejeter</strong> -&gt; <code>statut = 'rejete'</code> + <code>commentaire_cr</code> obligatoire (le motif).</p>
+<ol><li><strong>Filtre</strong> pour consulter aussi le <code>valide</code> et le <code>rejete</code> (historique), pas seulement la file d'attente.</li></ol>
+<p>L'écriture se fait par <code>PATCH</code> REST avec le <strong>jeton de la session connectée</strong> (pas la clé anon) : les policies RLS de mise à jour (§5) laissent passer un utilisateur <code>authenticated</code>, refusent un <code>anon</code>.</p>
+<pre class="code"><code>// Exemple : valider une solution (session CR active)
+await fetch(url + '/rest/v1/solutions?id=eq.' + id, {
+  method: 'PATCH',
+  headers: {
+    'Content-Type': 'application/json',
+    'apikey': ANON_KEY,
+    'Authorization': 'Bearer ' + session.access_token, // jeton du membre connecté
+    'Prefer': 'return=minimal'
+  },
+  body: JSON.stringify({ statut: 'valide', valide_le: new Date().toISOString() })
+});</code></pre>
+<blockquote>Pour la connexion, le plus simple est d'inclure le <strong>client Supabase JS</strong> (<code>@supabase/supabase-js</code>) sur la page de validation via un <code>&lt;script type="module"&gt;</code> ESM depuis un CDN : <code>supabase.auth.signInWithOtp({ email })</code> pour le lien magique, puis <code>supabase.auth.getSession()</code>. Le jeu public, lui, reste sans dépendance (simple <code>fetch</code>).</blockquote>
+<hr>
+<h2>7. Comment le jeu lit Supabase (modèle à réutiliser)</h2>
 <p>Le jeu écrit déjà dans Supabase avec ce pattern (voir <code>sendStat</code>, ligne ~1235) :</p>
 <pre class="code"><code>fetch(url + '/rest/v1/feedback', {
   method: 'POST',
@@ -145,8 +208,9 @@ insert into solutions
   headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY }
 });
 const rows = await r.json(); // tableau d'objets</code></pre>
+<p>Pas besoin de filtrer sur <code>statut</code> dans la requête du jeu : la <strong>RLS anon</strong> (§5) ne renvoie déjà que les lignes <code>valide</code>. Le jeu ne voit jamais un brouillon ni un rejet.</p>
 <hr>
-<h2>7. Intégration côté jeu (<code>index.html</code>)</h2>
+<h2>8. Intégration côté jeu (<code>index.html</code>)</h2>
 <p>L'idée : au chargement, récupérer les 3 tables et <strong>remplir</strong> les structures du jeu, <strong>avant</strong> le premier rendu. Le jeu ne démarre qu'une fois les données prêtes.</p>
 <p>Points d'attention :</p>
 <ol><li><strong>Une fois la base branchée, les tableaux en dur ne servent plus.</strong> Tu peux les vider (ou les retirer) : la source de vérité est Supabase. Garde-en éventuellement un jeu minimal pour tes tests locaux, mais ce n'est plus la version de prod.</li><li>Les objets <code>SOL</code>, <code>SOL_COUT</code>, <code>SOL_LOCK</code> sont <strong>dérivés</strong> de <code>SOLUTIONS</code>. Après avoir chargé depuis Supabase, il faut <strong>reconstruire</strong> <code>SOL</code> (<code>Object.fromEntries(...)</code>) et reporter <code>cout</code> / <code>competence_requise</code> sur chaque solution (aujourd'hui fait lignes ~865-868). Regroupe cette logique dans une fonction pour la rejouer après le fetch.</li><li><strong>Mapping des noms</strong> : la base utilise <code>ici_id</code>, <code>capacites</code>, <code>flux_in/out</code>, <code>competence_requise</code>, <code>protege</code> ; le JS attend <code>ici</code>, <code>cap</code>, <code>flux:{in,out}</code>, <code>lock</code>, <code>protects</code>. Fais une petite fonction d'adaptation (base → format JS) pour ne pas avoir à renommer partout dans le code.</li><li>Le point d'entrée du jeu (le <code>DOMContentLoaded</code> / la fonction d'init) doit devenir <strong>async</strong> : <code>await loadData()</code> avant de lancer l'écran d'accueil. Affiche un petit écran de chargement pendant le fetch, et un message d'erreur clair (avec bouton « réessayer ») si Supabase ne répond pas.</li></ol>
@@ -175,9 +239,9 @@ try {
   showError('Impossible de charger les données du jeu.', e); // + bouton réessayer
 }</code></pre>
 <hr>
-<h2>8. Critères d'acceptation (Definition of Done)</h2>
-<ul><li class="task"><input type="checkbox" disabled > Les 3 tables existent avec RLS <strong>lecture seule</strong> anon activée.</li><li class="task"><input type="checkbox" disabled > Toutes les données actuelles du HTML sont présentes dans Supabase (13 solutions, 8 ICI, compétences Pilote + Bâtisseur).</li><li class="task"><input type="checkbox" disabled > Le jeu chargé en ligne affiche <strong>exactement</strong> les mêmes cartes qu'avant (aucune régression visuelle).</li><li class="task"><input type="checkbox" disabled > Modifier une ligne dans Supabase (ex. renommer une solution) se voit dans le jeu <strong>après rechargement</strong>, sans toucher au code.</li><li class="task"><input type="checkbox" disabled > Si Supabase ne répond pas, le jeu affiche un <strong>message d'erreur clair</strong> (pas d'écran vide) avec une possibilité de réessayer.</li><li class="task"><input type="checkbox" disabled > Aucune clé <code>service_role</code> dans le dépôt.</li><li class="task"><input type="checkbox" disabled > Doc <code>supabase/README.md</code> livrée (connexion, ajout d'une carte).</li></ul>
-<h2>9. Étapes conseillées</h2>
-<ol><li>Lire ce fichier + repérer les 4 blocs de données dans <code>index.html</code> (<code>SOLUTIONS</code>, <code>ICI</code>, <code>COMPETENCES</code>, <code>PCOMP</code>) et leurs dérivés (<code>SOL</code>, <code>SOL_COUT</code>, <code>SOL_LOCK</code>).</li><li>Écrire <code>schema.sql</code>, l'exécuter dans le SQL Editor de Supabase.</li><li>Générer <code>seed.sql</code> depuis le HTML (un petit script Node/Python qui transforme les tableaux JS en <code>INSERT</code> fait gagner du temps et évite les fautes de recopie).</li><li>Vérifier la lecture via l'URL REST directement dans le navigateur.</li><li>Brancher <code>loadData()</code> + les fonctions <code>apply*</code> avec le remapping, tester en ligne.</li><li>Tester le cas d'erreur (Supabase injoignable) : message clair, bouton réessayer.</li><li>Écrire la doc, ouvrir une PR.</li></ol>
-<h2>10. Questions à poser avant de démarrer</h2>
-<ul><li>Confirme-t-on <strong>une seule</strong> table <code>competences</code> (avec <code>profil</code>) plutôt que deux tables séparées ?</li><li>Faut-il aussi externaliser les <strong>catégories</strong> (<code>CATS</code>) et <strong>référentiels</strong> (<code>REFS</code>), ou on les garde en dur pour la V1 ?</li></ul></div></body></html>
+<h2>9. Critères d'acceptation (Definition of Done)</h2>
+<ul><li class="task"><input type="checkbox" disabled > Les 3 tables existent avec la RLS : <code>anon</code> ne lit que <code>statut = 'valide'</code>, <code>authenticated</code> (CR) lit tout et peut mettre à jour.</li><li class="task"><input type="checkbox" disabled > Toutes les données actuelles du HTML sont présentes dans Supabase au statut <code>valide</code> (13 solutions, 8 ICI, compétences Pilote + Bâtisseur).</li><li class="task"><input type="checkbox" disabled > Le jeu chargé en ligne affiche <strong>exactement</strong> les mêmes cartes qu'avant (aucune régression visuelle).</li><li class="task"><input type="checkbox" disabled > Modifier une ligne dans Supabase (ex. renommer une solution) se voit dans le jeu <strong>après rechargement</strong>, sans toucher au code.</li><li class="task"><input type="checkbox" disabled > Si Supabase ne répond pas, le jeu affiche un <strong>message d'erreur clair</strong> (pas d'écran vide) avec une possibilité de réessayer.</li><li class="task"><input type="checkbox" disabled > <strong>Interface CR</strong> : un membre se connecte (lien magique), voit les entrées <code>en_revue</code>, peut <strong>valider</strong> (elles apparaissent alors dans le jeu) et <strong>rejeter</strong> (avec motif).</li><li class="task"><input type="checkbox" disabled > Un utilisateur <strong>non connecté</strong> ne peut <strong>rien modifier</strong> (les policies de mise à jour refusent <code>anon</code>).</li><li class="task"><input type="checkbox" disabled > Aucune clé <code>service_role</code> dans le dépôt.</li><li class="task"><input type="checkbox" disabled > Doc <code>supabase/README.md</code> livrée (connexion, ajout d'une carte, validation par le CR).</li></ul>
+<h2>10. Étapes conseillées</h2>
+<ol><li>Lire ce fichier + repérer les 4 blocs de données dans <code>index.html</code> (<code>SOLUTIONS</code>, <code>ICI</code>, <code>COMPETENCES</code>, <code>PCOMP</code>) et leurs dérivés (<code>SOL</code>, <code>SOL_COUT</code>, <code>SOL_LOCK</code>).</li><li>Écrire <code>schema.sql</code> (tables + colonnes de validation + RLS), l'exécuter dans le SQL Editor de Supabase.</li><li>Générer <code>seed.sql</code> depuis le HTML, au statut <code>valide</code> (un petit script Node/Python qui transforme les tableaux JS en <code>INSERT</code> fait gagner du temps et évite les fautes de recopie).</li><li>Vérifier la lecture <code>anon</code> via l'URL REST dans le navigateur (on ne voit que le <code>valide</code>).</li><li>Brancher <code>loadData()</code> + les fonctions <code>apply*</code> avec le remapping, tester le jeu en ligne.</li><li>Développer l'<strong>interface de validation CR</strong> : connexion lien magique, file <code>en_revue</code>, valider / rejeter.</li><li>Tester le circuit complet : créer une proposition <code>en_revue</code>, la valider dans l'interface, vérifier qu'elle apparaît dans le jeu après rechargement.</li><li>Tester le cas d'erreur (Supabase injoignable) : message clair, bouton réessayer.</li><li>Écrire la doc, ouvrir une PR.</li></ol>
+<h2>11. Questions à poser avant de démarrer</h2>
+<ul><li>Confirme-t-on <strong>une seule</strong> table <code>competences</code> (avec <code>profil</code>) plutôt que deux tables séparées ?</li><li>Faut-il aussi externaliser les <strong>catégories</strong> (<code>CATS</code>) et <strong>référentiels</strong> (<code>REFS</code>), ou on les garde en dur pour la V1 ?</li><li>Pour le CR : « tout compte connecté = membre du CR » suffit pour la V1, ou faut-il dès maintenant une table <code>membres_cr</code> avec des rôles ?</li><li>Où héberge-t-on l'interface de validation (<code>conseil.evad.org</code>, <code>jeu.evad.org/validation</code>, autre) ?</li></ul></div></body></html>
