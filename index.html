@@ -351,6 +351,11 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .mm-svg{width:100%;max-width:400px;display:block;margin:.1rem auto .5rem}
 .mm-sat{transition:opacity .15s}
 .mm-sat:hover{opacity:.82}
+.ob-esp-grid{display:flex;flex-wrap:wrap;gap:.4rem;margin:.2rem 0 .6rem;max-height:150px;overflow-y:auto;padding:.1rem}
+.ob-esp-chip{background:rgba(255,255,255,.06);border:1.5px solid rgba(130,184,148,.2);border-radius:100px;padding:.4rem .7rem;cursor:pointer;color:var(--mist);font-weight:700;font-size:.74rem;transition:all .15s;font-family:var(--font);white-space:nowrap}
+.ob-esp-chip:hover{background:rgba(255,255,255,.1)}
+.ob-esp-chip.on{background:var(--fern);color:#06231a;border-color:var(--fern)}
+.add-space-select{border-radius:100px;border:1.5px solid rgba(1,130,98,.22);background:var(--cream);color:var(--forest);font-weight:700;font-size:.78rem;padding:.4rem .7rem;font-family:var(--font);cursor:pointer;max-width:220px}
 .ob-goal{background:rgba(74,171,143,.14);border:1px solid rgba(74,171,143,.32);border-radius:12px;padding:.65rem .8rem;font-size:.86rem;line-height:1.45;color:var(--mist);margin-bottom:.65rem}
 .ob-goal b{color:var(--cream)}
 .ob-howto{display:flex;flex-direction:column;gap:.5rem}
@@ -822,43 +827,43 @@ const CATS = {
   social:       {label:'🤝 Social',        color:'#7a6ea8'},
 };
 const SOLUTIONS = [
-  {id:'potager',   name:'Potager en pleine terre', ic:'🥬', cat:'alimentaire', cap:['terre'],
+  {id:'potager',   name:'Potager en pleine terre', ic:'🥬', cat:'alimentaire', cap:['jardin'],
    desc:'Légumes de saison en circuit court.', vadance:4, graines:3, ici:'biodiv',
    flux:{in:['compost','eau'],out:['legumes','biodechets']}, dormant:true},
-  {id:'serre',     name:'Serre bioclimatique', ic:'🏡', cat:'alimentaire', cap:['terre'],
+  {id:'serre',     name:'Serre bioclimatique', ic:'🏡', cat:'alimentaire', cap:['serre','jardin'],
    desc:'Produit même l\'hiver, protège du gel.', vadance:5, graines:4, ici:'biodiv',
    flux:{in:['eau'],out:['legumes']}, protects:'gel', winter:true},
-  {id:'rucher',    name:'Rucher partagé', ic:'🐝', cat:'biodiversite', cap:['terre','toit'],
+  {id:'rucher',    name:'Rucher partagé', ic:'🐝', cat:'biodiversite', cap:['jardin'],
    desc:'Pollinisation et miel local.', vadance:3, graines:2, ici:'biodiv',
    flux:{in:[],out:['pollinisation']}, dormant:true},
-  {id:'poulailler',name:'Poulailler', ic:'🐔', cat:'alimentaire', cap:['terre'],
+  {id:'poulailler',name:'Poulailler', ic:'🐔', cat:'alimentaire', cap:['jardin'],
    desc:'Œufs, et valorise les restes de cuisine.', vadance:3, graines:3, ici:'biodechets',
    flux:{in:['restes'],out:['fumier']}, dormant:true},
-  {id:'compost',   name:'Composteur', ic:'🪱', cat:'dechets', cap:['terre','piece'],
+  {id:'compost',   name:'Composteur', ic:'🪱', cat:'dechets', cap:['compost','jardin'],
    desc:'Transforme les biodéchets en terreau.', vadance:3, graines:2, ici:'dechets',
    flux:{in:['biodechets'],out:['compost']}},
-  {id:'recup-eau', name:'Récupérateur d\'eau de pluie', ic:'💧', cat:'eau', cap:['toit'],
+  {id:'recup-eau', name:'Récupérateur d\'eau de pluie', ic:'💧', cat:'eau', cap:['jardin','stockage'],
    desc:'Stocke la pluie pour arroser et rafraîchir.', vadance:4, graines:2, ici:'eau',
    flux:{in:[],out:['eau']}, clim:'fraicheur', protects:'secheresse'},
-  {id:'mur-vegetal',name:'Mur végétalisé', ic:'🌿', cat:'biodiversite', cap:['mur','terre'],
+  {id:'mur-vegetal',name:'Mur végétalisé', ic:'🌿', cat:'biodiversite', cap:['jardin'],
    desc:'Rafraîchit et accueille la biodiversité.', vadance:4, graines:2, ici:'biodiv',
    flux:{in:['eau'],out:[]}, clim:'fraicheur'},
-  {id:'ombriere',  name:'Ombrière solaire', ic:'⛱️', cat:'energie', cap:['toit'],
+  {id:'ombriere',  name:'Ombrière solaire', ic:'⛱️', cat:'energie', cap:['jardin','stockage'],
    desc:'De l\'ombre l\'été, du courant toute l\'année.', vadance:5, graines:3, ici:'energie',
    flux:{in:[],out:['energie']}, clim:'fraicheur'},
-  {id:'phyto',     name:'Phytoépuration', ic:'🪷', cat:'eau', cap:['terre'],
+  {id:'phyto',     name:'Phytoépuration', ic:'🪷', cat:'eau', cap:['jardin'],
    desc:'Épure les eaux grises par les plantes.', vadance:4, graines:2, ici:'eau',
    flux:{in:['eauxusees'],out:['eau']}, clim:'fraicheur', protects:'secheresse'},
-  {id:'solaire',   name:'Panneaux photovoltaïques', ic:'🔆', cat:'energie', cap:['toit'],
+  {id:'solaire',   name:'Panneaux photovoltaïques', ic:'🔆', cat:'energie', cap:['stockage','jardin'],
    desc:'Électricité renouvelable et autonomie.', vadance:5, graines:3, ici:'energie',
    flux:{in:[],out:['energie']}},
-  {id:'atelier',   name:'Atelier de réparation', ic:'🔧', cat:'dechets', cap:['piece'],
+  {id:'atelier',   name:'Atelier de réparation', ic:'🔧', cat:'dechets', cap:['atelier','fablab'],
    desc:'Répare objets et vélos, protège des tempêtes.', vadance:4, graines:3, ici:'objets',
    flux:{in:[],out:[]}, protects:'tempete'},
-  {id:'recyclerie',name:'Recyclerie de quartier', ic:'♻️', cat:'dechets', cap:['piece'],
+  {id:'recyclerie',name:'Recyclerie de quartier', ic:'♻️', cat:'dechets', cap:['atelier','boutique','stockage'],
    desc:'Donne une seconde vie aux objets.', vadance:3, graines:2, ici:'dechets',
    flux:{in:[],out:[]}},
-  {id:'cuisine',   name:'Cuisine partagée', ic:'🍲', cat:'alimentaire', cap:['piece'],
+  {id:'cuisine',   name:'Cuisine partagée', ic:'🍲', cat:'alimentaire', cap:['cuisine','cantine'],
    desc:'Repas locaux, et nourrit compost & poulailler.', vadance:4, graines:3, ici:'repas',
    flux:{in:['legumes'],out:['biodechets','restes']}},
 ];
@@ -882,30 +887,48 @@ const PCOMP={
 
 /* ---------- Types d'espaces (personnalisation du lieu) ---------- */
 const MEASURE_COST=2, ADD_SPACE_COST=3, MAX_PER_SPACE=2, VADITE_CAP=3; // rééquilibrage : sinks de Graines & contrainte d'espace
+/* Les 20 espaces qui composent un lieu (taxonomie officielle EVAD) */
 const TYPE_META={
-  terre:{ic:'🌱',name:'Pleine terre',bg:'#e7f6ec'},
-  toit:{ic:'🏢',name:'Toiture',bg:'#eef1f5'},
-  piece:{ic:'🚪',name:'Pièce équipée',bg:'#f1eef7'},
-  mur:{ic:'🧱',name:'Façade / mur',bg:'#f6efe8'},
+  cuisine:      {ic:'🍳', name:'Cuisine',            bg:'#f6efe8'},
+  cafe_bar:     {ic:'☕', name:'Café / Bar',          bg:'#f3ede2'},
+  cantine:      {ic:'🥗', name:'Cantine / Resto',     bg:'#eef6ec'},
+  coworking:    {ic:'💻', name:'Coworking',           bg:'#e6f2f8'},
+  salle_reunion:{ic:'💬', name:'Salle de réunion',    bg:'#eef1f5'},
+  atelier:      {ic:'🔧', name:'Atelier',             bg:'#f6efe8'},
+  fablab:       {ic:'⚙️', name:'FabLab',              bg:'#eef1f5'},
+  scene:        {ic:'🎭', name:'Scène / Événements',  bg:'#f1eef7'},
+  expo:         {ic:'🖼️', name:'Espace expo',         bg:'#f3eef7'},
+  boutique:     {ic:'🛍️', name:'Boutique',            bg:'#fbeef4'},
+  bibliotheque: {ic:'📚', name:'Bibliothèque',        bg:'#eef1f7'},
+  formation:    {ic:'🎓', name:'Salle de formation',  bg:'#eaf3ee'},
+  jardin:       {ic:'🌿', name:'Jardin',              bg:'#e7f6ec', outdoor:true},
+  serre:        {ic:'🌱', name:'Serre',               bg:'#e7f6ec'},
+  compost:      {ic:'♻️', name:'Compost / Déchets',   bg:'#eef6e6'},
+  hebergement:  {ic:'🛏️', name:'Hébergement',         bg:'#eef1f5'},
+  sport:        {ic:'🤸', name:'Sport / Bien-être',   bg:'#eaf4f0'},
+  meditation:   {ic:'🧘', name:'Méditation / Yoga',   bg:'#f1eef7'},
+  stockage:     {ic:'📦', name:'Stockage',            bg:'#f0f0ee'},
+  autre:        {ic:'✨', name:'Autre',               bg:'#f2f2ef'},
 };
+const ESPACE_CODES=Object.keys(TYPE_META);
 
 /* ---------- Types de lieu (onboarding Deva) ---------- */
 const LIEU_TYPES=[
   {id:'jardin', ic:'🌱', name:'Jardin partagé', desc:'Cultiver et se retrouver au grand air.',
    existants:[{name:'Parcelles partagées',ic:'🌻',bg:'#e7f6ec',graines:2,vadance:2,iciType:'biodiv'},{name:'Point d\'accueil',ic:'🪧',bg:'#f3ede2',graines:1,vadance:1,iciType:'accueil'}],
-   spaces:['terre','terre','mur']},
+   spaces:['jardin','compost','serre']},
   {id:'tierslieu', ic:'🏬', name:'Tiers-lieu', desc:'Travailler, réparer et partager sous un même toit.',
    existants:[{name:'Café associatif',ic:'☕',bg:'#f3ede2',graines:3,vadance:3,iciType:'accueil'},{name:'Espace coworking',ic:'💻',bg:'#e6f2f8',graines:2,vadance:2,iciType:'accueil'}],
-   spaces:['piece','toit','mur']},
+   spaces:['atelier','cuisine','jardin']},
   {id:'ecolieu', ic:'🏡', name:'Écolieu', desc:'Habiter et produire autrement, en collectif.',
    existants:[{name:'Habitat partagé',ic:'🏡',bg:'#e7f6ec',graines:2,vadance:2,iciType:'accueil'},{name:'Atelier commun',ic:'🔧',bg:'#f6efe8',graines:2,vadance:2,iciType:'objets'}],
-   spaces:['terre','toit','piece']},
+   spaces:['jardin','atelier','hebergement']},
   {id:'ferme', ic:'🚜', name:'Ferme urbaine', desc:'Nourrir la ville en circuit court.',
    existants:[{name:'Marché de producteurs',ic:'🧺',bg:'#f3ede2',graines:3,vadance:2,iciType:'repas'},{name:'Verger existant',ic:'🌳',bg:'#e7f6ec',graines:2,vadance:2,iciType:'biodiv'}],
-   spaces:['terre','terre','toit']},
+   spaces:['jardin','serre','compost']},
   {id:'friche', ic:'🏭', name:'Friche', desc:'Réveiller un lieu délaissé par l\'action collective.',
    existants:[{name:'Halle événementielle',ic:'🎪',bg:'#f1eef7',graines:3,vadance:2,iciType:'accueil'},{name:'Fresque participative',ic:'🎨',bg:'#f6efe8',graines:1,vadance:2,iciType:'accueil'}],
-   spaces:['piece','toit','mur','terre']},
+   spaces:['scene','atelier','boutique','jardin']},
 ];
 
 /* ---------- Indicateurs ICI ---------- */
@@ -996,10 +1019,10 @@ function makeSpaces(){
      baseSol:'cafe-existant', graines:3, vadance:3, ici:null, iciType:'accueil', sols:[]},
     {id:'cowork', name:'Espace coworking', ic:'💻', bg:'#e6f2f8', type:'existant', existant:true,
      graines:2, vadance:2, ici:null, iciType:'accueil', sols:[]},
-    {id:'terre', name:'Pleine terre (jardin)', ic:'🌱', bg:'#e7f6ec', type:'terre', existant:false, sols:[]},
-    {id:'toit', name:'Toiture plate', ic:'🏢', bg:'#eef1f5', type:'toit', existant:false, sols:[]},
-    {id:'piece', name:'Pièce équipée', ic:'🚪', bg:'#f1eef7', type:'piece', existant:false, sols:[]},
-    {id:'mur', name:'Façade / mur', ic:'🧱', bg:'#f6efe8', type:'mur', existant:false, sols:[]},
+    {id:'jardin', name:'Jardin', ic:'🌿', bg:'#e7f6ec', type:'jardin', existant:false, sols:[]},
+    {id:'atelier', name:'Atelier', ic:'🔧', bg:'#f6efe8', type:'atelier', existant:false, sols:[]},
+    {id:'cuisine', name:'Cuisine', ic:'🍳', bg:'#f6efe8', type:'cuisine', existant:false, sols:[]},
+    {id:'stockage', name:'Stockage', ic:'📦', bg:'#f0f0ee', type:'stockage', existant:false, sols:[]},
   ];
 }
 
@@ -1273,32 +1296,39 @@ const SEMEUR_TYPES=[
 function obSelectComp(k){ S.ob.comp=k; renderOnboardingStep(); }
 function obCaptureFree(){ const t=document.getElementById('ob-free'); if(t) S.ob.freeText=t.value; }
 function obSelectMotiv(k){ obCaptureFree(); S.ob.motivation=k; renderOnboardingStep(); }
+function shortEsp(n){ let s=n.split('/')[0].trim(); return s.length>13?s.slice(0,12)+'…':s; }
 function obLieuMindMap(ob){
-  const cx=190, cy=148, cr=40, sr=31;
-  const layout={ terre:[80,70], toit:[300,70], piece:[300,226], mur:[80,226] };
-  const order=['terre','toit','piece','mur'];
-  const FERN='#4aab8f', FOREST='#018262', SAGE='rgba(130,184,148,.32)', MIST='rgba(225,238,228,.82)';
+  const cx=190, cy=150, cr=38, sr=26, R=104;
+  const FERN='#4aab8f', FOREST='#018262', MIST='rgba(225,238,228,.85)';
+  const sel=ESPACE_CODES.filter(c=>ob.spaces.has(c));
+  const N=sel.length;
   let lines='', nodes='';
-  order.forEach(tp=>{
+  sel.forEach((tp,i)=>{
     const m=TYPE_META[tp]; if(!m) return;
-    const p=layout[tp], x=p[0], y=p[1], on=ob.spaces.has(tp);
-    lines+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="${on?FERN:SAGE}" stroke-width="${on?2:1.5}" stroke-opacity="${on?.85:.45}" ${on?'':'stroke-dasharray="4 5"'}/>`;
+    const ang=(-90 + i*360/N) * Math.PI/180;
+    const x=Math.round(cx+R*Math.cos(ang)), y=Math.round(cy+R*Math.sin(ang));
+    lines+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="${FERN}" stroke-width="2" stroke-opacity=".8"/>`;
     nodes+=`<g class="mm-sat" onclick="obToggleSpace('${tp}')" style="cursor:pointer">
-      <circle cx="${x}" cy="${y}" r="${sr}" fill="${on?'rgba(74,171,143,.18)':'rgba(255,255,255,.04)'}" stroke="${on?FERN:SAGE}" stroke-width="${on?2:1.5}" ${on?'':'stroke-dasharray="4 5"'}/>
-      <text x="${x}" y="${y+7}" text-anchor="middle" font-size="22">${m.ic}</text>
-      <text x="${x}" y="${y+sr+16}" text-anchor="middle" font-size="12" font-weight="700" fill="${MIST}" font-family="var(--font)">${m.name}</text>
-      <circle cx="${x+sr-7}" cy="${y-sr+7}" r="10" fill="${on?FERN:'rgba(255,255,255,.08)'}" stroke="${on?FERN:SAGE}" stroke-width="1.5"/>
-      <text x="${x+sr-7}" y="${y-sr+11}" text-anchor="middle" font-size="13" font-weight="800" fill="${on?'#06231a':MIST}">${on?'✓':'+'}</text>
+      <circle cx="${x}" cy="${y}" r="${sr}" fill="rgba(74,171,143,.18)" stroke="${FERN}" stroke-width="2"/>
+      <text x="${x}" y="${y+6}" text-anchor="middle" font-size="18">${m.ic}</text>
+      <text x="${x}" y="${y+sr+13}" text-anchor="middle" font-size="10.5" font-weight="700" fill="${MIST}" font-family="var(--font)">${escapeHtml(shortEsp(m.name))}</text>
     </g>`;
   });
   const nm=ob.lieuName||'Ton lieu', nmShort=nm.length>16?nm.slice(0,15)+'…':nm;
   const center=`<g>
     <circle cx="${cx}" cy="${cy}" r="${cr+6}" fill="none" stroke="${FERN}" stroke-opacity=".22" stroke-width="2"/>
     <circle cx="${cx}" cy="${cy}" r="${cr}" fill="${FOREST}" stroke="${FERN}" stroke-width="2.5"/>
-    <text x="${cx}" y="${cy+3}" text-anchor="middle" font-size="30">🏡</text>
-    <text x="${cx}" y="${cy+cr+20}" text-anchor="middle" font-size="13" font-weight="800" fill="#fff" font-family="var(--font)">${escapeHtml(nmShort)}</text>
+    <text x="${cx}" y="${cy+2}" text-anchor="middle" font-size="28">🏡</text>
+    <text x="${cx}" y="${cy+cr+18}" text-anchor="middle" font-size="12.5" font-weight="800" fill="#fff" font-family="var(--font)">${escapeHtml(nmShort)}</text>
   </g>`;
-  return `<svg viewBox="0 0 380 300" class="mm-svg">${lines}${center}${nodes}</svg>`;
+  const empty = N===0 ? `<text x="${cx}" y="${cy+cr+42}" text-anchor="middle" font-size="11" fill="${MIST}">Choisis des espaces ci-dessous</text>` : '';
+  return `<svg viewBox="0 0 380 300" class="mm-svg">${lines}${center}${nodes}${empty}</svg>`;
+}
+function obEspacePicker(ob){
+  return `<div class="ob-esp-grid">${ESPACE_CODES.map(c=>{
+    const m=TYPE_META[c], on=ob.spaces.has(c);
+    return `<button class="ob-esp-chip ${on?'on':''}" onclick="obToggleSpace('${c}')">${m.ic} ${m.name}${on?' ✓':''}</button>`;
+  }).join('')}</div>`;
 }
 const HOWTO = {
   pilote: {
@@ -1365,8 +1395,9 @@ function renderOnboardingStep(){
   } else if(key==='spaces'){
     const t=LIEU_TYPES.find(x=>x.id===ob.type)||LIEU_TYPES[0];
     const n=ob.spaces.size;
-    msg=`On dessine <b>${escapeHtml(ob.lieuName)}</b> 🌿 Touche un espace pour le faire pousser autour de ton lieu.${n?` <b>${n} espace${n>1?'s':''}</b> pour l'instant.`:''} Rien n'est figé, tu changeras tout plus tard.`;
+    msg=`On compose <b>${escapeHtml(ob.lieuName)}</b> 🌿 Choisis les <b>espaces</b> qui le composent : ils apparaissent autour de ton lieu.${n?` <b>${n} espace${n>1?'s':''}</b> pour l'instant.`:''} Rien n'est figé, tu changeras tout plus tard.`;
     body=`${obLieuMindMap(ob)}
+      ${obEspacePicker(ob)}
       <div class="ob-existants">🏡 <b>Déjà en place</b> dans ton lieu : ${t.existants.map(e=>e.ic+' '+e.name).join(' · ')}</div>`;
     nextLabel='Continuer →';
   } else if(key==='comp'){
@@ -1431,7 +1462,7 @@ function buildLieu(ob){
   t.existants.forEach((e,i)=> spaces.push({id:'ex'+i, name:e.name, ic:e.ic, bg:e.bg, type:'existant', existant:true, graines:e.graines, vadance:e.vadance, ici:null, iciType:e.iciType, sols:[]}));
   let idx=0;
   [...ob.spaces].forEach(tp=>{ const m=TYPE_META[tp]; if(!m) return; spaces.push({id:tp+'-ob'+(idx++), name:m.name, ic:m.ic, bg:m.bg, type:tp, existant:false, sols:[]}); });
-  if(spaces.filter(s=>!s.existant).length===0){ const m=TYPE_META.terre; spaces.push({id:'terre-ob0', name:m.name, ic:m.ic, bg:m.bg, type:'terre', existant:false, sols:[]}); }
+  if(spaces.filter(s=>!s.existant).length===0){ const m=TYPE_META.jardin; spaces.push({id:'jardin-ob0', name:m.name, ic:m.ic, bg:m.bg, type:'jardin', existant:false, sols:[]}); }
   S.spaces=spaces;
 }
 function obFinish(){
@@ -1578,10 +1609,12 @@ function pilotLieu(){
   let h = '';
   h+=`<div class="lieu-edit-head"><h2>🏡 ${escapeHtml(S.lieuName)}</h2><button class="sp-edit" title="Renommer le lieu" onclick="renameLieu()">✏️</button></div>
       <div class="sect-sub">Compose ton lieu : renomme-le, ajoute des espaces, installe des solutions de la Bibliothèque et mesure-les avec des ICI. Reconnaître l'existant est ta première quête.</div>`;
-  // barre d'ajout d'espaces
-  h+=`<div class="add-space-bar"><span class="asb-lab">＋ Aménager un espace (${ADD_SPACE_COST}🌰) :</span>`;
-  ['terre','toit','piece','mur'].forEach(t=>{ h+=`<button class="add-space-btn" onclick="addSpace('${t}')">${TYPE_META[t].ic} ${TYPE_META[t].name}</button>`; });
-  h+=`</div>`;
+  // barre d'ajout d'espaces (menu des 20 espaces)
+  h+=`<div class="add-space-bar"><span class="asb-lab">＋ Aménager un espace (${ADD_SPACE_COST}🌰) :</span>
+    <select class="add-space-select" onchange="if(this.value){addSpace(this.value);this.value='';}">
+      <option value="">Choisir un espace…</option>
+      ${ESPACE_CODES.map(t=>`<option value="${t}">${TYPE_META[t].ic} ${TYPE_META[t].name}</option>`).join('')}
+    </select></div>`;
   // hint selon sélection
   if(S.sel&&S.sel.type==='solution') h+=`<div class="hint">👉 Solution <b>${SOL[S.sel.id].name}</b> sélectionnée (${SOL[S.sel.id].cout}🌰). Clique un espace compatible (surligné) pour l'installer.</div>`;
   else if(S.sel&&S.sel.type==='ici') h+=`<div class="hint">📊 ICI <b>${ICI[S.sel.id].name}</b> sélectionné. Clique le bouton « Mesurer » d'une solution ou d'un espace à prouver.</div>`;
@@ -1941,8 +1974,8 @@ function installedIds(){ let ids=[]; S.spaces.forEach(sp=>sp.sols.forEach(x=>ids
 function isDormantSpace(sp){
   if(SEASONS[S.seasonIdx%4].name!=='Hiver') return false;
   if(sp.existant) return false;
-  // jardins dorment sauf serre
-  return sp.type==='terre' && !sp.sols.some(x=>SOL[x.id].winter);
+  // les espaces de plein air (jardin) dorment l'hiver, sauf s'ils abritent une solution d'hiver (serre)
+  return !!(TYPE_META[sp.type]&&TYPE_META[sp.type].outdoor) && !sp.sols.some(x=>SOL[x.id].winter);
 }
 
 /* ═══════════════ BÂTISSEUR ═══════════════ */
@@ -2710,7 +2743,7 @@ function rollHazard(sz, yr, msgs){
   if(haz==='gel'){
     if(S.profile==='pilote'){
       const hasSerre=S.spaces.some(sp=>sp.sols.some(x=>SOL[x.id].winter));
-      const hasJardin=S.spaces.some(sp=>sp.type==='terre'&&sp.sols.length);
+      const hasJardin=S.spaces.some(sp=>sp.type==='jardin'&&sp.sols.length);
       if(hasJardin && !hasSerre){ S.vadance=Math.max(0,S.vadance-2); msgs.push('❄️ Gel tardif : vos jardins sans serre trinquent · −2 points de Vadance'); }
       else if(hasSerre){ msgs.push('🏡 Votre serre bioclimatique protège les cultures du gel ✅'); }
     }
@@ -2977,7 +3010,7 @@ function devaTip(){
 /* ═══════════════ UTILS ═══════════════ */
 function round1(n){ return Math.round(n*10)/10; }
 function pts(n){ return Math.abs(round1(n))>=2 ? 'points' : 'point'; }
-function capLabel(t){ return {terre:'Pleine terre',toit:'Toiture',piece:'Pièce',mur:'Mur/façade',eau:'Point d\'eau'}[t]||t; }
+function capLabel(t){ return (TYPE_META[t]&&TYPE_META[t].name)||t; }
 function hazName(h){ return {gel:'Gel',canicule:'Canicule',tempete:'Tempête',secheresse:'Sécheresse'}[h]||h; }
 function fireConfetti(){
   const box=document.getElementById('modal-box');
