@@ -794,7 +794,7 @@ const VADE = [
 /* Mission en cours (par profil, par phase VADE) pour passer à l'étape suivante */
 const VADE_MISSIONS = {
   pilote: [
-    'Reconnais et mesure tes espaces existants',
+    'Aménage tes espaces et installe une première solution',
     'Attache des ICI et prouve ton impact',
     'Tisse des boucles entre tes espaces',
     'Fais essaimer ton lieu et boucle le cycle',
@@ -890,7 +890,7 @@ const PCOMP={
   eau:{ic:'💧',name:'Gestion de l\'eau',cost:6,desc:'+1 Vadance à l\'installation des solutions Fraîcheur. Débloque la Phytoépuration.'},
   reparation:{ic:'🔧',name:'Low-tech & réparation',cost:5,desc:'+1🌰/saison par solution Déchets.'},
   mesure:{ic:'📊',name:'Mesure & données',cost:6,desc:'Tes ICI convertissent la Vadance en Vadité deux fois plus vite.'},
-  animation:{ic:'🤝',name:'Animation & communs',cost:5,desc:'+1🌰/saison par espace existant (mobilisation citoyenne).'},
+  animation:{ic:'🤝',name:'Animation & communs',cost:5,desc:'+1🌰/saison par espace qui accueille une solution (mobilisation citoyenne).'},
 };
 
 /* ---------- Types d'espaces (personnalisation du lieu) ---------- */
@@ -1020,19 +1020,8 @@ function newState(profile){
   };
 }
 
-/* espaces du lieu (pilote) */
-function makeSpaces(){
-  return [
-    {id:'cafe', name:'Café associatif', ic:'☕', bg:'#f3ede2', type:'existant', existant:true,
-     baseSol:'cafe-existant', graines:3, vadance:3, ici:null, iciType:'accueil', sols:[]},
-    {id:'cowork', name:'Espace coworking', ic:'💻', bg:'#e6f2f8', type:'existant', existant:true,
-     graines:2, vadance:2, ici:null, iciType:'accueil', sols:[]},
-    {id:'jardin', name:'Jardin', ic:'🌿', bg:'#e7f6ec', type:'jardin', existant:false, sols:[]},
-    {id:'atelier', name:'Atelier', ic:'🔧', bg:'#f6efe8', type:'atelier', existant:false, sols:[]},
-    {id:'cuisine', name:'Cuisine', ic:'🍳', bg:'#f6efe8', type:'cuisine', existant:false, sols:[]},
-    {id:'stockage', name:'Stockage', ic:'📦', bg:'#f0f0ee', type:'stockage', existant:false, sols:[]},
-  ];
-}
+/* espaces du lieu (pilote) : le lieu part de 0, le joueur crée ses espaces */
+function makeSpaces(){ return []; }
 
 /* ═══════════════ LANCEMENT ═══════════════ */
 const SESSION_ACTS=[null,'pilote','batisseur','semeur'];
@@ -1159,7 +1148,7 @@ function chooseProfile(p){
 /* onboarding vocab + première quête VADE */
 function showOnboarding(){
   const goalTxt = {
-    pilote:'Reconnaître l\'existant : attachez un premier ICI à un espace, ou installez une première solution.',
+    pilote:'Ton lieu part de zéro : aménage un espace, installe une première solution, puis mesure-la avec un ICI.',
     batisseur:'Acceptez votre première mission dans l\'onglet Missions.',
     semeur:'Financez votre premier besoin dans l\'onglet Financer.',
   }[S.profile];
@@ -1407,12 +1396,10 @@ function renderOnboardingStep(){
       body=`<div class="ob-types">${LIEU_TYPES.map(t=>`<div class="ob-type ${ob.type===t.id?'sel':''}" onclick="obSelectType('${t.id}')"><div class="ot-ic">${t.ic}</div><div class="ot-name">${t.name}</div><div class="ot-desc">${t.desc}</div></div>`).join('')}</div>`;
     }
   } else if(key==='spaces'){
-    const t=LIEU_TYPES.find(x=>x.id===ob.type)||LIEU_TYPES[0];
     const n=ob.spaces.size;
-    msg=`On compose <b>${escapeHtml(ob.lieuName)}</b> 🌿 Choisis les <b>espaces</b> qui le composent : ils apparaissent autour de ton lieu.${n?` <b>${n} espace${n>1?'s':''}</b> pour l'instant.`:''} Rien n'est figé, tu changeras tout plus tard.`;
+    msg=`On compose <b>${escapeHtml(ob.lieuName)}</b> 🌿 Ton lieu part de zéro : <b>choisis les espaces</b> qui le composent, ils apparaissent autour de ton lieu.${n?` <b>${n} espace${n>1?'s':''}</b> pour l'instant.`:''} Rien n'est figé, tu en ajouteras d'autres plus tard.`;
     body=`${obLieuMindMap(ob)}
-      ${obEspacePicker(ob)}
-      <div class="ob-existants">🏡 <b>Déjà en place</b> dans ton lieu : ${t.existants.map(e=>e.ic+' '+e.name).join(' · ')}</div>`;
+      ${obEspacePicker(ob)}`;
     nextLabel='Continuer →';
   } else if(key==='comp'){
     msg=`Bienvenue, <b>${nm}</b> 🌿 Chaque Bâtisseur a sa spécialité. <b>Quelle compétence</b> veux-tu maîtriser en arrivant ? Tu démarreras avec.`;
@@ -1458,25 +1445,22 @@ function obNext(){
   if(key==='motivation'){ obCaptureFree(); if(!ob.motivation){ toast('Choisis ce qui te motive le plus 🌱','warn'); return; } }
   if(last){ obFinish(); return; }
   ob.step++;
-  if(obSteps()[ob.step]==='spaces' && ob.spaces.size===0){ new Set(LIEU_TYPES.find(x=>x.id===ob.type).spaces).forEach(s=>ob.spaces.add(s)); }
   renderOnboardingStep();
 }
 function obBack(){ obCaptureFree(); if(S.ob.step>0){ S.ob.step--; renderOnboardingStep(); } }
-function obSelectType(id){ S.ob.type=id; const lt=LIEU_TYPES.find(x=>x.id===id); if(lt) S.ob.spaces=new Set(lt.spaces); renderOnboardingStep(); }
+function obSelectType(id){ S.ob.type=id; renderOnboardingStep(); }
 function obToggleSpace(tp){ const s=S.ob.spaces; if(s.has(tp)) s.delete(tp); else s.add(tp); renderOnboardingStep(); }
 function obSkip(){
   const ob=S.ob;
   if(!ob.name) ob.name='toi';
-  if(S.profile==='pilote'){ if(!ob.lieuName) ob.lieuName='La Friche des Possibles'; if(ob.spaces.size===0) new Set(LIEU_TYPES.find(x=>x.id===ob.type).spaces).forEach(s=>ob.spaces.add(s)); }
+  if(S.profile==='pilote'){ if(!ob.lieuName) ob.lieuName='La Friche des Possibles'; }
   obFinish();
 }
 function buildLieu(ob){
-  const t=LIEU_TYPES.find(x=>x.id===ob.type)||LIEU_TYPES[0];
+  // Le lieu part de 0 : uniquement les espaces choisis par le joueur, aucun espace créé en avance.
   const spaces=[];
-  t.existants.forEach((e,i)=> spaces.push({id:'ex'+i, name:e.name, ic:e.ic, bg:e.bg, type:'existant', existant:true, graines:e.graines, vadance:e.vadance, ici:null, iciType:e.iciType, sols:[]}));
   let idx=0;
   [...ob.spaces].forEach(tp=>{ const m=TYPE_META[tp]; if(!m) return; spaces.push({id:tp+'-ob'+(idx++), name:m.name, ic:m.ic, bg:m.bg, type:tp, existant:false, sols:[]}); });
-  if(spaces.filter(s=>!s.existant).length===0){ const m=TYPE_META.jardin; spaces.push({id:'jardin-ob0', name:m.name, ic:m.ic, bg:m.bg, type:'jardin', existant:false, sols:[]}); }
   S.spaces=spaces;
 }
 function obFinish(){
@@ -1622,7 +1606,7 @@ function renderTabB(){
 function pilotLieu(){
   let h = '';
   h+=`<div class="lieu-edit-head"><h2>🏡 ${escapeHtml(S.lieuName)}</h2><button class="sp-edit" title="Renommer le lieu" onclick="renameLieu()">✏️</button></div>
-      <div class="sect-sub">Compose ton lieu : renomme-le, ajoute des espaces, installe des solutions de la Bibliothèque et mesure-les avec des ICI. Reconnaître l'existant est ta première quête.</div>`;
+      <div class="sect-sub">Compose ton lieu : il part de zéro. Aménage des espaces, installe des solutions de la Bibliothèque et mesure-les avec des ICI pour prouver ton impact.</div>`;
   // barre d'ajout d'espaces (menu des 20 espaces)
   h+=`<div class="add-space-bar"><span class="asb-lab">＋ Aménager un espace (${ADD_SPACE_COST}🌰) :</span>
     <select class="add-space-select" onchange="if(this.value){addSpace(this.value);this.value='';}">
@@ -2665,24 +2649,26 @@ function advanceSeason(){
   // 2) production selon profil
   if(S.profile==='pilote'){
     const conv = S.pcomps.has('mesure') ? 0.35 : 0.22; // conversion progressive (rééquilibrée)
-    let nAlim=0,nEner=0,nCirc=0,nExist=0;
+    let nAlim=0,nEner=0,nCirc=0,nOccup=0;
     S.spaces.forEach(sp=>{
       const dorm=isDormantSpace(sp);
-      if(sp.existant){ if(!dorm){ gains+=Math.round(sp.graines*0.6); nExist++; if(sp.ici) vaditeGain+=sp.vadance*conv; } }
+      let occ=false;
       sp.sols.forEach(inst=>{ const s=SOL[inst.id];
         const solDorm = dorm && s.dormant && !s.winter;
         if(solDorm) return;
         gains+=Math.max(1,Math.round(s.graines*0.6));
         if(s.cat==='alimentaire')nAlim++; else if(s.cat==='energie')nEner++; else if(s.cat==='dechets')nCirc++;
         if(inst.ici) vaditeGain+=(inst.vad||s.vadance)*conv;
+        occ=true;
       });
+      if(occ) nOccup++;
     });
     // bonus des compétences du Pilote
     let cb=0;
     if(S.pcomps.has('maraichage')) cb+=nAlim;
     if(S.pcomps.has('energie')) cb+=nEner;
     if(S.pcomps.has('reparation')) cb+=nCirc;
-    if(S.pcomps.has('animation')) cb+=nExist;
+    if(S.pcomps.has('animation')) cb+=nOccup;
     if(cb){ gains+=cb; msgs.push(`🎓 Bonus compétences · +${cb}🌰`); }
     // la vérification prend du temps : plafond de Vadité prouvée par saison
     vaditeGain = Math.min(vaditeGain, VADITE_CAP + (S.pcomps.has('mesure')?1:0));
