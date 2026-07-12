@@ -524,13 +524,13 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 <!-- ══════════════════ SPLASH ══════════════════ -->
 <div id="splash">
   <div class="splash-inner">
-    <div class="splash-badge">🌍 Territoires Vivants · Réseau EVAD</div>
+    <div class="splash-badge">🌍 Le réseau EVAD</div>
     <h1 class="splash-title">Nous sommes en <span class="sun">2030</span>.</h1>
     <p class="splash-sub">Un futur solarpunk qui pousse déjà. Et vous allez le faire fleurir.</p>
 
     <div class="story">
       <p>Les étés sont plus chauds, c'est vrai. Mais pendant qu'on regardait ailleurs, quelque chose de magnifique a grandi dans les friches, sur les toits et dans les campagnes : des <b>regen living labs</b>, des lieux où l'énergie vient du soleil, la nourriture des cours et des terrasses, où l'on répare, partage et décide ensemble.</p>
-      <p>Sans attendre les subventions, ces lieux, leurs habitants et les financeurs d'impact se sont fédérés : c'est le réseau <span class="em">Territoires Vivants</span>, où la confiance se cultive comme le reste, par la preuve. Chaque impact vérifié attire de nouveaux Semeurs, chaque lieu prouvé en inspire dix autres.</p>
+      <p>Sans attendre les subventions, ces lieux, leurs habitants et les financeurs d'impact se sont fédérés : c'est le réseau <span class="em">EVAD</span>, où la confiance se cultive comme le reste, par la preuve. Chaque impact vérifié attire de nouveaux Semeurs, chaque lieu prouvé en inspire dix autres.</p>
       <p>L'outil commun de ce réseau s'appelle <b>EVAD</b>. Quatre vraies saisons par an, du soleil à revendre, quelques caprices du ciel à apprivoiser, et tout un territoire à faire fleurir d'ici <span class="em">2033</span>.</p>
     </div>
 
@@ -931,7 +931,7 @@ function buildTourSteps(){
     {sel:navSel('dash'), side:'right', title:'📊 Tableau de bord', text:'Ta progression, tes badges et ta quête finale, en un coup d\'œil.'},
     {sel:navSel('a'), side:'right', title:nav[1].ic+' '+nav[1].label, text:AB.a},
     {sel:navSel('b'), side:'right', title:nav[2].ic+' '+nav[2].label, text:AB.b},
-    {sel:navSel('reseau'), side:'right', title:'🌐 Réseau Territoires Vivants', text:'La communauté des trois profils. C\'est ici qu\'un lieu propose une quête, qu\'un bâtisseur donne un coup de main, qu\'un semeur avance des fonds.'},
+    {sel:navSel('reseau'), side:'right', title:'🌐 Réseau EVAD', text:'La communauté des trois profils. C\'est ici qu\'un lieu propose une quête, qu\'un bâtisseur donne un coup de main, qu\'un semeur avance des fonds.'},
     {sel:navSel('carte'), side:'right', title:'🗺️ Carte de l\'écosystème', text:'Tu y retrouves tous les lieux de la communauté et leurs quêtes, près de chez toi.'},
     {sel:'#stats', side:'bottom', title:'Tes ressources', text:'🌰 <b>Graines</b> (agir), ✨ <b>Vadance</b> (impact promis) et 🌿 <b>Vadité</b> (impact prouvé, ta devise).'},
     {sel:'.season-btn', side:'bottom', title:'⏳ Le temps qui passe', text:'Ce bouton fait avancer la saison : tes espaces produisent, les revenus tombent, et les aléas climatiques arrivent.'},
@@ -1087,7 +1087,7 @@ function obFinish(){
 
 /* ═══════════════ NAVIGATION (sidebar) ═══════════════ */
 const CARTE_NAV = {k:'carte',ic:'🗺️',label:'Carte',title:'Carte de l\'écosystème',sub:'Découvre la communauté engagée près de chez toi et connecte-toi à l\'écosystème local.'};
-const RESEAU_NAV = {k:'reseau',ic:'🌐',label:'Réseau',title:'Réseau Territoires Vivants',sub:'La communauté des Pilotes, Bâtisseurs et Semeurs : c\'est ici que les trois profils se relient.'};
+const RESEAU_NAV = {k:'reseau',ic:'🌐',label:'Réseau',title:'Réseau EVAD',sub:'La communauté des Pilotes, Bâtisseurs et Semeurs : c\'est ici que les trois profils se relient.'};
 const NAV = {
   pilote:[
     {k:'dash',ic:'📊',label:'Tableau de bord',title:'Tableau de bord',sub:'Ta progression, tes boucles, tes badges et ta quête finale.'},
@@ -1804,7 +1804,7 @@ function carteClick(type,id){
     let msg=`🏡 ${l.name} · ${l.ville}`;
     if(S.profile==='semeur'){ if(l.fin) msg+=` — 🌿 ${lieuVadite(l.id)} points de Vadité financée ici`; else if(l.openF) msg+=` — ${l.openF} besoin(s) à financer`; }
     else if(S.profile==='batisseur'){ if(l.done) msg+=` — ✅ ${l.done} mission(s) accomplie(s)`; else if(l.openM) msg+=` — ${l.openM} mission(s) ouverte(s)`; }
-    else msg+=' — lieu du réseau Territoires Vivants';
+    else msg+=' — lieu du réseau EVAD';
     toast(msg,'win');
   } else if(type==='bat'){ const b=carteBats().find(x=>x.id===id); if(b) toast(`🌿 ${b.name}${b.you?' (toi)':''} — ${b.metier} · ${b.ville}`); }
   else { const s=carteSems().find(x=>x.id===id); if(s) toast(`🌾 ${s.name}${s.you?' (toi)':''}${s.meta?' — '+s.meta:''}`); }
@@ -1914,7 +1914,7 @@ const VADE_KEY={v:0,a:1,d:2,e:3};
 function renderReseau(){
   const el=document.getElementById('view-reseau');
   const f=S.reseauFilter||'tous';
-  let h=`<div class="sect-sub">Le réseau <b>Territoires Vivants</b> relie Pilotes, Bâtisseurs et Semeurs. C'est ici que les profils se rencontrent : un lieu propose une quête, un bâtisseur un coup de main, un semeur une avance.</div>`;
+  let h=`<div class="sect-sub">Le réseau <b>EVAD</b> relie Pilotes, Bâtisseurs et Semeurs. C'est ici que les profils se rencontrent : un lieu propose une quête, un bâtisseur un coup de main, un semeur une avance.</div>`;
   h+=reseauActions();
   const pills=[['tous','Tous'],['pilote','🏡 Pilotes'],['batisseur','🌿 Bâtisseurs'],['semeur','🌾 Semeurs']];
   h+=`<div class="reseau-filters">${pills.map(x=>`<button class="reseau-filter ${f===x[0]?'on':''}" onclick="S.reseauFilter='${x[0]}';render()">${x[1]}</button>`).join('')}</div>`;
@@ -2216,7 +2216,7 @@ function seasonModal(sz, yr, gains, vaditeGain, msgs, hazMsg, won){
 }
 function winModal(){
   const cfg={
-    pilote:{ic:'🌳',t:'Regen Living Lab reconnu !',p:(S.lieuName||'La Friche des Possibles')+' atteint <b>30 points de Vadité prouvée</b>. Votre lieu rejoint les regen living labs reconnus du réseau Territoires Vivants. La spirale VADE peut maintenant recommencer un cran plus haut : de nouveaux espaces à valoriser, de nouvelles boucles à tisser… et d\'autres lieux à inspirer.'},
+    pilote:{ic:'🌳',t:'Regen Living Lab reconnu !',p:(S.lieuName||'La Friche des Possibles')+' atteint <b>30 points de Vadité prouvée</b>. Votre lieu rejoint les regen living labs reconnus du réseau EVAD. La spirale VADE peut maintenant recommencer un cran plus haut : de nouveaux espaces à valoriser, de nouvelles boucles à tisser… et d\'autres lieux à inspirer.'},
     batisseur:{ic:'🌿',t:'Bâtisseur·se confirmé·e !',p:'Vous avez accompli <b>5 missions</b> sur le réseau. Vos compétences ont transformé trois lieux durablement. On vous réclame déjà pour de nouveaux chantiers, et pour transmettre à votre tour.'},
     semeur:{ic:'🌾',t:'Impact vérifié, mission accomplie !',p:'Vous avez atteint <b>25 points de Vadité financée</b>, entièrement vérifiée. Vos référentiels sont couverts, vos financements ont fait pousser des preuves, pas des promesses. Place au rapport d\'impact.'},
   }[S.profile];
@@ -2334,7 +2334,7 @@ function devaAnswer(qraw){
   if(has('compétence','competence','apprendre')) return `Tu démarres avec 2 compétences ; les autres s'apprennent pour <b>4 🌰</b>. « Mesurer » débloque toutes les missions de mesure. Chaque compétence apprise fait avancer ta spirale VADE (A · Activer).`;
   if(has('badge')) return `Les <b>badges</b> 🏅 récompensent tes hauts faits : Gardien de la fraîcheur, Écosystème vivant, Forêt nourricière, Brigades du climat, Pari d'innovation gagné, Triple défi… Retrouve-les au Tableau de bord.`;
   if(has('spirale','vade')) return `La <b>spirale VADE</b> structure la partie : <b>V</b>aloriser (reconnaître l'existant) → <b>A</b>ctiver (mesurer) → <b>D</b>évelopper (faire système) → <b>E</b>ssaimer (passer au réel & inspirer). Puis elle recommence, un cran plus haut.`;
-  if(has('carte','réseau','reseau','communauté','communaute')) return `La <b>Carte de l'écosystème</b> 🗺️ montre les lieux, bâtisseurs et semeurs du réseau Territoires Vivants près de toi. Clique un marqueur pour ses infos, et filtre par type ou par quêtes ouvertes.`;
+  if(has('carte','réseau','reseau','communauté','communaute')) return `La <b>Carte de l'écosystème</b> 🗺️ montre les lieux, bâtisseurs et semeurs du réseau EVAD près de toi. Clique un marqueur pour ses infos, et filtre par type ou par quêtes ouvertes.`;
   if(has('ferme','nommer',' nom','créer','creer','fiche','appeler')) return `Pour bien nommer un lieu, sois précis et inspirant, et ajoute un mot-clé d'impact : « <i>Ferme des Lucioles, maraîchage régénératif</i> » ou « <i>Les Racines, permaculture & biodiversité</i> ». Le nom doit dire ce que le lieu <b>prouve</b>.`;
   if(has('objectif','gagner',' but','quête','quete','comment jouer','finir','réussir','reussir')) return `Ton objectif : <b>${goalLabel()}</b>.<br><br>${devaTip()}`;
   if(has('empreinte','frugal','énergie','energie','co2','conso','écolo','ecolo')) return `Je suis une IA <b>frugale</b> : réponses courtes, modèle léger. La jauge en haut montre l'empreinte de notre conversation (électricité, eau, CO₂). L'IA la plus verte, c'est celle qu'on n'appelle que quand c'est utile 🌱.`;
