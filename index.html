@@ -329,6 +329,12 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .add-space-bar .asb-lab{font-size:.72rem;font-weight:700;color:var(--moss);opacity:.75}
 .add-space-btn{border-radius:100px;padding:.4rem .8rem;font-size:.72rem;font-weight:700;background:#fff;border:1px dashed rgba(1,130,98,.3);color:var(--moss);cursor:pointer;transition:all .15s}
 .add-space-btn:hover{background:var(--cream);border-style:solid;transform:translateY(-1px)}
+.biblio-tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.9rem;border-bottom:1px solid var(--line);padding-bottom:.6rem}
+.biblio-tab{border-radius:100px;padding:.5rem 1rem;font-size:.82rem;font-weight:800;color:var(--moss);background:rgba(1,130,98,.06);border:1px solid rgba(1,130,98,.14);cursor:pointer;transition:all .15s;font-family:var(--font)}
+.biblio-tab:hover{background:rgba(1,130,98,.12)}
+.biblio-tab.active{background:var(--forest);color:#fff;border-color:var(--forest);box-shadow:0 5px 14px rgba(1,130,98,.24)}
+.biblio-row-desc{font-size:.78rem;color:var(--moss);opacity:.85;line-height:1.5;margin-bottom:.7rem}
+.biblio-row-desc b{color:var(--ink)}
 .biblio-row-title{font-size:.98rem;font-weight:800;margin:1.3rem 0 .5rem;display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap}
 .biblio-row-title span{font-size:.68rem;font-weight:600;color:var(--moss);opacity:.7}
 .scard.locked{opacity:.6;filter:grayscale(.35)}
@@ -1180,22 +1186,26 @@ function spaceCard(sp){
 
 /* ---- PILOTE : bibliothèque complète (3 rangées) ---- */
 function pilotBiblio(){
-  let h=`<div class="sect-sub">La Bibliothèque complète d'EVAD. Sélectionne une carte, puis place-la dans ton lieu. Trois familles : <b>Solutions</b> à installer, <b>ICI</b> pour mesurer, <b>Compétences</b> pour débloquer et booster.</div>`;
-  h+=`<div style="font-size:.72rem;color:var(--moss);opacity:.8;margin-bottom:.4rem">🌰 ${S.graines} Graines disponibles</div>`;
-  // Rangée 1 : Solutions
-  h+=`<div class="biblio-row-title">🧩 Cartes Solutions <span>· installe dans un espace compatible</span></div>`;
-  h+=`<div class="cats">${['all',...Object.keys(CATS)].map(c=>{
-    const on=(S.catFilter||'all')===c; const col=c==='all'?'var(--forest)':CATS[c].color;
-    return `<button class="cat-pill ${on?'on':''}" style="${on?`background:${col};border-color:${col}`:''}" onclick="S.catFilter='${c}';render()">${c==='all'?'Tout':CATS[c].label}</button>`;
-  }).join('')}</div><div style="height:.6rem"></div>`;
-  const sols=(S.catFilter&&S.catFilter!=='all')?SOLUTIONS.filter(s=>s.cat===S.catFilter):SOLUTIONS;
-  h+=`<div class="cards-grid">${sols.map(s=>solutionCard(s.id)).join('')}</div>`;
-  // Rangée 2 : ICI
-  h+=`<div class="biblio-row-title">📊 Cartes ICI <span>· mesure une solution → Vadité vérifiée</span></div>`;
-  h+=`<div class="cards-grid">${Object.keys(ICI).map(iciCard).join('')}</div>`;
-  // Rangée 3 : Compétences
-  h+=`<div class="biblio-row-title">🎓 Cartes Compétences <span>· débloque des solutions & booste ta production</span></div>`;
-  h+=`<div class="comp-grid">${Object.keys(PCOMP).map(pcompCard).join('')}</div>`;
+  const bt=S.biblioTab||'solutions';
+  let h=`<div class="sect-sub">La Bibliothèque complète d'EVAD. Sélectionne une carte, puis place-la dans ton lieu.</div>`;
+  h+=`<div style="font-size:.72rem;color:var(--moss);opacity:.8;margin-bottom:.65rem">🌰 ${S.graines} Graines disponibles</div>`;
+  const tabs=[['solutions','🧩 Solutions'],['ici','📊 Indicateurs (ICI)'],['comp','🎓 Compétences']];
+  h+=`<div class="biblio-tabs">${tabs.map(t=>`<button class="biblio-tab ${bt===t[0]?'active':''}" onclick="S.biblioTab='${t[0]}';render()">${t[1]}</button>`).join('')}</div>`;
+  if(bt==='solutions'){
+    h+=`<div class="biblio-row-desc">Installe une solution dans un espace compatible : elle produit de la <b>Vadance</b>.</div>`;
+    h+=`<div class="cats">${['all',...Object.keys(CATS)].map(c=>{
+      const on=(S.catFilter||'all')===c; const col=c==='all'?'var(--forest)':CATS[c].color;
+      return `<button class="cat-pill ${on?'on':''}" style="${on?`background:${col};border-color:${col}`:''}" onclick="S.catFilter='${c}';render()">${c==='all'?'Tout':CATS[c].label}</button>`;
+    }).join('')}</div><div style="height:.7rem"></div>`;
+    const sols=(S.catFilter&&S.catFilter!=='all')?SOLUTIONS.filter(s=>s.cat===S.catFilter):SOLUTIONS;
+    h+=`<div class="cards-grid">${sols.map(s=>solutionCard(s.id)).join('')}</div>`;
+  } else if(bt==='ici'){
+    h+=`<div class="biblio-row-desc">Sélectionne un ICI, puis clique « Mesurer » sur une solution : sa Vadance devient <b>Vadité vérifiée</b> et couvre ses référentiels.</div>`;
+    h+=`<div class="cards-grid">${Object.keys(ICI).map(iciCard).join('')}</div>`;
+  } else {
+    h+=`<div class="biblio-row-desc">Acquiers des compétences pour <b>débloquer</b> des solutions et <b>booster</b> ta production chaque saison.</div>`;
+    h+=`<div class="comp-grid">${Object.keys(PCOMP).map(pcompCard).join('')}</div>`;
+  }
   return h;
 }
 function solutionCard(id){
