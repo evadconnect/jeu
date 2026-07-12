@@ -348,10 +348,11 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .card2.sel{border-color:var(--forest);box-shadow:0 0 0 3px rgba(1,130,98,.18)}
 .card2.locked{opacity:.62;filter:grayscale(.35)}
 .card2.locked:hover{transform:none;box-shadow:var(--shadow)}
-.c2-media{height:84px;display:flex;align-items:center;justify-content:center;position:relative}
+.c2-media{height:84px;position:relative;overflow:hidden}
+.scene{position:absolute;inset:0;width:100%;height:100%;display:block}
 .c2-emoji{font-size:2.5rem;filter:drop-shadow(0 3px 5px rgba(0,0,0,.12))}
-.c2-flag{position:absolute;top:.5rem;left:.5rem;background:rgba(255,255,255,.92);color:var(--sky);font-size:.58rem;font-weight:800;border-radius:100px;padding:.2rem .5rem;backdrop-filter:blur(3px)}
-.c2-lock{position:absolute;top:.5rem;right:.5rem;background:rgba(255,255,255,.94);color:var(--terracotta);font-size:.56rem;font-weight:800;border-radius:100px;padding:.2rem .5rem}
+.c2-flag{position:absolute;top:.5rem;left:.5rem;z-index:2;background:rgba(255,255,255,.92);color:var(--sky);font-size:.58rem;font-weight:800;border-radius:100px;padding:.2rem .5rem;backdrop-filter:blur(3px)}
+.c2-lock{position:absolute;top:.5rem;right:.5rem;z-index:2;background:rgba(255,255,255,.94);color:var(--terracotta);font-size:.56rem;font-weight:800;border-radius:100px;padding:.2rem .5rem}
 .c2-body{padding:.7rem .8rem .75rem;display:flex;flex-direction:column;flex:1}
 .c2-cat{display:flex;align-items:center;gap:.35rem;font-size:.6rem;font-weight:800;color:var(--moss);text-transform:uppercase;letter-spacing:.02em;opacity:.85;margin-bottom:.3rem}
 .c2-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
@@ -362,9 +363,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .c2-metric .c2-mval{font-size:1.02rem;font-weight:900;color:var(--forest);line-height:1.1}
 .c2-cost{font-size:.72rem;font-weight:800;color:var(--amber);background:#f3ede2;border-radius:8px;padding:.25rem .5rem;white-space:nowrap;align-self:center}
 .modal-box.det-modal{padding:0;max-width:480px;text-align:left;overflow:hidden}
-.det-media{height:148px;display:flex;align-items:center;justify-content:center;position:relative}
+.det-media{height:148px;position:relative;overflow:hidden}
 .det-emoji{font-size:3.9rem;filter:drop-shadow(0 5px 9px rgba(0,0,0,.16))}
-.det-close{position:absolute;top:.8rem;right:.8rem;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.85);border:none;cursor:pointer;font-size:.9rem;color:var(--ink);display:flex;align-items:center;justify-content:center;transition:background .15s}
+.det-close{position:absolute;top:.8rem;right:.8rem;z-index:2;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.85);border:none;cursor:pointer;font-size:.9rem;color:var(--ink);display:flex;align-items:center;justify-content:center;transition:background .15s}
 .det-close:hover{background:#fff}
 .det-body{padding:1.15rem 1.3rem 1.35rem}
 .det-title{font-size:1.35rem;font-weight:900;margin:.35rem 0 .4rem;color:var(--ink);line-height:1.15}
@@ -1281,13 +1282,53 @@ function pilotBiblio(){
   }
   return h;
 }
+/* ═══════════════ ILLUSTRATIONS SOLARPUNK (SVG) ═══════════════ */
+const SKY={
+  alim:{sky:'#dcf0df',hb:'#bfe3c4',hf:'#9bcfa6',sun:'#f2c14e'},
+  fraicheur:{sky:'#d6ecf5',hb:'#bfe0e8',hf:'#a6d5cf',sun:'#f4d06a'},
+  energie:{sky:'#fbe7c9',hb:'#f2d29a',hf:'#e9b978',sun:'#f5a83a'},
+  circulaire:{sky:'#efe7d6',hb:'#ddd0b6',hf:'#c9b894',sun:'#eabf5f'},
+  ici:{sky:'#e2e8f2',hb:'#cdd7ea',hf:'#b3c2e0',sun:'#efce74'},
+  comp:{sky:'#ece6f2',hb:'#dbd0ea',hf:'#c6b6e0',sun:'#efce74'},
+};
+const MOTIF={
+  garden:`<ellipse cx="100" cy="92" rx="46" ry="8" fill="#7d5636"/><rect x="99" y="70" width="2" height="14" fill="#2f7a45"/><circle cx="80" cy="84" r="8" fill="#41a05c"/><circle cx="100" cy="80" r="10" fill="#4cb267"/><circle cx="120" cy="84" r="8" fill="#41a05c"/><circle cx="90" cy="88" r="6" fill="#3f9d5a"/><circle cx="110" cy="88" r="6" fill="#3f9d5a"/>`,
+  greenhouse:`<rect x="74" y="66" width="52" height="26" rx="2" fill="#e9f7ef" stroke="#8fc7a3" stroke-width="1.5"/><path d="M74 66 L100 52 L126 66 Z" fill="#d7efe0" stroke="#8fc7a3" stroke-width="1.5"/><line x1="100" y1="52" x2="100" y2="92" stroke="#a7d4b7" stroke-width="1.2"/><line x1="87" y1="66" x2="87" y2="92" stroke="#a7d4b7" stroke-width="1"/><line x1="113" y1="66" x2="113" y2="92" stroke="#a7d4b7" stroke-width="1"/>`,
+  hive:`<ellipse cx="100" cy="92" rx="30" ry="6" fill="#7d5636"/><rect x="84" y="76" width="32" height="16" rx="2" fill="#e0a94e"/><rect x="86" y="66" width="28" height="12" rx="2" fill="#eab863"/><rect x="88" y="58" width="24" height="10" rx="2" fill="#f2c878"/><rect x="97" y="84" width="6" height="6" fill="#7a4a1c"/><circle cx="128" cy="58" r="2.2" fill="#3a3a3a"/><circle cx="122" cy="52" r="1.6" fill="#3a3a3a"/>`,
+  coop:`<rect x="80" y="70" width="40" height="22" fill="#c98a5a"/><path d="M76 70 L100 54 L124 70 Z" fill="#a3623a"/><rect x="94" y="78" width="12" height="14" fill="#7a4a2a"/><circle cx="112" cy="76" r="3" fill="#ffe08a"/>`,
+  compost:`<path d="M80 92 L84 68 L116 68 L120 92 Z" fill="#8a6a3c"/><rect x="81" y="64" width="38" height="6" rx="1" fill="#6f5230"/><path d="M100 64 q-8 -10 -2 -16 q6 4 2 16" fill="#4cb267"/><path d="M100 64 q8 -8 3 -14 q-5 4 -3 14" fill="#41a05c"/>`,
+  water:`<rect x="82" y="62" width="36" height="32" rx="5" fill="#7fb7c9"/><rect x="82" y="62" width="36" height="9" rx="5" fill="#9fcfdd"/><path d="M100 38 q7 12 0 18 q-7 -6 0 -18" fill="#5fa7c2"/><line x1="88" y1="80" x2="112" y2="80" stroke="#e8f6fb" stroke-width="1.5" opacity=".6"/>`,
+  greenwall:`<rect x="78" y="56" width="44" height="36" rx="3" fill="#cdd7c8"/><g fill="#4cb267"><circle cx="86" cy="64" r="5"/><circle cx="100" cy="62" r="6"/><circle cx="114" cy="64" r="5"/><circle cx="92" cy="76" r="6"/><circle cx="108" cy="76" r="6"/><circle cx="100" cy="87" r="5"/></g>`,
+  canopy:`<line x1="78" y1="72" x2="78" y2="92" stroke="#9a8b6a" stroke-width="3"/><line x1="122" y1="72" x2="122" y2="92" stroke="#9a8b6a" stroke-width="3"/><path d="M72 74 L128 64 L128 71 L72 81 Z" fill="#2f5e78"/><g stroke="#7fb0c8" stroke-width=".9"><line x1="86" y1="72" x2="86" y2="78"/><line x1="100" y1="70" x2="100" y2="76"/><line x1="114" y1="68" x2="114" y2="74"/></g>`,
+  reeds:`<ellipse cx="100" cy="90" rx="40" ry="7" fill="#9fcfd6"/><g stroke="#3f9d5a" stroke-width="2.4" stroke-linecap="round"><line x1="86" y1="90" x2="84" y2="66"/><line x1="94" y1="90" x2="94" y2="60"/><line x1="102" y1="90" x2="104" y2="64"/><line x1="110" y1="90" x2="112" y2="58"/><line x1="118" y1="90" x2="120" y2="66"/></g><g fill="#8a6a3c"><ellipse cx="94" cy="58" rx="2.2" ry="5"/><ellipse cx="112" cy="56" rx="2.2" ry="5"/></g>`,
+  panel:`<line x1="88" y1="76" x2="88" y2="92" stroke="#8a7a5a" stroke-width="3"/><path d="M70 78 L120 60 L134 66 L84 84 Z" fill="#2f5e78"/><g stroke="#6f9fbc" stroke-width=".9"><line x1="80" y1="79" x2="94" y2="73.5"/><line x1="96" y1="74" x2="110" y2="68.5"/><line x1="88" y1="83" x2="128" y2="66.5"/></g>`,
+  tools:`<line x1="82" y1="90" x2="106" y2="64" stroke="#8a8f96" stroke-width="6" stroke-linecap="round"/><circle cx="108" cy="62" r="8" fill="none" stroke="#8a8f96" stroke-width="6"/><line x1="120" y1="90" x2="101" y2="67" stroke="#c07a3a" stroke-width="5" stroke-linecap="round"/><rect x="96" y="59" width="10" height="7" rx="2" fill="#6f7378" transform="rotate(-38 101 62)"/>`,
+  recycle:`<g fill="none" stroke="#41a05c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"><path d="M100 60 L114 84 L86 84 Z"/></g><g fill="#2f7a45"><circle cx="100" cy="60" r="3"/><circle cx="114" cy="84" r="3"/><circle cx="86" cy="84" r="3"/></g>`,
+  pot:`<path d="M82 74 q0 18 18 18 q18 0 18 -18 Z" fill="#b0562f"/><rect x="78" y="70" width="44" height="6" rx="3" fill="#c96a3f"/><path d="M91 66 q-4 -8 1 -13" fill="none" stroke="#cfe0d8" stroke-width="2" opacity=".7"/><path d="M104 64 q-4 -8 1 -13" fill="none" stroke="#cfe0d8" stroke-width="2" opacity=".7"/>`,
+  people:`<circle cx="86" cy="66" r="6" fill="#e0a95a"/><path d="M76 92 q0 -16 10 -16 q10 0 10 16 Z" fill="#4cb267"/><circle cx="108" cy="64" r="6" fill="#c98a5a"/><path d="M98 92 q0 -18 10 -18 q10 0 10 18 Z" fill="#3a6e8c"/>`,
+  chart:`<path d="M80 74 L100 64 L120 54" fill="none" stroke="#c8732a" stroke-width="2.4" stroke-linecap="round"/><rect x="80" y="76" width="10" height="16" rx="1" fill="#4cb267"/><rect x="95" y="68" width="10" height="24" rx="1" fill="#2f7a45"/><rect x="110" y="60" width="10" height="32" rx="1" fill="#41a05c"/>`,
+};
+const SOL_MOTIF={potager:'garden',serre:'greenhouse',rucher:'hive',poulailler:'coop',compost:'compost','recup-eau':'water','mur-vegetal':'greenwall',ombriere:'canopy',phyto:'reeds',solaire:'panel',atelier:'tools',recyclerie:'recycle',cuisine:'pot'};
+const ICI_MOTIF={eau:'water',repas:'pot',objets:'tools',biodiv:'garden',energie:'panel',dechets:'recycle',biodechets:'compost',accueil:'people'};
+const PCOMP_MOTIF={maraichage:'garden',energie:'panel',eau:'water',reparation:'tools',mesure:'chart',animation:'people'};
+function svgScene(theme, motifKey){
+  const t=SKY[theme]||SKY.alim, m=MOTIF[motifKey]||MOTIF.garden;
+  return `<svg class="scene" viewBox="0 0 200 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="100" fill="${t.sky}"/>
+    <circle cx="162" cy="24" r="14" fill="${t.sun}"/>
+    <g stroke="${t.sun}" stroke-width="2.2" stroke-linecap="round" opacity=".8"><line x1="162" y1="4" x2="162" y2="-1"/><line x1="180" y1="10" x2="185" y2="6"/><line x1="144" y1="10" x2="139" y2="6"/><line x1="184" y1="24" x2="190" y2="24"/></g>
+    <path d="M0 72 Q50 56 100 68 T200 64 L200 100 0 100 Z" fill="${t.hb}"/>
+    <path d="M0 82 Q60 68 120 80 T200 78 L200 100 0 100 Z" fill="${t.hf}"/>
+    ${m}
+  </svg>`;
+}
 function solutionCard(id){
   const s=SOL[id], c=CATS[s.cat];
   const sel=S.sel&&S.sel.type==='solution'&&S.sel.id===id;
   const locked=s.lock&&!S.pcomps.has(s.lock);
   return `<div class="card2 ${sel?'sel':''} ${locked?'locked':''}" onclick="openSolutionDetail('${id}')">
-    <div class="c2-media" style="background:linear-gradient(135deg,${c.color}26,${c.color}0d)">
-      <span class="c2-emoji">${s.ic}</span>
+    <div class="c2-media">
+      ${svgScene(s.cat, SOL_MOTIF[id])}
       ${s.clim==='fraicheur'?'<span class="c2-flag">🌊 Fraîcheur</span>':''}
       ${locked?`<span class="c2-lock">🔒 ${PCOMP[s.lock].name}</span>`:''}
     </div>
@@ -1305,7 +1346,7 @@ function solutionCard(id){
 function iciCard(id){
   const i=ICI[id]; const sel=S.sel&&S.sel.type==='ici'&&S.sel.id===id;
   return `<div class="card2 ${sel?'sel':''}" onclick="openIciDetail('${id}')">
-    <div class="c2-media" style="background:linear-gradient(135deg,#3a6e8c26,#3a6e8c0d)"><span class="c2-emoji">${i.ic}</span></div>
+    <div class="c2-media">${svgScene('ici', ICI_MOTIF[id])}</div>
     <div class="c2-body">
       <div class="c2-cat"><span class="c2-dot" style="background:var(--sky)"></span>Indicateur · ICI</div>
       <div class="c2-title">${i.name}</div>
@@ -1329,9 +1370,9 @@ function openSolutionDetail(id){
   if(s.clim==='fraicheur') tags+='<span class="det-tag fr">🌊 Îlot de fraîcheur (parade canicule)</span>';
   if(s.protects) tags+='<span class="det-tag fr">🛡️ Protège : '+hazName(s.protects)+'</span>';
   openDetailModal(`
-    <div class="det-media" style="background:linear-gradient(135deg,${c.color}30,${c.color}12)">
+    <div class="det-media">
+      ${svgScene(s.cat, SOL_MOTIF[id])}
       <button class="det-close" onclick="closeModal()">✕</button>
-      <span class="det-emoji">${s.ic}</span>
     </div>
     <div class="det-body">
       <div class="c2-cat"><span class="c2-dot" style="background:${c.color}"></span>Solution · ${c.label}</div>
@@ -1359,9 +1400,9 @@ function openIciDetail(id){
   const i=ICI[id];
   const fits=SOLUTIONS.filter(s=>s.ici===id).map(s=>s.ic+' '+s.name);
   openDetailModal(`
-    <div class="det-media" style="background:linear-gradient(135deg,#3a6e8c30,#3a6e8c12)">
+    <div class="det-media">
+      ${svgScene('ici', ICI_MOTIF[id])}
       <button class="det-close" onclick="closeModal()">✕</button>
-      <span class="det-emoji">${i.ic}</span>
     </div>
     <div class="det-body">
       <div class="c2-cat"><span class="c2-dot" style="background:var(--sky)"></span>Indicateur · ICI</div>
@@ -1381,8 +1422,8 @@ const PCOMP_COL={maraichage:'#2e6b47',energie:'#c8732a',eau:'#3a6e8c',reparation
 function pcompCard(id){
   const c=PCOMP[id]; const owned=S.pcomps.has(id); const col=PCOMP_COL[id]||'#018262';
   return `<div class="card2 ${owned?'sel':''}" onclick="openCompDetail('${id}')">
-    <div class="c2-media" style="background:linear-gradient(135deg,${col}26,${col}0d)">
-      <span class="c2-emoji">${c.ic}</span>
+    <div class="c2-media">
+      ${svgScene('comp', PCOMP_MOTIF[id])}
       ${owned?'<span class="c2-flag" style="color:var(--forest)">✓ Acquise</span>':''}
     </div>
     <div class="c2-body">
@@ -1399,9 +1440,9 @@ function openCompDetail(id){
   const c=PCOMP[id], col=PCOMP_COL[id]||'#018262', owned=S.pcomps.has(id);
   const unlocks=SOLUTIONS.filter(s=>s.lock===id);
   openDetailModal(`
-    <div class="det-media" style="background:linear-gradient(135deg,${col}30,${col}12)">
+    <div class="det-media">
+      ${svgScene('comp', PCOMP_MOTIF[id])}
       <button class="det-close" onclick="closeModal()">✕</button>
-      <span class="det-emoji">${c.ic}</span>
     </div>
     <div class="det-body">
       <div class="c2-cat"><span class="c2-dot" style="background:${col}"></span>Compétence du Pilote</div>
