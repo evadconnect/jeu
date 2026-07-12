@@ -1347,15 +1347,46 @@ function detailSelectIci(id){
   toast(`${ICI[id].ic} ICI sélectionné · clique « Mesurer » sur une solution dans « Mon lieu »`);
 }
 document.addEventListener('click',(e)=>{ if(e.target && e.target.id==='modal' && document.getElementById('modal-box').classList.contains('det-modal')) closeModal(); });
+const PCOMP_COL={maraichage:'#2e6b47',energie:'#c8732a',eau:'#3a6e8c',reparation:'#a06c00',mesure:'#018262',animation:'#7a6ea8'};
 function pcompCard(id){
-  const c=PCOMP[id]; const owned=S.pcomps.has(id);
-  return `<div class="comp ${owned?'owned':''}" style="text-align:left">
-    <div style="display:flex;align-items:center;gap:.4rem"><div class="c-ic" style="font-size:1.3rem">${c.ic}</div><div class="c-name" style="margin:0">${c.name}</div></div>
-    <div style="font-size:.63rem;color:var(--moss);opacity:.85;line-height:1.4;margin:.35rem 0 .5rem">${c.desc}</div>
-    ${owned?`<div class="c-state" style="color:var(--forest)">✓ Acquise</div>`
-           :`<button class="mini-btn gold" onclick="acquireComp('${id}')" ${S.graines<c.cost?'disabled':''}>Acquérir · ${c.cost}🌰</button>`}
+  const c=PCOMP[id]; const owned=S.pcomps.has(id); const col=PCOMP_COL[id]||'#018262';
+  return `<div class="card2 ${owned?'sel':''}" onclick="openCompDetail('${id}')">
+    <div class="c2-media" style="background:linear-gradient(135deg,${col}26,${col}0d)">
+      <span class="c2-emoji">${c.ic}</span>
+      ${owned?'<span class="c2-flag" style="color:var(--forest)">✓ Acquise</span>':''}
+    </div>
+    <div class="c2-body">
+      <div class="c2-cat"><span class="c2-dot" style="background:${col}"></span>Compétence</div>
+      <div class="c2-title">${c.name}</div>
+      <div class="c2-desc">${c.desc}</div>
+      <div class="c2-foot">
+        <div class="c2-metric"><div class="c2-mlab">${owned?'Statut':'Coût'}</div><div class="c2-mval" style="color:${owned?'var(--forest)':'var(--amber)'};font-size:${owned?'.88rem':'1.02rem'}">${owned?'✓ Acquise':c.cost+' 🌰'}</div></div>
+      </div>
+    </div>
   </div>`;
 }
+function openCompDetail(id){
+  const c=PCOMP[id], col=PCOMP_COL[id]||'#018262', owned=S.pcomps.has(id);
+  const unlocks=SOLUTIONS.filter(s=>s.lock===id);
+  openDetailModal(`
+    <div class="det-media" style="background:linear-gradient(135deg,${col}30,${col}12)">
+      <button class="det-close" onclick="closeModal()">✕</button>
+      <span class="det-emoji">${c.ic}</span>
+    </div>
+    <div class="det-body">
+      <div class="c2-cat"><span class="c2-dot" style="background:${col}"></span>Compétence du Pilote</div>
+      <h2 class="det-title">${c.name}</h2>
+      <p class="det-desc">${c.desc}</p>
+      <div class="det-grid">
+        <div class="det-fact"><div class="df-lab">🌰 Coût</div><div class="df-val">${c.cost} Graines</div></div>
+        <div class="det-fact"><div class="df-lab">📈 Statut</div><div class="df-val" style="color:${owned?'var(--forest)':'var(--ink)'}">${owned?'✓ Acquise':'À acquérir'}</div></div>
+      </div>
+      ${unlocks.length?`<div class="det-sec"><div class="det-sec-t">🔓 Débloque ces solutions</div><div class="det-flux">${unlocks.map(s=>s.ic+' '+s.name).join(' · ')}</div></div>`:''}
+      ${owned?`<button class="btn btn-ghost det-action" onclick="closeModal()">✓ Déjà acquise</button>`
+             :`<button class="btn btn-primary det-action" onclick="detailAcquire('${id}')" ${S.graines<c.cost?'disabled':''}>${S.graines<c.cost?'Pas assez de Graines ('+c.cost+'🌰)':'Acquérir · '+c.cost+' 🌰'}</button>`}
+    </div>`);
+}
+function detailAcquire(id){ acquireComp(id); if(S.pcomps.has(id)) closeModal(); }
 
 /* ---- PILOTE actions ---- */
 function selectCard(type,id){
