@@ -1147,8 +1147,7 @@ function obFinish(){
   S.playerName = ob.name || 'toi';
   if(S.profile==='pilote'){ S.lieuName=ob.lieuName||'La Friche des Possibles'; S.lieuType=ob.type; buildLieu(ob); }
   if(S.profile==='batisseur'){
-    const chosen=ob.comp||'jardiner', second= chosen==='bricoler'?'jardiner':'bricoler';
-    S.comps=new Set([chosen, second]);
+    S.comps=new Set([ob.comp||'jardiner']);
   }
   S.motivation=ob.motivation||null;
   const _free=(ob.freeText||'').trim();
