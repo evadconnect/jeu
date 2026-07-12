@@ -1001,6 +1001,16 @@ function endTour(){
 window.addEventListener('resize',()=>{ if(S&&S.tour){ const st=S.tour.steps[S.tour.i]; positionTip(document.getElementById('tour-tip'), document.querySelector(st.sel), st.side); } });
 
 /* ═══════════════ ONBOARDING DEVA ═══════════════ */
+/* Remontée anonyme des retours Bâtisseur vers Supabase (même table `feedback` que le prototype). */
+const EVAD_STATS_SUPABASE={ url:'https://lmhhrccmgebztioesmik.supabase.co', anonKey:'sb_publishable_M_1-SinRmo1T8exi8_gkvw_RTiHznag', table:'feedback' };
+function sendBatStat(comp, motivation){
+  if(!motivation) return;
+  const row={ categorie:'onboarding-batisseur', idee:'compétence: '+(comp||'?')+' · motivation: '+motivation, role:'batisseur', page:'jeu-evad' };
+  const cfg=EVAD_STATS_SUPABASE;
+  if(cfg.url && cfg.anonKey){
+    try{ fetch(cfg.url.replace(/\/+$/,'')+'/rest/v1/'+cfg.table, { method:'POST', headers:{'Content-Type':'application/json','apikey':cfg.anonKey,'Authorization':'Bearer '+cfg.anonKey,'Prefer':'return=minimal'}, body:JSON.stringify(row) }).catch(()=>{}); }catch(e){}
+  }
+}
 function obSteps(){ if(S.profile==='pilote') return ['name','lieuName','type','spaces']; if(S.profile==='batisseur') return ['name','comp','motivation','welcome']; return ['name','welcome']; }
 const MOTIVATIONS=[
   {id:'terrain', ic:'🛠️', label:'Agir concrètement sur le terrain'},
@@ -1103,6 +1113,7 @@ function obFinish(){
     S.comps=new Set([chosen, second]);
     S.motivation=ob.motivation||null;
     try{ const prev=JSON.parse(localStorage.getItem('evad_bat_stats')||'[]'); prev.push({comp:chosen, motivation:S.motivation, t:new Date().toISOString()}); localStorage.setItem('evad_bat_stats', JSON.stringify(prev.slice(-200))); }catch(e){}
+    sendBatStat(chosen, S.motivation);
   }
   S.ob=null;
   closeModal();
