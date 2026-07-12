@@ -1086,7 +1086,7 @@ function renderOnboardingStep(){
   } else if(key==='motivation'){
     const opts=MOTIVATIONS_BY_PROFILE[S.profile]||MOTIVATIONS_BY_PROFILE.batisseur;
     const q={pilote:"qu'est-ce qui te donne le plus envie de faire vivre un lieu ?",batisseur:"qu'est-ce qui te donne le plus envie de contribuer ?",semeur:"qu'est-ce qui compte le plus pour toi quand tu finances ?"}[S.profile];
-    msg=`Dis-m'en un peu plus, <b>${nm}</b> : <b>${q}</b> Ça nous aide à améliorer EVAD 🌱`;
+    msg=`Dis-m'en un peu plus : <b>${q}</b> Ça nous aide à améliorer EVAD 🌱`;
     body=`<div class="ob-list">${opts.map(m=>`<button class="ob-opt ${ob.motivation===m.id?'on':''}" onclick="obSelectMotiv('${m.id}')"><span class="oo-ic">${m.ic}</span><span>${m.label}</span></button>`).join('')}</div>
       <textarea class="ob-input ob-textarea" id="ob-free" placeholder="Une attente, une idée, une remarque ? (optionnel)" maxlength="500">${escapeHtml(ob.freeText||'')}</textarea>`;
     nextLabel = S.profile==='pilote' ? 'Créer mon lieu 🌿' : "C'est parti 🌿";
