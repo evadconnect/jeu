@@ -46,6 +46,14 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .intro-cta{opacity:0;animation:introUp .8s 2.8s forwards;background:var(--forest);color:#fff;border:none;border-radius:100px;padding:.8rem 1.7rem;font-family:var(--font);font-weight:800;font-size:.95rem;cursor:pointer;box-shadow:0 8px 22px rgba(1,130,98,.32);margin-top:.3rem}
 .intro-cta:hover{background:var(--moss)}
 @keyframes introUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+/* Quand le chatbot se lance : l'intro reste (fond blanc), la scène solarpunk se décale vers le haut */
+#intro.chatting{z-index:40;align-items:flex-start;padding-top:2.2vh}
+#intro.chatting .intro-inner{gap:.45rem;transition:gap .55s ease}
+#intro.chatting .intro-logo{transform:scale(.62);transform-origin:top center;margin-bottom:-.7rem;animation:none;opacity:1}
+#intro.chatting .intro-scene{max-width:236px;animation:none;opacity:1;transition:max-width .55s ease}
+#intro.chatting .intro-hero-svg{box-shadow:0 10px 26px rgba(1,90,68,.14)}
+#intro.chatting .intro-date,#intro.chatting .intro-tag,#intro.chatting .intro-cta{display:none}
+#modal.over-intro{background:rgba(255,255,255,.25);backdrop-filter:none}
 
 /* ══════════════════ SESSION (3 actes) ══════════════════ */
 #session-bar{display:none;align-items:center;gap:.6rem;flex-wrap:wrap;background:linear-gradient(90deg,#123c2e,#0b241b);color:var(--mist);padding:.5rem clamp(.85rem,2.4vw,1.6rem);font-size:.76rem}
@@ -1038,8 +1046,14 @@ function setIntroDate(){
     const el=document.getElementById('intro-date'); if(el) el.textContent=d.getDate()+' '+M[d.getMonth()]+' 2030'; }catch(e){}
 }
 function introDeva(){
-  const iv=document.getElementById('intro'); iv.classList.add('hide');
-  setTimeout(()=>{ iv.style.display='none'; devaIntroModal(); }, 550);
+  const iv=document.getElementById('intro'); iv.classList.add('chatting');
+  document.getElementById('modal').classList.add('over-intro');
+  devaIntroModal();
+}
+function introEnd(){
+  const iv=document.getElementById('intro');
+  if(iv){ iv.classList.remove('chatting'); iv.classList.add('hide'); setTimeout(()=>{ iv.style.display='none'; }, 500); }
+  const md=document.getElementById('modal'); if(md) md.classList.remove('over-intro');
 }
 let INTRO=null;
 const VADE_DESC={
@@ -1094,10 +1108,10 @@ function introNameNext(){
 function introLaunch(){
   PLAYER_NAME=INTRO.name||'toi';
   SESSION={act:1, playerName:PLAYER_NAME, started:Date.now()};
-  closeModal(); startAct('pilote');
+  introEnd(); closeModal(); startAct('pilote');
 }
-function startProfileDirect(profile){ PLAYER_NAME=(INTRO&&INTRO.name)||PLAYER_NAME; SESSION=null; closeModal(); chooseProfile(profile); }
-function introFreeExplore(){ closeModal(); SESSION=null; document.getElementById('splash').style.display='block'; document.getElementById('app').style.display='none'; }
+function startProfileDirect(profile){ PLAYER_NAME=(INTRO&&INTRO.name)||PLAYER_NAME; SESSION=null; introEnd(); closeModal(); chooseProfile(profile); }
+function introFreeExplore(){ introEnd(); closeModal(); SESSION=null; document.getElementById('splash').style.display='block'; document.getElementById('app').style.display='none'; }
 function startSession(){ SESSION={act:1, playerName:null, started:Date.now()}; closeModal(); startAct('pilote'); }
 function startAct(profile){ closeModal(); chooseProfile(profile); }
 function renderSessionBar(){
