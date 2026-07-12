@@ -34,6 +34,26 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 ::selection{background:var(--mist)}
 .wrap{max-width:1120px;margin:0 auto;padding:0 clamp(.7rem,3vw,1.4rem)}
 
+/* ══════════════════ INTRO CINÉMATIQUE ══════════════════ */
+#intro{position:fixed;inset:0;z-index:70;background:#fff;display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto}
+#intro.hide{opacity:0;pointer-events:none;transition:opacity .6s}
+.intro-inner{max-width:500px;width:100%;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1.05rem}
+.intro-logo{opacity:0;animation:introUp .8s .2s forwards}
+.intro-scene{opacity:0;animation:introUp .9s .9s forwards;width:100%;max-width:420px}
+.intro-hero-svg{width:100%;height:auto;border-radius:20px;box-shadow:0 16px 40px rgba(1,90,68,.16)}
+.intro-date{opacity:0;animation:introUp .8s 1.8s forwards;font-size:1.45rem;font-weight:900;color:var(--ink)}
+.intro-tag{opacity:0;animation:introUp .8s 2.2s forwards;font-size:.92rem;color:var(--moss);font-weight:600}
+.intro-cta{opacity:0;animation:introUp .8s 2.8s forwards;background:var(--forest);color:#fff;border:none;border-radius:100px;padding:.8rem 1.7rem;font-family:var(--font);font-weight:800;font-size:.95rem;cursor:pointer;box-shadow:0 8px 22px rgba(1,130,98,.32);margin-top:.3rem}
+.intro-cta:hover{background:var(--moss)}
+@keyframes introUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* ══════════════════ SESSION (3 actes) ══════════════════ */
+#session-bar{display:none;align-items:center;gap:.6rem;flex-wrap:wrap;background:linear-gradient(90deg,#123c2e,#0b241b);color:var(--mist);padding:.5rem clamp(.85rem,2.4vw,1.6rem);font-size:.76rem}
+#session-bar b{color:var(--cream)}
+.sb-right{margin-left:auto}
+.sb-next{background:var(--fern);color:#06231a;border:none;border-radius:100px;padding:.42rem .95rem;font-weight:800;font-size:.73rem;cursor:pointer;font-family:var(--font)}
+.sb-next:hover{background:var(--sage)}
+
 /* ══════════════════ SPLASH ══════════════════ */
 #splash{position:fixed;inset:0;z-index:60;overflow-y:auto;
   background:linear-gradient(165deg,#023d31 0%, #015a44 45%, #01795c 100%);
@@ -532,8 +552,42 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 </head>
 <body>
 
-<!-- ══════════════════ SPLASH ══════════════════ -->
-<div id="splash">
+<!-- ══════════════════ INTRO CINÉMATIQUE ══════════════════ -->
+<div id="intro">
+  <div class="intro-inner">
+    <div class="intro-logo"><svg viewBox="0 0 640 296" xmlns="http://www.w3.org/2000/svg" style="width:150px;height:auto;display:block"><path fill="#018262" d="M 519.25 97.74 L 519.25 66.85 Q 519.25 66.01 520.09 66.01 L 537.22 65.96 Q 537.68 65.96 537.69 66.41 C 538.13 92.42 537.74 118.47 537.74 144.48 Q 537.74 158.95 536.60 164.40 C 528.65 202.47 479.76 216.24 450.14 193.23 C 415.31 166.17 428.84 109.29 471.53 99.68 Q 477.04 98.43 486.54 98.48 Q 502.61 98.55 518.51 98.48 A 0.74 0.74 0.0 0 0 519.25 97.74 Z M 483.58 116.06 C 463.68 116.48 448.88 133.42 449.58 152.68 C 450.33 173.23 467.82 190.16 489.05 186.94 C 507.04 184.20 518.93 168.81 519.11 150.74 Q 519.29 133.40 519.25 116.27 A 0.54 0.53 90.0 0 0 518.72 115.73 Q 501.14 115.68 483.58 116.06 Z"/><path fill="#018262" d="M 316.21 169.01 C 306.50 143.39 315.70 111.68 342.32 100.13 C 372.06 87.21 408.91 102.89 416.19 135.73 Q 417.44 141.36 417.48 154.50 Q 417.54 177.75 417.48 200.98 A 0.53 0.53 0.0 0 1 416.95 201.51 Q 395.53 201.47 373.96 201.52 Q 360.19 201.55 354.03 200.41 Q 326.17 195.28 316.21 169.01 Z M 337.65 126.65 C 321.87 144.79 330.12 173.11 352.57 180.98 Q 357.59 182.74 367.64 183.01 Q 383.61 183.46 399.39 183.19 A 0.87 0.87 0.0 0 0 400.24 182.32 Q 400.26 169.57 400.25 156.71 Q 400.23 143.70 398.64 138.57 C 390.61 112.64 355.32 106.33 337.65 126.65 Z"/><path fill="#018262" d="M 113.27 160.15 C 121.33 189.45 157.75 197.32 174.60 170.36 A 0.74 0.71 15.4 0 1 175.22 170.02 L 193.08 169.96 A 0.46 0.46 0.0 0 1 193.51 170.58 C 181.30 202.50 141.86 214.85 114.24 192.94 C 99.24 181.05 91.53 162.10 94.54 143.05 C 97.62 123.56 111.97 105.29 131.67 100.02 Q 137.32 98.51 147.48 98.35 Q 170.74 98.01 193.99 98.62 A 1.91 1.90 -57.0 0 0 194.92 98.42 Q 195.93 97.91 196.50 98.63 Q 196.84 99.06 196.77 99.93 C 196.45 104.08 196.64 108.70 196.21 112.33 C 193.10 138.77 172.64 159.25 145.57 159.41 Q 129.66 159.51 113.76 159.51 Q 113.09 159.51 113.27 160.15 Z M 177.67 115.72 C 164.72 116.16 150.00 113.64 137.92 116.75 Q 117.82 121.93 112.91 143.86 A 0.74 0.74 0.0 0 0 113.63 144.76 Q 126.56 144.72 139.67 144.76 Q 149.25 144.79 154.19 143.45 Q 173.77 138.15 178.22 116.38 A 0.55 0.55 0.0 0 0 177.67 115.72 Z"/><path fill="#018262" d="M 206.48 98.31 C 220.39 98.43 231.28 108.14 235.57 120.92 C 242.56 141.76 250.76 162.22 258.10 182.58 A 2.13 2.13 0.0 0 0 262.11 182.57 Q 272.30 153.94 282.65 125.24 C 288.36 109.41 294.96 99.52 312.85 98.30 A 0.65 0.64 8.8 0 1 313.50 99.18 Q 295.54 144.64 277.57 190.07 C 276.28 193.35 274.66 196.86 272.30 199.31 C 264.28 207.65 250.95 205.43 245.10 195.91 Q 243.06 192.58 240.59 186.31 Q 223.43 142.71 206.04 98.95 A 0.47 0.47 0.0 0 1 206.48 98.31 Z"/></svg></div>
+    <div class="intro-scene"><svg viewBox="0 0 400 210" xmlns="http://www.w3.org/2000/svg" class="intro-hero-svg">
+ <defs><linearGradient id="isky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dff2e6"/><stop offset=".55" stop-color="#f3f0d2"/><stop offset="1" stop-color="#fce8c8"/></linearGradient></defs>
+ <rect width="400" height="210" fill="url(#isky)"/>
+ <circle cx="315" cy="58" r="30" fill="#f6c453"/>
+ <g stroke="#f6c453" stroke-width="3.5" stroke-linecap="round" opacity=".7"><line x1="315" y1="14" x2="315" y2="4"/><line x1="352" y1="30" x2="360" y2="24"/><line x1="278" y1="30" x2="270" y2="24"/><line x1="362" y1="58" x2="372" y2="58"/></g>
+ <path d="M0 130 Q100 100 200 122 T400 112 L400 210 0 210 Z" fill="#bfe0c6"/>
+ <path d="M0 150 Q120 122 240 144 T400 140 L400 210 0 210 Z" fill="#a2d1ab"/>
+ <line x1="70" y1="150" x2="70" y2="96" stroke="#eef4ef" stroke-width="3"/>
+ <g fill="#eef4ef"><path d="M70 96 l0 -22 6 22z"/><path d="M70 96 l19 11 -13 -16z"/><path d="M70 96 l-19 11 13 -16z"/></g>
+ <circle cx="70" cy="96" r="3" fill="#cfe0d4"/>
+ <g><rect x="128" y="132" width="4" height="18" fill="#8a5a3c"/><circle cx="130" cy="126" r="12" fill="#4cae66"/></g>
+ <g><rect x="300" y="140" width="5" height="20" fill="#8a5a3c"/><circle cx="302" cy="132" r="14" fill="#41a05c"/></g>
+ <rect x="160" y="128" width="52" height="34" fill="#f2ede3"/>
+ <path d="M156 128 L186 104 L216 128 Z" fill="#3a6e8c"/>
+ <g stroke="#7fb0c8" stroke-width="1"><line x1="170" y1="120" x2="170" y2="128"/><line x1="186" y1="112" x2="186" y2="128"/><line x1="202" y1="120" x2="202" y2="128"/></g>
+ <rect x="180" y="142" width="12" height="20" fill="#8a5a3c"/>
+ <rect x="228" y="138" width="42" height="24" fill="#efe7d6"/>
+ <path d="M224 138 L249 120 L274 138 Z" fill="#4cae66"/>
+ <rect x="243" y="148" width="10" height="14" fill="#7a4a2a"/>
+ <rect x="0" y="176" width="400" height="34" fill="#8fbf7e" opacity=".45"/>
+ <g fill="#3f9d5a"><circle cx="40" cy="182" r="6"/><circle cx="58" cy="185" r="6"/><circle cx="345" cy="184" r="6"/><circle cx="362" cy="187" r="6"/></g>
+ <g stroke="#2f7a45" stroke-width="2" stroke-linecap="round"><line x1="95" y1="200" x2="95" y2="184"/><line x1="105" y1="200" x2="105" y2="182"/><line x1="115" y1="200" x2="115" y2="186"/></g>
+</svg></div>
+    <div class="intro-date" id="intro-date">2030</div>
+    <div class="intro-tag">Le futur se cultive. Par la preuve.</div>
+    <button class="intro-cta" id="intro-cta" onclick="introDeva()">Rencontrer Deva →</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════ SPLASH (entrée alternative) ══════════════════ -->
+<div id="splash" style="display:none">
   <div class="splash-inner">
     <div class="splash-badge">🌍 Le réseau EVAD</div>
     <h1 class="splash-title">Nous sommes en <span class="sun">2030</span>.</h1>
@@ -600,7 +654,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 
     <div class="nav-bottom">
       <button class="ob-intro-btn" onclick="showOnboarding()"><span class="oib-ico">💡</span><span class="oib-txt">Comment jouer</span></button>
-      <button class="ob-intro-btn" onclick="restart()"><span class="oib-ico">🔄</span><span class="oib-txt">Changer de profil</span></button>
+      <button class="ob-intro-btn" id="nav-switch" onclick="restart()"><span class="oib-ico">🔄</span><span class="oib-txt">Changer de profil</span></button>
       <div class="deva-pill" id="deva-pill" onclick="toggleDeva()" title="Parler à Deva">
         <span class="dp-av deva-av"></span>
         <div class="dp-meta"><span class="deva-name">Deva</span><span class="deva-status">Active</span></div>
@@ -611,6 +665,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 
   <!-- ─── Main ─── -->
   <main class="main" id="main">
+    <div id="session-bar"></div>
     <div class="topbar" id="topbar">
       <div class="tb-titles">
         <div class="topbar-title" id="tb-title"></div>
@@ -862,6 +917,7 @@ const BADGES = {
 
 /* ═══════════════ ÉTAT ═══════════════ */
 let S = null;
+let SESSION = null;
 function newState(profile){
   return {
     profile, seasonIdx:0, graines: profile==='pilote'?16:12, euros: profile==='semeur'?600:0,
@@ -897,6 +953,64 @@ function makeSpaces(){
 }
 
 /* ═══════════════ LANCEMENT ═══════════════ */
+const SESSION_ACTS=[null,'pilote','batisseur','semeur'];
+const SESSION_META={
+  pilote:{ic:'🏡',label:'Pilote d\'impact',goal:'Tu opères un lieu : compose tes espaces, installe des solutions et mesure-les.'},
+  batisseur:{ic:'🌿',label:'Bâtisseur d\'impact',goal:'Tu contribues par l\'action : relève des défis, prouve-les, gagne des Graines.'},
+  semeur:{ic:'🌾',label:'Semeur d\'impact',goal:'Tu finances la régénération et récoltes de la Vadité vérifiée.'},
+};
+function setIntroDate(){
+  try{ const d=new Date(); const M=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+    const el=document.getElementById('intro-date'); if(el) el.textContent=d.getDate()+' '+M[d.getMonth()]+' 2030'; }catch(e){}
+}
+function introDeva(){
+  const iv=document.getElementById('intro'); iv.classList.add('hide');
+  setTimeout(()=>{ iv.style.display='none'; devaIntroModal(); }, 550);
+}
+function devaIntroModal(){
+  openOnboarding(`
+    <div class="ob-head"><div class="ob-av deva-av"></div><div class="ob-hmeta"><div class="ob-dname">Deva</div><div class="ob-dsub">l'esprit régénératif d'EVAD</div></div></div>
+    <div class="ob-bubble">Bonjour 🌿 Je suis <b>Deva</b>, l'IA frugale qui fait vivre <b>EVAD</b> — l'outil commun d'un réseau de lieux qui régénèrent leur territoire, sans attendre les subventions, par la preuve.</div>
+    <div class="ob-bubble">Ici, la confiance se cultive comme le reste : <b>vérifié bat certifié</b>. On installe des solutions (une promesse, la <b>Vadance ✨</b>), on les mesure (une preuve, la <b>Vadité 🌿</b>), et l'impact converge vers tous les référentiels : ODD, ESRS, PCAET, RSE.</div>
+    <div class="ob-bubble">Trois profils font tourner l'écosystème. Pour tout découvrir, tu vas les incarner l'un après l'autre — une <b>session de ~30 min</b>, ~10 min chacun : 🏡 <b>Pilote</b>, 🌿 <b>Bâtisseur</b>, 🌾 <b>Semeur</b>.</div>
+    <div class="ob-actions"><button class="ob-skip" onclick="introFreeExplore()">Explorer librement</button><button class="ob-next" onclick="startSession()">Commencer l'acte 1 · Pilote →</button></div>
+  `);
+}
+function introFreeExplore(){ closeModal(); SESSION=null; document.getElementById('splash').style.display='block'; document.getElementById('app').style.display='none'; }
+function startSession(){ SESSION={act:1, playerName:null, started:Date.now()}; closeModal(); startAct('pilote'); }
+function startAct(profile){ closeModal(); chooseProfile(profile); }
+function renderSessionBar(){
+  const el=document.getElementById('session-bar');
+  const btn=document.getElementById('nav-switch');
+  if(!SESSION){ if(el) el.style.display='none'; if(btn){ btn.onclick=restart; const t=btn.querySelector('.oib-txt'), i=btn.querySelector('.oib-ico'); if(t)t.textContent='Changer de profil'; if(i)i.textContent='🔄'; } return; }
+  const prof=SESSION_ACTS[SESSION.act], next=SESSION_ACTS[SESSION.act+1];
+  if(el){ el.style.display='flex';
+    el.innerHTML=`<span>🎬 <b>Session découverte</b> · Acte ${SESSION.act}/3 · ${SESSION_META[prof].ic} ${SESSION_META[prof].label}</span>
+      <span class="sb-right">${next?`<button class="sb-next" onclick="nextAct()">${SESSION_META[next].ic} Passer au ${SESSION_META[next].label.split(' ')[0]} →</button>`:`<button class="sb-next" onclick="sessionEnd()">🎉 Terminer la session</button>`}</span>`;
+  }
+  if(btn){ btn.onclick=nextAct; const t=btn.querySelector('.oib-txt'), i=btn.querySelector('.oib-ico'); if(t)t.textContent=(SESSION.act<3?'Passer au profil suivant':'Terminer la session'); if(i)i.textContent='🎬'; }
+}
+function nextAct(){
+  if(!SESSION) return;
+  if(SESSION.act>=3){ sessionEnd(); return; }
+  SESSION.act++;
+  const prof=SESSION_ACTS[SESSION.act];
+  openOnboarding(`
+    <div class="ob-head"><div class="ob-av deva-av"></div><div class="ob-hmeta"><div class="ob-dname">Deva</div><div class="ob-dsub">Acte ${SESSION.act}/3</div></div></div>
+    <div class="ob-bubble">Bel acte ! 🌿 Change de lunettes : tu deviens maintenant <b>${SESSION_META[prof].ic} ${SESSION_META[prof].label}</b>.<br><br>${SESSION_META[prof].goal}</div>
+    <div class="ob-actions"><button class="ob-next" onclick="startAct('${prof}')">Commencer l'acte ${SESSION.act} →</button></div>
+  `);
+}
+function sessionEnd(){
+  SESSION=null; renderSessionBar();
+  openModal(`
+    <div class="season-anim">🎉</div><h2>Session découverte terminée !</h2>
+    <p>Tu as parcouru tout EVAD : <b>🏡 Pilote</b> (opérer un lieu), <b>🌿 Bâtisseur</b> (contribuer et prouver), <b>🌾 Semeur</b> (financer le vérifié). Trois rôles, un même principe : <b>vérifié bat certifié</b>.</p>
+    <div class="mb-detail">Envie d'aller plus loin ? Rejoue un profil en profondeur, ou attends la bêta d'octobre. Tes retours orientent EVAD 🌱</div>
+    <button class="btn btn-primary" style="width:100%" onclick="closeModal()">Continuer à explorer</button>
+    <button class="btn btn-ghost" style="width:100%;margin-top:.5rem" onclick="closeModal();document.getElementById('splash').style.display='block';document.getElementById('app').style.display='none'">← Écran d'accueil</button>
+  `);
+}
 function chooseProfile(p){
   S = newState(p);
   if(p==='pilote'){ S.spaces = makeSpaces(); }
@@ -1026,7 +1140,7 @@ function sendStat(profile, comp, motivation, free, type){
     try{ fetch(cfg.url.replace(/\/+$/,'')+'/rest/v1/'+cfg.table, { method:'POST', headers:{'Content-Type':'application/json','apikey':cfg.anonKey,'Authorization':'Bearer '+cfg.anonKey,'Prefer':'return=minimal'}, body:JSON.stringify(row) }).catch(()=>{}); }catch(e){}
   }
 }
-function obSteps(){ if(S.profile==='pilote') return ['name','lieuName','type','spaces','motivation']; if(S.profile==='batisseur') return ['name','comp','motivation']; return ['name','type','motivation']; }
+function obSteps(){ let s = S.profile==='pilote'?['name','lieuName','type','spaces','motivation'] : (S.profile==='batisseur'?['name','comp','motivation'] : ['name','type','motivation']); if(SESSION && SESSION.playerName) s=s.filter(x=>x!=='name'); return s; }
 const MOTIVATIONS_BY_PROFILE={
   pilote:[
     {id:'faire-pousser', ic:'🌱', label:'Faire pousser un lieu vivant'},
@@ -1061,7 +1175,7 @@ function obCaptureFree(){ const t=document.getElementById('ob-free'); if(t) S.ob
 function obSelectMotiv(k){ obCaptureFree(); S.ob.motivation=k; renderOnboardingStep(); }
 function devaOnboarding(){
   if(S.onboarded) return;
-  if(!S.ob) S.ob={step:0, name:'', lieuName:'La Friche des Possibles', type:(S.profile==='semeur'?'fondation':'jardin'), spaces:new Set(), comp:'jardiner', motivation:null, freeText:''};
+  if(!S.ob) S.ob={step:0, name:(SESSION&&SESSION.playerName)?SESSION.playerName:'', lieuName:'La Friche des Possibles', type:(S.profile==='semeur'?'fondation':'jardin'), spaces:new Set(), comp:'jardiner', motivation:null, freeText:''};
   renderOnboardingStep();
 }
 function renderOnboardingStep(){
@@ -1154,6 +1268,7 @@ function obFinish(){
   const ob=S.ob;
   S.onboarded=true;
   S.playerName = ob.name || 'toi';
+  if(SESSION) SESSION.playerName = S.playerName;
   if(S.profile==='pilote'){ S.lieuName=ob.lieuName||'La Friche des Possibles'; S.lieuType=ob.type; buildLieu(ob); }
   if(S.profile==='batisseur'){
     S.comps=new Set([ob.comp||'jardiner']);
@@ -1170,7 +1285,8 @@ function obFinish(){
   S.devaMsgs=[{role:'deva',html:`Ravie de t'accueillir, <b>${escapeHtml(S.playerName)}</b> 🌿 ${devaTip()}`}];
   render();
   toast(`🌿 Bienvenue ${escapeHtml(S.playerName)} !${S.profile==='pilote'?' « '+escapeHtml(S.lieuName)+' » prend racine.':''}`,'win');
-  setTimeout(()=>startTour(), 550);
+  if(!SESSION || SESSION.act===1) setTimeout(()=>startTour(), 550);
+  renderSessionBar();
 }
 
 /* ═══════════════ NAVIGATION (sidebar) ═══════════════ */
@@ -1221,6 +1337,7 @@ function switchTab(k){ S.tab=k; render(); }
 /* ═══════════════ RENDER MASTER ═══════════════ */
 function render(){
   renderTopbar();
+  renderSessionBar();
   document.querySelectorAll('.nav-item').forEach(t=>t.classList.toggle('active', t.dataset.tab===S.tab));
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   const VIEWMAP={dash:'view-dash',a:'view-a',b:'view-b',reseau:'view-reseau',carte:'view-carte',marche:'view-marche'};
@@ -1510,6 +1627,7 @@ function detailSelectIci(id){
   toast(`${ICI[id].ic} ICI sélectionné · clique « Mesurer » sur une solution dans « Mon lieu »`);
 }
 document.addEventListener('click',(e)=>{ if(e.target && e.target.id==='modal' && document.getElementById('modal-box').classList.contains('det-modal')) closeModal(); });
+setIntroDate();
 const PCOMP_COL={maraichage:'#2e6b47',energie:'#c8732a',eau:'#3a6e8c',reparation:'#a06c00',mesure:'#018262',animation:'#7a6ea8'};
 function pcompCard(id){
   const c=PCOMP[id]; const owned=S.pcomps.has(id); const col=PCOMP_COL[id]||'#018262';
