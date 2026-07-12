@@ -92,7 +92,7 @@ Le cœur du jeu. Une carte = un objet de `SOLUTIONS`, enrichi par `SOL_COUT` (co
 | `categorie` | `text` | `alimentaire` | une des 7 catégories (voir tableau ci-dessous) |
 | `complexite` | `text` | `simple` | `simple`, `moderee` ou `complexe` (voir tableau ci-dessous) |
 | `description` | `text` | `Légumes de saison en circuit court.` | |
-| `capacites` | `text[]` | `{terre}` | espaces acceptés : `terre`, `toit`, `piece`, `mur` |
+| `capacites` | `text[]` | `{jardin}` | espaces où la solution peut s'installer (codes de la table `espaces`, voir ci-dessous) |
 | `vadance` | `int` | `4` | impact promis à l'installation |
 | `graines` | `int` | `3` | production de Graines / saison |
 | `cout` | `int` | `3` | coût d'installation en Graines (ex-`SOL_COUT`) |
@@ -109,6 +109,7 @@ Le cœur du jeu. Une carte = un objet de `SOLUTIONS`, enrichi par `SOL_COUT` (co
 **Relations :**
 - `solutions.ici_id` → `ici.id`
 - `solutions.categorie` → un des 7 codes ci-dessous (`text` + `check`, ou une table `categories` si tu veux)
+- `solutions.capacites[]` → codes de la table `espaces` (voir ci-dessous)
 - `solutions.competence_requise` → `competences.id` (famille `pilote`)
 - `competences.couvre[]` référence des `solutions.id` (famille `batisseur`)
 
@@ -133,6 +134,37 @@ Niveau de complexité de mise en œuvre (valeurs autorisées de `complexite`) :
 | `simple` | Simple | 🟢 |
 | `moderee` | Modérée | 🟡 |
 | `complexe` | Complexe | 🔴 |
+
+### Table `espaces` (types d'espace d'un lieu)
+
+Les espaces qui composent un lieu, et où les solutions s'installent. `solutions.capacites` référence ces codes. Taxonomie officielle (20 types) :
+
+| code | libellé | icône |
+|---|---|---|
+| `cuisine` | Cuisine | 🍳 |
+| `cafe_bar` | Café / Bar | ☕ |
+| `cantine` | Cantine / Resto | 🥗 |
+| `coworking` | Coworking | 💻 |
+| `salle_reunion` | Salle de réunion | 💬 |
+| `atelier` | Atelier | 🔧 |
+| `fablab` | FabLab | ⚙️ |
+| `scene` | Scène / Événements | 🎭 |
+| `expo` | Espace expo | 🖼️ |
+| `boutique` | Boutique | 🛍️ |
+| `bibliotheque` | Bibliothèque | 📚 |
+| `formation` | Salle de formation | 🎓 |
+| `jardin` | Jardin | 🌿 |
+| `serre` | Serre | 🌱 |
+| `compost` | Compost / Déchets | ♻️ |
+| `hebergement` | Hébergement | 🛏️ |
+| `sport` | Sport / Bien-être | 🤸 |
+| `meditation` | Méditation / Yoga | 🧘 |
+| `stockage` | Stockage | 📦 |
+| `autre` | Autre | ✨ |
+
+C'est une taxonomie **structurelle** (elle ne passe pas par la validation du CR) : une petite table `espaces (code text primary key, libelle text, icone text, ordre int)` en lecture publique, ou une simple constante côté front si tu préfères. La colonne `capacites` d'une solution contient un ou plusieurs de ces codes.
+
+> **À faire (comme pour les catégories) :** re-mapper les `capacites` des 13 solutions, qui utilisent aujourd'hui les 4 supports physiques du jeu (`terre`, `toit`, `piece`, `mur`) vers ces espaces fonctionnels (ex. un potager s'installe dans un `jardin`, un atelier de réparation dans un `atelier`). Ce mapping n'est pas 1:1 : à caler ensemble. Côté jeu (`index.html`), tout le modèle d'espaces repose encore sur `TYPE_META` / `LIEU_TYPES` (les 4 supports) et le mind-map d'onboarding : leur passage à ces 20 espaces est un chantier à part.
 
 ### Re-mapping des 13 solutions existantes
 
