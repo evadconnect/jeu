@@ -1674,6 +1674,16 @@ function devaReveal(sel, title, text){
   document.getElementById('tour-overlay').classList.add('on');
   showTourStep(0);
 }
+/* Deverrouille un onglet sans changer de vue ; Deva le presente (differe si une modale est ouverte) */
+let PENDING_REVEAL=null;
+function revealNav(k, title, text, forceDefer){
+  if(!S.navUnlocked || S.navUnlocked.has(k)) return;
+  S.navUnlocked.add(k);
+  setupNav();
+  const fire=()=>setTimeout(()=>devaReveal(`.nav-item[data-tab="${k}"]`, title, text), 420);
+  if(forceDefer || document.getElementById('modal').classList.contains('open')) PENDING_REVEAL=fire;
+  else fire();
+}
 
 /* ═══════════════ RENDER MASTER ═══════════════ */
 function render(){
@@ -2771,11 +2781,10 @@ function reseauOfferSem(){
 /* ═══════════════ SPIRALE VADE, progression ═══════════════ */
 function markFirstAct(act){ S.firstActs.add(act);
   if(!S.badges.has('premiere')){ S.badges.add('premiere'); setTimeout(()=>toastBadge('premiere'),400); }
-  // Pilote : a la premiere solution installee, le reste du reseau s'ouvre.
-  if(S.profile==='pilote' && S.navUnlocked && act==='installed' && !S.navUnlocked.has('reseau')){
-    S.navUnlocked.add('reseau'); S.navUnlocked.add('carte'); S.navUnlocked.add('marche');
-    setupNav();
-    setTimeout(()=>devaReveal('.nav-item[data-tab="reseau"]', '🌐 Ton lieu entre dans le réseau', 'Ta première <b>Vadance</b> est posée ✨ Trois espaces s\'ouvrent : le <b>Réseau</b> (un Bâtisseur ou un Semeur valide tes preuves, ta Vadance devient Vadité), la <b>Carte</b> de l\'écosystème et la <b>Place de marché</b> pour dépenser tes Graines.'), 750);
+  // Pilote : les onglets se deverrouillent un par un, quand ils deviennent utiles.
+  if(S.profile==='pilote' && S.navUnlocked){
+    if(act==='installed') revealNav('carte', '🗺️ Mets ton lieu sur la Carte', 'Ton lieu prend forme 🌿 Il mérite d\'être visible dans l\'écosystème. <b>🎯 Objectif : valide ta fiche publique</b> sur la Carte, pour attirer la communauté.');
+    if(act==='measured') revealNav('reseau', '🌐 Publie une quête sur le Réseau', 'Tu as engagé une mesure 📊 Pour transformer ta <b>Vadance</b> en <b>Vadité</b> prouvée, il te faut de l\'aide. <b>🎯 Objectif : trouve un Bâtisseur (preuve terrain) et un Semeur (financement)</b> en publiant une quête sur le Réseau.');
   }
 }
 function progressValue(){ return S.profile==='pilote'?S.vadite : (S.profile==='batisseur'?S.missionsDone : S.vaditeFin); }
@@ -2904,6 +2913,11 @@ function advanceSeason(){
 
   // 6) victoire ?
   const won = checkWin();
+
+  // 6.5) Pilote : premiere saison productive → la Place de marché s'ouvre (apres le récap)
+  if(S.profile==='pilote' && S.navUnlocked && !S.navUnlocked.has('marche') && gains>0){
+    revealNav('marche', '🛒 Ouvre la Place de marché', 'Tes espaces ont produit 🌰 Il est temps de valoriser ce que ton lieu fait vivre. <b>🎯 Objectif : propose une formation sur ton lieu</b> et vends tes produits et services sur la Place de marché.', true);
+  }
 
   render();
   // 7) modal récap saison
@@ -3088,7 +3102,8 @@ function restart(){ closeModal(); document.getElementById('splash').style.displa
 
 function openModal(html){ const b=document.getElementById('modal-box'); b.className='modal-box'; b.innerHTML=html; document.getElementById('modal').classList.add('open'); }
 function openOnboarding(html){ const b=document.getElementById('modal-box'); b.className='modal-box deva-ob'; b.innerHTML=html; document.getElementById('modal').classList.add('open'); }
-function closeModal(){ document.getElementById('modal').classList.remove('open'); const b=document.getElementById('modal-box'); b.className='modal-box'; }
+function closeModal(){ document.getElementById('modal').classList.remove('open'); const b=document.getElementById('modal-box'); b.className='modal-box';
+  if(PENDING_REVEAL){ const f=PENDING_REVEAL; PENDING_REVEAL=null; setTimeout(f, 250); } }
 
 let toastTimer;
 function toast(msg, kind){ const box=document.getElementById('toasts');
