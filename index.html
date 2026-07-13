@@ -520,7 +520,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .add-space-btn{border-radius:100px;padding:.4rem .8rem;font-size:.72rem;font-weight:700;background:#fff;border:1px dashed rgba(1,130,98,.3);color:var(--moss);cursor:pointer;transition:all .15s}
 .add-space-btn:hover{background:var(--cream);border-style:solid;transform:translateY(-1px)}
 .biblio-tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.9rem;border-bottom:1px solid var(--line);padding-bottom:.6rem}
-.biblio-tab{border-radius:100px;padding:.5rem 1rem;font-size:.82rem;font-weight:800;color:var(--moss);background:rgba(1,130,98,.06);border:1px solid rgba(1,130,98,.14);cursor:pointer;transition:all .15s;font-family:var(--font)}
+.biblio-tab{position:relative;border-radius:100px;padding:.5rem 1rem;font-size:.82rem;font-weight:800;color:var(--moss);background:rgba(1,130,98,.06);border:1px solid rgba(1,130,98,.14);cursor:pointer;transition:all .15s;font-family:var(--font)}
+.tab-badge{position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;background:#ff7a1a;box-shadow:0 0 0 2px var(--vert-pale)}
 .biblio-tab:hover{background:rgba(1,130,98,.12)}
 .biblio-tab.active{background:var(--forest);color:#fff;border-color:var(--forest);box-shadow:0 5px 14px rgba(1,130,98,.24)}
 .biblio-row-desc{font-size:.78rem;color:var(--moss);opacity:.85;line-height:1.5;margin-bottom:.7rem}
@@ -1801,7 +1802,11 @@ function renderTabA(){
     const sub=S.lieuSub||'dash';
     const tabs=[['dash','📊 Tableau de bord'],['espaces','🏡 Mes Espaces'],['recompenses','🏅 Mes Récompenses']];
     let h=defiBanner();
-    h+=`<div class="biblio-tabs">${tabs.map(t=>`<button class="biblio-tab ${sub===t[0]?'active':''}" onclick="S.lieuSub='${t[0]}';render()">${t[1]}</button>`).join('')}</div>`;
+    h+=`<div class="biblio-tabs">${tabs.map(t=>{
+      const badge = (t[0]==='espaces' && !S.espacesSeen) ? '<span class="tab-badge"></span>' : '';
+      const click = t[0]==='espaces' ? `S.lieuSub='espaces';S.espacesSeen=true;render()` : `S.lieuSub='${t[0]}';render()`;
+      return `<button class="biblio-tab ${sub===t[0]?'active':''}" onclick="${click}">${t[1]}${badge}</button>`;
+    }).join('')}</div>`;
     if(sub==='dash') h+=dashHTML({noBadges:true});
     else if(sub==='espaces') h+=pilotLieu();
     else h+=recompensesHTML();
