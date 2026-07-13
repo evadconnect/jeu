@@ -242,7 +242,19 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .space.drop-ok{border-color:var(--forest);border-style:dashed;background:var(--cream);box-shadow:0 0 0 3px rgba(1,130,98,.12)}
 .space.existant{background:linear-gradient(180deg,#fff,#f6fbf8)}
 .space-head{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem}
-.space-ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.space-ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;position:relative}
+.sp-act-badge{position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;border-radius:100px;background:#ff7a1a;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:900;color:#fff;line-height:1}
+.sp-act-badge.ok{background:var(--forest)}
+.sp-act-cta{width:100%;margin:0 0 .6rem;background:rgba(200,115,42,.09);border:1px dashed rgba(200,115,42,.55);border-radius:12px;padding:.55rem;font-size:.8rem;font-weight:800;color:var(--amber);cursor:pointer;font-family:var(--font);transition:all .15s}
+.sp-act-cta:hover{background:rgba(200,115,42,.16)}
+.sp-acts{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;margin:0 0 .55rem}
+.sp-act-chip{font-size:.68rem;font-weight:700;background:var(--cream);color:var(--moss);border:1px solid rgba(1,130,98,.14);border-radius:100px;padding:.25rem .6rem}
+.sp-act-edit{background:none;border:none;color:var(--moss);opacity:.55;cursor:pointer;font-size:.72rem;padding:.1rem .2rem}
+.sp-act-edit:hover{opacity:1}
+.act-chips{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:.3rem 0 1.1rem}
+.act-chip{background:#fff;border:1.5px solid rgba(1,130,98,.2);border-radius:100px;padding:.5rem .9rem;font-size:.82rem;font-weight:700;color:var(--moss);cursor:pointer;font-family:var(--font);transition:all .15s}
+.act-chip:hover{background:var(--cream)}
+.act-chip.on{background:var(--forest);color:#fff;border-color:var(--forest)}
 .space-name{font-size:.9rem;font-weight:800;line-height:1.15}
 .space-cap{font-size:.62rem;color:var(--moss);opacity:.7;font-weight:700}
 .space-empty{font-size:.74rem;color:var(--moss);opacity:.55;text-align:center;padding:1.3rem .5rem;
@@ -907,7 +919,7 @@ const VADE = [
 /* Mission en cours (par profil, par phase VADE) pour passer à l'étape suivante */
 const VADE_MISSIONS = {
   pilote: [
-    'Personnalise tes espaces pour valoriser le potentiel de ton lieu',
+    'Choisis au moins une activité pour chacun de tes espaces',
     'Installe des solutions de la Bibliothèque dans tes espaces',
     'Publie une annonce sur le Réseau pour attirer un Bâtisseur et un Semeur',
     'Fais valider tes preuves d\'impact pour faire monter ta Vadité',
@@ -1048,6 +1060,31 @@ const TYPE_META={
   autre:        {ic:'✨', name:'Autre',               bg:'#f2f2ef'},
 };
 const ESPACE_CODES=Object.keys(TYPE_META);
+/* ---------- Activités possibles par type d'espace (phase Valoriser) ---------- */
+const SPACE_ACTIVITIES={
+  cuisine:      ['Repas partagés','Cuisine pédagogique','Conserverie / bocaux','Atelier zéro-déchet','Traiteur solidaire'],
+  cafe_bar:     ['Café associatif','Bar à jeux','Coworking convivial','Concerts acoustiques','Repair café'],
+  cantine:      ['Restaurant solidaire','Cantine de quartier','Atelier cuisine durable','Buffet anti-gaspi','Repas à prix libre'],
+  coworking:    ['Espace de coworking','Permanences associatives','Incubateur de projets','Ateliers pro','Réunions d\'équipe'],
+  salle_reunion:['Ateliers créatifs','Réunions associatives','Yoga & bien-être','Formations','Expositions'],
+  atelier:      ['Repair café','FabLab','Atelier menuiserie','Couture & textile','Bricolage partagé'],
+  fablab:       ['Impression 3D','Découpe & gravure','Prototypage','Ateliers makers','Électronique & réparation'],
+  scene:        ['Concerts','Théâtre & spectacles','Projections','Soirées associatives','Conférences'],
+  expo:         ['Expositions d\'artistes','Vernissages','Ateliers d\'art','Résidences créatives','Galerie participative'],
+  boutique:     ['Épicerie solidaire','Boutique de créateurs','Vente en vrac','Dépôt-vente','Marché local'],
+  bibliotheque: ['Prêt de livres','Grainothèque','Heure du conte','Ateliers d\'écriture','Médiathèque partagée'],
+  formation:    ['Formations pro','Ateliers de sensibilisation','Cours du soir','Accompagnement à l\'emploi','Alphabétisation'],
+  jardin:       ['Jardin potager partagé','Compostage collectif','Ruches urbaines','Ateliers nature','Marché de producteurs'],
+  serre:        ['Semis & plants','Culture toute saison','Ateliers permaculture','Vente de plants','Pépinière participative'],
+  compost:      ['Compostage collectif','Collecte de biodéchets','Lombricompostage','Ateliers zéro-déchet','Valorisation matière'],
+  hebergement:  ['Chambres solidaires','Accueil de bénévoles','Résidences d\'artistes','Gîte associatif','Hébergement d\'urgence'],
+  sport:        ['Cours collectifs','Gym douce','Sport en plein air','Bien-être & relaxation','Tournois conviviaux'],
+  meditation:   ['Yoga','Méditation guidée','Sophrologie','Ateliers respiration','Cercles de parole'],
+  stockage:     ['Ressourcerie / réemploi','Grainothèque','Matériauthèque','Épicerie solidaire','Prêt de matériel'],
+  autre:        ['Ateliers participatifs','Événements communautaires','Services de proximité','Éducation & sensibilisation','Permanences solidaires'],
+};
+const GENERIC_ACTIVITIES=['Ateliers participatifs','Événements communautaires','Services de proximité','Éducation & sensibilisation'];
+function spaceActivities(type){ return SPACE_ACTIVITIES[type] || GENERIC_ACTIVITIES; }
 
 /* ---------- Types de lieu (onboarding Deva) ---------- */
 const LIEU_TYPES=[
@@ -1873,14 +1910,20 @@ function spaceCard(sp){
   const selIci = S.sel&&S.sel.type==='ici';
   const canDrop = selSol && spaceAccepts(sp, S.sel.id);
   const dorm = isDormantSpace(sp);
+  const chosen = !sp.existant && Array.isArray(sp.activities) && sp.activities.length>0;
   let h=`<div class="space ${sp.existant?'existant':''} ${canDrop?'drop-ok':''} ${dorm?'dorm':''}" ${canDrop?`onclick="installSelected('${sp.id}')"`:''}>
     <div class="space-head">
-      <div class="space-ic" style="background:${sp.bg}">${sp.ic}</div>
+      <div class="space-ic" style="background:${sp.bg}">${sp.ic}${!sp.existant?`<span class="sp-act-badge${chosen?' ok':''}">${chosen?'✓':''}</span>`:''}</div>
       <div style="flex:1;min-width:0"><div class="space-name">${sp.name}</div>
       <div class="space-cap">${sp.existant?'Espace existant':'Espace · '+capLabel(sp.type)}${dorm?' · 💤 dormance':''}</div></div>
       ${!sp.existant?`<button class="sp-edit" title="Renommer" onclick="event.stopPropagation();renameSpace('${sp.id}')">✏️</button>`:''}
       ${(!sp.existant&&sp.sols.length===0)?`<button class="sp-edit" title="Retirer cet espace" onclick="event.stopPropagation();removeSpace('${sp.id}')">✕</button>`:''}
     </div>`;
+  if(!sp.existant){
+    h+= chosen
+      ? `<div class="sp-acts">${sp.activities.map(a=>`<span class="sp-act-chip">${escapeHtml(a)}</span>`).join('')}<button class="sp-act-edit" title="Modifier les activités" onclick="event.stopPropagation();openActivitiesModal('${sp.id}')">✏️</button></div>`
+      : `<button class="sp-act-cta" onclick="event.stopPropagation();openActivitiesModal('${sp.id}')">🎯 Choisir les activités de cet espace</button>`;
+  }
   if(sp.existant){
     const meas=sp.ici;
     h+=`<div class="sol-chip ${meas?'vadite':'vadance'}">
@@ -2237,6 +2280,38 @@ function renameLieu(){
 function renameSpace(id){
   const sp=S.spaces.find(x=>x.id===id); if(!sp) return;
   openRenameModal('✏️','Nom de l\'espace', sp.name, 32, v=>{ sp.name=v.slice(0,32); render(); });
+}
+/* ---- Choix des activités d'un espace (phase Valoriser) ---- */
+let ACT_SEL=null, ACT_SPACE=null;
+function openActivitiesModal(spaceId){
+  const sp=S.spaces.find(x=>x.id===spaceId); if(!sp) return;
+  ACT_SPACE=spaceId; ACT_SEL=new Set(sp.activities||[]);
+  renderActivitiesModal();
+}
+function renderActivitiesModal(){
+  const sp=S.spaces.find(x=>x.id===ACT_SPACE); if(!sp) return;
+  const acts=spaceActivities(sp.type);
+  const chips=acts.map((a,i)=>`<button class="act-chip ${ACT_SEL.has(a)?'on':''}" onclick="toggleActivity(${i})">${escapeHtml(a)}</button>`).join('');
+  openModal(`
+    <div class="mb-ic">${sp.ic}</div>
+    <h2>Vocation de « ${escapeHtml(sp.name)} »</h2>
+    <p>Choisis <b>au moins une activité</b> qui donnera vie à cet espace et valorisera son potentiel.</p>
+    <div class="act-chips">${chips}</div>
+    <div class="rename-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="confirmActivities()">Valider${ACT_SEL.size?' ('+ACT_SEL.size+')':''}</button>
+    </div>`);
+}
+function toggleActivity(i){
+  const sp=S.spaces.find(x=>x.id===ACT_SPACE); if(!sp) return;
+  const a=spaceActivities(sp.type)[i];
+  if(ACT_SEL.has(a)) ACT_SEL.delete(a); else ACT_SEL.add(a);
+  renderActivitiesModal();
+}
+function confirmActivities(){
+  if(!ACT_SEL || ACT_SEL.size===0){ toast('Choisis au moins une activité 🎯','warn'); return; }
+  const sp=S.spaces.find(x=>x.id===ACT_SPACE); if(sp) sp.activities=[...ACT_SEL];
+  closeModal(); render();
 }
 function spaceAccepts(sp, id){ return !sp.existant && sp.sols.length<MAX_PER_SPACE && SOL[id].cap.includes(sp.type); }
 function installedIds(){ let ids=[]; S.spaces.forEach(sp=>sp.sols.forEach(x=>ids.push(x.id))); return ids.filter(i=>SOL[i]); }
@@ -2970,13 +3045,13 @@ function vadeNextMission(){
 /* Pilote : la phase reflète l'action en cours dans la boucle
    V personnaliser les espaces → A installer des solutions → D attirer Bâtisseur/Semeur → E valider les preuves */
 function pilotVadePhase(){
-  const solutions = installedIds().length>0;          // au moins une solution installée
-  const attracted = !!(S.reseauBat || S.reseauSem);   // annonce réseau → Bâtisseur/Semeur attirés
-  const proven = countProven()>0;                     // au moins une preuve validée
-  if(proven) return 3;      // Essaimer
-  if(attracted) return 2;   // Développer
-  if(solutions) return 1;   // Activer
-  return 0;                 // Valoriser (personnalisation des espaces)
+  // Valoriser validé quand CHAQUE espace créé a au moins une activité choisie
+  const toValue=(S.spaces||[]).filter(sp=>!sp.existant);
+  const allValued = toValue.length>0 && toValue.every(sp=>Array.isArray(sp.activities)&&sp.activities.length>0);
+  if(!allValued) return 0;                            // Valoriser : il reste des espaces sans activité
+  if(countProven()>0) return 3;                       // Essaimer
+  if(S.reseauBat || S.reseauSem) return 2;            // Développer
+  return 1;                                           // V validé → Activer
 }
 function checkVade(){
   const goal=PROFILS[S.profile].goal, seg=goal/3, prog=progressValue();
@@ -2992,7 +3067,10 @@ function checkVade(){
   const before=S.vade, beforeCyc=S.vadeCycle||1;
   S.vade=phase; S.vadeCycle=cyc;
   if(!S.won && cyc>beforeCyc){ setTimeout(()=>toast(`🌀 Spirale bouclée ! On repart de V · Valoriser, un cran plus haut (cycle ${cyc}/3).`,'gold'),200); }
-  else if(phase>before){ const v=VADE[phase]; setTimeout(()=>toast(`🌀 Spirale VADE : ${v.k} · ${v.label}`,'win'),200); }
+  else if(phase>before){
+    if(S.profile==='pilote' && before===0){ setTimeout(()=>toast(`🎉 Valoriser validé ! Chaque espace a désormais sa vocation. Cap sur l'Activation : installe des solutions de la Bibliothèque 🌿`,'gold'),200); }
+    else { const v=VADE[phase]; setTimeout(()=>toast(`🌀 Spirale VADE : ${v.k} · ${v.label}`,'win'),200); }
+  }
   renderTopbar();
 }
 
