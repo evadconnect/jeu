@@ -362,6 +362,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .deva-ob .ob-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;padding:0 1.35rem;overscroll-behavior:contain}
 .deva-ob .ob-actions{padding:.9rem 1.35rem 1.35rem;margin-top:0;border-top:1px solid rgba(130,184,148,.12)}
 .ob-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.9rem}
+.ob-skip-all{flex-shrink:0;background:rgba(255,255,255,.06);border:1px solid rgba(130,184,148,.2);color:var(--sage);border-radius:100px;padding:.32rem .7rem;font-size:.66rem;font-weight:800;cursor:pointer;font-family:var(--font);white-space:nowrap;transition:all .15s}
+.ob-skip-all:hover{background:rgba(255,255,255,.13);color:var(--cream)}
 .ob-av{width:48px;height:48px;flex-shrink:0}
 .ob-hmeta{flex:1;min-width:0}
 .ob-dname{font-weight:900;font-size:1rem;color:var(--cream)}
@@ -1135,7 +1137,7 @@ function introStep(n){
   if(!INTRO) INTRO={step:0,name:''};
   INTRO.step=n;
   const nm = INTRO.name?escapeHtml(INTRO.name):'';
-  const head=`<div class="ob-head"><div class="ob-av deva-av"></div><div class="ob-hmeta"><div class="ob-dname">Deva</div><div class="ob-dsub">l'esprit régénératif d'EVAD</div></div><div class="ob-step">${n+1}/${INTRO_STEPS}</div></div>`;
+  const head=`<div class="ob-head"><div class="ob-av deva-av"></div><div class="ob-hmeta"><div class="ob-dname">Deva</div><div class="ob-dsub">l'esprit régénératif d'EVAD</div></div><button class="ob-skip-all" onclick="skipOnboarding()" title="Aller directement au jeu">Passer ✕</button><div class="ob-step">${n+1}/${INTRO_STEPS}</div></div>`;
   let actions='';
   const back=k=>`<button class="ob-back" onclick="introStep(${k})">← Retour</button>`;
   // Messages de Deva, un par etape : ils s'empilent comme un fil de conversation
@@ -1211,6 +1213,14 @@ function introLaunch(){
 }
 function startProfileDirect(profile){ PLAYER_NAME=(INTRO&&INTRO.name)||PLAYER_NAME; SESSION=null; closeModal(); chooseProfile(profile); }
 function introFreeExplore(){ introEnd(); closeModal(); SESSION=null; document.getElementById('splash').style.display='block'; document.getElementById('app').style.display='none'; }
+/* Passer tout l'onboarding et arriver directement au jeu (dispo a chaque etape) */
+function skipOnboarding(){
+  if(S && S.ob){ obSkip(); return; }            // onboarding du profil en cours → terminer avec les defauts
+  PLAYER_NAME=(INTRO&&INTRO.name)||PLAYER_NAME||'toi';
+  SESSION=null;
+  chooseProfile('pilote');                        // intro generale → demarrer en Pilote
+  if(S && S.ob) obSkip();                          // puis sauter son onboarding
+}
 function startSession(){ SESSION={act:1, playerName:null, started:Date.now()}; closeModal(); startAct('pilote'); }
 function startAct(profile){ closeModal(); chooseProfile(profile); }
 function renderSessionBar(){
@@ -1546,6 +1556,7 @@ function renderOnboardingStep(){
     <div class="ob-head">
       <div class="ob-av deva-av"></div>
       <div class="ob-hmeta"><div class="ob-dname">Deva</div><div class="ob-dsub">t'accompagne pour bien démarrer</div></div>
+      <button class="ob-skip-all" onclick="skipOnboarding()" title="Aller directement au jeu">Passer ✕</button>
       <div class="ob-step">${cur+1}/${total}</div>
     </div>
     <div class="ob-scroll"><div class="ob-thread">${thread}</div></div>
@@ -1574,7 +1585,7 @@ function obToggleSpace(tp){ const s=S.ob.spaces; if(s.has(tp)) s.delete(tp); els
 function obSkip(){
   const ob=S.ob;
   if(!ob.name) ob.name='toi';
-  if(S.profile==='pilote'){ if(!ob.lieuName) ob.lieuName='La Friche des Possibles'; }
+  if(S.profile==='pilote'){ if(!ob.lieuName) ob.lieuName='La Friche des Possibles'; if(ob.spaces.size===0){ ESPACE_CODES.slice(0,3).forEach(t=>ob.spaces.add(t)); } }
   obFinish();
 }
 function buildLieu(ob){
