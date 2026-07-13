@@ -611,6 +611,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .vocab .v-t{font-size:.8rem;font-weight:800}
 .vocab .v-d{font-size:.68rem;line-height:1.4;color:#33564a;margin-top:.1rem}
 
+.reveal-cta{background:linear-gradient(135deg,rgba(1,130,98,.09),rgba(122,201,176,.12));border:1px solid rgba(1,130,98,.2);border-radius:14px;padding:.85rem 1rem;margin-bottom:1rem;font-size:.85rem;line-height:1.5;color:#264a3d}
+.reveal-cta b{color:var(--forest)}
 .empty-state{text-align:center;padding:2.5rem 1rem;color:var(--moss);opacity:.7}
 .empty-state .es-ic{font-size:2.5rem;margin-bottom:.5rem}
 .hint{font-size:.72rem;color:var(--moss);opacity:.8;background:rgba(1,130,98,.06);border-radius:10px;padding:.55rem .75rem;line-height:1.45;margin:.6rem 0;display:flex;gap:.45rem;align-items:flex-start}
@@ -1647,11 +1649,31 @@ function setupNav(){
   const P=PROFILS[S.profile];
   document.getElementById('espace-title').textContent=S.playerName || P.label;
   document.getElementById('espace-text').textContent=(S.playerName ? P.label+' · ' : '')+ESPACE_TXT[S.profile];
-  document.getElementById('nav-menu').innerHTML = NAV[S.profile].map(n=>
+  // Deverrouillage progressif : le Pilote demarre avec le seul Tableau de bord (Mon lieu),
+  // les autres onglets apparaissent quand il en a besoin. Les autres profils ont tout d'emblee.
+  if(!S.navUnlocked){ S.navUnlocked = S.profile==='pilote' ? new Set(['a']) : new Set(NAV[S.profile].map(n=>n.k)); }
+  document.getElementById('nav-menu').innerHTML = NAV[S.profile].filter(n=>S.navUnlocked.has(n.k)).map(n=>
     `<div class="nav-item ${S.tab===n.k?'active':''}" data-tab="${n.k}" onclick="switchTab('${n.k}')">
        <span class="nav-icon">${n.ic}</span><span class="nl">${n.label}</span></div>`).join('');
 }
 function switchTab(k){ S.tab=k; render(); }
+/* Deverrouille un onglet, l'ouvre et laisse Deva l'expliquer (mini visite guidee) */
+const REVEAL_INFO={
+  b:{title:'📚 La Bibliothèque s\'ouvre',text:'Le catalogue commun d\'EVAD 🌿 Choisis une <b>Solution</b>, puis pose-la dans un espace compatible : elle crée de la <b>Vadance</b> (impact promis). Tu y trouveras aussi les <b>ICI</b> pour mesurer et prouver.'},
+};
+function revealTab(k){
+  const first = S.navUnlocked && !S.navUnlocked.has(k);
+  if(S.navUnlocked) S.navUnlocked.add(k);
+  S.tab=k;
+  setupNav(); render();
+  const info=REVEAL_INFO[k];
+  if(first && info){ setTimeout(()=>devaReveal(`.nav-item[data-tab="${k}"]`, info.title, info.text), 380); }
+}
+function devaReveal(sel, title, text){
+  S.tour={steps:[{sel, side:'top', title, text}], i:0};
+  document.getElementById('tour-overlay').classList.add('on');
+  showTourStep(0);
+}
 
 /* ═══════════════ RENDER MASTER ═══════════════ */
 function render(){
@@ -1729,6 +1751,9 @@ function pilotLieu(){
   let h = '';
   h+=`<div class="lieu-edit-head"><h2>🏡 ${escapeHtml(S.lieuName)}</h2><button class="sp-edit" title="Renommer le lieu" onclick="renameLieu()">✏️</button></div>
       <div class="sect-sub">Compose ton lieu : il part de zéro. Aménage des espaces, installe des solutions de la Bibliothèque et mesure-les avec des ICI pour prouver ton impact.</div>`;
+  if(S.navUnlocked && !S.navUnlocked.has('b')){
+    h+=`<div class="reveal-cta">📚 Pour remplir un espace, ouvre la <b>Bibliothèque</b> et choisis une solution à installer.<button class="btn btn-primary" style="margin-top:.55rem" onclick="revealTab('b')">📚 Ouvrir la Bibliothèque</button></div>`;
+  }
   // barre d'ajout d'espaces (menu des 20 espaces)
   h+=`<div class="add-space-bar"><span class="asb-lab">＋ Aménager un espace (${ADD_SPACE_COST}🌰) :</span>
     <select class="add-space-select" onchange="if(this.value){addSpace(this.value);this.value='';}">
@@ -2396,6 +2421,10 @@ function dashHTML(opts){
     <div class="progress"><span style="width:${S.profile==='batisseur'?Math.min(100,S.missionsDone/5*100):prog}%"></span></div>
     <div style="font-size:.8rem;font-weight:800;color:${P.color}">${goalNum} / ${goalMax} ${P.goalLabel==='missions'?'missions':'points de '+P.goalLabel}</div>
   </div>`;
+  // Pilote au demarrage : guide vers la Bibliotheque (encore verrouillee)
+  if(S.profile==='pilote' && S.navUnlocked && !S.navUnlocked.has('b')){
+    h+=`<div class="reveal-cta">🌱 <b>Première étape</b> — installe une solution dans un de tes espaces pour créer ta première <b>Vadance</b>.<button class="btn btn-primary" style="margin-top:.6rem;width:100%" onclick="S.lieuSub='espaces';revealTab('b')">📚 Ouvrir la Bibliothèque</button></div>`;
+  }
   // stats
   h+=`<div class="dash-grid">`;
   h+=dashStat('🌰',S.graines,'Graines');
@@ -2742,6 +2771,12 @@ function reseauOfferSem(){
 /* ═══════════════ SPIRALE VADE, progression ═══════════════ */
 function markFirstAct(act){ S.firstActs.add(act);
   if(!S.badges.has('premiere')){ S.badges.add('premiere'); setTimeout(()=>toastBadge('premiere'),400); }
+  // Pilote : a la premiere solution installee, le reste du reseau s'ouvre.
+  if(S.profile==='pilote' && S.navUnlocked && act==='installed' && !S.navUnlocked.has('reseau')){
+    S.navUnlocked.add('reseau'); S.navUnlocked.add('carte'); S.navUnlocked.add('marche');
+    setupNav();
+    setTimeout(()=>devaReveal('.nav-item[data-tab="reseau"]', '🌐 Ton lieu entre dans le réseau', 'Ta première <b>Vadance</b> est posée ✨ Trois espaces s\'ouvrent : le <b>Réseau</b> (un Bâtisseur ou un Semeur valide tes preuves, ta Vadance devient Vadité), la <b>Carte</b> de l\'écosystème et la <b>Place de marché</b> pour dépenser tes Graines.'), 750);
+  }
 }
 function progressValue(){ return S.profile==='pilote'?S.vadite : (S.profile==='batisseur'?S.missionsDone : S.vaditeFin); }
 /* Pilote : la Vadance se calcule à partir des solutions présentes dans les espaces (+ un modificateur d'aléas/entraide) */
