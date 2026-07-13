@@ -629,6 +629,10 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .modal-box .mb-ic{font-size:2.8rem;margin-bottom:.5rem}
 .modal-box h2{font-size:1.3rem;font-weight:900;margin-bottom:.5rem}
 .modal-box p{font-size:.9rem;line-height:1.6;color:#33564a;margin-bottom:1rem}
+.rename-input{width:100%;background:#fff;border:1.5px solid rgba(1,130,98,.25);border-radius:12px;padding:.75rem 1rem;font-family:var(--font);font-size:1rem;font-weight:600;color:var(--ink);outline:none;margin:.2rem 0 1rem;text-align:left;transition:border-color .15s}
+.rename-input:focus{border-color:var(--forest);box-shadow:0 0 0 3px rgba(1,130,98,.1)}
+.rename-actions{display:flex;gap:.6rem}
+.rename-actions .btn{flex:1}
 .modal-box .mb-detail{background:var(--cream);border-radius:12px;padding:.85rem;font-size:.82rem;line-height:1.5;
   text-align:left;margin-bottom:1rem;color:var(--ink)}
 .season-anim{font-size:3.4rem;margin-bottom:.4rem;animation:spin .8s}
@@ -2203,14 +2207,31 @@ function removeSpace(id){
   S.spaces=S.spaces.filter(x=>x.id!==id);
   render();
 }
+let RENAME_CB=null;
+function openRenameModal(icon, title, value, maxLen, onOk){
+  RENAME_CB=onOk;
+  openModal(`
+    <div class="mb-ic">${icon}</div>
+    <h2>${title}</h2>
+    <input id="rename-input" class="rename-input" value="${escapeHtml(value||'')}" maxlength="${maxLen}" onkeydown="if(event.key==='Enter')confirmRename();if(event.key==='Escape')closeModal()">
+    <div class="rename-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="confirmRename()">Valider</button>
+    </div>`);
+  setTimeout(()=>{ const i=document.getElementById('rename-input'); if(i){ i.focus(); i.select(); } },60);
+}
+function confirmRename(){
+  const i=document.getElementById('rename-input'); if(!i) return;
+  const v=(i.value||'').trim(); const cb=RENAME_CB;
+  closeModal();
+  if(v && cb) cb(v);
+}
 function renameLieu(){
-  const v=prompt('Nom de ton lieu :', S.lieuName);
-  if(v && v.trim()){ S.lieuName=v.trim().slice(0,40); render(); }
+  openRenameModal('🏡','Nom de ton lieu', S.lieuName, 40, v=>{ S.lieuName=v.slice(0,40); render(); });
 }
 function renameSpace(id){
   const sp=S.spaces.find(x=>x.id===id); if(!sp) return;
-  const v=prompt('Nom de l\'espace :', sp.name);
-  if(v && v.trim()){ sp.name=v.trim().slice(0,32); render(); }
+  openRenameModal('✏️','Nom de l\'espace', sp.name, 32, v=>{ sp.name=v.slice(0,32); render(); });
 }
 function spaceAccepts(sp, id){ return !sp.existant && sp.sols.length<MAX_PER_SPACE && SOL[id].cap.includes(sp.type); }
 function installedIds(){ let ids=[]; S.spaces.forEach(sp=>sp.sols.forEach(x=>ids.push(x.id))); return ids.filter(i=>SOL[i]); }
