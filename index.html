@@ -604,6 +604,50 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .empty-state .es-ic{font-size:2.5rem;margin-bottom:.5rem}
 .hint{font-size:.72rem;color:var(--moss);opacity:.8;background:rgba(1,130,98,.06);border-radius:10px;padding:.55rem .75rem;line-height:1.45;margin:.6rem 0;display:flex;gap:.45rem;align-items:flex-start}
 .dorm{opacity:.5;filter:grayscale(.6)}
+
+/* ══════════════════ MOBILE : sidebar → barre d'onglets en bas ══════════════════ */
+@media(max-width:600px){
+  .app{flex-direction:column;height:100vh;height:100dvh}
+  .main{order:1;flex:1;min-height:0}
+  /* Barre de navigation en bas */
+  .nav{order:2;width:100%;height:auto;flex-direction:row;align-items:stretch;gap:.12rem;overflow-x:auto;overflow-y:hidden;
+    padding:.28rem .3rem calc(.3rem + env(safe-area-inset-bottom));border-top:1px solid rgba(130,184,148,.18);
+    box-shadow:0 -6px 18px rgba(0,20,12,.22)}
+  .nav-logo,.espace-card{display:none}
+  .nav-menu{flex-direction:row;flex:1;gap:.1rem;justify-content:space-around;min-width:0}
+  .nav-item{flex:1;min-width:44px;flex-direction:column;gap:.14rem;padding:.36rem .18rem;border-radius:11px;justify-content:center;text-align:center;font-weight:600}
+  .nav-item .nl{display:block;font-size:.55rem;line-height:1.05;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .nav-icon{font-size:1.2rem;width:auto}
+  .nav-item.active::before{display:none}
+  .nav-bottom{margin:0;padding:0;border-top:none;display:flex;flex-direction:row;align-items:stretch;gap:.18rem;flex-shrink:0}
+  .nav-bottom .ob-intro-btn{margin:0;width:auto;padding:.36rem .5rem;border-radius:11px;justify-content:center}
+  .nav-bottom .ob-intro-btn .oib-txt{display:none}
+  .nav-bottom .ob-intro-btn .oib-ico{font-size:1.05rem}
+  .deva-pill{margin:0;padding:.3rem .5rem;border-radius:11px;align-items:center}
+  .deva-pill .dp-meta,.deva-pill .dp-chat,.deva-status,.deva-name{display:none}
+  .deva-pill .dp-av{width:30px;height:30px}
+  /* Topbar compacte */
+  .topbar{padding:.5rem .8rem;gap:.45rem}
+  .tb-titles{width:100%;margin-right:0}
+  .topbar-title{font-size:.98rem}
+  .topbar-sub{display:none}
+  .tb-right{width:100%;justify-content:space-between;gap:.4rem}
+  .stats{gap:.3rem}
+  .stat{padding:.28rem .5rem;font-size:.72rem}
+  .season-btn{padding:.46rem .72rem;font-size:.74rem}
+  .content{padding:.85rem .8rem 2rem}
+  .view{padding-bottom:1.5rem}
+  .sect-title{font-size:1.05rem}
+  /* Grilles : une colonne quand c'est trop serré */
+  .det-grid{grid-template-columns:1fr}
+  /* Panneau Deva : feuille plein écran au-dessus de la barre */
+  .deva-panel{left:.5rem;right:.5rem;bottom:.5rem;top:auto;width:auto;height:min(82vh,600px)}
+  /* Modales : un poil plus compactes */
+  #modal{padding:.7rem}
+  .modal-box{padding:1.15rem}
+  /* Barre de session (mode découverte) */
+  #session-bar .sb-right,#session-bar{flex-wrap:wrap}
+}
 </style>
 </head>
 <body>
