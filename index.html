@@ -315,6 +315,31 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .dash-stat .ds-lab{font-size:.68rem;font-weight:700;color:var(--moss);opacity:.75;margin-top:.3rem}
 .progress{height:12px;border-radius:100px;background:rgba(1,130,98,.12);overflow:hidden;margin:.5rem 0}
 .progress span{display:block;height:100%;border-radius:100px;background:linear-gradient(90deg,var(--fern),var(--forest));transition:width .6s}
+/* ── État du lieu (promesse/preuve + triptyque) ── */
+.el-card{padding:1.1rem}
+.el-head{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.9rem}
+.el-eyebrow{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--moss);opacity:.75}
+.el-badge{font-size:.64rem;font-weight:800;background:var(--cream);color:var(--forest);border-radius:100px;padding:.28rem .7rem;white-space:nowrap}
+.el-top{display:flex;align-items:center;gap:.5rem;margin-bottom:1rem}
+.el-side{flex:1;min-width:0}
+.el-side-r{text-align:right}
+.el-side-lab{font-size:.7rem;font-weight:800}
+.el-big{font-size:1.9rem;font-weight:900;color:var(--ink);line-height:1;margin:.1rem 0}
+.el-side-sub{font-size:.6rem;color:var(--moss);opacity:.7;line-height:1.3}
+.el-mid{flex-shrink:0;text-align:center;padding:0 .2rem}
+.el-taux{font-size:1.15rem;font-weight:900;color:var(--ink)}
+.el-taux-lab{font-size:.52rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--moss);opacity:.7;margin-top:.1rem}
+.el-trip{border-top:1px solid rgba(1,130,98,.1);padding-top:.85rem}
+.el-trip-t{font-size:.78rem;font-weight:800;color:var(--ink);margin-bottom:.6rem}
+.el-trip-t span{font-weight:600;color:var(--moss);opacity:.75;font-style:italic;font-size:.72rem}
+.el-cap{display:flex;align-items:center;gap:.55rem;margin-bottom:.5rem}
+.el-cap-lab{width:118px;flex-shrink:0;font-size:.74rem;font-weight:700;color:#33564a}
+.el-bar{flex:1;min-width:0;height:11px;border-radius:100px;background:#eef4f0;position:relative;overflow:hidden}
+.el-bar-prom{position:absolute;left:0;top:0;bottom:0;background:rgba(46,139,110,.22);border-radius:100px}
+.el-bar-proof{position:absolute;left:0;top:0;bottom:0;border-radius:100px}
+.el-cap-val{width:52px;flex-shrink:0;text-align:right;font-size:.82rem;font-weight:900;color:var(--ink)}
+.el-cap-tot{font-weight:600;color:var(--moss);opacity:.6;font-size:.64rem}
+@media(max-width:600px){.el-cap-lab{width:96px;font-size:.68rem}.el-big{font-size:1.65rem}}
 .badges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.6rem}
 .badge{background:#fff;border:1.5px solid rgba(1,130,98,.12);border-radius:var(--r);padding:.75rem;text-align:center;opacity:.42;filter:grayscale(1);transition:all .3s}
 .badge.got{opacity:1;filter:none;border-color:var(--sun);background:linear-gradient(180deg,#fffdf4,#fff8e2);box-shadow:0 4px 14px rgba(240,200,74,.25)}
@@ -2436,6 +2461,52 @@ function semeurRefs(){
 function refCoverage(k){ let n=0; S.financed.forEach(f=>{ if(!f.pending && ICI[SOL[f.sol].ici].refs.some(r=>r.startsWith(k))) n++; }); return n; }
 
 /* ═══════════════ TABLEAU DE BORD ═══════════════ */
+/* Triptyque des 3 capitaux (jamais compenses) a partir des solutions installees */
+function pilotCapitals(){
+  const MAP={eau:'eco',energie:'eco',alimentaire:'eco',biodiversite:'eco',construction:'eco',social:'social',dechets:'econo'};
+  const cap={eco:{prom:0,proof:0}, social:{prom:0,proof:0}, econo:{prom:0,proof:0}};
+  (S.spaces||[]).forEach(sp=>sp.sols.forEach(inst=>{
+    const s=SOL[inst.id]; if(!s) return;
+    const k=MAP[s.cat]||'eco';
+    const v=(inst.vad!=null?inst.vad:s.vadance);
+    cap[k].prom+=v;
+    if(inst.ici && inst.proven) cap[k].proof+=v;
+  }));
+  return cap;
+}
+function etatLieuHTML(){
+  const vad=curVadance(), vadite=S.vadite||0;
+  const taux = vad>0 ? Math.min(100,Math.round(vadite/vad*100)) : 0;
+  const proven = countProven();
+  const cap=pilotCapitals();
+  const CAPS=[
+    {k:'eco', ic:'🌿', label:'Écologie', color:'#2e8b6e'},
+    {k:'social', ic:'🤝', label:'Social', color:'#7a6ea8'},
+    {k:'econo', ic:'♻️', label:'Économie locale', color:'#c8732a'},
+  ];
+  const scale=Math.max(1, cap.eco.prom, cap.social.prom, cap.econo.prom);
+  let bars='';
+  CAPS.forEach(c=>{ const d=cap[c.k];
+    const promW=Math.min(100,Math.round(d.prom/scale*100)), proofW=Math.min(100,Math.round(d.proof/scale*100));
+    bars+=`<div class="el-cap">
+      <div class="el-cap-lab">${c.ic} ${c.label}</div>
+      <div class="el-bar"><span class="el-bar-prom" style="width:${promW}%"></span><span class="el-bar-proof" style="width:${proofW}%;background:${c.color}"></span></div>
+      <div class="el-cap-val">${round1(d.proof)}<span class="el-cap-tot"> / ${round1(d.prom)}</span></div>
+    </div>`;
+  });
+  return `<div class="card el-card">
+    <div class="el-head"><span class="el-eyebrow">🌱 État du lieu</span><span class="el-badge">${proven>0?'🌿 Impact prouvé':'✨ Impact déclaré'}</span></div>
+    <div class="el-top">
+      <div class="el-side"><div class="el-side-lab" style="color:var(--forest)">Vadance · la promesse</div><div class="el-big">${round1(vad)}</div><div class="el-side-sub">Impact projeté · ce que tu vises</div></div>
+      <div class="el-mid"><div class="el-taux">${taux}%</div><div class="el-taux-lab">Taux de tenue →</div></div>
+      <div class="el-side el-side-r"><div class="el-side-lab" style="color:var(--ink)">Vadité · la preuve</div><div class="el-big">${round1(vadite)}</div><div class="el-side-sub">Impact vérifié · ce qui compte</div></div>
+    </div>
+    <div class="el-trip">
+      <div class="el-trip-t">Le triptyque <span>· trois capitaux, jamais compensés</span></div>
+      ${bars}
+    </div>
+  </div>`;
+}
 function dashHTML(opts){
   const P=PROFILS[S.profile];
   const vad = S.profile==='semeur'?S.vaditeFin:S.vadite;
@@ -2450,6 +2521,8 @@ function dashHTML(opts){
     <div class="progress"><span style="width:${S.profile==='batisseur'?Math.min(100,S.missionsDone/5*100):prog}%"></span></div>
     <div style="font-size:.8rem;font-weight:800;color:${P.color}">${goalNum} / ${goalMax} ${P.goalLabel==='missions'?'missions':'points de '+P.goalLabel}</div>
   </div>`;
+  // Etat du lieu : promesse (Vadance) → taux de tenue → preuve (Vadité) + triptyque des 3 capitaux
+  if(S.profile==='pilote') h+=etatLieuHTML();
   // stats
   h+=`<div class="dash-grid">`;
   h+=dashStat('🌰',S.graines,'Graines');
