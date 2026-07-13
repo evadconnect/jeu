@@ -381,6 +381,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 #tour-tip.side-none .tt-caret{display:none}
 .tt-close{position:absolute;top:.7rem;right:.7rem;width:28px;height:28px;border-radius:50%;background:rgba(1,130,98,.08);color:var(--moss);border:none;cursor:pointer;font-size:.78rem;display:flex;align-items:center;justify-content:center}
 .tt-close:hover{background:rgba(1,130,98,.16)}
+.tt-head{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem}
+.tt-av{width:34px;height:34px;flex-shrink:0;background-size:cover;background-position:center}
+.tt-name{font-size:.72rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--forest)}
 .tt-title{font-size:1rem;font-weight:900;color:var(--ink);margin-bottom:.35rem;padding-right:1.6rem;line-height:1.2}
 .tt-text{font-size:.85rem;line-height:1.5;color:#33564a;margin-bottom:.9rem}
 .tt-foot{display:flex;align-items:center;gap:.55rem}
@@ -890,6 +893,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 <div id="tour-tip">
   <div class="tt-caret"></div>
   <button class="tt-close" onclick="endTour()" title="Fermer">✕</button>
+  <div class="tt-head"><span class="tt-av deva-av"></span><span class="tt-name">Deva</span></div>
   <div class="tt-title"></div>
   <div class="tt-text"></div>
   <div class="tt-foot">
@@ -1776,6 +1780,12 @@ function revealTab(k){
 }
 function devaReveal(sel, title, text){
   S.tour={steps:[{sel, side:'top', title, text}], i:0};
+  document.getElementById('tour-overlay').classList.add('on');
+  showTourStep(0);
+}
+/* Message de Deva en bulle centrée (style visite guidée, avec Deva visible) — pour les longs messages */
+function devaSay(title, text){
+  S.tour={steps:[{sel:'#__deva_none__', side:'none', title, text}], i:0};
   document.getElementById('tour-overlay').classList.add('on');
   showTourStep(0);
 }
@@ -3065,7 +3075,7 @@ function checkVade(){
   S.vade=phase; S.vadeCycle=cyc;
   if(!S.won && cyc>beforeCyc){ setTimeout(()=>toast(`🌀 Spirale bouclée ! On repart de V · Valoriser, un cran plus haut (cycle ${cyc}/3).`,'gold'),200); }
   else if(phase>before){
-    if(S.profile==='pilote' && before===0){ setTimeout(()=>toast(`🎉 Valoriser validé ! Chaque espace a désormais sa vocation. Cap sur l'Activation : installe des solutions de la Bibliothèque 🌿`,'gold'),200); }
+    if(S.profile==='pilote' && before===0){ setTimeout(()=>devaSay(`🎉 Valoriser validé !`, `Chaque espace a désormais sa vocation. Cap sur l'<b>Activation</b> : installe des solutions de la <b>Bibliothèque</b> 🌿`),250); }
     else { const v=VADE[phase]; setTimeout(()=>toast(`🌀 Spirale VADE : ${v.k} · ${v.label}`,'win'),200); }
   }
   renderTopbar();
