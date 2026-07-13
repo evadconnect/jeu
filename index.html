@@ -1177,10 +1177,12 @@ function chooseProfile(p){
   S = newState(p);
   if(p==='pilote'){ S.spaces = makeSpaces(); }
   document.getElementById('splash').style.display='none';
-  document.getElementById('app').style.display='flex';
   setupNav();
   render();
-  setTimeout(()=>devaOnboarding(), 400);
+  // L'app reste masquee : l'onboarding du profil (nom du lieu, type, motivation...)
+  // enchaine directement apres l'onboarding general ; l'app se revele a la fin (obFinish).
+  if(S.onboarded){ document.getElementById('app').style.display='flex'; }
+  else { devaOnboarding(); }
 }
 
 /* onboarding vocab + première quête VADE */
@@ -1520,6 +1522,8 @@ function obFinish(){
   sendStat(S.profile, ob.comp, S.motivation, _free, _type);
   S.ob=null;
   closeModal();
+  document.getElementById('splash').style.display='none';
+  document.getElementById('app').style.display='flex';
   setupNav();
   S.devaMsgs=[{role:'deva',html:`Ravie de t'accueillir, <b>${escapeHtml(S.playerName)}</b> 🌿 ${devaTip()}`}];
   render();
