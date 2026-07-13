@@ -1179,9 +1179,11 @@ function introNameNext(){
 function introLaunch(){
   PLAYER_NAME=INTRO.name||'toi';
   SESSION={act:1, playerName:PLAYER_NAME, started:Date.now()};
-  introEnd(); closeModal(); startAct('pilote');
+  // On garde l'intro (#intro + backdrop clair) derriere l'onboarding du profil :
+  // meme fond que l'onboarding general. introEnd() se fait a la fin (obFinish).
+  closeModal(); startAct('pilote');
 }
-function startProfileDirect(profile){ PLAYER_NAME=(INTRO&&INTRO.name)||PLAYER_NAME; SESSION=null; introEnd(); closeModal(); chooseProfile(profile); }
+function startProfileDirect(profile){ PLAYER_NAME=(INTRO&&INTRO.name)||PLAYER_NAME; SESSION=null; closeModal(); chooseProfile(profile); }
 function introFreeExplore(){ introEnd(); closeModal(); SESSION=null; document.getElementById('splash').style.display='block'; document.getElementById('app').style.display='none'; }
 function startSession(){ SESSION={act:1, playerName:null, started:Date.now()}; closeModal(); startAct('pilote'); }
 function startAct(profile){ closeModal(); chooseProfile(profile); }
@@ -1461,68 +1463,75 @@ function devaOnboarding(){
   if(!S.ob) S.ob={step:0, name:(SESSION&&SESSION.playerName)||PLAYER_NAME||'', lieuName:'La Friche des Possibles', type:(S.profile==='semeur'?'fondation':'jardin'), spaces:new Set(), comp:'jardiner', motivation:null, freeText:''};
   renderOnboardingStep();
 }
+/* Message de Deva pour une etape donnee */
+function obStepMsg(key,ob,nm){
+  const q={pilote:"qu'est-ce qui te donne le plus envie de faire vivre un lieu ?",batisseur:"qu'est-ce qui te donne le plus envie de contribuer ?",semeur:"qu'est-ce qui compte le plus pour toi quand tu finances ?"}[S.profile];
+  if(key==='name') return `Bonjour 🌿 Je suis <b>Deva</b>, l'esprit régénératif d'EVAD. Avant de ${S.profile==='pilote'?'composer ton lieu':'te lancer'}, dis-moi : <b>comment t'appelles-tu ?</b>`;
+  if(key==='lieuName') return `Enchantée, <b>${nm}</b> 🌱 Quel <b>nom</b> donnes-tu au lieu que tu vas faire grandir ?`;
+  if(key==='type') return S.profile==='semeur'?`Pour mieux te connaître, <b>${nm}</b> : <b>quel type de financeur es-tu ?</b>`:`Beau projet ! Quel <b>type de lieu</b> « ${escapeHtml(ob.lieuName)} » va-t-il devenir ?`;
+  if(key==='spaces'){ const n=ob.spaces.size; return `On compose <b>${escapeHtml(ob.lieuName)}</b> 🌿 Ton lieu part de zéro : <b>choisis les espaces</b> qui le composent, ils apparaissent autour de ton lieu.${n?` <b>${n} espace${n>1?'s':''}</b> pour l'instant.`:''} Rien n'est figé, tu en ajouteras d'autres plus tard.`; }
+  if(key==='comp') return `Bienvenue, <b>${nm}</b> 🌿 Chaque Bâtisseur a sa spécialité. <b>Quelle compétence</b> veux-tu maîtriser en arrivant ? Tu démarreras avec.`;
+  if(key==='motivation') return `Dis-m'en un peu plus, <b>${nm}</b> : <b>${q}</b> Ça nous aide à améliorer EVAD 🌱`;
+  if(key==='howto') return `On y est presque, <b>${nm}</b> 🌿 Voici <b>comment jouer</b>, en un clin d'œil :`;
+  return '';
+}
+/* Widget interactif de l'etape courante */
+function obStepWidget(key,ob,nm){
+  if(key==='name') return `<input class="ob-input ob-pop" id="ob-name" placeholder="Ton prénom…" value="${nm}" maxlength="24" onkeydown="if(event.key==='Enter')obNext()">`;
+  if(key==='lieuName') return `<input class="ob-input ob-pop" id="ob-lieu" placeholder="Ex. La Canopée, Les Jardins d'Aïcha…" value="${escapeHtml(ob.lieuName)}" maxlength="40" onkeydown="if(event.key==='Enter')obNext()">`;
+  if(key==='type'){ const list=S.profile==='semeur'?SEMEUR_TYPES:LIEU_TYPES; return `<div class="ob-types ob-pop">${list.map(t=>`<div class="ob-type ${ob.type===t.id?'sel':''}" onclick="obSelectType('${t.id}')"><div class="ot-ic">${t.ic}</div><div class="ot-name">${t.name}</div><div class="ot-desc">${t.desc}</div></div>`).join('')}</div>`; }
+  if(key==='spaces') return `<div class="ob-pop">${obLieuMindMap(ob)}${obEspacePicker(ob)}</div>`;
+  if(key==='comp') return `<div class="ob-types ob-pop">${Object.entries(COMPETENCES).map(([k,c])=>`<div class="ob-type ${ob.comp===k?'sel':''}" onclick="obSelectComp('${k}')"><div class="ot-ic">${c.ic}</div><div class="ot-name">${c.name}</div></div>`).join('')}</div>`;
+  if(key==='motivation'){ const opts=MOTIVATIONS_BY_PROFILE[S.profile]||MOTIVATIONS_BY_PROFILE.batisseur; return `<div class="ob-list ob-pop">${opts.map(m=>`<button class="ob-opt ${ob.motivation===m.id?'on':''}" onclick="obSelectMotiv('${m.id}')"><span class="oo-ic">${m.ic}</span><span>${m.label}</span></button>`).join('')}</div><textarea class="ob-input ob-textarea" id="ob-free" placeholder="Une attente, une idée, une remarque ? (optionnel)" maxlength="500">${escapeHtml(ob.freeText||'')}</textarea>`; }
+  if(key==='howto') return `<div class="ob-pop">${obHowtoBody()}</div>`;
+  return '';
+}
+/* Reponse du joueur (bulle envoyee) pour une etape passee */
+function obStepAnswer(key,ob,nm){
+  const me=t=>`<div class="ob-bubble me">${t}</div>`;
+  if(key==='name') return me('🙋 '+nm);
+  if(key==='lieuName') return me('🏡 '+escapeHtml(ob.lieuName));
+  if(key==='type'){ const list=S.profile==='semeur'?SEMEUR_TYPES:LIEU_TYPES; const t=list.find(x=>x.id===ob.type); return t?me(t.ic+' '+t.name):''; }
+  if(key==='spaces'){ const ch=[...ob.spaces].map(tp=>{const m=TYPE_META[tp];return m?m.ic+' '+escapeHtml(m.name):'';}).filter(Boolean); return me(ch.length?ch.join(' · '):'Je choisirai plus tard'); }
+  if(key==='comp'){ const c=COMPETENCES[ob.comp]; return c?me(c.ic+' '+c.name):''; }
+  if(key==='motivation'){ const opts=MOTIVATIONS_BY_PROFILE[S.profile]||MOTIVATIONS_BY_PROFILE.batisseur; const mo=opts.find(m=>m.id===ob.motivation); let out=mo?me(mo.ic+' '+mo.label):''; const f=(ob.freeText||'').trim(); if(f) out+=me('💬 '+escapeHtml(f)); return out; }
+  return '';
+}
 function renderOnboardingStep(){
-  const ob=S.ob, steps=obSteps(), key=steps[ob.step], total=steps.length, last=ob.step===total-1;
+  const ob=S.ob, steps=obSteps(), cur=ob.step, total=steps.length, last=cur===total-1;
   const nm = ob.name?escapeHtml(ob.name):'';
-  let msg='', body='', nextLabel='Continuer →';
-  if(key==='name'){
-    msg=`Bonjour 🌿 Je suis <b>Deva</b>, l'esprit régénératif d'EVAD. Avant de ${S.profile==='pilote'?'composer ton lieu':'te lancer'}, dis-moi : <b>comment t'appelles-tu ?</b>`;
-    body=`<input class="ob-input" id="ob-name" placeholder="Ton prénom…" value="${nm}" maxlength="24" onkeydown="if(event.key==='Enter')obNext()">`;
-  } else if(key==='lieuName'){
-    msg=`Enchantée, <b>${nm}</b> 🌱 Quel <b>nom</b> donnes-tu au lieu que tu vas faire grandir ?`;
-    body=`<input class="ob-input" id="ob-lieu" placeholder="Ex. La Canopée, Les Jardins d'Aïcha…" value="${escapeHtml(ob.lieuName)}" maxlength="40" onkeydown="if(event.key==='Enter')obNext()">`;
-  } else if(key==='type'){
-    if(S.profile==='semeur'){
-      msg=`Pour mieux te connaître, <b>${nm}</b> : <b>quel type de financeur es-tu ?</b>`;
-      body=`<div class="ob-types">${SEMEUR_TYPES.map(t=>`<div class="ob-type ${ob.type===t.id?'sel':''}" onclick="obSelectType('${t.id}')"><div class="ot-ic">${t.ic}</div><div class="ot-name">${t.name}</div><div class="ot-desc">${t.desc}</div></div>`).join('')}</div>`;
-    } else {
-      msg=`Beau projet ! Quel <b>type de lieu</b> « ${escapeHtml(ob.lieuName)} » va-t-il devenir ?`;
-      body=`<div class="ob-types">${LIEU_TYPES.map(t=>`<div class="ob-type ${ob.type===t.id?'sel':''}" onclick="obSelectType('${t.id}')"><div class="ot-ic">${t.ic}</div><div class="ot-name">${t.name}</div><div class="ot-desc">${t.desc}</div></div>`).join('')}</div>`;
-    }
-  } else if(key==='spaces'){
-    const n=ob.spaces.size;
-    msg=`On compose <b>${escapeHtml(ob.lieuName)}</b> 🌿 Ton lieu part de zéro : <b>choisis les espaces</b> qui le composent, ils apparaissent autour de ton lieu.${n?` <b>${n} espace${n>1?'s':''}</b> pour l'instant.`:''} Rien n'est figé, tu en ajouteras d'autres plus tard.`;
-    body=`${obLieuMindMap(ob)}
-      ${obEspacePicker(ob)}`;
-    nextLabel='Continuer →';
-  } else if(key==='comp'){
-    msg=`Bienvenue, <b>${nm}</b> 🌿 Chaque Bâtisseur a sa spécialité. <b>Quelle compétence</b> veux-tu maîtriser en arrivant ? Tu démarreras avec.`;
-    body=`<div class="ob-types">${Object.entries(COMPETENCES).map(([k,c])=>`<div class="ob-type ${ob.comp===k?'sel':''}" onclick="obSelectComp('${k}')"><div class="ot-ic">${c.ic}</div><div class="ot-name">${c.name}</div></div>`).join('')}</div>`;
-  } else if(key==='motivation'){
-    const opts=MOTIVATIONS_BY_PROFILE[S.profile]||MOTIVATIONS_BY_PROFILE.batisseur;
-    const q={pilote:"qu'est-ce qui te donne le plus envie de faire vivre un lieu ?",batisseur:"qu'est-ce qui te donne le plus envie de contribuer ?",semeur:"qu'est-ce qui compte le plus pour toi quand tu finances ?"}[S.profile];
-    msg=`Dis-m'en un peu plus, <b>${nm}</b> : <b>${q}</b> Ça nous aide à améliorer EVAD 🌱`;
-    body=`<div class="ob-list">${opts.map(m=>`<button class="ob-opt ${ob.motivation===m.id?'on':''}" onclick="obSelectMotiv('${m.id}')"><span class="oo-ic">${m.ic}</span><span>${m.label}</span></button>`).join('')}</div>
-      <textarea class="ob-input ob-textarea" id="ob-free" placeholder="Une attente, une idée, une remarque ? (optionnel)" maxlength="500">${escapeHtml(ob.freeText||'')}</textarea>`;
-    nextLabel = 'Continuer →';
-  } else if(key==='howto'){
-    msg=`On y est presque, <b>${nm}</b> 🌿 Voici <b>comment jouer</b>, en un clin d'œil :`;
-    body=obHowtoBody();
-    nextLabel = S.profile==='pilote' ? 'Créer mon lieu 🌿' : "C'est parti 🌿";
-  } else if(key==='welcome'){
-    const wp={
-      batisseur:`Ravie de t'accueillir, <b>${nm}</b> 🌿 Avec ta spécialité ${COMPETENCES[ob.comp]?COMPETENCES[ob.comp].ic+' <b>'+COMPETENCES[ob.comp].name+'</b>':''}, tu es prêt·e. Ta première quête : <b>accepte une mission</b> dans l'onglet Missions.`,
-      semeur:`Ravie de t'accueillir, <b>${nm}</b> 🌾 Tu finances la régénération. Ta première quête : <b>finance un besoin</b> dans l'onglet Financer, l'ICI est installé avec.`,
-    }[S.profile];
-    msg=wp; nextLabel="C'est parti →";
+  const stepChanged = ob._renderedStep!==cur;
+  // Preserve la position de scroll quand on re-render la meme etape (selection d'un type, d'un espace...)
+  const scOld=document.querySelector('.deva-ob .ob-scroll');
+  const keepScroll=(!stepChanged&&scOld)?scOld.scrollTop:null;
+  // Fil de conversation : tous les messages de 0 a l'etape courante (facon SMS, comme l'onboarding general)
+  let thread='';
+  for(let i=0;i<=cur;i++){
+    const k=steps[i], isCur=(i===cur);
+    thread+=`<div class="ob-bubble${isCur&&stepChanged?' ob-pop':''}">${obStepMsg(k,ob,nm)}</div>`;
+    thread+= isCur ? obStepWidget(k,ob,nm) : obStepAnswer(k,ob,nm);
   }
+  const nextLabel = last ? (S.profile==='pilote'?'Créer mon lieu 🌿':"C'est parti 🌿") : 'Continuer →';
   let actions=`<div class="ob-actions">`;
-  if(ob.step>0) actions+=`<button class="ob-back" onclick="obBack()">← Retour</button>`;
+  if(cur>0) actions+=`<button class="ob-back" onclick="obBack()">← Retour</button>`;
   else actions+=`<button class="ob-skip" onclick="obSkip()">Passer</button>`;
   actions+=`<button class="ob-next" onclick="obNext()">${nextLabel}</button></div>`;
   openOnboarding(`
     <div class="ob-head">
       <div class="ob-av deva-av"></div>
       <div class="ob-hmeta"><div class="ob-dname">Deva</div><div class="ob-dsub">t'accompagne pour bien démarrer</div></div>
-      <div class="ob-step">${ob.step+1}/${total}</div>
+      <div class="ob-step">${cur+1}/${total}</div>
     </div>
-    <div class="ob-scroll">
-      <div class="ob-bubble">${msg}</div>
-      <div class="ob-body">${body}</div>
-    </div>
+    <div class="ob-scroll"><div class="ob-thread">${thread}</div></div>
     ${actions}
   `);
-  setTimeout(()=>{ const i=document.getElementById('ob-name')||document.getElementById('ob-lieu'); if(i){ i.focus(); i.setSelectionRange(i.value.length,i.value.length); } },70);
+  ob._renderedStep=cur;
+  setTimeout(()=>{
+    const sc=document.querySelector('.deva-ob .ob-scroll'); if(!sc) return;
+    if(keepScroll!==null){ sc.scrollTop=keepScroll; }
+    else { const c=sc.querySelector('.ob-pop'); if(c){ sc.scrollTop += c.getBoundingClientRect().top - sc.getBoundingClientRect().top - 10; } else sc.scrollTop=sc.scrollHeight; }
+    const inp=document.getElementById('ob-name')||document.getElementById('ob-lieu'); if(inp){ inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length); }
+  },60);
 }
 function obNext(){
   const ob=S.ob, steps=obSteps(), key=steps[ob.step], last=ob.step===steps.length-1;
@@ -1566,6 +1575,7 @@ function obFinish(){
   sendStat(S.profile, ob.comp, S.motivation, _free, _type);
   S.ob=null;
   closeModal();
+  introEnd();
   document.getElementById('splash').style.display='none';
   document.getElementById('app').style.display='flex';
   setupNav();
