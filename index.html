@@ -898,18 +898,18 @@ const PROFILS = {
   semeur:    {label:'Semeur d\'impact',    ic:'🌾', color:'#2563a8', bg:'rgba(37,99,168,.14)', goal:25, goalLabel:'Vadité financée'},
 };
 const VADE = [
-  {k:'V', label:'Valoriser',  color:'#018262', desc:'reconnaître ce qui existe'},
-  {k:'A', label:'Activer',    color:'#2d6a9f', desc:'rendre l\'impact mesurable'},
-  {k:'D', label:'Développer', color:'#c8732a', desc:'faire système'},
-  {k:'E', label:'Essaimer',   color:'#6b5b95', desc:'passer au réel & inspirer'},
+  {k:'V', label:'Valoriser',  color:'#018262', desc:'personnaliser les espaces du lieu'},
+  {k:'A', label:'Activer',    color:'#2d6a9f', desc:'installer des solutions de la Bibliothèque'},
+  {k:'D', label:'Développer', color:'#c8732a', desc:'attirer Bâtisseurs & Semeurs sur le réseau'},
+  {k:'E', label:'Essaimer',   color:'#6b5b95', desc:'valider les preuves d\'impact'},
 ];
 /* Mission en cours (par profil, par phase VADE) pour passer à l'étape suivante */
 const VADE_MISSIONS = {
   pilote: [
-    'Aménage tes espaces et installe une première solution',
-    'Attache des ICI et prouve ton impact',
-    'Tisse des boucles entre tes espaces',
-    'Fais essaimer ton lieu et boucle le cycle',
+    'Personnalise tes espaces pour valoriser le potentiel de ton lieu',
+    'Installe des solutions de la Bibliothèque dans tes espaces',
+    'Publie une annonce sur le Réseau pour attirer un Bâtisseur et un Semeur',
+    'Fais valider tes preuves d\'impact pour faire monter ta Vadité',
   ],
   batisseur: [
     'Accepte et accomplis une première mission',
@@ -1174,15 +1174,15 @@ function introEnd(){
 }
 let INTRO=null;
 const VADE_DESC={
-  V:{t:'Valoriser le potentiel', d:'Connaître la base : les ressources, les forces et les limites. Ce socle pose la Vadance, la promesse d\'impact.'},
-  A:{t:'Activer les solutions', d:'Puiser dans la bibliothèque commune (low-tech, permaculture, gouvernance), générer fiche et tableau de bord. La promesse s\'outille.'},
-  D:{t:'Développer l\'écosystème', d:'Mettre les quêtes en ligne, mobiliser la communauté, sécuriser le financement, documenter chaque preuve. La Vadance se change en résultats mesurés.'},
-  E:{t:'Essaimer preuves et pratiques', d:'La promesse devient Vadité. Les apprentissages essaiment dans les communs et relancent la spirale un cran plus haut.'},
+  V:{t:'Valoriser le potentiel', d:'Personnalise les espaces de ton lieu pour révéler son potentiel : chaque aménagement pose de la Vadance, la promesse d\'impact.'},
+  A:{t:'Activer les solutions', d:'Installe des solutions de la Bibliothèque commune dans tes espaces. La promesse s\'outille et grandit.'},
+  D:{t:'Développer l\'écosystème', d:'Publie une annonce sur le Réseau pour attirer des Bâtisseurs (preuve terrain) et des Semeurs (financement) autour de ton lieu.'},
+  E:{t:'Essaimer les preuves', d:'Fais valider tes preuves d\'impact : la Vadance devient Vadité vérifiée. La spirale relance un cran plus haut.'},
 };
 function vadeHover(k){ const el=document.getElementById('vade-hover'); if(!el) return; if(k&&VADE_DESC[k]){ el.innerHTML='<b>'+VADE_DESC[k].t+'</b> · '+VADE_DESC[k].d; } else { el.innerHTML='Survole une phase pour la découvrir 🌀'; }
   // Si la description depasse sous la fenetre, on fait defiler pour la rendre visible
   if(k){ const sc=el.closest('.ob-scroll'); if(sc){ const er=el.getBoundingClientRect(), sr=sc.getBoundingClientRect(); const over=er.bottom-sr.bottom; if(over>0) sc.scrollTop+=over+10; } } }
-const VADE_SCHEMA=`<svg viewBox="-40 0 480 366" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto"><path d="M200 80 A112 112 0 0 1 312 192" fill="none" stroke="#2e8b6e" stroke-width="3.4"/><path d="M312 192 A112 112 0 0 1 200 304" fill="none" stroke="#2d6a9f" stroke-width="3.4"/><path d="M200 304 A112 112 0 0 1 88 192" fill="none" stroke="#c8732a" stroke-width="3.4"/><path d="M88 192 A128 128 0 0 1 140 70" fill="none" stroke="#6b5b95" stroke-width="3.4"/><polygon points="139,60 132,74 148,73" fill="#6b5b95"/><text x="120" y="44" text-anchor="middle" font-size="12.5" font-weight="700" fill="#018262">un cran plus haut</text><circle cx="200" cy="192" r="60" fill="#e6f4ec"/><text x="200" y="184" text-anchor="middle" font-size="9.5" font-weight="700" letter-spacing="3" fill="#4aab8f">SPIRALE</text><text x="200" y="205" text-anchor="middle" font-size="21" font-weight="900" fill="#0d2b22">VADE</text><text x="200" y="230" text-anchor="middle" font-size="15">🏡 🌿 🌾</text><g class="vnode" onmouseover="vadeHover('V')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Valoriser le potentiel : reconnaître ressources, forces et limites.</title><circle cx="200" cy="80" r="24" fill="#fff" stroke="#018262" stroke-width="2.6"/><text x="200" y="87" text-anchor="middle" font-size="20" font-weight="900" fill="#018262">V</text><text x="234" y="60" text-anchor="start" font-size="13" font-weight="800" fill="#2f4038">Valoriser</text></g><g class="vnode" onmouseover="vadeHover('A')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Activer les solutions : puiser dans la bibliothèque commune, outiller la promesse.</title><circle cx="312" cy="192" r="24" fill="#fff" stroke="#2d6a9f" stroke-width="2.6"/><text x="312" y="199" text-anchor="middle" font-size="20" font-weight="900" fill="#2d6a9f">A</text><text x="344" y="197" text-anchor="start" font-size="13" font-weight="800" fill="#2f4038">Activer</text></g><g class="vnode" onmouseover="vadeHover('D')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Développer l'écosystème : quêtes, communauté, financement, preuves mesurées.</title><circle cx="200" cy="304" r="24" fill="#fff" stroke="#c8732a" stroke-width="2.6"/><text x="200" y="311" text-anchor="middle" font-size="20" font-weight="900" fill="#c8732a">D</text><text x="200" y="338" text-anchor="middle" font-size="13" font-weight="800" fill="#2f4038">Développer</text></g><g class="vnode" onmouseover="vadeHover('E')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Essaimer preuves et pratiques : la promesse devient Vadité et relance la spirale.</title><circle cx="88" cy="192" r="24" fill="#fff" stroke="#6b5b95" stroke-width="2.6"/><text x="88" y="199" text-anchor="middle" font-size="20" font-weight="900" fill="#6b5b95">E</text><text x="56" y="197" text-anchor="end" font-size="13" font-weight="800" fill="#2f4038">Essaimer</text></g></svg>`;
+const VADE_SCHEMA=`<svg viewBox="-40 0 480 366" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto"><path d="M200 80 A112 112 0 0 1 312 192" fill="none" stroke="#2e8b6e" stroke-width="3.4"/><path d="M312 192 A112 112 0 0 1 200 304" fill="none" stroke="#2d6a9f" stroke-width="3.4"/><path d="M200 304 A112 112 0 0 1 88 192" fill="none" stroke="#c8732a" stroke-width="3.4"/><path d="M88 192 A128 128 0 0 1 140 70" fill="none" stroke="#6b5b95" stroke-width="3.4"/><polygon points="139,60 132,74 148,73" fill="#6b5b95"/><text x="120" y="44" text-anchor="middle" font-size="12.5" font-weight="700" fill="#018262">un cran plus haut</text><circle cx="200" cy="192" r="60" fill="#e6f4ec"/><text x="200" y="184" text-anchor="middle" font-size="9.5" font-weight="700" letter-spacing="3" fill="#4aab8f">SPIRALE</text><text x="200" y="205" text-anchor="middle" font-size="21" font-weight="900" fill="#0d2b22">VADE</text><text x="200" y="230" text-anchor="middle" font-size="15">🏡 🌿 🌾</text><g class="vnode" onmouseover="vadeHover('V')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Valoriser : personnalise les espaces pour révéler le potentiel du lieu (la Vadance).</title><circle cx="200" cy="80" r="24" fill="#fff" stroke="#018262" stroke-width="2.6"/><text x="200" y="87" text-anchor="middle" font-size="20" font-weight="900" fill="#018262">V</text><text x="234" y="60" text-anchor="start" font-size="13" font-weight="800" fill="#2f4038">Valoriser</text></g><g class="vnode" onmouseover="vadeHover('A')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Activer : installe des solutions de la Bibliothèque dans tes espaces.</title><circle cx="312" cy="192" r="24" fill="#fff" stroke="#2d6a9f" stroke-width="2.6"/><text x="312" y="199" text-anchor="middle" font-size="20" font-weight="900" fill="#2d6a9f">A</text><text x="344" y="197" text-anchor="start" font-size="13" font-weight="800" fill="#2f4038">Activer</text></g><g class="vnode" onmouseover="vadeHover('D')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Développer : publie une annonce sur le Réseau pour attirer Bâtisseurs et Semeurs.</title><circle cx="200" cy="304" r="24" fill="#fff" stroke="#c8732a" stroke-width="2.6"/><text x="200" y="311" text-anchor="middle" font-size="20" font-weight="900" fill="#c8732a">D</text><text x="200" y="338" text-anchor="middle" font-size="13" font-weight="800" fill="#2f4038">Développer</text></g><g class="vnode" onmouseover="vadeHover('E')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Essaimer : valide les preuves d'impact pour faire monter la Vadité, et relance la spirale.</title><circle cx="88" cy="192" r="24" fill="#fff" stroke="#6b5b95" stroke-width="2.6"/><text x="88" y="199" text-anchor="middle" font-size="20" font-weight="900" fill="#6b5b95">E</text><text x="56" y="197" text-anchor="end" font-size="13" font-weight="800" fill="#2f4038">Essaimer</text></g></svg>`;
 const INTRO_STEPS=7;
 function devaIntroModal(){ INTRO={step:0,name:''}; introStep(0); }
 function introStep(n){
@@ -2930,9 +2930,17 @@ function addVadance(delta){
    on repart de V « un cran plus haut » (cycle N+1). 3 cycles jusqu'à l'objectif. */
 function vadeNextMission(){
   if(!S) return '';
-  const goal=PROFILS[S.profile].goal, seg=goal/3, prog=progressValue();
-  const cyc=S.vadeCycle||1, base=(cyc-1)*seg, phase=S.vade;
+  const phase=S.vade;
   if(S.won) return `<span class="vade-sep"></span><span class="vade-mission" style="border-color:rgba(1,130,98,.32)">🌳 <b>Spirale accomplie</b> · un cran plus haut</span>`;
+  const mission=(VADE_MISSIONS[S.profile]||VADE_MISSIONS.pilote)[phase]||'';
+  // Pilote : progression par action (pas par paliers de Vadité)
+  if(S.profile==='pilote'){
+    const next = phase<3 ? VADE[phase+1] : VADE[0];
+    const tail = phase<3 ? `puis <b>${next.k} · ${next.label}</b>` : `la spirale relance <b>un cran plus haut</b> 🌀`;
+    return `<span class="vade-sep"></span><span class="vade-mission">🎯 ${mission} · ${tail}</span>`;
+  }
+  const goal=PROFILS[S.profile].goal, seg=goal/3, prog=progressValue();
+  const cyc=S.vadeCycle||1, base=(cyc-1)*seg;
   const thr=[0,0.2,0.45,0.7];
   let nextIdx, targetProg, loop=false;
   if(phase<3){ nextIdx=phase+1; targetProg=base+thr[nextIdx]*seg; }
@@ -2942,7 +2950,6 @@ function vadeNextMission(){
   const remDisp=isMissions?Math.max(0,Math.ceil(rem)):round1(rem);
   const unit=isMissions?(remDisp>=2?'missions':'mission'):(remDisp>=2?'pts Vadité':'pt Vadité');
   const nextV=VADE[nextIdx];
-  const mission=(VADE_MISSIONS[S.profile]||VADE_MISSIONS.pilote)[phase]||'';
   let tail;
   if(rem>0.05){
     const goalTxt = loop?`repartir de <b>V · Valoriser</b> (cycle ${cyc+1}/3)`:`passer à <b>${nextV.k} · ${nextV.label}</b>`;
@@ -2952,11 +2959,27 @@ function vadeNextMission(){
   }
   return `<span class="vade-sep"></span><span class="vade-mission">🎯 ${mission} · ${tail}</span>`;
 }
+/* Pilote : la phase reflète l'action en cours dans la boucle
+   V personnaliser les espaces → A installer des solutions → D attirer Bâtisseur/Semeur → E valider les preuves */
+function pilotVadePhase(){
+  const solutions = installedIds().length>0;          // au moins une solution installée
+  const attracted = !!(S.reseauBat || S.reseauSem);   // annonce réseau → Bâtisseur/Semeur attirés
+  const proven = countProven()>0;                     // au moins une preuve validée
+  if(proven) return 3;      // Essaimer
+  if(attracted) return 2;   // Développer
+  if(solutions) return 1;   // Activer
+  return 0;                 // Valoriser (personnalisation des espaces)
+}
 function checkVade(){
   const goal=PROFILS[S.profile].goal, seg=goal/3, prog=progressValue();
   let cyc=Math.floor(prog/seg)+1; if(cyc<1)cyc=1; if(cyc>3)cyc=3;
-  const p=Math.max(0,(prog-(cyc-1)*seg)/seg); // 0..1 dans le cycle
-  let phase = p>=0.7?3 : (p>=0.45?2 : (p>=0.2?1 : 0));
+  let phase;
+  if(S.profile==='pilote'){
+    phase = pilotVadePhase();
+  } else {
+    const p=Math.max(0,(prog-(cyc-1)*seg)/seg); // 0..1 dans le cycle
+    phase = p>=0.7?3 : (p>=0.45?2 : (p>=0.2?1 : 0));
+  }
   if(prog>=goal) phase=3;
   const before=S.vade, beforeCyc=S.vadeCycle||1;
   S.vade=phase; S.vadeCycle=cyc;
