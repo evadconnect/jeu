@@ -492,6 +492,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .det-body{padding:1.15rem 1.3rem 1.35rem;overflow-y:auto;flex:1 1 auto;min-height:0;overscroll-behavior:contain}
 .det-title{font-size:1.35rem;font-weight:900;margin:.35rem 0 .4rem;color:var(--ink);line-height:1.15}
 .det-desc{font-size:.9rem;line-height:1.55;color:#33564a;margin-bottom:1rem}
+.det-regen{background:linear-gradient(135deg,rgba(1,130,98,.08),rgba(74,171,143,.12));border:1px solid rgba(1,130,98,.18);border-left:3px solid var(--forest);border-radius:12px;padding:.7rem .85rem;margin-bottom:1rem}
+.det-regen-t{font-size:.66rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--forest);margin-bottom:.3rem}
+.det-regen-d{font-size:.84rem;line-height:1.5;color:#264a3d}
 .det-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-bottom:.9rem}
 .det-fact{background:var(--cream);border-radius:12px;padding:.6rem .7rem}
 .df-lab{font-size:.58rem;font-weight:800;color:var(--moss);opacity:.75;text-transform:uppercase;letter-spacing:.02em;margin-bottom:.2rem}
@@ -985,8 +988,24 @@ const SOL = Object.fromEntries(SOLUTIONS.map(s=>[s.id,s]));
 /* ---------- Coûts d'installation (Graines) & verrous de compétence ---------- */
 const SOL_COUT={potager:3,serre:5,rucher:2,poulailler:3,compost:2,'recup-eau':3,'mur-vegetal':3,ombriere:5,phyto:4,solaire:5,atelier:3,recyclerie:3,cuisine:3};
 const SOL_LOCK={serre:'maraichage',solaire:'energie',ombriere:'energie',phyto:'eau'};
+/* En quoi chaque solution est régénérative (répare le vivant, pas seulement « moins nuire ») */
+const SOL_REGEN={
+  potager:'Nourrit un sol vivant (humus, vers de terre) et stocke du carbone, au lieu de l\'épuiser. Chaque récolte laisse la terre plus fertile.',
+  serre:'Prolonge les saisons sans chauffage fossile et abrite une biodiversité cultivée : plus de vivant produit avec moins d\'intrants.',
+  rucher:'Les abeilles pollinisent tout le voisinage : vergers, potagers et fleurs sauvages alentour repartent. L\'impact déborde du lieu.',
+  poulailler:'Boucle les restes de cuisine en fumier fertile : le déchet redevient ressource pour le sol. Rien ne se perd.',
+  compost:'Recrée de l\'humus vivant à partir des biodéchets : le sol se reconstitue et retient mieux l\'eau et le carbone.',
+  'recup-eau':'Garde l\'eau de pluie sur le lieu plutôt qu\'aux égouts : la ressource se recharge, rafraîchit et soulage les réseaux.',
+  'mur-vegetal':'Recrée un habitat vivant sur du minéral et rafraîchit l\'air : la nature reprend du terrain en ville.',
+  ombriere:'Produit une énergie propre et crée de l\'ombre fraîche : décarbone tout en protégeant le vivant de la canicule.',
+  phyto:'Les plantes épurent les eaux grises sans chimie et recréent une zone humide vivante, refuge de biodiversité.',
+  solaire:'Remplace de l\'énergie fossile par du renouvelable local : chaque kWh produit ici, c\'est du carbone évité durablement.',
+  atelier:'Répare au lieu de jeter : moins d\'extraction de ressources neuves, plus de savoir-faire et d\'autonomie locale.',
+  recyclerie:'Remet les objets en circulation : la matière reste locale et vivante, l\'extraction de ressources neuves diminue.',
+  cuisine:'Cuisine local et renvoie les restes vers compost et poulailler : la boucle alimentaire se referme et le lien social se tisse.',
+};
 const FLUX_LABEL={compost:'compost',eau:'eau',legumes:'légumes',biodechets:'biodéchets',restes:'restes de cuisine',fumier:'fumier',energie:'énergie',pollinisation:'pollinisation',eauxusees:'eaux grises'};
-SOLUTIONS.forEach(s=>{ s.cout=SOL_COUT[s.id]||3; if(SOL_LOCK[s.id]) s.lock=SOL_LOCK[s.id]; });
+SOLUTIONS.forEach(s=>{ s.cout=SOL_COUT[s.id]||3; if(SOL_LOCK[s.id]) s.lock=SOL_LOCK[s.id]; s.regen=SOL_REGEN[s.id]||''; });
 
 /* ---------- Compétences du Pilote (débloquent & boostent) ---------- */
 const PCOMP={
@@ -2010,6 +2029,7 @@ function openSolutionDetail(id){
       <div class="c2-cat"><span class="c2-dot" style="background:${c.color}"></span>Solution · ${c.label}</div>
       <h2 class="det-title">${s.name}</h2>
       <p class="det-desc">${s.desc}</p>
+      ${s.regen?`<div class="det-regen"><div class="det-regen-t">🌱 En quoi c'est régénératif</div><div class="det-regen-d">${s.regen}</div></div>`:''}
       <div class="det-grid">
         <div class="det-fact"><div class="df-lab">📍 Où l'installer</div><div class="df-val">${s.cap.map(capLabel).join(', ')}</div></div>
         <div class="det-fact"><div class="df-lab">🌰 Coût</div><div class="df-val">${s.cout} Graines</div></div>
