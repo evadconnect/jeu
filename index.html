@@ -458,12 +458,12 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .c2-metric .c2-mlab{font-size:.55rem;color:var(--moss);opacity:.7;font-weight:700;text-transform:uppercase;letter-spacing:.02em}
 .c2-metric .c2-mval{font-size:1.02rem;font-weight:900;color:var(--forest);line-height:1.1}
 .c2-cost{font-size:.72rem;font-weight:800;color:var(--amber);background:#f3ede2;border-radius:8px;padding:.25rem .5rem;white-space:nowrap;align-self:center}
-.modal-box.det-modal{padding:0;max-width:480px;text-align:left;overflow:hidden}
-.det-media{height:148px;position:relative;overflow:hidden}
+.modal-box.det-modal{padding:0;max-width:480px;text-align:left;overflow:hidden;display:flex;flex-direction:column;max-height:min(90vh,90dvh)}
+.det-media{height:148px;position:relative;overflow:hidden;flex-shrink:0}
 .det-emoji{font-size:3.9rem;filter:drop-shadow(0 5px 9px rgba(0,0,0,.16))}
 .det-close{position:absolute;top:.8rem;right:.8rem;z-index:2;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.85);border:none;cursor:pointer;font-size:.9rem;color:var(--ink);display:flex;align-items:center;justify-content:center;transition:background .15s}
 .det-close:hover{background:#fff}
-.det-body{padding:1.15rem 1.3rem 1.35rem}
+.det-body{padding:1.15rem 1.3rem 1.35rem;overflow-y:auto;flex:1 1 auto;min-height:0;overscroll-behavior:contain}
 .det-title{font-size:1.35rem;font-weight:900;margin:.35rem 0 .4rem;color:var(--ink);line-height:1.15}
 .det-desc{font-size:.9rem;line-height:1.55;color:#33564a;margin-bottom:1rem}
 .det-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-bottom:.9rem}
