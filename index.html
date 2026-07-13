@@ -655,6 +655,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   .sect-title{font-size:1.05rem}
   /* Grilles : une colonne quand c'est trop serré */
   .det-grid{grid-template-columns:1fr}
+  /* Cartes d'espaces : 1 seule colonne pleine largeur sur mobile (evite le debordement a droite) */
+  .spaces-grid{grid-template-columns:1fr}
+  .space{min-width:0;max-width:100%}
   /* Panneau Deva : feuille plein écran au-dessus de la barre */
   .deva-panel{left:.5rem;right:.5rem;bottom:.5rem;top:auto;width:auto;height:min(82vh,600px)}
   /* Modales : un poil plus compactes */
