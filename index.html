@@ -1667,13 +1667,15 @@ function setupNav(){
   // Deverrouillage progressif : le Pilote demarre avec le seul Tableau de bord (Mon lieu),
   // les autres onglets apparaissent quand il en a besoin. Les autres profils ont tout d'emblee.
   if(!S.navUnlocked){ S.navUnlocked = S.profile==='pilote' ? new Set(['a']) : new Set(NAV[S.profile].map(n=>n.k)); }
+  if(!S.tabsSeen){ S.tabsSeen = new Set(); }
   document.getElementById('nav-menu').innerHTML = NAV[S.profile].filter(n=>S.navUnlocked.has(n.k)).map(n=>{
-    const badge = (S.profile==='pilote' && (n.k==='a' || n.k==='b')) ? '<span class="nav-badge"></span>' : '';
+    // Pastille de notif orange sur l'onglet Bibliotheque tant qu'il n'a pas ete ouvert (facilite le parcours)
+    const badge = (S.profile==='pilote' && n.k==='b' && !S.tabsSeen.has(n.k) && S.tab!==n.k) ? '<span class="nav-badge"></span>' : '';
     return `<div class="nav-item ${S.tab===n.k?'active':''}" data-tab="${n.k}" onclick="switchTab('${n.k}')">
        <span class="nav-icon">${n.ic}${badge}</span><span class="nl">${n.label}</span></div>`;
   }).join('');
 }
-function switchTab(k){ S.tab=k; render(); }
+function switchTab(k){ if(!S.tabsSeen) S.tabsSeen=new Set(); S.tabsSeen.add(k); S.tab=k; setupNav(); render(); }
 /* Deverrouille un onglet, l'ouvre et laisse Deva l'expliquer (mini visite guidee) */
 const REVEAL_INFO={
   b:{title:'📚 La Bibliothèque s\'ouvre',text:'Le catalogue commun d\'EVAD 🌿 Choisis une <b>Solution</b>, puis pose-la dans un espace compatible : elle crée de la <b>Vadance</b> (impact promis). Tu y trouveras aussi les <b>ICI</b> pour mesurer et prouver.'},
