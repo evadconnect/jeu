@@ -1870,9 +1870,6 @@ function pilotLieu(){
   let h = '';
   h+=`<div class="lieu-edit-head"><h2>🏡 ${escapeHtml(S.lieuName)}</h2><button class="sp-edit" title="Renommer le lieu" onclick="renameLieu()">✏️</button></div>
       <div class="sect-sub">Compose ton lieu : il part de zéro. Aménage des espaces, installe des solutions de la Bibliothèque et mesure-les avec des ICI pour prouver ton impact.</div>`;
-  if(S.navUnlocked && !S.navUnlocked.has('b')){
-    h+=`<div class="reveal-cta">📚 Pour remplir un espace, ouvre la <b>Bibliothèque</b> et choisis une solution à installer.<button class="btn btn-primary" style="margin-top:.55rem" onclick="revealTab('b')">📚 Ouvrir la Bibliothèque</button></div>`;
-  }
   // barre d'ajout d'espaces (menu des 20 espaces)
   h+=`<div class="add-space-bar"><span class="asb-lab">＋ Aménager un espace (${ADD_SPACE_COST}🌰) :</span>
     <select class="add-space-select" onchange="if(this.value){addSpace(this.value);this.value='';}">
