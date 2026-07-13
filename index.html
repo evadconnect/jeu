@@ -76,6 +76,17 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .intro-prof.static:hover{background:rgba(255,255,255,.05);border-color:rgba(130,184,148,.2)}
 .intro-prof .ip-tag{font-size:.58rem;font-weight:800;letter-spacing:.03em;color:var(--sage);text-transform:uppercase;opacity:.85}
 .intro-prof .ip-desc{font-size:.72rem;color:var(--mist);opacity:.82;line-height:1.4;margin-top:.25rem}
+/* Presentation Vadance / Vadite (onboarding intro) */
+.vade-def{background:rgba(255,255,255,.04);border:1px solid rgba(130,184,148,.16);border-radius:16px;padding:.9rem}
+.vd-row{display:flex;align-items:center;justify-content:center;gap:.55rem}
+.vd-item{flex:1;text-align:center;background:rgba(126,201,176,.07);border:1px solid rgba(126,201,176,.16);border-radius:12px;padding:.7rem .45rem}
+.vd-ic{font-size:1.55rem;line-height:1}
+.vd-name{font-weight:800;font-size:.94rem;color:var(--cream);margin-top:.25rem}
+.vd-name.vadite{color:#a8e6cf}
+.vd-sub{font-size:.6rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--sage);opacity:.85;margin-top:.12rem}
+.vd-op{font-size:1.25rem;font-weight:800;color:var(--sage);flex-shrink:0}
+.vd-eq{text-align:center;margin-top:.7rem;padding-top:.7rem;border-top:1px solid rgba(130,184,148,.14);font-size:.82rem;color:var(--mist)}
+.vd-eq b{color:var(--cream)}
 /* Fil de conversation facon SMS (onboarding intro) */
 .ob-thread{display:flex;flex-direction:column;gap:.55rem}
 .ob-thread .ob-bubble{margin-bottom:0;align-self:flex-start;max-width:92%;border-bottom-left-radius:5px}
@@ -1114,7 +1125,7 @@ const VADE_DESC={
 };
 function vadeHover(k){ const el=document.getElementById('vade-hover'); if(!el) return; if(k&&VADE_DESC[k]){ el.innerHTML='<b>'+VADE_DESC[k].t+'</b> · '+VADE_DESC[k].d; } else { el.innerHTML='Survole une phase pour la découvrir 🌀'; } }
 const VADE_SCHEMA=`<svg viewBox="-40 0 480 366" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto"><path d="M200 80 A112 112 0 0 1 312 192" fill="none" stroke="#2e8b6e" stroke-width="3.4"/><path d="M312 192 A112 112 0 0 1 200 304" fill="none" stroke="#2d6a9f" stroke-width="3.4"/><path d="M200 304 A112 112 0 0 1 88 192" fill="none" stroke="#c8732a" stroke-width="3.4"/><path d="M88 192 A128 128 0 0 1 140 70" fill="none" stroke="#6b5b95" stroke-width="3.4"/><polygon points="139,60 132,74 148,73" fill="#6b5b95"/><text x="120" y="44" text-anchor="middle" font-size="12.5" font-weight="700" fill="#018262">un cran plus haut</text><circle cx="200" cy="192" r="60" fill="#e6f4ec"/><text x="200" y="184" text-anchor="middle" font-size="9.5" font-weight="700" letter-spacing="3" fill="#4aab8f">SPIRALE</text><text x="200" y="205" text-anchor="middle" font-size="21" font-weight="900" fill="#0d2b22">VADE</text><text x="200" y="230" text-anchor="middle" font-size="15">🏡 🌿 🌾</text><g class="vnode" onmouseover="vadeHover('V')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Valoriser le potentiel : reconnaître ressources, forces et limites.</title><circle cx="200" cy="80" r="24" fill="#fff" stroke="#018262" stroke-width="2.6"/><text x="200" y="87" text-anchor="middle" font-size="20" font-weight="900" fill="#018262">V</text><text x="234" y="60" text-anchor="start" font-size="13" font-weight="800" fill="#2f4038">Valoriser</text></g><g class="vnode" onmouseover="vadeHover('A')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Activer les solutions : puiser dans la bibliothèque commune, outiller la promesse.</title><circle cx="312" cy="192" r="24" fill="#fff" stroke="#2d6a9f" stroke-width="2.6"/><text x="312" y="199" text-anchor="middle" font-size="20" font-weight="900" fill="#2d6a9f">A</text><text x="344" y="197" text-anchor="start" font-size="13" font-weight="800" fill="#2f4038">Activer</text></g><g class="vnode" onmouseover="vadeHover('D')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Développer l'écosystème : quêtes, communauté, financement, preuves mesurées.</title><circle cx="200" cy="304" r="24" fill="#fff" stroke="#c8732a" stroke-width="2.6"/><text x="200" y="311" text-anchor="middle" font-size="20" font-weight="900" fill="#c8732a">D</text><text x="200" y="338" text-anchor="middle" font-size="13" font-weight="800" fill="#2f4038">Développer</text></g><g class="vnode" onmouseover="vadeHover('E')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Essaimer preuves et pratiques : la promesse devient Vadité et relance la spirale.</title><circle cx="88" cy="192" r="24" fill="#fff" stroke="#6b5b95" stroke-width="2.6"/><text x="88" y="199" text-anchor="middle" font-size="20" font-weight="900" fill="#6b5b95">E</text><text x="56" y="197" text-anchor="end" font-size="13" font-weight="800" fill="#2f4038">Essaimer</text></g></svg>`;
-const INTRO_STEPS=6;
+const INTRO_STEPS=7;
 function devaIntroModal(){ INTRO={step:0,name:''}; introStep(0); }
 function introStep(n){
   if(!INTRO) INTRO={step:0,name:''};
@@ -1130,6 +1141,7 @@ function introStep(n){
     `Enchantée, <b>${nm}</b> 🌱 Laisse-moi te présenter <b>EVAD</b>.<br><br>Nous sommes en 2030. Partout, des <b>laboratoires vivants régénératifs</b> (tiers-lieu, écolieu, jardin partagé...) développent leur territoire et y testent de nouvelles solutions face aux catastrophes naturelles : énergie du soleil, nourriture des toits et des cours, réparation, partage. Ces lieux se sont fédérés en un <b>réseau</b> qui cultive la confiance <b>par la preuve</b>. <b>EVAD en est l'outil commun.</b>`,
     `Trois profils font vivre EVAD. Ils jouent le même monde avec les mêmes règles de preuve, chacun à sa façon 🌱`,
     `Chaque projet suit la <b>spirale VADE</b> : quatre phases qui s'enchaînent, puis <b>recommencent un cran plus haut</b>. C'est le cœur d'EVAD.`,
+    `À chaque tour de la boucle, un lieu transforme ses <b>promesses</b> en <b>preuves</b>. Deux mots pour ça : la <b>Vadance</b> 💭, l'impact <b>promis</b> (installé, pas encore mesuré), et la <b>Vadité</b> 🌿, l'impact <b>prouvé</b>, vérifié.<br><br>Leur rapport, le <b>taux de tenue</b> (Vadité ÷ Vadance), mesure la capacité d'un lieu à tenir ses promesses : notre garde-fou anti-greenwashing.`,
     `Tu es prêt·e ✨ Le mieux pour tout comprendre : incarner les <b>trois profils</b> l'un après l'autre (session de ~30 min). Mais si tu préfères, va directement sur celui qui t'attire :`
   ];
   // Widgets attaches a certaines etapes
@@ -1140,6 +1152,14 @@ function introStep(n){
         <div class="intro-prof static"><span class="ip-ic">🌾</span><div class="ip-txt"><div class="ip-tag">Financeurs</div><div class="ip-name">Semeur d'impact</div><div class="ip-desc">Financeur, fondation, collectivité. Tu finances des projets contre des preuves d'impact vérifiées.</div></div></div>
       </div>`;
   const wSpirale=c=>`<div class="vade-schema-box${c?' ob-pop':''}">${VADE_SCHEMA}</div><div id="vade-hover" class="vade-hover">Survole une phase pour la découvrir 🌀</div>`;
+  const wVade=c=>`<div class="vade-def${c?' ob-pop':''}">
+        <div class="vd-row">
+          <div class="vd-item"><div class="vd-ic">🌿</div><div class="vd-name vadite">Vadité</div><div class="vd-sub">prouvé</div></div>
+          <div class="vd-op">÷</div>
+          <div class="vd-item"><div class="vd-ic">💭</div><div class="vd-name">Vadance</div><div class="vd-sub">promis</div></div>
+        </div>
+        <div class="vd-eq">= <b>Taux de tenue</b> · l'anti-greenwashing d'EVAD</div>
+      </div>`;
   const wChoix=c=>`<div class="intro-profiles${c?' ob-pop':''}">
         <button class="intro-prof" onclick="startProfileDirect('pilote')"><span class="ip-ic">🏡</span><div class="ip-txt"><div class="ip-name">Pilote d'impact</div><div class="ip-role">Opérer un lieu</div></div><span class="ip-goal">🎯 30 Vadité</span></button>
         <button class="intro-prof" onclick="startProfileDirect('batisseur')"><span class="ip-ic">🌿</span><div class="ip-txt"><div class="ip-name">Bâtisseur d'impact</div><div class="ip-role">Contribuer et prouver</div></div><span class="ip-goal">🎯 5 missions</span></button>
@@ -1153,7 +1173,8 @@ function introStep(n){
     if(i===1){ thread += cur ? wName(true) : `<div class="ob-bubble me">🙋 ${nm}</div>`; }
     else if(i===3){ thread += wProfils(cur); }
     else if(i===4){ thread += wSpirale(cur); }
-    else if(i===5){ thread += wChoix(cur); }
+    else if(i===5){ thread += wVade(cur); }
+    else if(i===6){ thread += wChoix(cur); }
   }
   const body=`<div class="ob-thread">${thread}</div>`;
   if(n===0) actions=`<button class="ob-skip" onclick="introFreeExplore()">Explorer librement</button><button class="ob-next" onclick="introStep(1)">Suivant →</button>`;
@@ -1161,7 +1182,8 @@ function introStep(n){
   else if(n===2) actions=back(1)+`<button class="ob-next" onclick="introStep(3)">Suivant →</button>`;
   else if(n===3) actions=back(2)+`<button class="ob-next" onclick="introStep(4)">Suivant →</button>`;
   else if(n===4) actions=back(3)+`<button class="ob-next" onclick="introStep(5)">Suivant →</button>`;
-  else actions=back(4)+`<button class="ob-next" onclick="introLaunch()">Découvrir les 3 · session ~30 min →</button>`;
+  else if(n===5) actions=back(4)+`<button class="ob-next" onclick="introStep(6)">Suivant →</button>`;
+  else actions=back(5)+`<button class="ob-next" onclick="introLaunch()">Découvrir les 3 · session ~30 min →</button>`;
   openOnboarding(head+`<div class="ob-scroll">${body}</div><div class="ob-actions">${actions}</div>`);
   setTimeout(()=>{
     const sc=document.querySelector('.deva-ob .ob-scroll');
