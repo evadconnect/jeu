@@ -334,7 +334,11 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .tt-next:hover{background:var(--moss)}
 
 /* ══════════════════ ONBOARDING DEVA ══════════════════ */
-.modal-box.deva-ob{background:linear-gradient(180deg,#123c2e 0%,#0b241b 100%);color:var(--mist);text-align:left;padding:1.35rem;max-width:440px}
+.modal-box.deva-ob{background:linear-gradient(180deg,#123c2e 0%,#0b241b 100%);color:var(--mist);text-align:left;padding:0;max-width:440px;
+  display:flex;flex-direction:column;height:min(88vh,600px);overflow:hidden}
+.deva-ob .ob-head{padding:1.35rem 1.35rem 0}
+.deva-ob .ob-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;padding:0 1.35rem;overscroll-behavior:contain}
+.deva-ob .ob-actions{padding:.9rem 1.35rem 1.35rem;margin-top:0;border-top:1px solid rgba(130,184,148,.12)}
 .ob-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.9rem}
 .ob-av{width:48px;height:48px;flex-shrink:0}
 .ob-hmeta{flex:1;min-width:0}
@@ -1088,7 +1092,7 @@ function introStep(n){
       </div>`;
     actions=back(3)+`<button class="ob-next" onclick="introLaunch()">Découvrir les 3 · session ~30 min →</button>`;
   }
-  openOnboarding(head+body+`<div class="ob-actions">${actions}</div>`);
+  openOnboarding(head+`<div class="ob-scroll">${body}</div><div class="ob-actions">${actions}</div>`);
   if(n===1) setTimeout(()=>{ const i=document.getElementById('intro-name'); if(i){ i.focus(); i.setSelectionRange(i.value.length,i.value.length); } },70);
 }
 function introNameNext(){
@@ -1123,7 +1127,7 @@ function nextAct(){
   const prof=SESSION_ACTS[SESSION.act];
   openOnboarding(`
     <div class="ob-head"><div class="ob-av deva-av"></div><div class="ob-hmeta"><div class="ob-dname">Deva</div><div class="ob-dsub">Acte ${SESSION.act}/3</div></div></div>
-    <div class="ob-bubble">Bel acte ! 🌿 Change de lunettes : tu deviens maintenant <b>${SESSION_META[prof].ic} ${SESSION_META[prof].label}</b>.<br><br>${SESSION_META[prof].goal}</div>
+    <div class="ob-scroll"><div class="ob-bubble">Bel acte ! 🌿 Change de lunettes : tu deviens maintenant <b>${SESSION_META[prof].ic} ${SESSION_META[prof].label}</b>.<br><br>${SESSION_META[prof].goal}</div></div>
     <div class="ob-actions"><button class="ob-next" onclick="startAct('${prof}')">Commencer l'acte ${SESSION.act} →</button></div>
   `);
 }
@@ -1434,8 +1438,10 @@ function renderOnboardingStep(){
       <div class="ob-hmeta"><div class="ob-dname">Deva</div><div class="ob-dsub">t'accompagne pour bien démarrer</div></div>
       <div class="ob-step">${ob.step+1}/${total}</div>
     </div>
-    <div class="ob-bubble">${msg}</div>
-    <div class="ob-body">${body}</div>
+    <div class="ob-scroll">
+      <div class="ob-bubble">${msg}</div>
+      <div class="ob-body">${body}</div>
+    </div>
     ${actions}
   `);
   setTimeout(()=>{ const i=document.getElementById('ob-name')||document.getElementById('ob-lieu'); if(i){ i.focus(); i.setSelectionRange(i.value.length,i.value.length); } },70);
