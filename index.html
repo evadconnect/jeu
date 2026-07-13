@@ -1668,7 +1668,7 @@ function setupNav(){
   // les autres onglets apparaissent quand il en a besoin. Les autres profils ont tout d'emblee.
   if(!S.navUnlocked){ S.navUnlocked = S.profile==='pilote' ? new Set(['a']) : new Set(NAV[S.profile].map(n=>n.k)); }
   document.getElementById('nav-menu').innerHTML = NAV[S.profile].filter(n=>S.navUnlocked.has(n.k)).map(n=>{
-    const badge = (S.profile==='pilote' && n.k==='a') ? '<span class="nav-badge"></span>' : '';
+    const badge = (S.profile==='pilote' && (n.k==='a' || n.k==='b')) ? '<span class="nav-badge"></span>' : '';
     return `<div class="nav-item ${S.tab===n.k?'active':''}" data-tab="${n.k}" onclick="switchTab('${n.k}')">
        <span class="nav-icon">${n.ic}${badge}</span><span class="nl">${n.label}</span></div>`;
   }).join('');
