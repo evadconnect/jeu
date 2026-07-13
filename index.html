@@ -620,6 +620,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .dm-deva .dm-body{font-size:.85rem;line-height:1.55;color:var(--mist)}
 .dm-deva .dm-body b{color:var(--cream)}
 .dm-deva .dm-body i{color:var(--sage);font-style:italic}
+.dm-btn{display:inline-block;margin-top:.6rem;background:var(--fern);color:#06231a;border:none;border-radius:100px;padding:.45rem 1.1rem;font-size:.8rem;font-weight:800;cursor:pointer;font-family:var(--font);transition:background .15s}
+.dm-btn:hover{background:var(--sage)}
 .dp-input{flex-shrink:0;display:flex;gap:.5rem;align-items:center;padding:.6rem 1rem 1rem}
 .dp-input input{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(130,184,148,.2);border-radius:100px;padding:.72rem 1rem;font-family:var(--font);font-size:.84rem;color:var(--cream);outline:none}
 .dp-input input::placeholder{color:var(--sage);opacity:.7}
@@ -3380,20 +3382,24 @@ function renderDevaChat(){
   box.scrollTop=box.scrollHeight;
 }
 function devaPushMsg(html){ if(!S.devaMsgs) S.devaMsgs=[]; S.devaMsgs.push({role:'deva',html}); renderDevaChat(); }
-/* Transition V→A : Deva parle depuis le chatbot du coin, puis révèle la Bibliothèque */
+/* Transition V→A : Deva parle depuis le chatbot du coin ; le joueur enchaîne avec « Suivant → » */
 function devaCoachActiver(){
   const p=document.getElementById('deva-panel'); if(!p) return;
   S.devaOpen=true; p.classList.add('open');
   if(!S.devaMsgs) S.devaMsgs=[];
   if(!S.devaFP) S.devaFP={q:0,wh:0,ml:0,co2:0};
-  devaPushMsg("🎉 <b>Valoriser validé !</b> Chaque espace a désormais sa vocation.");
-  renderDevaFP();
-  // 2e message + révélation de l'onglet Bibliothèque (sans spotlight, le chatbot suffit)
-  setTimeout(()=>{
-    if(!S) return;
-    if(S.navUnlocked && !S.navUnlocked.has('b')){ S.navUnlocked.add('b'); setupNav(); render(); }
-    devaPushMsg("Cap sur l'<b>Activation</b> : installe des solutions de la <b>Bibliothèque</b> 🌿 Je viens de te l'ouvrir 👇");
-  }, 2400);
+  S._activerDone=false;
+  S._activerMsgIdx=S.devaMsgs.length;
+  S.devaMsgs.push({role:'deva', html:`🎉 <b>Valoriser validé !</b> Chaque espace a désormais sa vocation.<br><button class="dm-btn" onclick="devaCoachActiverNext()">Suivant →</button>`});
+  renderDevaChat(); renderDevaFP();
+}
+/* Clic « Suivant → » : 2e message + révélation de l'onglet Bibliothèque */
+function devaCoachActiverNext(){
+  if(S._activerDone) return;
+  S._activerDone=true;
+  if(S.devaMsgs && S.devaMsgs[S._activerMsgIdx]){ S.devaMsgs[S._activerMsgIdx].html="🎉 <b>Valoriser validé !</b> Chaque espace a désormais sa vocation."; }
+  if(S.navUnlocked && !S.navUnlocked.has('b')){ S.navUnlocked.add('b'); setupNav(); render(); }
+  devaPushMsg("Cap sur l'<b>Activation</b> : installe des solutions de la <b>Bibliothèque</b> 🌿 Je viens de te l'ouvrir 👇");
 }
 // Coût estimé d'UNE question (ordre de grandeur, modèle frugal), fixe, comme le prototype.
 const ECO_PER_MSG={wh:1.5,water:18,co2:0.9};
