@@ -2918,8 +2918,11 @@ function markFirstAct(act){ S.firstActs.add(act);
   if(!S.badges.has('premiere')){ S.badges.add('premiere'); setTimeout(()=>toastBadge('premiere'),400); }
   // Pilote : les onglets se deverrouillent un par un, quand ils deviennent utiles.
   if(S.profile==='pilote' && S.navUnlocked){
-    if(act==='installed') revealNav('carte', '🗺️ Mets ton lieu sur la Carte', 'Ton lieu prend forme 🌿 Il mérite d\'être visible dans l\'écosystème. <b>🎯 Objectif : valide ta fiche publique</b> sur la Carte, pour attirer la communauté.');
-    if(act==='measured') revealNav('reseau', '🌐 Publie une quête sur le Réseau', 'Tu as engagé une mesure 📊 Pour transformer ta <b>Vadance</b> en <b>Vadité</b> prouvée, il te faut de l\'aide. <b>🎯 Objectif : trouve un Bâtisseur (preuve terrain) et un Semeur (financement)</b> en publiant une quête sur le Réseau.');
+    if(act==='installed'){
+      revealNav('carte', '🗺️ Mets ton lieu sur la Carte', 'Ton lieu prend forme 🌿 Il mérite d\'être visible dans l\'écosystème. <b>🎯 Objectif : valide ta fiche publique</b> sur la Carte, pour attirer la communauté.');
+      // Le Réseau s'ouvre quand le lieu a déjà 3 solutions installées
+      if(installedIds().length>=3) revealNav('reseau', '🌐 Publie une annonce sur le Réseau', 'Ton lieu compte déjà <b>3 solutions</b> 🌿 Pour transformer ta <b>Vadance</b> en <b>Vadité</b> prouvée, il te faut de l\'aide. <b>🎯 Objectif : trouve un Bâtisseur (preuve terrain) et un Semeur (financement)</b> en publiant une annonce sur le Réseau.');
+    }
   }
 }
 function progressValue(){ return S.profile==='pilote'?S.vadite : (S.profile==='batisseur'?S.missionsDone : S.vaditeFin); }
