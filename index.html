@@ -2564,16 +2564,17 @@ function dashHTML(opts){
   </div>`;
   // Etat du lieu : promesse (Vadance) → taux de tenue → preuve (Vadité) + triptyque des 3 capitaux
   if(S.profile==='pilote') h+=etatLieuHTML();
-  // stats
-  h+=`<div class="dash-grid">`;
-  h+=dashStat('🌰',S.graines,'Graines');
-  if(S.profile==='semeur') h+=dashStat('💶',S.euros,'Budget €');
-  h+=dashStat('✨',round1(curVadance())+' '+pts(curVadance()),'Vadance (promise)');
-  h+=dashStat('🌿',round1(vad)+' '+pts(vad),'Vadité (prouvée)');
-  if(S.profile==='pilote'){ h+=dashStat('🔄',fluxLoops(installedIds()).length,'Boucles'); h+=dashStat('📊',countProven(),'ICI attachés'); }
-  if(S.profile==='batisseur'){ h+=dashStat('✅',S.missionsDone,'Missions faites'); h+=dashStat('🎓',S.comps.size,'Compétences'); }
-  if(S.profile==='semeur'){ h+=dashStat('🏷️',S.refs.size,'Référentiels'); h+=dashStat('📑',S.financed.filter(f=>!f.pending).length,'Financements'); }
-  h+=`</div>`;
+  // stats (masquées pour le Pilote : déjà couvertes par le panneau « État du lieu » et la barre du haut)
+  if(S.profile!=='pilote'){
+    h+=`<div class="dash-grid">`;
+    h+=dashStat('🌰',S.graines,'Graines');
+    if(S.profile==='semeur') h+=dashStat('💶',S.euros,'Budget €');
+    h+=dashStat('✨',round1(curVadance())+' '+pts(curVadance()),'Vadance (promise)');
+    h+=dashStat('🌿',round1(vad)+' '+pts(vad),'Vadité (prouvée)');
+    if(S.profile==='batisseur'){ h+=dashStat('✅',S.missionsDone,'Missions faites'); h+=dashStat('🎓',S.comps.size,'Compétences'); }
+    if(S.profile==='semeur'){ h+=dashStat('🏷️',S.refs.size,'Référentiels'); h+=dashStat('📑',S.financed.filter(f=>!f.pending).length,'Financements'); }
+    h+=`</div>`;
+  }
   // Perma-compta / ROEr (Semeur)
   if(S.profile==='semeur'){
     const invest=S.financed.reduce((a,f)=>{ const fp=financePool().find(x=>x.id===f.id); return a+(fp?fp.euros:0); },0);
