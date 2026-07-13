@@ -1769,7 +1769,7 @@ const REVEAL_INFO={
 function revealTab(k){
   const first = S.navUnlocked && !S.navUnlocked.has(k);
   if(S.navUnlocked) S.navUnlocked.add(k);
-  S.tab=k;
+  // On ne bascule PAS automatiquement sur l'onglet révélé : la navigation reste sur l'onglet actuel.
   setupNav(); render();
   const info=REVEAL_INFO[k];
   if(first && info){ setTimeout(()=>devaReveal(`.nav-item[data-tab="${k}"]`, info.title, info.text), 380); }
