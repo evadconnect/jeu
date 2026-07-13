@@ -705,7 +705,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
     <p class="splash-sub">Un futur solarpunk qui pousse déjà. Et vous allez le faire fleurir.</p>
 
     <div class="story">
-      <p>Les étés sont plus chauds, c'est vrai. Mais pendant qu'on regardait ailleurs, quelque chose de magnifique a grandi dans les friches, sur les toits et dans les campagnes : des <b>regen living labs</b>, des lieux où l'énergie vient du soleil, la nourriture des cours et des terrasses, où l'on répare, partage et décide ensemble.</p>
+      <p>Les étés sont plus chauds, c'est vrai. Mais pendant qu'on regardait ailleurs, quelque chose de magnifique a grandi dans les friches, sur les toits et dans les campagnes : des <b>laboratoires vivants régénératifs</b>, des lieux où l'énergie vient du soleil, la nourriture des cours et des terrasses, où l'on répare, partage et décide ensemble.</p>
       <p>Sans attendre les subventions, ces lieux, leurs habitants et les financeurs d'impact se sont fédérés : un réseau où la confiance se cultive comme le reste, par la preuve. Chaque impact vérifié attire de nouveaux Semeurs, chaque lieu prouvé en inspire dix autres.</p>
       <p>Ce réseau, et l'outil commun qui le fait vivre, s'appelle <span class="em">EVAD</span>. Quatre vraies saisons par an, du soleil à revendre, quelques caprices du ciel à apprivoiser, et tout un territoire à faire fleurir d'ici <span class="em">2033</span>.</p>
     </div>
@@ -721,7 +721,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
         <div class="prole">Vous opérez un lieu</div>
         <h3>Pilote d'impact</h3>
         <p>Composez vos 4 espaces, installez des solutions de la Bibliothèque, mesurez-les avec les ICI, tissez des boucles circulaires.</p>
-        <div class="pgoal">🎯 Atteindre <b>30 points de Vadité</b> pour que votre lieu rejoigne les regen living labs reconnus.</div>
+        <div class="pgoal">🎯 Atteindre <b>30 points de Vadité</b> pour que votre lieu rejoigne les lieux durables reconnus.</div>
         <div class="pgo">Opérer un lieu →</div>
       </div>
       <div class="pcard batisseur" onclick="chooseProfile('batisseur')">
@@ -2454,7 +2454,7 @@ function dashStat(ic,num,lab){ return `<div class="dash-stat"><div class="ds-num
 function countProven(){ let n=0; S.spaces.forEach(sp=>{ if(sp.existant&&sp.ici&&sp.proven)n++; sp.sols.forEach(x=>{if(x.ici&&x.proven)n++;}); }); return n; }
 function goalLabel(){
   return {
-    pilote:`Atteindre 30 points de Vadité pour que La Friche rejoigne les regen living labs reconnus`,
+    pilote:`Atteindre 30 points de Vadité pour que La Friche rejoigne les laboratoires vivants régénératifs reconnus`,
     batisseur:`Accomplir 5 missions pour devenir Bâtisseur·se confirmé·e`,
     semeur:`Atteindre 25 points de Vadité financée et produire votre rapport d'impact`,
   }[S.profile];
@@ -3013,7 +3013,7 @@ function seasonModal(sz, yr, gains, vaditeGain, msgs, hazMsg, won){
 }
 function winModal(){
   const cfg={
-    pilote:{ic:'🌳',t:'Regen Living Lab reconnu !',p:(S.lieuName||'La Friche des Possibles')+' atteint <b>30 points de Vadité prouvée</b>. Votre lieu rejoint les regen living labs reconnus du réseau EVAD. La spirale VADE peut maintenant recommencer un cran plus haut : de nouveaux espaces à valoriser, de nouvelles boucles à tisser… et d\'autres lieux à inspirer.'},
+    pilote:{ic:'🌳',t:'Lieu durable reconnu !',p:(S.lieuName||'La Friche des Possibles')+' atteint <b>30 points de Vadité prouvée</b>. Votre lieu rejoint les lieux d\'impact reconnus du réseau EVAD. La spirale VADE peut maintenant recommencer un cran plus haut : de nouveaux espaces à valoriser, de nouvelles boucles à tisser… et d\'autres lieux à inspirer.'},
     batisseur:{ic:'🌿',t:'Bâtisseur·se confirmé·e !',p:'Vous avez accompli <b>5 missions</b> sur le réseau. Vos compétences ont transformé trois lieux durablement. On vous réclame déjà pour de nouveaux chantiers, et pour transmettre à votre tour.'},
     semeur:{ic:'🌾',t:'Impact vérifié, mission accomplie !',p:'Vous avez atteint <b>25 points de Vadité financée</b>, entièrement vérifiée. Vos référentiels sont couverts, vos financements ont fait pousser des preuves, pas des promesses. Place au rapport d\'impact.'},
   }[S.profile];
