@@ -149,7 +149,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .nav-item:hover{background:rgba(1,130,98,.14);color:var(--cream)}
 .nav-item.active{background:rgba(74,140,92,.24);border-color:rgba(74,140,92,.3);color:var(--cream);font-weight:700}
 .nav-item.active::before{content:'';position:absolute;left:-1px;top:22%;bottom:22%;width:3px;background:var(--sun);border-radius:0 4px 4px 0}
-.nav-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+.nav-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0;position:relative;display:inline-block}
+.nav-badge{position:absolute;top:-3px;right:-4px;width:9px;height:9px;border-radius:50%;background:#ff7a1a;box-shadow:0 0 0 2px var(--forest)}
 .nav-bottom{margin-top:auto;padding-top:1rem;border-top:1px solid rgba(130,184,148,.12)}
 .ob-intro-btn{display:flex;align-items:center;gap:.5rem;width:100%;padding:.55rem .7rem;border-radius:12px;
   font-size:.74rem;font-weight:600;cursor:pointer;background:rgba(130,184,148,.08);border:1px solid rgba(130,184,148,.14);
@@ -1666,9 +1667,11 @@ function setupNav(){
   // Deverrouillage progressif : le Pilote demarre avec le seul Tableau de bord (Mon lieu),
   // les autres onglets apparaissent quand il en a besoin. Les autres profils ont tout d'emblee.
   if(!S.navUnlocked){ S.navUnlocked = S.profile==='pilote' ? new Set(['a']) : new Set(NAV[S.profile].map(n=>n.k)); }
-  document.getElementById('nav-menu').innerHTML = NAV[S.profile].filter(n=>S.navUnlocked.has(n.k)).map(n=>
-    `<div class="nav-item ${S.tab===n.k?'active':''}" data-tab="${n.k}" onclick="switchTab('${n.k}')">
-       <span class="nav-icon">${n.ic}</span><span class="nl">${n.label}</span></div>`).join('');
+  document.getElementById('nav-menu').innerHTML = NAV[S.profile].filter(n=>S.navUnlocked.has(n.k)).map(n=>{
+    const badge = (S.profile==='pilote' && n.k==='a') ? '<span class="nav-badge"></span>' : '';
+    return `<div class="nav-item ${S.tab===n.k?'active':''}" data-tab="${n.k}" onclick="switchTab('${n.k}')">
+       <span class="nav-icon">${n.ic}${badge}</span><span class="nl">${n.label}</span></div>`;
+  }).join('');
 }
 function switchTab(k){ S.tab=k; render(); }
 /* Deverrouille un onglet, l'ouvre et laisse Deva l'expliquer (mini visite guidee) */
@@ -2445,10 +2448,6 @@ function dashHTML(opts){
     <div class="progress"><span style="width:${S.profile==='batisseur'?Math.min(100,S.missionsDone/5*100):prog}%"></span></div>
     <div style="font-size:.8rem;font-weight:800;color:${P.color}">${goalNum} / ${goalMax} ${P.goalLabel==='missions'?'missions':'points de '+P.goalLabel}</div>
   </div>`;
-  // Pilote au demarrage : guide vers la Bibliotheque (encore verrouillee)
-  if(S.profile==='pilote' && S.navUnlocked && !S.navUnlocked.has('b')){
-    h+=`<div class="reveal-cta">🌱 <b>Première étape</b> — installe une solution dans un de tes espaces pour créer ta première <b>Vadance</b>.<button class="btn btn-primary" style="margin-top:.6rem;width:100%" onclick="S.lieuSub='espaces';revealTab('b')">📚 Ouvrir la Bibliothèque</button></div>`;
-  }
   // stats
   h+=`<div class="dash-grid">`;
   h+=dashStat('🌰',S.graines,'Graines');
