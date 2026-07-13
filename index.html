@@ -1437,7 +1437,7 @@ function buildTourSteps(){
   const nm=S.playerName&&S.playerName!=='toi'?(' '+escapeHtml(S.playerName)):'';
   const where = S.profile==='pilote' ? ('ton lieu « '+escapeHtml(S.lieuName||'')+' »') : 'ton espace';
   const _steps=[
-    {sel:'#deva-pill', side:'top', title:`Bravo${nm}, c'est parti ! 🎉`, text:`${where.charAt(0).toUpperCase()+where.slice(1)} est prêt. Je te montre l'essentiel en quelques secondes, clique « Suivant », ou « Passer » si tu préfères explorer seul·e.`},
+    {sel:'#deva-pill', side:'top', title:`🌿 Bienvenue${nm} !`, text:`${S.profile==='pilote'&&S.lieuName?`« <b>${escapeHtml(S.lieuName)}</b> » prend racine 🌱 `:`${where.charAt(0).toUpperCase()+where.slice(1)} est prêt. `}Je te montre l'essentiel en quelques secondes — clique « Suivant », ou « Passer » pour explorer seul·e.`},
     {sel:navSel('dash'), side:'right', title:'📊 Tableau de bord', text:'Ta progression, tes badges et ta quête finale, en un coup d\'œil.'},
     {sel:navSel('a'), side:'right', title:navBy('a').ic+' '+navBy('a').label, text:AB.a},
     {sel:navSel('b'), side:'right', title:navBy('b').ic+' '+navBy('b').label, text:AB.b},
@@ -1453,6 +1453,14 @@ function buildTourSteps(){
 function startTour(){
   if(S.tourDone) return;
   S.tour={steps:buildTourSteps(), i:0};
+  document.getElementById('tour-overlay').classList.add('on');
+  showTourStep(0);
+}
+/* Bulle de bienvenue « prend racine » (style visite guidée) quand le tour ne se lance pas */
+function devaWelcome(){
+  const nm=S.playerName&&S.playerName!=='toi'?(' '+escapeHtml(S.playerName)):'';
+  const lieu=(S.profile==='pilote'&&S.lieuName)?`« <b>${escapeHtml(S.lieuName)}</b> » prend racine 🌱 `:'';
+  S.tour={ steps:[{sel:'#deva-pill', side:'top', title:`🌿 Bienvenue${nm} !`, text:`${lieu}Un doute à tout moment ? Clique-moi et demande 🌱`}], i:0 };
   document.getElementById('tour-overlay').classList.add('on');
   showTourStep(0);
 }
@@ -1752,8 +1760,10 @@ function obFinish(){
   setupNav();
   S.devaMsgs=[{role:'deva',html:`Ravie de t'accueillir, <b>${escapeHtml(S.playerName)}</b> 🌿 ${devaTip()}`}];
   render();
-  toast(`🌿 Bienvenue ${escapeHtml(S.playerName)} !${S.profile==='pilote'?' « '+escapeHtml(S.lieuName)+' » prend racine.':''}`,'win');
+  // Message de bienvenue « prend racine » en bulle Deva (visite guidée) au lieu d'un toast :
+  // 1re étape du tour si le tour se lance, sinon une bulle de bienvenue autonome (actes 2/3).
   if(!SESSION || SESSION.act===1) setTimeout(()=>startTour(), 550);
+  else setTimeout(()=>devaWelcome(), 550);
   renderSessionBar();
 }
 
