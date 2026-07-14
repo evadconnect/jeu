@@ -288,6 +288,12 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .quest-step.on .qs-box{background:var(--forest);border-color:var(--forest)}
 .quest-step.on .qs-txt{text-decoration:line-through;opacity:.65}
 .quest-hint{font-size:.66rem;color:var(--moss);opacity:.75;margin-top:.5rem;line-height:1.4}
+.mep{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}
+.mep-col{background:var(--cream);border-radius:12px;padding:.6rem .7rem}
+.mep-lab{font-size:.58rem;font-weight:800;color:var(--moss);opacity:.75;text-transform:uppercase;letter-spacing:.02em;margin-bottom:.35rem}
+.mep-euros{font-size:1.15rem;font-weight:900;color:var(--sky);line-height:1.1}
+.mep-sub{font-size:.62rem;color:var(--moss);opacity:.75;margin-top:.15rem;line-height:1.35}
+@media(max-width:420px){.mep{grid-template-columns:1fr}}
 .mq-card{padding:1rem 1.1rem;margin-bottom:1rem}
 .mq-head{display:flex;align-items:flex-start;justify-content:space-between;gap:.6rem}
 .mq-t{font-size:.92rem;font-weight:900;color:var(--ink)}
@@ -1236,7 +1242,29 @@ const SOL_QUETE={
   amap:{titre:'Créer l\'AMAP',etapes:['Trouver un maraîcher partenaire et visiter sa ferme','Construire le contrat de saison et le prix du panier','Réunir assez d\'adhérents pour sécuriser son revenu','Organiser la distribution hebdomadaire et les tours de permanence']},
   'coop-achat':{titre:'Lancer la coopérative d\'achat',etapes:['Réunir les voisins intéressés et lister les besoins communs','Trouver des producteurs ou grossistes en direct','Organiser la commande groupée et la répartition','Assurer la première livraison et tenir les comptes']},
 };
-SOLUTIONS.forEach(s=>{ s.cout=SOL_COUT[s.id]||s.cout||3; if(SOL_LOCK[s.id]) s.lock=SOL_LOCK[s.id]; s.regen=SOL_REGEN[s.id]||s.regen||''; s.quete=SOL_QUETE[s.id]||s.quete||null; });
+/* ---------- Ce qu'il faut pour la mettre en place ----------
+   comps  : compétences que les Bâtisseurs apportent sur le chantier
+   euros  : la facture, ce qu'un Semeur finance (matériel, pose, mise aux normes) */
+const COMPS_PAR_CAT={eau:['eau'],energie:['solaire'],alimentaire:['jardiner'],biodiversite:['jardiner'],
+  construction:['bricoler'],dechets:['bricoler'],social:['animer'],economie:['animer']};
+const SOL_COMPS={
+  serre:['jardiner','bricoler'], phyto:['eau','jardiner'], ombriere:['solaire','bricoler'],
+  'recup-eau':['eau','bricoler'], 'mur-vegetal':['jardiner','bricoler'], rucher:['jardiner','animer'],
+  poulailler:['jardiner','bricoler'], compost:['jardiner','animer'], cuisine:['animer','bricoler'],
+  atelier:['bricoler','animer'], recyclerie:['bricoler','animer'], solaire:['solaire'],
+  conserverie:['animer','bricoler'], 'cuisine-pedago':['animer'], 'traiteur-solidaire':['animer'],
+  'repair-cafe':['bricoler','animer'], menuiserie:['bricoler'], 'couture-textile':['bricoler','animer'],
+  'fablab-3d':['bricoler'], 'atelier-velo':['bricoler','animer'], 'jardin-partage':['jardiner','animer'],
+  grainotheque:['jardiner','animer'], pepiniere:['jardiner'], 'collecte-biodechets':['bricoler','animer'],
+  materiautheque:['bricoler'], 'scene-ouverte':['animer','bricoler'], 'galerie-expo':['animer'],
+  'mediation-num':['mesurer','animer'], 'formations-pro':['animer','mesurer'],
+  'marche-producteurs':['animer','jardiner'], amap:['animer','jardiner'], epicerie:['animer'],
+};
+function solEuros(s){ return Math.round((s.cout*30 + s.vadance*10)/10)*10; } // facture cohérente avec les besoins du Réseau
+SOLUTIONS.forEach(s=>{ s.cout=SOL_COUT[s.id]||s.cout||3; if(SOL_LOCK[s.id]) s.lock=SOL_LOCK[s.id]; s.regen=SOL_REGEN[s.id]||s.regen||''; s.quete=SOL_QUETE[s.id]||s.quete||null;
+  s.comps=SOL_COMPS[s.id]||COMPS_PAR_CAT[s.cat]||['animer'];
+  s.euros=s.euros||solEuros(s);
+});
 
 /* ---------- Compétences du Pilote (débloquent & boostent) ---------- */
 const PCOMP={
@@ -1347,6 +1375,8 @@ const COMPETENCES = {
   animer:    {ic:'🎪', name:'Animer & mobiliser', for:['cuisine','recyclerie','rucher']},
   mesurer:   {ic:'📊', name:'Mesurer (ICI)', for:['*']},
 };
+// Chaque compétence liste les solutions qu'elle permet de monter (déduit des solutions elles-mêmes)
+Object.entries(COMPETENCES).forEach(([k,c])=>{ if(k!=='mesurer') c.for=SOLUTIONS.filter(s=>s.comps.includes(k)).map(s=>s.id); });
 
 /* ---------- Boucles circulaires possibles ---------- */
 function fluxLoops(ids){
@@ -2541,6 +2571,19 @@ function openSolutionDetail(id){
         <div class="det-flux"><b>${ici.ic} ${ici.name}</b> (${ici.unit})<br>
         Il est lié d'office dès l'installation. Il reste à <b>relever la mesure</b> sur le terrain (${MEASURE_COST}🌰), puis à la faire vérifier : ta Vadance devient alors de la <b>Vadité</b>.</div>
       </div>
+      <div class="det-sec"><div class="det-sec-t">🤝 Pour la mettre en place</div>
+        <div class="mep">
+          <div class="mep-col">
+            <div class="mep-lab">🌿 Compétences · Bâtisseurs</div>
+            <div class="det-refs">${s.comps.map(k=>`<span class="pill" style="background:#f3ede2;color:#a06c00">${COMPETENCES[k].ic} ${COMPETENCES[k].name}</span>`).join('')}</div>
+          </div>
+          <div class="mep-col">
+            <div class="mep-lab">🌾 À financer · Semeurs</div>
+            <div class="mep-euros">${s.euros} €</div>
+            <div class="mep-sub">matériel, pose et mise aux normes</div>
+          </div>
+        </div>
+      </div>
       ${questHTML(id)}
       <div class="det-sec"><div class="det-sec-t">🔗 Référentiels couverts (via l'ICI)</div><div class="det-refs">${ici.refs.map(r=>`<span class="pill" style="background:#f1eef7;color:var(--lavender)">${r}</span>`).join('')}</div></div>
       ${(s.flux.in.length||s.flux.out.length)?`<div class="det-sec"><div class="det-sec-t">🔄 Flux & boucles circulaires</div><div class="det-flux">${flux.join(' · ')}</div></div>`:''}
@@ -2794,7 +2837,7 @@ const MISSION_TYPE = {installer:{ic:'🧰',v:'Installer'}, mesurer:{ic:'📊',v:
 function missionComp(m){
   if(m.type==='mesurer') return 'mesurer';
   const s=SOL[m.sol];
-  for(const [k,c] of Object.entries(COMPETENCES)){ if(c.for.includes(m.sol)) return k; }
+  if(s && s.comps && s.comps.length) return s.comps[0];
   return 'animer';
 }
 const ECO_MISSIONS=[
