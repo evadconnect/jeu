@@ -2337,7 +2337,7 @@ function pilotLieu(){
       ${ESPACE_CODES.map(t=>`<option value="${t}">${TYPE_META[t].ic} ${TYPE_META[t].name}</option>`).join('')}
     </select></div>`;
   // hint selon sélection
-  if(S.sel&&S.sel.type==='solution') h+=`<div class="hint">👉 Solution <b>${SOL[S.sel.id].name}</b> sélectionnée (${SOL[S.sel.id].cout}🌰). Clique un espace compatible (surligné) pour l'installer.</div>`;
+  if(S.sel&&S.sel.type==='solution') h+=`<div class="hint">👉 Solution <b>${SOL[S.sel.id].name}</b> sélectionnée. Clique un espace compatible (surligné) pour l'installer.</div>`;
   else h+=`<div class="hint">📊 Chaque solution installée arrive avec son <b>indicateur (ICI)</b> déjà lié : clique « Mesurer » sur la solution pour relever la donnée sur le terrain.</div>`;
   // grille
   h+=`<div class="spaces-grid">`;
@@ -2417,7 +2417,7 @@ function spaceCard(sp){
 /* ---- PILOTE : bibliothèque complète (3 rangées) ---- */
 function pilotBiblio(){
   let h=`<div class="sect-sub">La Bibliothèque complète d'EVAD. Sélectionne une carte, puis place-la dans ton lieu.</div>`;
-  h+=`<div style="font-size:.72rem;color:var(--moss);opacity:.8;margin-bottom:.65rem">🌰 ${S.graines} Graines disponibles</div>`;
+  h+=`<div style="font-size:.72rem;color:var(--moss);opacity:.8;margin-bottom:.65rem">Installer une solution ne coûte rien : ce sont les <b>Semeurs</b> qui financent la facture, et les <b>Bâtisseurs</b> qui apportent les compétences.</div>`;
   {
     h+=`<div class="biblio-row-desc">Installe une solution dans un espace compatible : son <b>indicateur</b> arrive avec elle, et elle produit de la <b>Vadance</b>.</div>`;
     // Filtre par catégorie
@@ -2509,7 +2509,7 @@ function solutionCard(id){
       <div class="c2-desc">${s.desc}</div>
       <div class="c2-foot">
         <div class="c2-metric"><div class="c2-mlab">Δ projeté · ${ICI[s.ici].name}</div><div class="c2-mval">${fmtDelta(s.delta)} ${ICI[s.ici].unit}</div></div>
-        <span class="c2-cost">🌰 ${s.cout}</span>
+        <span class="c2-cost" style="background:#e6f2f8;color:var(--sky)">🌾 ${s.euros} €</span>
       </div>
     </div>
   </div>`;
@@ -2575,8 +2575,7 @@ function openSolutionDetail(id){
       <p class="det-desc">${s.desc}</p>
       ${s.regen?`<div class="det-regen"><div class="det-regen-t">🌱 En quoi c'est régénératif</div><div class="det-regen-d">${s.regen}</div></div>`:''}
       <div class="det-grid">
-        <div class="det-fact"><div class="df-lab">📍 Où l'installer</div><div class="df-val">${s.cap.map(capLabel).join(', ')}</div></div>
-        <div class="det-fact"><div class="df-lab">🌰 Coût</div><div class="df-val">${s.cout} Graines</div></div>
+        <div class="det-fact" style="grid-column:span 2"><div class="df-lab">📍 Où l'installer</div><div class="df-val">${s.cap.map(capLabel).join(', ')}</div></div>
         <div class="det-fact" style="grid-column:span 2"><div class="df-lab">✨ Δ projeté (T0 → T1)</div><div class="df-val">${fmtDelta(s.delta)} ${ici.unit} · ${round1(iciNorm(s.delta, s.ici))}/100</div></div>
       </div>
       ${tags?`<div class="det-tags">${tags}</div>`:''}
@@ -2634,13 +2633,11 @@ function installSelected(spaceId){
   if(!spaceAccepts(sp,S.sel.id)) return;
   if(s.lock && !S.pcomps.has(s.lock)){ toast(`🔒 Nécessite la compétence ${PCOMP[s.lock].ic} ${PCOMP[s.lock].name}`,'warn'); return; }
   if(sp.sols.length>=MAX_PER_SPACE){ toast(`Cet espace est complet (${MAX_PER_SPACE} solutions max), aménage un nouvel espace`,'warn'); return; }
-  if(S.graines < s.cout){ toast(`Pas assez de Graines (${s.cout}🌰)`,'warn'); return; }
-  S.graines -= s.cout;
   const vad = s.vadance + ((s.clim==='fraicheur' && S.pcomps.has('eau')) ? 1 : 0);
   sp.sols.push({id:s.id, ici:s.ici, t0:0, delta:s.delta, mesure:false, mesureVal:null, preuve:null, proven:false, vad}); // ICI lié d'office, base T0 = 0
   S.sel=null;
   markFirstAct('installed');
-  toast(`${s.ic} ${s.name} installé · −${s.cout}🌰 · Δ projeté ${fmtDelta(s.delta)} ${ICI[s.ici].unit} ✨`,'win');
+  toast(`${s.ic} ${s.name} installé · Δ projeté ${fmtDelta(s.delta)} ${ICI[s.ici].unit} ✨`,'win');
   checkLoops(true);
   render();
 }
