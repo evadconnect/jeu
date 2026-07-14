@@ -297,7 +297,15 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .el-pond-btn:hover{border-color:var(--forest)}
 .el-pond-btn.on{background:var(--forest);border-color:var(--forest);color:#fff}
 .el-floor{margin-top:.7rem;font-size:.72rem;line-height:1.45;color:#8a3b1c;background:#fbe9e4;border-radius:10px;padding:.55rem .7rem}
-.el-method{margin-top:.7rem;font-size:.66rem;line-height:1.5;color:var(--moss);opacity:.8}
+.el-method{margin-top:.9rem;border-top:1px solid var(--line);padding-top:.8rem}
+.el-method-t{font-size:.74rem;font-weight:900;color:var(--forest);margin-bottom:.5rem}
+.el-method-g{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+@media(max-width:700px){.el-method-g{grid-template-columns:1fr}}
+.el-m{font-size:.72rem;line-height:1.5;color:#33564a;background:var(--cream);border-radius:10px;padding:.55rem .7rem}
+.el-m b{color:var(--ink)}
+.ici-steps{display:flex;flex-direction:column;gap:.5rem;margin-top:.6rem}
+.ici-step{display:flex;gap:.5rem;align-items:flex-start;font-size:.78rem;line-height:1.5;color:#33564a}
+.ici-step .is-n{flex-shrink:0;width:18px;height:18px;border-radius:50%;background:var(--forest);color:#fff;font-size:.62rem;font-weight:900;display:flex;align-items:center;justify-content:center;margin-top:.12rem}
 .mep{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}
 .mep-col{background:var(--cream);border-radius:12px;padding:.6rem .7rem}
 .mep-lab{font-size:.58rem;font-weight:800;color:var(--moss);opacity:.75;text-transform:uppercase;letter-spacing:.02em;margin-bottom:.35rem}
@@ -1380,18 +1388,18 @@ const ICI = {
 const REF_CTX={jardin:0.8, tierslieu:1, ecolieu:0.9, ferme:1.25, friche:1.1};
 /* Échelle de preuve : plus la preuve est faible, plus la valeur mesurée est décotée. */
 const PREUVE={
-  declaratif:  {ic:'📝', name:'Déclaratif',        coef:0.40, desc:'Tu l\'affirmes, rien ne l\'atteste.'},
-  documentaire:{ic:'🧾', name:'Documentaire',      coef:0.70, desc:'Factures, relevés, photos horodatées.'},
-  pairs:       {ic:'🤝', name:'Vérifié par les pairs', coef:0.85, desc:'Un Bâtisseur du réseau est venu constater.'},
-  tiers:       {ic:'🛡️', name:'Tiers de confiance', coef:1.00, desc:'Audit financé par un Semeur.'},
+  declaratif:  {ic:'📝', name:'Sur parole',         coef:0.40, desc:'Tu l\'affirmes. Personne ne peut le vérifier.'},
+  documentaire:{ic:'🧾', name:'Preuves à l\'appui', coef:0.70, desc:'Factures, relevés, photos datées.'},
+  pairs:       {ic:'🤝', name:'Vu par un Bâtisseur', coef:0.85, desc:'Quelqu\'un du réseau est venu constater sur place.'},
+  tiers:       {ic:'🛡️', name:'Audité',             coef:1.00, desc:'Un tiers indépendant a vérifié, un Semeur l\'a financé.'},
 };
 // Le Δ projeté dépend des références ICI : on le calcule une fois ICI connu
 SOLUTIONS.forEach(s=>{ s.delta=s.delta||solDelta(s); });
 const PLANCHER_CAPITAL=20; // non-compensation : un capital sinistré plafonne le score global
 const PONDERATIONS={
-  egalite:     {label:'⅓ Égalité',        sub:'défaut neutre',                 w:{eco:1/3, social:1/3, econo:1/3}},
-  territoriale:{label:'🏛️ Territorialisée', sub:'priorités de la gouvernance', w:{eco:0.50, social:0.30, econo:0.20}},
-  usage:       {label:'🌾 Par usage',      sub:'les poids d\'un financeur',    w:{eco:0.40, social:0.20, econo:0.40}},
+  egalite:     {label:'⅓ À parts égales', sub:'aucun pilier ne prime sur les autres',            w:{eco:1/3, social:1/3, econo:1/3}},
+  territoriale:{label:'🏛️ Le territoire décide', sub:'les priorités votées par la gouvernance locale', w:{eco:0.50, social:0.30, econo:0.20}},
+  usage:       {label:'🌾 Le financeur regarde', sub:'ses propres priorités, sans changer tes trois notes', w:{eco:0.40, social:0.20, econo:0.40}},
 };
 const REFS = {
   'ODD':  {ic:'🌍', name:'ODD',   full:'Objectifs de Dév. Durable'},
@@ -2508,7 +2516,7 @@ function solutionCard(id){
       <div class="c2-title">${s.name}</div>
       <div class="c2-desc">${s.desc}</div>
       <div class="c2-foot">
-        <div class="c2-metric"><div class="c2-mlab">Δ projeté · ${ICI[s.ici].name}</div><div class="c2-mval">${fmtDelta(s.delta)} ${ICI[s.ici].unit}</div></div>
+        <div class="c2-metric"><div class="c2-mlab">Ce que ça change · ${ICI[s.ici].name}</div><div class="c2-mval">${fmtDelta(s.delta)} ${ICI[s.ici].unit}</div></div>
         <span class="c2-cost" style="background:#e6f2f8;color:var(--sky)">🌾 ${s.euros} €</span>
       </div>
     </div>
@@ -2576,13 +2584,16 @@ function openSolutionDetail(id){
       ${s.regen?`<div class="det-regen"><div class="det-regen-t">🌱 En quoi c'est régénératif</div><div class="det-regen-d">${s.regen}</div></div>`:''}
       <div class="det-grid">
         <div class="det-fact" style="grid-column:span 2"><div class="df-lab">📍 Où l'installer</div><div class="df-val">${s.cap.map(capLabel).join(', ')}</div></div>
-        <div class="det-fact" style="grid-column:span 2"><div class="df-lab">✨ Δ projeté (T0 → T1)</div><div class="df-val">${fmtDelta(s.delta)} ${ici.unit} · ${round1(iciNorm(s.delta, s.ici))}/100</div></div>
+        <div class="det-fact" style="grid-column:span 2"><div class="df-lab">✨ Ce que ça change (avant → après)</div><div class="df-val">${fmtDelta(s.delta)} ${ici.unit} · note ${round1(iciNorm(s.delta, s.ici))}/100</div></div>
       </div>
       ${tags?`<div class="det-tags">${tags}</div>`:''}
       <div class="det-sec det-ici"><div class="det-sec-t">📊 Indicateur de Changement d'Impact</div>
-        <div class="det-flux"><b>${ici.ic} ${ici.name}</b> (${ici.unit})<br>
-        Il mesure une <b>variation</b> : la flèche entre ta base <b>T0</b> et l'état constaté, jamais une valeur absolue. Le Δ est normalisé sur <b>0 à 100</b> face à la référence « excellent » (<b>${Math.round(iciRef(s.ici)).toLocaleString('fr-FR')} ${ici.unit}</b> pour ton type de lieu), fixée par la méthode, pas par toi.<br>
-        Lié d'office à l'installation : il reste à <b>relever le Δ réel</b> (${MEASURE_COST}🌰), puis à le faire vérifier. Plus la preuve est forte, moins la valeur est décotée : ta Vadance devient de la <b>Vadité</b>.</div>
+        <div class="det-flux"><b>${ici.ic} ${ici.name}</b>, en ${ici.unit}.
+        <div class="ici-steps">
+          <div class="ici-step"><span class="is-n">1</span><div><b>On mesure ce qui bouge, pas ce que tu as.</b> Avant : 0 ${ici.unit}. Après : ${fmtDelta(s.delta)} ${ici.unit}. Un lieu déjà riche ne gagne rien à l'être. Il gagne à <i>changer</i>.</div></div>
+          <div class="ici-step"><span class="is-n">2</span><div><b>On note sur 100, avec une barre que tu ne choisis pas.</b> Le « très bon », pour un lieu comme le tien, c'est ${Math.round(iciRef(s.ici)).toLocaleString('fr-FR')} ${ici.unit}. Donc ici : <b>${round1(iciNorm(s.delta, s.ici))}/100</b>. Fini les indicateurs taillés sur mesure par celui qu'on évalue.</div></div>
+          <div class="ici-step"><span class="is-n">3</span><div><b>Ensuite, il faudra le prouver.</b> Promettre, ça fait la Vadance. Seule la preuve fait la Vadité, et plus elle est solide, plus elle compte.</div></div>
+        </div></div>
       </div>
       <div class="det-sec"><div class="det-sec-t">🤝 Pour la mettre en place</div>
         <div class="mep">
@@ -2664,15 +2675,15 @@ function openMeasureModal(spaceId, solId){
   openDetailModal(`
     ${ficheHero('linear-gradient(135deg,#0e2a1a,#3a6e8c)','📊',['📊 Relevé de mesure'], escapeHtml(nom), i.ic+' '+i.name+' · en '+i.unit)}
     <div class="det-body">
-      <p class="det-desc">Un ICI mesure une <b>variation</b>, pas un état : la flèche entre ta base <b>T0</b> et ce que tu constates aujourd'hui. Combien ton action a-t-elle fait bouger cet indicateur ?</p>
-      <div class="det-flux" style="margin-bottom:.9rem">Base <b>T0 = ${inst?inst.t0:0} ${i.unit}</b> · Δ projeté à l'installation : <b>${fmtDelta(proj)} ${i.unit}</b> · référence « excellent » (100/100) : <b>${Math.round(iciRef(iciId)).toLocaleString('fr-FR')} ${i.unit}</b></div>
-      <div class="f-field"><label class="f-lab" for="me-val">Δ observé (T0 → aujourd'hui)</label>
+      <p class="det-desc">La question n'est pas « combien tu en as », c'est <b>« combien ça a bougé »</b>. Alors, depuis que c'est installé, ça a bougé de combien ?</p>
+      <div class="det-flux" style="margin-bottom:.9rem">Au départ : <b>${inst?inst.t0:0} ${i.unit}</b> · Ce que tu avais promis : <b>${fmtDelta(proj)} ${i.unit}</b> · Le « très bon » pour un lieu comme le tien : <b>${Math.round(iciRef(iciId)).toLocaleString('fr-FR')} ${i.unit}</b> (note de 100)</div>
+      <div class="f-field"><label class="f-lab" for="me-val">Constaté sur le terrain, en ${i.unit}</label>
         <input id="me-val" class="f-inp" type="number" min="0" step="any" value="${proj}" oninput="measurePreview()">
         <div class="f-hint" id="me-prev"></div></div>
-      <div class="f-field"><div class="f-lab">Force de la preuve</div>
+      <div class="f-field"><div class="f-lab">Et tu le sais comment ?</div>
         <div class="f-types">${Object.entries(PREUVE).filter(([k])=>k==='declaratif'||k==='documentaire').map(([k,p])=>
           `<button type="button" class="f-type ${k==='documentaire'?'on':''}" onclick="S.measureCtx.preuve='${k}';document.querySelectorAll('.f-type').forEach(b=>b.classList.remove('on'));this.classList.add('on');measurePreview()">${p.ic} ${p.name} · ×${p.coef}</button>`).join('')}</div>
-        <div class="f-hint">Les niveaux supérieurs (🤝 pairs ×0,85 · 🛡️ tiers de confiance ×1) s'obtiennent en faisant vérifier la mesure par un Bâtisseur ou un Semeur.</div></div>
+        <div class="f-hint">Une parole vaut moins qu'une facture, une facture vaut moins qu'un témoin, un témoin vaut moins qu'un audit. Fais venir un <b>Bâtisseur</b> (🤝 ×0,85) ou un <b>Semeur</b> (🛡️ ×1) pour que ta mesure compte à plein.</div></div>
       <div class="fiche-actions">
         <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
         <button class="btn btn-primary" onclick="confirmMeasure()">📊 Relever · ${MEASURE_COST}🌰</button>
@@ -2685,7 +2696,7 @@ function measurePreview(){
   const el=document.getElementById('me-prev'); if(!el) return;
   const v=parseFloat((document.getElementById('me-val')||{}).value)||0;
   const n=iciNorm(v, c.iciId), coef=PREUVE[c.preuve].coef;
-  el.innerHTML=`Normalisé : <b>${round1(n)}/100</b> · décoté par la preuve (×${coef}) : <b>${round1(n*coef)}/100</b> de Vadité.`;
+  el.innerHTML=`Ça vaut une note de <b>${round1(n)}/100</b>. Avec ce niveau de preuve (×${coef}), ça compte pour <b>${round1(n*coef)}/100</b> de Vadité.`;
 }
 function confirmMeasure(){
   const c=S.measureCtx; if(!c) return;
@@ -3093,23 +3104,31 @@ function etatLieuHTML(){
     </div>`;
   });
   const pond=`<div class="el-pond">
-    <span class="el-pond-lab">Pondération</span>
+    <span class="el-pond-lab">Qui décide de l'importance ?</span>
     ${Object.entries(PONDERATIONS).map(([k,p])=>`<button class="el-pond-btn ${pondMode()===k?'on':''}" title="${p.sub}" onclick="S.pondMode='${k}';render()">${p.label}</button>`).join('')}
   </div>`;
-  const alerte = sin ? `<div class="el-floor">🚧 <b>Non-compensation</b> : le capital <b>${CAPS_META.find(c=>c.k===sin).label}</b> est sous le plancher de ${PLANCHER_CAPITAL}/100. Tant qu'il y reste, le score global est plafonné : un capital brillant ne rachète jamais un capital sinistré.</div>` : '';
+  const alerte = sin ? `<div class="el-floor">🚧 <b>Ton lieu est bloqué à ${PLANCHER_CAPITAL}/100</b> tant que <b>${CAPS_META.find(c=>c.k===sin).label}</b> reste au tapis. Ici, on n'achète pas le droit de saccager une colonne en excellant dans une autre. Trois piliers, ou rien.</div>` : '';
   return `<div class="card el-card">
     <div class="el-head"><span class="el-eyebrow">🌱 État du lieu</span><span class="el-badge">${proven>0?'🌿 Impact prouvé':'✨ Impact déclaré'}</span></div>
     <div class="el-top">
-      <div class="el-side"><div class="el-side-lab" style="color:var(--forest)">Vadance · la promesse</div><div class="el-big">${round1(vad)}<span class="el-sur">/100</span></div><div class="el-side-sub">Le calcul sur les Δ <i>projetés</i></div></div>
-      <div class="el-mid"><div class="el-taux">${taux}%</div><div class="el-taux-lab">Taux de tenue →</div></div>
-      <div class="el-side el-side-r"><div class="el-side-lab" style="color:var(--ink)">Vadité · la preuve</div><div class="el-big">${round1(vadite)}<span class="el-sur">/100</span></div><div class="el-side-sub">Le même calcul sur les Δ <i>prouvés</i></div></div>
+      <div class="el-side"><div class="el-side-lab" style="color:var(--forest)">Vadance · la promesse</div><div class="el-big">${round1(vad)}<span class="el-sur">/100</span></div><div class="el-side-sub">Ce que ton lieu <i>promet</i> de changer</div></div>
+      <div class="el-mid"><div class="el-taux">${taux}%</div><div class="el-taux-lab">Tenue de tes promesses →</div></div>
+      <div class="el-side el-side-r"><div class="el-side-lab" style="color:var(--ink)">Vadité · la preuve</div><div class="el-big">${round1(vadite)}<span class="el-sur">/100</span></div><div class="el-side-sub">Ce qu'il a <i>prouvé</i> avoir changé</div></div>
     </div>
     <div class="el-trip">
-      <div class="el-trip-t">Le triptyque <span>· moyenne par capital, jamais une somme</span></div>
+      <div class="el-trip-t">Le triptyque <span>· la moyenne de chacun, jamais l'addition des trois</span></div>
       ${bars}
       ${pond}
       ${alerte}
-      <div class="el-method">Chaque ICI mesure un <b>Δ</b> contre sa base T0, normalisé sur 0–100 face à une référence « excellent » extérieure. Les sous-scores sont <b>moyennés</b> par capital, puis <b>pondérés sans compensation</b>. Le calcul tourne deux fois : sur le projeté (Vadance) et sur le prouvé, décoté selon la force de la preuve (Vadité).</div>
+      <div class="el-method">
+        <div class="el-method-t">🌱 Pourquoi c'est différent de tout ce que tu as vu</div>
+        <div class="el-method-g">
+          <div class="el-m"><b>On compte ce qui bouge.</b> Pas ta surface, pas ton budget, pas tes intentions : l'écart entre avant et après. Un lieu qui part de loin et avance vaut mieux qu'un lieu déjà riche qui ne bouge pas.</div>
+          <div class="el-m"><b>La barre est fixée dehors.</b> Le « très bon » est défini par la méthode et par ton type de lieu, jamais par toi. Personne ne note sa propre copie.</div>
+          <div class="el-m"><b>Trois piliers, aucun rachat.</b> Écologie, Social, Économie locale sont moyennés séparément. Aucun ne peut compenser l'effondrement d'un autre : c'est la fin des chèques verts.</div>
+          <div class="el-m"><b>Dire, puis prouver.</b> Le même calcul tourne deux fois : sur ce que tu promets (<b>Vadance</b>), puis sur ce que tu prouves (<b>Vadité</b>). Le rapport des deux, ton <b>taux de tenue</b>, c'est le détecteur de greenwashing : il ne se raconte pas, il se constate.</div>
+        </div>
+      </div>
     </div>
   </div>`;
 }
