@@ -2534,12 +2534,12 @@ function openSolutionDetail(id){
       <div class="det-grid">
         <div class="det-fact"><div class="df-lab">📍 Où l'installer</div><div class="df-val">${s.cap.map(capLabel).join(', ')}</div></div>
         <div class="det-fact"><div class="df-lab">🌰 Coût</div><div class="df-val">${s.cout} Graines</div></div>
-        <div class="det-fact"><div class="df-lab">✨ Vadance</div><div class="df-val">+${s.vadance} points</div></div>
-        <div class="det-fact"><div class="df-lab">📊 Indicateur (ICI) lié</div><div class="df-val">${ici.ic} ${ici.name}</div></div>
+        <div class="det-fact" style="grid-column:span 2"><div class="df-lab">✨ Vadance</div><div class="df-val">+${s.vadance} points</div></div>
       </div>
       ${tags?`<div class="det-tags">${tags}</div>`:''}
-      <div class="det-sec"><div class="det-sec-t">📊 Son indicateur, lié d'office</div>
-        <div class="det-flux">Dès l'installation, cette solution arrive avec son ICI <b>${ici.ic} ${ici.name}</b> (${ici.unit}). Il reste à <b>relever la mesure</b> sur le terrain (${MEASURE_COST}🌰), puis à la faire vérifier : ta Vadance devient alors de la <b>Vadité</b>.</div>
+      <div class="det-sec det-ici"><div class="det-sec-t">📊 Indicateur (ICI) lié</div>
+        <div class="det-flux"><b>${ici.ic} ${ici.name}</b> (${ici.unit})<br>
+        Il est lié d'office dès l'installation. Il reste à <b>relever la mesure</b> sur le terrain (${MEASURE_COST}🌰), puis à la faire vérifier : ta Vadance devient alors de la <b>Vadité</b>.</div>
       </div>
       ${questHTML(id)}
       <div class="det-sec"><div class="det-sec-t">🔗 Référentiels couverts (via l'ICI)</div><div class="det-refs">${ici.refs.map(r=>`<span class="pill" style="background:#f1eef7;color:var(--lavender)">${r}</span>`).join('')}</div></div>
@@ -4133,8 +4133,11 @@ function biblioTour(){
      title:'🌱 En quoi c\'est régénératif',
      text:'Chaque fiche dit <b>ce que la solution répare</b>, pas seulement ce qu\'elle évite. C\'est la différence entre « moins nuire » et faire revenir le vivant.'},
     {sel:'.det-grid', side:'top', over:true, scroll:true,
-     title:'✨ Vadance et 📊 indicateur',
-     text:`Sa <b>Vadance</b> (+${d.vadance} points ici) est l\'impact <i>promis</i>. Son <b>ICI</b> (${ICI[d.ici].ic} ${ICI[d.ici].name}) est lié d\'office : c\'est lui qui transformera la promesse en <b>Vadité</b> prouvée, une fois la mesure relevée.`},
+     title:'✨ Sa Vadance',
+     text:`Où l\'installer, ce qu\'elle coûte, et sa <b>Vadance</b> : +${d.vadance} points ici. C\'est l\'impact <i>promis</i>, celui que tu vises.`},
+    {sel:'.det-ici', side:'top', over:true, scroll:true,
+     title:'📊 Son indicateur',
+     text:`Son <b>ICI</b> (${ICI[d.ici].ic} ${ICI[d.ici].name}) est lié d\'office : c\'est lui qui transformera la promesse en <b>Vadité</b> prouvée, une fois la mesure relevée sur le terrain.`},
     {sel:'.quest-box', side:'top', over:true, scroll:true,
      title:'⚔️ Sa quête de terrain',
      text:'Et dans la vraie vie ? La <b>quête</b> détaille les étapes à accomplir pour l\'installer pour de bon. Coche-les au fur et à mesure, puis publie tes réalisations sur le Réseau.'},
