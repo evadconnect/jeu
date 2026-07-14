@@ -418,6 +418,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 #tour-overlay{position:fixed;inset:0;z-index:44;display:none;background:transparent}
 #tour-overlay.on{display:block}
 .tour-highlight{position:relative;z-index:45;box-shadow:0 0 0 3px var(--sun),0 0 0 9px rgba(240,200,74,.28)!important;border-radius:12px!important;transition:box-shadow .2s}
+#tour-overlay.over-modal{z-index:56}
+#tour-tip.over-modal{z-index:60}
 #tour-tip{position:fixed;z-index:46;width:min(322px,calc(100vw - 1.6rem));background:#fff;border-radius:18px;
   box-shadow:0 22px 60px rgba(1,90,68,.32);padding:1.05rem 1.15rem;display:none;animation:pop .22s}
 #tour-tip.on{display:block}
@@ -1387,7 +1389,7 @@ function newState(profile){
     tab:'a', devaOpen:false,
     // pilote
     hand:[], spaces:null, sel:null, pcomps:new Set(), lieuName:'La Friche des Possibles', lieuType:'jardin', ob:null, playerName:'', loopsActive:0, loopBadgeShown:false, vadanceBonus:0,
-    lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{}, questesPubliees:false, questesPublieesSnap:'',
+    lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{}, questesPubliees:false, questesPublieesSnap:'', biblioTourDone:false, tourDemo:false,
     mktFilter:'all', purchases:[], ecoMissions:{},
     // batisseur
     comps:new Set(['jardiner','bricoler']), missions:[], // missions actives
@@ -1798,6 +1800,9 @@ function showTourStep(i){
   document.querySelectorAll('.tour-highlight').forEach(e=>e.classList.remove('tour-highlight'));
   if(target) target.classList.add('tour-highlight');
   const tip=document.getElementById('tour-tip');
+  const ov=document.getElementById('tour-overlay');
+  tip.classList.toggle('over-modal', !!st.over); ov.classList.toggle('over-modal', !!st.over);
+  if(target && st.scroll) target.scrollIntoView({block:'center'});
   tip.querySelector('.tt-title').innerHTML=st.title;
   tip.querySelector('.tt-text').innerHTML=st.text;
   tip.querySelector('.tt-dots').innerHTML=t.steps.map((_,k)=>`<span class="tt-dot ${k===i?'on':(k<i?'done':'')}"></span>`).join('');
@@ -1833,8 +1838,9 @@ function tourNext(){ if(S.tour) showTourStep(S.tour.i+1); }
 function endTour(){
   S.tourDone=true; S.tour=null;
   document.querySelectorAll('.tour-highlight').forEach(e=>e.classList.remove('tour-highlight'));
-  document.getElementById('tour-tip').classList.remove('on');
-  document.getElementById('tour-overlay').classList.remove('on');
+  const tip=document.getElementById('tour-tip'), ov=document.getElementById('tour-overlay');
+  tip.classList.remove('on','over-modal'); ov.classList.remove('on','over-modal');
+  if(S.tourDemo){ S.tourDemo=false; closeModal(); }
 }
 window.addEventListener('resize',()=>{ if(S&&S.tour){ const st=S.tour.steps[S.tour.i]; positionTip(document.getElementById('tour-tip'), document.querySelector(st.sel), st.side); } });
 
@@ -2139,7 +2145,9 @@ function setupNav(){
        <span class="nav-icon">${n.ic}${badge}</span><span class="nl">${n.label}</span></div>`;
   }).join('');
 }
-function switchTab(k){ if(!S.tabsSeen) S.tabsSeen=new Set(); S.tabsSeen.add(k); S.tab=k; setupNav(); render(); }
+function switchTab(k){ if(!S.tabsSeen) S.tabsSeen=new Set(); S.tabsSeen.add(k); S.tab=k; setupNav(); render();
+  if(k==='b' && S.profile==='pilote' && !S.biblioTourDone && !S.tour) setTimeout(()=>biblioTour(), 380);
+}
 /* Deverrouille un onglet, l'ouvre et laisse Deva l'expliquer (mini visite guidee) */
 const REVEAL_INFO={
   b:{title:'📚 La Bibliothèque s\'ouvre',text:'Le catalogue commun d\'EVAD 🌿 Choisis une <b>Solution</b>, puis pose-la dans un espace compatible : elle crée de la <b>Vadance</b> (impact promis). Tu y trouveras aussi les <b>ICI</b> pour mesurer et prouver.'},
@@ -4106,6 +4114,34 @@ function renderDevaChat(){
 }
 function devaPushMsg(html){ if(!S.devaMsgs) S.devaMsgs=[]; S.devaMsgs.push({role:'deva',html}); renderDevaChat(); }
 /* Révèle l'onglet Bibliothèque (sans changer la vue) */
+/* ── Visite guidée de la Bibliothèque : la carte, puis les éléments d'une fiche solution ── */
+const BIBLIO_TOUR_DEMO='potager';
+function biblioTourOpenDemo(){
+  const id=SOL[BIBLIO_TOUR_DEMO]?BIBLIO_TOUR_DEMO:SOLUTIONS[0].id;
+  S.tourDemo=true;
+  openSolutionDetail(id);
+}
+function biblioTour(){
+  if(S.biblioTourDone) return;
+  S.biblioTourDone=true;
+  S.biblioTab='solutions'; S.catFilter='all'; S.capFilter='all'; render();
+  const d=SOL[BIBLIO_TOUR_DEMO]||SOLUTIONS[0];
+  S.tour={ steps:[
+    {sel:'.cards-grid .card2', side:'right', title:'📚 Le catalogue commun',
+     text:'Chaque <b>carte Solution</b> est une action concrète que ton lieu peut accueillir. Ouvrons-en une pour lire ce qu\'elle raconte 👇'},
+    {sel:'.det-regen', side:'bottom', over:true, scroll:true, onEnter:biblioTourOpenDemo,
+     title:'🌱 En quoi c\'est régénératif',
+     text:'Chaque fiche dit <b>ce que la solution répare</b>, pas seulement ce qu\'elle évite. C\'est la différence entre « moins nuire » et faire revenir le vivant.'},
+    {sel:'.det-grid', side:'top', over:true, scroll:true,
+     title:'✨ Vadance et 📊 indicateur',
+     text:`Sa <b>Vadance</b> (+${d.vadance} points ici) est l\'impact <i>promis</i>. Son <b>ICI</b> (${ICI[d.ici].ic} ${ICI[d.ici].name}) est lié d\'office : c\'est lui qui transformera la promesse en <b>Vadité</b> prouvée, une fois la mesure relevée.`},
+    {sel:'.quest-box', side:'top', over:true, scroll:true,
+     title:'⚔️ Sa quête de terrain',
+     text:'Et dans la vraie vie ? La <b>quête</b> détaille les étapes à accomplir pour l\'installer pour de bon. Coche-les au fur et à mesure, puis publie tes réalisations sur le Réseau.'},
+  ], i:0 };
+  document.getElementById('tour-overlay').classList.add('on');
+  showTourStep(0);
+}
 function revealBiblioTab(){
   if(S.navUnlocked && !S.navUnlocked.has('b')){ S.navUnlocked.add('b'); setupNav(); render(); }
 }
