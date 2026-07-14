@@ -288,6 +288,24 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .quest-step.on .qs-box{background:var(--forest);border-color:var(--forest)}
 .quest-step.on .qs-txt{text-decoration:line-through;opacity:.65}
 .quest-hint{font-size:.66rem;color:var(--moss);opacity:.75;margin-top:.5rem;line-height:1.4}
+.mq-card{padding:1rem 1.1rem;margin-bottom:1rem}
+.mq-head{display:flex;align-items:flex-start;justify-content:space-between;gap:.6rem}
+.mq-t{font-size:.92rem;font-weight:900;color:var(--ink)}
+.mq-sub{font-size:.74rem;color:var(--moss);opacity:.85;line-height:1.45;margin-top:.15rem}
+.mq-flag{flex-shrink:0;font-size:.62rem;font-weight:800;border-radius:100px;padding:.25rem .5rem;background:rgba(1,130,98,.12);color:var(--forest);white-space:nowrap}
+.mq-counts{font-size:.7rem;font-weight:800;color:var(--moss);margin:.7rem 0 .5rem}
+.mq-list{display:flex;flex-direction:column;gap:.4rem}
+.mq-item{display:flex;align-items:center;gap:.6rem;background:var(--cream);border:1.5px solid rgba(1,130,98,.1);border-radius:12px;padding:.5rem .65rem;cursor:pointer;transition:border-color .15s}
+.mq-item:hover{border-color:var(--forest)}
+.mq-item.mini{cursor:default;margin-bottom:.35rem}
+.mq-ic{font-size:1.2rem;flex-shrink:0}
+.mq-body{flex:1;min-width:0}
+.mq-nm{font-size:.78rem;font-weight:800;color:var(--ink);line-height:1.25}
+.mq-sp{font-weight:600;opacity:.6;font-size:.7rem}
+.mq-q{font-size:.68rem;color:var(--moss);opacity:.8;margin-top:.05rem}
+.mq-state{flex-shrink:0;font-size:.62rem;font-weight:800;border-radius:100px;padding:.25rem .5rem;background:#f3ede2;color:#a06c00;white-space:nowrap}
+.mq-state.done{background:rgba(1,130,98,.12);color:var(--forest)}
+.mq-btn{width:100%;margin-top:.75rem}
 .seal{position:absolute;top:-8px;right:-6px;font-size:.9rem}
 .mini-btn{border-radius:8px;padding:.28rem .5rem;font-size:.62rem;font-weight:800;background:var(--cream);color:var(--moss);white-space:nowrap}
 .mini-btn.gold{background:#fff5da;color:var(--amber)}
@@ -1369,7 +1387,7 @@ function newState(profile){
     tab:'a', devaOpen:false,
     // pilote
     hand:[], spaces:null, sel:null, pcomps:new Set(), lieuName:'La Friche des Possibles', lieuType:'jardin', ob:null, playerName:'', loopsActive:0, loopBadgeShown:false, vadanceBonus:0,
-    lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{},
+    lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{}, questesPubliees:false, questesPublieesSnap:'',
     mktFilter:'all', purchases:[], ecoMissions:{},
     // batisseur
     comps:new Set(['jardiner','bricoler']), missions:[], // missions actives
@@ -3290,8 +3308,9 @@ function openFicheMonLieu(l){
   const acts=[...new Set(mine.flatMap(sp=>sp.activities||[]))];
   const names=[...new Set(mine.flatMap(sp=>(sp.sols||[]).map(x=>SOL[x.id]?SOL[x.id].ic+' '+SOL[x.id].name:'')))].filter(Boolean);
   const t=lieuTypeMeta(), pub=!!S.lieuPublished;
+  const qpub=S.questesPubliees?installedQuests():[];
   openDetailModal(`
-    ${ficheHero('linear-gradient(135deg,#0e2a1a,#018262)','🌟',[t.ic+' '+t.name,'📍 '+escapeHtml(S.lieuVille||'Bordeaux'), pub?'🌐 Fiche publiée':'📝 Brouillon'], escapeHtml(S.lieuName||'La Friche des Possibles'), 'Piloté par toi · phase '+(['Valoriser','Activer','Développer','Essaimer'][pilotVadePhase()]))}
+    ${ficheHero('linear-gradient(135deg,#0e2a1a,#018262)','🌟',[t.ic+' '+t.name,'📍 '+escapeHtml(S.lieuVille||'Bordeaux'), pub?'🌐 Fiche publiée':'📝 Brouillon'].concat(qpub.length?['✅ Réalisations publiées']:[]), escapeHtml(S.lieuName||'La Friche des Possibles'), 'Piloté par toi · phase '+(['Valoriser','Activer','Développer','Essaimer'][pilotVadePhase()]))}
     <div class="det-body">
       <p class="det-desc">${escapeHtml(S.lieuDesc||lieuDescDefault())}</p>
       ${pub?'':'<div class="det-flux" style="margin-bottom:.9rem">📝 Ta fiche est encore un <b>brouillon</b> : le réseau ne la voit pas. Complète-la, puis publie-la pour attirer Bâtisseurs et Semeurs.</div>'}
@@ -3303,6 +3322,11 @@ function openFicheMonLieu(l){
       ])}
       ${acts.length?`<div class="det-sec"><div class="det-sec-t">🧩 Activités de tes espaces</div>${ficheTags(acts)}</div>`:''}
       ${names.length?`<div class="det-sec"><div class="det-sec-t">🌱 Solutions installées</div>${ficheTags(names,'gr')}</div>`:'<div class="det-flux">Aucune solution installée pour l’instant : ouvre la Bibliothèque et pose ta première carte.</div>'}
+      ${qpub.length?`<div class="det-sec"><div class="det-sec-t">⚔️ Réalisations publiées</div>
+        ${qpub.map(q=>`<div class="mq-item mini"><span class="mq-ic">${q.sol.ic}</span>
+          <div class="mq-body"><div class="mq-nm">${escapeHtml(q.sol.quete.titre)}</div></div>
+          <span class="mq-state ${q.fini?'done':''}">${q.fini?'✅ Accomplie':q.done+'/'+q.total}</span></div>`).join('')}
+        </div>`:''}
       <div class="fiche-actions">
         <button class="btn btn-ghost" onclick="openLieuEditModal()">✏️ Modifier ma fiche</button>
         ${pub
@@ -3603,11 +3627,62 @@ function renderReseau(){
   const f=S.reseauFilter||'tous';
   let h=`<div class="sect-sub">Le réseau <b>EVAD</b> relie Pilotes, Bâtisseurs et Semeurs. C'est ici que les profils se rencontrent : un lieu propose une quête, un bâtisseur un coup de main, un semeur une avance.</div>`;
   h+=reseauActions();
+  if(S.profile==='pilote') h+=mesQuetesHTML();
   const pills=[['tous','Tous'],['pilote','🏡 Pilotes'],['batisseur','🌿 Bâtisseurs'],['semeur','🌾 Semeurs']];
   h+=`<div class="reseau-filters">${pills.map(x=>`<button class="reseau-filter ${f===x[0]?'on':''}" onclick="S.reseauFilter='${x[0]}';render()">${x[1]}</button>`).join('')}</div>`;
   const posts=RESEAU_FEED.filter(p=>f==='tous'||p.prof===f);
   h+=`<div class="reseau-feed">${posts.map(reseauPost).join('')}</div>`;
   el.innerHTML=h;
+}
+/* ── Publier ses quêtes de terrain sur le Réseau ── */
+function installedQuests(){
+  const seen=new Set(), out=[];
+  (S.spaces||[]).forEach(sp=>(sp.sols||[]).forEach(inst=>{
+    const s=SOL[inst.id]; if(!s||!s.quete||seen.has(inst.id)) return;
+    seen.add(inst.id);
+    out.push({id:inst.id, sol:s, espace:sp.name, done:questDone(inst.id), total:questSteps(inst.id).length, fini:questComplete(inst.id)});
+  }));
+  return out.sort((a,b)=>(b.done/(b.total||1))-(a.done/(a.total||1)));
+}
+function questsSnapshot(){ return installedQuests().map(q=>q.id+':'+q.done).join('|'); }
+function questsStale(){ return S.questesPubliees && S.questesPublieesSnap!==questsSnapshot(); }
+function mesQuetesHTML(){
+  const qs=installedQuests();
+  const finies=qs.filter(q=>q.fini).length, encours=qs.length-finies;
+  let h=`<div class="card mq-card">
+    <div class="mq-head">
+      <div><div class="mq-t">⚔️ Publier mes réalisations</div>
+      <div class="mq-sub">Tes quêtes de terrain, telles que le réseau les verra : c'est la preuve concrète de ce que ton lieu a mis en place.</div></div>
+      ${S.questesPubliees?`<span class="mq-flag">✅ Publiées</span>`:''}
+    </div>`;
+  if(!qs.length){
+    h+=`<div class="hint">Aucune quête pour l'instant : installe une solution dans un espace, sa quête de terrain démarre.</div></div>`;
+    return h;
+  }
+  h+=`<div class="mq-counts">🌿 ${finies} accomplie${finies>1?'s':''} · ⚔️ ${encours} en cours</div>`;
+  h+=`<div class="mq-list">${qs.map(q=>`
+    <div class="mq-item" onclick="openSolutionDetail('${q.id}')">
+      <span class="mq-ic">${q.sol.ic}</span>
+      <div class="mq-body"><div class="mq-nm">${q.sol.name} <span class="mq-sp">· ${escapeHtml(q.espace)}</span></div>
+      <div class="mq-q">${escapeHtml(q.sol.quete.titre)}</div></div>
+      <span class="mq-state ${q.fini?'done':''}">${q.fini?'✅ Quête accomplie':'⚔️ '+q.done+'/'+q.total+' étapes'}</span>
+    </div>`).join('')}</div>`;
+  if(!S.questesPubliees) h+=`<button class="btn btn-primary mq-btn" onclick="publishQuests()">🌐 Publier mes quêtes</button>`;
+  else if(questsStale()) h+=`<button class="btn btn-primary mq-btn" onclick="publishQuests()">🔄 Mettre à jour mes réalisations</button>`;
+  else h+=`<div class="hint">✅ Tes réalisations sont publiées : elles apparaissent sur ta fiche, dans la Carte.</div>`;
+  h+=`</div>`;
+  return h;
+}
+function publishQuests(){
+  const qs=installedQuests();
+  if(!qs.length){ toast('Installe d\'abord une solution : sa quête de terrain démarrera 🌿','warn'); return; }
+  const maj=S.questesPubliees;
+  S.questesPubliees=true; S.questesPublieesSnap=questsSnapshot();
+  S.badges.add('reseau'); markFirstAct('reseau');
+  const finies=qs.filter(q=>q.fini).length;
+  toast(maj?`🔄 Réalisations mises à jour · ${finies} quête${finies>1?'s':''} accomplie${finies>1?'s':''} 🌿`
+           :`🌐 Réalisations publiées ! Le réseau voit ce que tu as mis en place · ${qs.length} quête${qs.length>1?'s':''} 🌿`,'win');
+  render();
 }
 function reseauPost(p){
   const pr=RESEAU_PROF[p.prof], vd=VADE[VADE_KEY[p.vade]];
