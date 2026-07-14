@@ -1437,7 +1437,7 @@ function buildTourSteps(){
   const nm=S.playerName&&S.playerName!=='toi'?(' '+escapeHtml(S.playerName)):'';
   const where = S.profile==='pilote' ? ('ton lieu « '+escapeHtml(S.lieuName||'')+' »') : 'ton espace';
   const _steps=[
-    {sel:'#deva-pill', side:'top', title:`🌿 Bienvenue${nm} !`, text:`${S.profile==='pilote'&&S.lieuName?`« <b>${escapeHtml(S.lieuName)}</b> » prend racine 🌱 `:`${where.charAt(0).toUpperCase()+where.slice(1)} est prêt. `}Je te montre l'essentiel en quelques secondes — clique « Suivant », ou « Passer » pour explorer seul·e.`},
+    {sel:'#deva-pill', side:'top', title:`🌿 Bienvenue${nm} !`, text:`${S.profile==='pilote'&&S.lieuName?`« <b>${escapeHtml(S.lieuName)}</b> » prend racine 🌱 `:`${where.charAt(0).toUpperCase()+where.slice(1)} est prêt. `}Je te montre l'essentiel en quelques secondes : clique « Suivant », ou « Passer » pour explorer seul·e.`},
     {sel:navSel('dash'), side:'right', title:'📊 Tableau de bord', text:'Ta progression, tes badges et ta quête finale, en un coup d\'œil.'},
     {sel:navSel('a'), side:'right', title:navBy('a').ic+' '+navBy('a').label, text:AB.a},
     {sel:navSel('b'), side:'right', title:navBy('b').ic+' '+navBy('b').label, text:AB.b},
@@ -1833,7 +1833,7 @@ function devaReveal(sel, title, text){
   document.getElementById('tour-overlay').classList.add('on');
   showTourStep(0);
 }
-/* Message de Deva en bulle centrée (style visite guidée, avec Deva visible) — pour les longs messages */
+/* Message de Deva en bulle centrée (style visite guidée, avec Deva visible), pour les longs messages */
 function devaSay(title, text){
   S.tour={steps:[{sel:'#__deva_none__', side:'none', title, text}], i:0};
   document.getElementById('tour-overlay').classList.add('on');
