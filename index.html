@@ -2265,7 +2265,7 @@ function pilotLieu(){
     </select></div>`;
   // hint selon sélection
   if(S.sel&&S.sel.type==='solution') h+=`<div class="hint">👉 Solution <b>${SOL[S.sel.id].name}</b> sélectionnée (${SOL[S.sel.id].cout}🌰). Clique un espace compatible (surligné) pour l'installer.</div>`;
-  else if(S.sel&&S.sel.type==='ici') h+=`<div class="hint">📊 ICI <b>${ICI[S.sel.id].name}</b> sélectionné. Clique le bouton « Mesurer » d'une solution ou d'un espace à prouver.</div>`;
+  else h+=`<div class="hint">📊 Chaque solution installée arrive avec son <b>indicateur (ICI)</b> déjà lié : clique « Mesurer » sur la solution pour relever la donnée sur le terrain.</div>`;
   // grille
   h+=`<div class="spaces-grid">`;
   S.spaces.forEach(sp=>{ h+=spaceCard(sp); });
@@ -2284,16 +2284,13 @@ function pilotLieu(){
   }
   return h;
 }
-function measureBtn(spaceId, solId, selIci){
-  // La mesure passe désormais par la Bibliothèque : on sélectionne une carte ICI, puis on clique la solution.
-  if(!selIci) return '';
+function measureBtn(spaceId, solId, iciId){
   const sid = solId?`'${solId}'`:'null';
-  const i=S.sel.id;
-  return `<button class="mini-btn gold" onclick="event.stopPropagation();attachICI('${spaceId}',${sid},'${i}')">📊 ${ICI[i].ic} Mesurer</button>`;
+  const i=ICI[iciId]; if(!i) return '';
+  return `<button class="mini-btn gold" onclick="event.stopPropagation();attachICI('${spaceId}',${sid})">📊 ${i.ic} Mesurer · ${MEASURE_COST}🌰</button>`;
 }
 function spaceCard(sp){
   const selSol = S.sel&&S.sel.type==='solution';
-  const selIci = S.sel&&S.sel.type==='ici';
   const canDrop = selSol && spaceAccepts(sp, S.sel.id);
   const dorm = isDormantSpace(sp);
   const chosen = !sp.existant && Array.isArray(sp.activities) && sp.activities.length>0;
@@ -2311,13 +2308,13 @@ function spaceCard(sp){
       : `<button class="sp-act-cta" onclick="event.stopPropagation();openActivitiesModal('${sp.id}')">🎯 Choisir les activités de cet espace</button>`;
   }
   if(sp.existant){
-    const meas=sp.ici;
+    const meas=sp.mesure;
     h+=`<div class="sol-chip ${meas?'vadite':'vadance'}">
       ${meas?'<span class="seal">🌿</span>':''}
       <span class="sic">${sp.ic}</span>
       <div class="sinfo"><div class="sname">Activité en place</div>
-      <div class="sstate" style="color:${meas?'var(--forest)':'var(--amber)'}">${meas?'✅ Prouvé · '+ICI[sp.ici].ic+' '+ICI[sp.ici].name:'✨ '+sp.vadance+' '+pts(sp.vadance)+' de Vadance/saison'}</div></div>
-      ${meas?'':measureBtn(sp.id,null,selIci)}
+      <div class="sstate" style="color:${meas?'var(--forest)':'var(--amber)'}">${meas?'✅ Prouvé · '+ICI[sp.ici||sp.iciType].ic+' '+ICI[sp.ici||sp.iciType].name:'✨ '+sp.vadance+' '+pts(sp.vadance)+' de Vadance/saison'}</div></div>
+      ${meas?'':measureBtn(sp.id,null,sp.ici||sp.iciType)}
     </div>`;
   }
   if(sp.sols.length===0 && !sp.existant){
@@ -2326,17 +2323,17 @@ function spaceCard(sp){
       : `<div class="space-empty">Vide · sélectionne une carte Solution compatible dans la Bibliothèque</div>`;
   }
   sp.sols.forEach(inst=>{
-    const s=SOL[inst.id]; const meas=inst.ici; const proven=inst.ici&&inst.proven; const vad=inst.vad||s.vadance;
-    const stateTxt = proven ? (inst.finance?'✅ Prouvé · financé par un Semeur · ':'✅ Prouvé par un Bâtisseur · ')+ICI[inst.ici].ic+' '+ICI[inst.ici].name
+    const s=SOL[inst.id]; const ici=ICI[inst.ici||s.ici]; const meas=inst.mesure; const proven=meas&&inst.proven; const vad=inst.vad||s.vadance;
+    const stateTxt = proven ? (inst.finance?'✅ Prouvé · financé par un Semeur · ':'✅ Prouvé par un Bâtisseur · ')+ici.ic+' '+ici.name
       : meas ? '🕓 Mesuré · preuve à valider (Bâtisseur ou Semeur)'
-      : '✨ '+vad+' '+pts(vad)+' de Vadance, à mesurer';
+      : '✨ '+vad+' '+pts(vad)+' de Vadance · 📊 '+ici.ic+' '+ici.name+', à mesurer';
     const stateCol = proven ? 'var(--forest)' : (meas ? 'var(--sky)' : 'var(--amber)');
     h+=`<div class="sol-chip ${proven?'vadite':'vadance'}">
       ${proven?'<span class="seal">🌿</span>':''}
       <span class="sic">${s.ic}</span>
       <div class="sinfo"><div class="sname">${s.name}${s.quete?`<span class="q-badge ${questComplete(inst.id)?'done':''}" title="Quête : ${escapeHtml(s.quete.titre)}" onclick="event.stopPropagation();openSolutionDetail('${inst.id}')">${questComplete(inst.id)?'✅ Quête accomplie':'⚔️ '+questDone(inst.id)+'/'+questSteps(inst.id).length+' étapes'}</span>`:''}</div>
       <div class="sstate" style="color:${stateCol}">${stateTxt}</div></div>
-      ${!meas?measureBtn(sp.id,inst.id,selIci):(!proven?`<div class="prove-btns"><button class="mini-btn gold" onclick="event.stopPropagation();proveByBatisseur('${sp.id}','${inst.id}')">🌿 Preuve · Bâtisseur</button><button class="mini-btn sem" onclick="event.stopPropagation();proveBySemeur('${sp.id}','${inst.id}')">🌾 Financer · Semeur</button></div>`:'')}
+      ${!meas?measureBtn(sp.id,inst.id,inst.ici||s.ici):(!proven?`<div class="prove-btns"><button class="mini-btn gold" onclick="event.stopPropagation();proveByBatisseur('${sp.id}','${inst.id}')">🌿 Preuve · Bâtisseur</button><button class="mini-btn sem" onclick="event.stopPropagation();proveBySemeur('${sp.id}','${inst.id}')">🌾 Financer · Semeur</button></div>`:'')}
     </div>`;
   });
   h+=`</div>`;
@@ -2453,8 +2450,8 @@ function solutionCard(id){
   </div>`;
 }
 function iciCard(id){
-  const i=ICI[id]; const sel=S.sel&&S.sel.type==='ici'&&S.sel.id===id;
-  return `<div class="card2 ${sel?'sel':''}" onclick="openIciDetail('${id}')">
+  const i=ICI[id];
+  return `<div class="card2" onclick="openIciDetail('${id}')">
     <div class="c2-media">${svgScene('ici', ICI_MOTIF[id])}</div>
     <div class="c2-body">
       <div class="c2-cat"><span class="c2-dot" style="background:var(--sky)"></span>Indicateur · ICI</div>
@@ -2530,9 +2527,12 @@ function openSolutionDetail(id){
         <div class="det-fact"><div class="df-lab">📍 Où l'installer</div><div class="df-val">${s.cap.map(capLabel).join(', ')}</div></div>
         <div class="det-fact"><div class="df-lab">🌰 Coût</div><div class="df-val">${s.cout} Graines</div></div>
         <div class="det-fact"><div class="df-lab">✨ Vadance</div><div class="df-val">+${s.vadance} points</div></div>
-        <div class="det-fact"><div class="df-lab">📊 Mesuré par</div><div class="df-val">${ici.ic} ${ici.name}</div></div>
+        <div class="det-fact"><div class="df-lab">📊 Indicateur (ICI) lié</div><div class="df-val">${ici.ic} ${ici.name}</div></div>
       </div>
       ${tags?`<div class="det-tags">${tags}</div>`:''}
+      <div class="det-sec"><div class="det-sec-t">📊 Son indicateur, lié d'office</div>
+        <div class="det-flux">Dès l'installation, cette solution arrive avec son ICI <b>${ici.ic} ${ici.name}</b> (${ici.unit}). Il reste à <b>relever la mesure</b> sur le terrain (${MEASURE_COST}🌰), puis à la faire vérifier : ta Vadance devient alors de la <b>Vadité</b>.</div>
+      </div>
       ${questHTML(id)}
       <div class="det-sec"><div class="det-sec-t">🔗 Référentiels couverts (via l'ICI)</div><div class="det-refs">${ici.refs.map(r=>`<span class="pill" style="background:#f1eef7;color:var(--lavender)">${r}</span>`).join('')}</div></div>
       ${(s.flux.in.length||s.flux.out.length)?`<div class="det-sec"><div class="det-sec-t">🔄 Flux & boucles circulaires</div><div class="det-flux">${flux.join(' · ')}</div></div>`:''}
@@ -2559,12 +2559,8 @@ function openIciDetail(id){
       <p class="det-desc">Mesuré en <b>${i.unit}</b>. Attaché à une solution, il transforme sa Vadance (promesse) en Vadité (preuve vérifiée), saison après saison.</p>
       <div class="det-sec"><div class="det-sec-t">🔗 Référentiels couverts</div><div class="det-refs">${i.refs.map(r=>`<span class="pill" style="background:#f1eef7;color:var(--lavender)">${r}</span>`).join('')}</div></div>
       ${fits.length?`<div class="det-sec"><div class="det-sec-t">🧩 Mesure typiquement</div><div class="det-flux">${fits.join(' · ')}</div></div>`:''}
-      <button class="btn btn-primary det-action" onclick="detailSelectIci('${id}')">Sélectionner pour mesurer →</button>
+      <button class="btn btn-ghost det-action" onclick="closeModal()">Compris ✓</button>
     </div>`);
-}
-function detailSelectIci(id){
-  S.sel={type:'ici',id}; closeModal(); S.tab='a'; render();
-  toast(`${ICI[id].ic} ICI sélectionné · clique « Mesurer » sur une solution dans « Mon lieu »`);
 }
 document.addEventListener('click',(e)=>{ if(e.target && e.target.id==='modal' && document.getElementById('modal-box').classList.contains('det-modal')) closeModal(); });
 setIntroDate();
@@ -2629,33 +2625,31 @@ function installSelected(spaceId){
   if(S.graines < s.cout){ toast(`Pas assez de Graines (${s.cout}🌰)`,'warn'); return; }
   S.graines -= s.cout;
   const vad = s.vadance + ((s.clim==='fraicheur' && S.pcomps.has('eau')) ? 1 : 0);
-  sp.sols.push({id:s.id, ici:null, vad});
+  sp.sols.push({id:s.id, ici:s.ici, mesure:false, proven:false, vad}); // l'ICI de la solution est lié d'office
   S.sel=null;
   markFirstAct('installed');
   toast(`${s.ic} ${s.name} installé · −${s.cout}🌰 · +${vad} ${pts(vad)} de Vadance ✨`,'win');
   checkLoops(true);
   render();
 }
-function attachICI(spaceId, solId, iciId){
-  const sp=S.spaces.find(x=>x.id===spaceId);
-  if(!solId && !sp.existant) return; // un espace de création se mesure via ses solutions
-  if(!iciId) iciId = solId ? SOL[solId].ici : sp.iciType;
-  let inst=null;
-  if(solId){ inst=sp.sols.find(x=>x.id===solId); if(!inst||inst.ici) return; }
-  else { if(sp.ici) return; }
-  if(S.graines < MEASURE_COST){ toast(`Attacher un ICI coûte ${MEASURE_COST}🌰 (aller mesurer sur le terrain)`,'warn'); return; }
+/* L'ICI est lié dès l'installation : « Mesurer », c'est aller relever la donnée sur le terrain. */
+function attachICI(spaceId, solId){
+  const sp=S.spaces.find(x=>x.id===spaceId); if(!sp) return;
+  let inst=null, iciId=null;
+  if(solId){ inst=sp.sols.find(x=>x.id===solId); if(!inst || inst.mesure) return; iciId=inst.ici||SOL[solId].ici; inst.ici=iciId; }
+  else { if(!sp.existant || sp.mesure) return; iciId=sp.ici||sp.iciType; sp.ici=iciId; }
+  if(S.graines < MEASURE_COST){ toast(`Relever une mesure coûte ${MEASURE_COST}🌰 (aller mesurer sur le terrain)`,'warn'); return; }
   S.graines -= MEASURE_COST;
-  if(solId){ inst.ici=iciId; inst.proven=false; } else { sp.ici=iciId; sp.proven=false; }
+  if(inst){ inst.mesure=true; inst.proven=false; } else { sp.mesure=true; sp.proven=false; }
   S.refs = new Set([...S.refs, ...ICI[iciId].refs.map(r=>r.split(' ')[0])]);
-  if(S.sel && S.sel.type==='ici') S.sel=null;
   markFirstAct('measured');
-  toast(`📊 ICI « ${ICI[iciId].name} » attaché · −${MEASURE_COST}🌰 · mesure engagée. Une preuve d'un Bâtisseur la validera en Vadité 🌿`,'win');
+  toast(`📊 Mesure relevée · ${ICI[iciId].ic} ${ICI[iciId].name} · −${MEASURE_COST}🌰. Une preuve d'un Bâtisseur (ou d'un Semeur) la validera en Vadité 🌿`,'win');
   render();
 }
 function proveByBatisseur(spaceId, solId){
   const sp=S.spaces.find(x=>x.id===spaceId); if(!sp) return;
   const inst = solId ? sp.sols.find(x=>x.id===solId) : sp;
-  if(!inst || !inst.ici || inst.proven) return;
+  if(!inst || !inst.mesure || inst.proven) return;
   inst.proven=true; inst.finance=false;
   S.reseauBat=true; S.badges.add('reseau'); markFirstAct('reseau');
   const s = solId ? SOL[inst.id] : null;
@@ -2665,7 +2659,7 @@ function proveByBatisseur(spaceId, solId){
 function proveBySemeur(spaceId, solId){
   const sp=S.spaces.find(x=>x.id===spaceId); if(!sp) return;
   const inst = solId ? sp.sols.find(x=>x.id===solId) : sp;
-  if(!inst || !inst.ici || inst.proven) return;
+  if(!inst || !inst.mesure || inst.proven) return;
   inst.proven=true; inst.finance=true;
   S.reseauSem=true; S.badges.add('reseau'); markFirstAct('reseau');
   S.refs = new Set([...S.refs, ...ICI[inst.ici].refs.map(r=>r.split(' ')[0])]);
