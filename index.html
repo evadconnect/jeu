@@ -1300,104 +1300,158 @@ const VADE_DESC={
 function vadeHover(k){ const el=document.getElementById('vade-hover'); if(!el) return; if(k&&VADE_DESC[k]){ el.innerHTML='<b>'+VADE_DESC[k].t+'</b> · '+VADE_DESC[k].d; } else { el.innerHTML='Survole une phase pour la découvrir 🌀'; }
   // Si la description depasse sous la fenetre, on fait defiler pour la rendre visible
   if(k){ const sc=el.closest('.ob-scroll'); if(sc){ const er=el.getBoundingClientRect(), sr=sc.getBoundingClientRect(); const over=er.bottom-sr.bottom; if(over>0) sc.scrollTop+=over+10; } } }
-/* ═══════════════ PERSONNAGES SOLARPUNK (un par profil) ═══════════════ */
+/* ═══════════════ PERSONNAGES 3D SOLARPUNK (un par profil) ═══════════════ */
+/* Rendu volumetrique en SVG pur : lumiere directionnelle en haut a gauche,
+   sphere ombree pour la tete, contre-jour sur le bord droit, ombre portee au sol. */
+let PERSO_UID=0;
 function persoSVG(p){
-  const D={
+  const u=p+'-'+(++PERSO_UID);
+  const C={
     pilote:{
-      sky:['#dff3e4','#9ed9b6'], sun:'#f6d25e', hill:'#5fb587', hill2:'#2e8b6e',
-      skin:'#c98a5e', hair:'#3b2a1e', cloth:'#2e6b47', cloth2:'#245939',
-      scene:`<g>
-        <path d="M8 54 q6-16 16-16 t16 16 z" fill="#7fc9a0" opacity=".55"/>
-        <rect x="46" y="30" width="18" height="24" rx="2.5" fill="#e8e2d0"/>
-        <path d="M44 31 L55 22 L66 31 z" fill="#3f7f5e"/>
-        <rect x="49" y="24" width="12" height="5" rx="1" transform="rotate(-13 55 26)" fill="#3a6e8c"/>
-        <rect x="52" y="42" width="6" height="12" fill="#2e6b47"/>
-        <circle cx="12" cy="14" r="7" fill="#f6d25e" opacity=".85"/>
-      </g>`,
-      chara:`<g>
-        <path d="M13 72 C13 58 22 50 36 50 C50 50 59 58 59 72 z" fill="#2e6b47"/>
-        <path d="M30 50 h12 l-2 8 h-8 z" fill="#245939"/>
-        <rect x="32" y="42" width="8" height="8" rx="2" fill="#b87c52"/>
-        <circle cx="36" cy="33" r="12" fill="#c98a5e"/>
-        <path d="M24 31 q1-11 12-11 t12 11 q-4-5-12-5 t-12 5z" fill="#3b2a1e"/>
-        <ellipse cx="36" cy="24" rx="20" ry="4.6" fill="#e8c37a"/>
-        <path d="M25 24 q1-12 11-12 t11 12 z" fill="#f0d492"/>
-        <path d="M25 23 h22" stroke="#cfa85c" stroke-width="1.6"/>
-        <path d="M45 19 q5-3 7 1 q-5 2-7-1z" fill="#4aab8f"/>
-        <circle cx="31.5" cy="34" r="1.5" fill="#2b1d13"/><circle cx="40.5" cy="34" r="1.5" fill="#2b1d13"/>
-        <path d="M32 39 q4 3 8 0" stroke="#2b1d13" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-        <circle cx="17" cy="63" r="3.4" fill="#c98a5e"/><circle cx="55" cy="63" r="3.4" fill="#c98a5e"/>
-      </g>`},
+      bg0:'#eafaf0', bg1:'#63b98d', floor0:'#8fd3ac', floor1:'#3f9a6d',
+      sk0:'#eab98c', sk1:'#9c6237', hair:'#3a2a1c', hair2:'#1e150d',
+      bd0:'#3e9668', bd1:'#1c5136', ac0:'#f6dd9d', ac1:'#c39a4a',
+      sun:'#ffe08a',
+      decor:`
+        <g opacity=".9">
+          <ellipse cx="55" cy="52" rx="15" ry="4" fill="#1c5136" opacity=".16"/>
+          <path d="M45 52 v-16 a2 2 0 0 1 2-2 h16 a2 2 0 0 1 2 2 v16 z" fill="url(#gh-${u})"/>
+          <path d="M43.6 36 L55 26.5 L66.4 36 z" fill="#2f7a52"/>
+          <path d="M55 26.5 L66.4 36 L55 36 z" fill="#215c3c"/>
+          <rect x="49.5" y="29.5" width="11" height="4.6" rx="1" transform="rotate(-14 55 32)" fill="#3f7fa5"/>
+          <rect x="49.5" y="29.5" width="11" height="4.6" rx="1" transform="rotate(-14 55 32)" fill="url(#gl-${u})" opacity=".5"/>
+          <rect x="52" y="43" width="6" height="9" rx="1" fill="#20603f"/>
+          <path d="M45 52 v-16 a2 2 0 0 1 2-2 h3 v18 z" fill="#fff" opacity=".18"/>
+        </g>`,
+      props:`
+        <g>
+          <path d="M45.5 20.5 q5.5-3.5 8 .5 q-5.5 2.5-8-.5z" fill="#4aab8f"/>
+          <path d="M45.5 20.5 q5.5-3.5 8 .5" fill="none" stroke="#2f7a52" stroke-width=".7"/>
+        </g>`},
     batisseur:{
-      sky:['#fdeccd','#f3c98a'], sun:'#f0a93c', hill:'#e0a021', hill2:'#c8732a',
-      skin:'#8a5a3c', hair:'#20150e', cloth:'#c8732a', cloth2:'#a4561c',
-      scene:`<g>
-        <circle cx="58" cy="15" r="8" fill="#f6d25e" opacity=".8"/>
-        <g transform="translate(11 20)">
-          <rect x="-1" y="0" width="18" height="12" rx="1.5" transform="skewX(-8)" fill="#3a6e8c"/>
-          <path d="M-1 4 h18 M-1 8 h18 M5 0 v12 M11 0 v12" stroke="#8fc3dd" stroke-width=".8" transform="skewX(-8)"/>
-          <rect x="6" y="12" width="2.5" height="8" fill="#7e6a52"/>
-        </g>
-        <path d="M0 54 q10-12 20-6 t22 6 z" fill="#e6b45a" opacity=".5"/>
-      </g>`,
-      chara:`<g>
-        <rect x="49" y="24" width="4.5" height="30" rx="2" transform="rotate(24 51 39)" fill="#8fa3ad"/>
-        <path d="M56 24 a5 5 0 1 1 -8 3 l3-2 z" transform="rotate(24 51 30)" fill="#8fa3ad"/>
-        <path d="M13 72 C13 58 22 50 36 50 C50 50 59 58 59 72 z" fill="#c8732a"/>
-        <path d="M28 50 q8 7 16 0 l-3 10 h-10 z" fill="#f0d492"/>
-        <rect x="32" y="42" width="8" height="8" rx="2" fill="#764a30"/>
-        <circle cx="36" cy="33" r="12" fill="#8a5a3c"/>
-        <path d="M24 32 q0-12 12-12 t12 12 q-3-6-12-6 t-12 6z" fill="#20150e"/>
-        <path d="M23 27 q3-13 13-13 t13 13 z" fill="#f0a93c"/>
-        <path d="M20 27 h32 a2 2 0 0 1 0 3.4 h-32 a2 2 0 0 1 0-3.4z" fill="#d98a24"/>
-        <path d="M31 21 q5-4 10 0" stroke="#fff0c8" stroke-width="1.4" fill="none" opacity=".8"/>
-        <circle cx="31.5" cy="34" r="1.5" fill="#1a1109"/><circle cx="40.5" cy="34" r="1.5" fill="#1a1109"/>
-        <path d="M32 39 q4 3 8 0" stroke="#1a1109" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-        <circle cx="17" cy="63" r="3.4" fill="#8a5a3c"/><circle cx="55" cy="63" r="3.4" fill="#8a5a3c"/>
-      </g>`},
+      bg0:'#fff2d8', bg1:'#e0913c', floor0:'#f0c078', floor1:'#c4762a',
+      sk0:'#b2764c', sk1:'#5f3a22', hair:'#1c1109', hair2:'#0d0805',
+      bd0:'#e08a3c', bd1:'#95500f', ac0:'#ffd06b', ac1:'#cf8a12',
+      sun:'#ffd76b',
+      decor:`
+        <g>
+          <ellipse cx="14" cy="46" rx="12" ry="3" fill="#8a4d12" opacity=".18"/>
+          <rect x="12.5" y="26" width="2.6" height="20" rx="1" fill="#8a7256"/>
+          <g transform="translate(4 18) skewX(-9)">
+            <rect x="0" y="0" width="19" height="13" rx="1.6" fill="#2f6a8c"/>
+            <rect x="0" y="0" width="19" height="13" rx="1.6" fill="url(#gl-${u})" opacity=".65"/>
+            <path d="M0 4.3 h19 M0 8.6 h19 M6.3 0 v13 M12.6 0 v13" stroke="#9fd0e6" stroke-width=".7" opacity=".55"/>
+          </g>
+        </g>`,
+      props:`
+        <g transform="rotate(22 52 40)">
+          <rect x="49.5" y="18" width="5" height="30" rx="2.5" fill="url(#tl-${u})"/>
+          <path d="M57 20 a5.4 5.4 0 1 1 -7.6 3.4 l2.6-2.2 z" fill="url(#tl-${u})"/>
+          <rect x="50.6" y="19" width="1.4" height="28" rx=".7" fill="#fff" opacity=".35"/>
+        </g>`},
     semeur:{
-      sky:['#e3f0f8','#a9cfe4'], sun:'#f6d25e', hill:'#8fc3dd', hill2:'#3a6e8c',
-      skin:'#e8c39e', hair:'#6b4a2f', cloth:'#3a6e8c', cloth2:'#2a5670',
-      scene:`<g>
-        <circle cx="36" cy="20" r="15" fill="#f6d25e" opacity=".45"/>
-        <circle cx="36" cy="20" r="9" fill="#f6d25e" opacity=".7"/>
-        <path d="M0 56 q12-10 24-4 t26 2 q12-6 22 2 v16 H0 z" fill="#7fc9a0" opacity=".5"/>
-        <g stroke="#c8a44e" stroke-width="1.3" fill="none">
-          <path d="M6 60 v-12"/><path d="M6 50 q-3-2-3-5 q3 1 3 5z"/><path d="M6 50 q3-2 3-5 q-3 1-3 5z"/>
-          <path d="M66 60 v-12"/><path d="M66 50 q-3-2-3-5 q3 1 3 5z"/><path d="M66 50 q3-2 3-5 q-3 1-3 5z"/>
-        </g>
-      </g>`,
-      chara:`<g>
-        <path d="M13 72 C13 58 22 50 36 50 C50 50 59 58 59 72 z" fill="#3a6e8c"/>
-        <path d="M24 54 q12 6 24 0" stroke="#2a5670" stroke-width="2" fill="none"/>
-        <path d="M44 55 a9 8 0 0 1 12 8 a9 8 0 0 1 -12 -8z" fill="#b98c50"/>
-        <path d="M30 50 q6 4 12 0 l-2 7 h-8 z" fill="#2a5670"/>
-        <rect x="32" y="42" width="8" height="8" rx="2" fill="#d6ac83"/>
-        <circle cx="36" cy="33" r="12" fill="#e8c39e"/>
-        <path d="M23.5 33 q-1-14 12.5-14 t12.5 14 q-2-8-12.5-8 t-12.5 8z" fill="#6b4a2f"/>
-        <path d="M24 33 q-3 6-1 10 q-3-5-1-10z" fill="#6b4a2f"/>
-        <path d="M48 33 q3 6 1 10 q3-5 1-10z" fill="#6b4a2f"/>
-        <circle cx="31.5" cy="34" r="1.5" fill="#3d2a1a"/><circle cx="40.5" cy="34" r="1.5" fill="#3d2a1a"/>
-        <path d="M32 39 q4 3 8 0" stroke="#3d2a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-        <circle cx="16" cy="60" r="3.6" fill="#e8c39e"/>
-        <g fill="#f0c04a"><circle cx="11" cy="52" r="1.7"/><circle cx="7" cy="45" r="1.5"/><circle cx="14" cy="44" r="1.3"/><circle cx="9" cy="37" r="1.2"/></g>
-        <circle cx="55" cy="63" r="3.4" fill="#e8c39e"/>
-      </g>`},
+      bg0:'#f0f8fd', bg1:'#7cb3d4', floor0:'#a7dcc0', floor1:'#4f9d7a',
+      sk0:'#f7d9b6', sk1:'#c08f5e', hair:'#7a5233', hair2:'#4d3018',
+      bd0:'#5590b2', bd1:'#28536e', ac0:'#ffd75e', ac1:'#c9942a',
+      sun:'#ffe79b',
+      decor:`
+        <g>
+          <circle cx="36" cy="21" r="16" fill="url(#hl-${u})"/>
+          <g stroke="#c9a44e" stroke-width="1.5" fill="none" stroke-linecap="round">
+            <path d="M6 58 v-13"/><path d="M6 48 q-3.4-2-3.4-5.6 q3.4 1.2 3.4 5.6z" fill="#dcbb5e" stroke="none"/><path d="M6 48 q3.4-2 3.4-5.6 q-3.4 1.2-3.4 5.6z" fill="#c9a44e" stroke="none"/>
+            <path d="M66 58 v-13"/><path d="M66 48 q-3.4-2-3.4-5.6 q3.4 1.2 3.4 5.6z" fill="#dcbb5e" stroke="none"/><path d="M66 48 q3.4-2 3.4-5.6 q-3.4 1.2-3.4 5.6z" fill="#c9a44e" stroke="none"/>
+          </g>
+        </g>`,
+      props:`
+        <g>
+          <circle cx="11.5" cy="50" r="2.1" fill="url(#sd-${u})"/>
+          <circle cx="7" cy="43" r="1.8" fill="url(#sd-${u})"/>
+          <circle cx="14.5" cy="41.5" r="1.5" fill="url(#sd-${u})"/>
+          <circle cx="9.5" cy="35" r="1.3" fill="url(#sd-${u})"/>
+          <circle cx="16" cy="33" r="1" fill="url(#sd-${u})"/>
+        </g>`},
   }[p];
-  if(!D) return '';
+  if(!C) return '';
+  const hat={
+    pilote:`
+      <ellipse cx="36" cy="25.5" rx="20.5" ry="5.4" fill="url(#ac-${u})"/>
+      <ellipse cx="36" cy="24.6" rx="20.5" ry="5.4" fill="url(#ac2-${u})"/>
+      <path d="M25.5 25 q1-13.5 10.5-13.5 t10.5 13.5 z" fill="url(#ac-${u})"/>
+      <path d="M36 11.5 q10.5 0 10.5 13.5 h-4 q1-11-6.5-13.5z" fill="#000" opacity=".12"/>
+      <path d="M27.5 22 q2-8 8.5-9" fill="none" stroke="#fff" stroke-width="1.6" opacity=".45" stroke-linecap="round"/>
+      <path d="M25.8 24.6 h20.4" stroke="#a9853c" stroke-width="1.3" opacity=".5"/>`,
+    batisseur:`
+      <path d="M22.5 28.5 q0-14.5 13.5-14.5 t13.5 14.5 z" fill="url(#ac-${u})"/>
+      <path d="M36 14 q13.5 0 13.5 14.5 h-5 q1-12-8.5-14.5z" fill="#000" opacity=".14"/>
+      <path d="M25 25 q2.5-8.5 9.5-9.5" fill="none" stroke="#fff" stroke-width="1.8" opacity=".5" stroke-linecap="round"/>
+      <path d="M35 14.4 q1 0 1 0 v14.1 h-2 q-.4-9 1-14.1z" fill="#fff" opacity=".22"/>
+      <path d="M19.5 28.4 h33 a2.2 2.2 0 0 1 0 3.8 h-33 a2.2 2.2 0 0 1 0-3.8z" fill="url(#ac2-${u})"/>
+      <path d="M19.5 28.4 h33 a2.2 2.2 0 0 1 1.9 1.1 h-36.8 a2.2 2.2 0 0 1 1.9-1.1z" fill="#fff" opacity=".3"/>`,
+    semeur:`
+      <path d="M23 34 q-1.5-15.5 13-15.5 t13 15.5 q-2.5-9.5-13-9.5 t-13 9.5z" fill="url(#hr-${u})"/>
+      <path d="M23.5 30 q-3 7-1 12 q-3.5-5.5-1.2-12z" fill="url(#hr-${u})"/>
+      <path d="M48.5 30 q3 7 1 12 q3.5-5.5 1.2-12z" fill="url(#hr2-${u})"/>
+      <path d="M27 25.5 q4-4.5 9-4.8" fill="none" stroke="#fff" stroke-width="1.5" opacity=".3" stroke-linecap="round"/>`,
+  }[p];
   return `<svg class="perso" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Personnage ${p}">
-    <defs>
-      <linearGradient id="pg-${p}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${D.sky[0]}"/><stop offset="1" stop-color="${D.sky[1]}"/></linearGradient>
-      <clipPath id="pc-${p}"><rect width="72" height="72" rx="18"/></clipPath>
-    </defs>
-    <g clip-path="url(#pc-${p})">
-      <rect width="72" height="72" fill="url(#pg-${p})"/>
-      ${D.scene}
-      <path d="M0 62 q18-10 36-4 t36 -2 v16 H0 z" fill="${D.hill}" opacity=".45"/>
-      ${D.chara}
+  <defs>
+    <radialGradient id="bg-${u}" cx="28%" cy="20%" r="95%"><stop offset="0" stop-color="${C.bg0}"/><stop offset="1" stop-color="${C.bg1}"/></radialGradient>
+    <linearGradient id="fl-${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${C.floor0}"/><stop offset="1" stop-color="${C.floor1}"/></linearGradient>
+    <radialGradient id="sk-${u}" cx="32%" cy="26%" r="78%"><stop offset="0" stop-color="${C.sk0}"/><stop offset=".62" stop-color="${C.sk0}"/><stop offset="1" stop-color="${C.sk1}"/></radialGradient>
+    <linearGradient id="bd-${u}" x1="15%" y1="0" x2="90%" y2="100%"><stop offset="0" stop-color="${C.bd0}"/><stop offset="1" stop-color="${C.bd1}"/></linearGradient>
+    <linearGradient id="ac-${u}" x1="15%" y1="0" x2="85%" y2="100%"><stop offset="0" stop-color="${C.ac0}"/><stop offset="1" stop-color="${C.ac1}"/></linearGradient>
+    <linearGradient id="ac2-${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${C.ac1}"/><stop offset="1" stop-color="${C.ac0}"/></linearGradient>
+    <linearGradient id="hr-${u}" x1="20%" y1="0" x2="80%" y2="100%"><stop offset="0" stop-color="${C.hair}"/><stop offset="1" stop-color="${C.hair2}"/></linearGradient>
+    <linearGradient id="hr2-${u}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${C.hair2}"/><stop offset="1" stop-color="${C.hair}"/></linearGradient>
+    <linearGradient id="gh-${u}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f4f0e2"/><stop offset="1" stop-color="#cfc7ae"/></linearGradient>
+    <linearGradient id="gl-${u}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cfe9f6"/><stop offset=".5" stop-color="#cfe9f6" stop-opacity="0"/><stop offset="1" stop-color="#cfe9f6" stop-opacity=".5"/></linearGradient>
+    <linearGradient id="tl-${u}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#cfd9de"/><stop offset=".45" stop-color="#93a5ad"/><stop offset="1" stop-color="#5f727b"/></linearGradient>
+    <radialGradient id="sd-${u}" cx="34%" cy="30%" r="75%"><stop offset="0" stop-color="#ffe89a"/><stop offset="1" stop-color="#c9942a"/></radialGradient>
+    <radialGradient id="sn-${u}" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="${C.sun}"/><stop offset=".55" stop-color="${C.sun}" stop-opacity=".55"/><stop offset="1" stop-color="${C.sun}" stop-opacity="0"/></radialGradient>
+    <radialGradient id="hl-${u}" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff2c4" stop-opacity=".95"/><stop offset=".6" stop-color="#ffe79b" stop-opacity=".45"/><stop offset="1" stop-color="#ffe79b" stop-opacity="0"/></radialGradient>
+    <filter id="sh-${u}" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.9"/></filter>
+    <filter id="so-${u}" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.1"/></filter>
+    <clipPath id="cp-${u}"><rect width="72" height="72" rx="18"/></clipPath>
+  </defs>
+  <g clip-path="url(#cp-${u})">
+    <rect width="72" height="72" fill="url(#bg-${u})"/>
+    <circle cx="14" cy="14" r="13" fill="url(#sn-${u})"/>
+    ${C.decor}
+    <path d="M0 57 q18-7 36-4 t36 -3 v22 H0 z" fill="url(#fl-${u})"/>
+    <path d="M0 57 q18-7 36-4 t36 -3 v3 q-18 4-36 1 t-36 4z" fill="#fff" opacity=".15"/>
+    <ellipse cx="36" cy="69" rx="22" ry="5.5" fill="#0d2b22" opacity=".25" filter="url(#sh-${u})"/>
+    ${C.props}
+    <g>
+      <path d="M12.5 72 C12.5 57.5 22 49.5 36 49.5 C50 49.5 59.5 57.5 59.5 72 z" fill="url(#bd-${u})"/>
+      <path d="M36 49.5 C50 49.5 59.5 57.5 59.5 72 h-7 c0-13-6.5-20-16.5-22.5z" fill="#000" opacity=".13"/>
+      <path d="M17 72 c0-12 6-19.5 15-21.8 c-6 4-9.5 11-10 21.8z" fill="#fff" opacity=".18"/>
+      <ellipse cx="36" cy="51" rx="10" ry="4" fill="#000" opacity=".16" filter="url(#so-${u})"/>
+      <rect x="32" y="41" width="8" height="9" rx="3" fill="url(#sk-${u})"/>
+      <ellipse cx="36" cy="43.5" rx="6.5" ry="3.4" fill="#000" opacity=".2" filter="url(#so-${u})"/>
+      <circle cx="36" cy="32.5" r="12.4" fill="url(#sk-${u})"/>
+      <circle cx="24.6" cy="34.5" r="2.3" fill="url(#sk-${u})"/>
+      <circle cx="47.4" cy="34.5" r="2.3" fill="url(#sk-${u})"/>
+      <path d="M36 20.1 a12.4 12.4 0 0 1 0 24.8 a12.4 12.4 0 0 0 0-24.8z" fill="#000" opacity=".1"/>
+      <path d="M47.9 29 a12.4 12.4 0 0 1 -2.6 14.4 a12.4 12.4 0 0 0 .6-14.9z" fill="#fff" opacity=".28"/>
+      <ellipse cx="29.6" cy="27.4" rx="4.6" ry="3.2" transform="rotate(-22 29.6 27.4)" fill="#fff" opacity=".2"/>
+      ${hat}
+      <g>
+        <ellipse cx="31.6" cy="34.4" rx="1.7" ry="1.9" fill="#2b1d13"/>
+        <ellipse cx="40.4" cy="34.4" rx="1.7" ry="1.9" fill="#2b1d13"/>
+        <circle cx="32.2" cy="33.7" r=".6" fill="#fff" opacity=".9"/>
+        <circle cx="41" cy="33.7" r=".6" fill="#fff" opacity=".9"/>
+        <ellipse cx="27.8" cy="38" rx="2.4" ry="1.5" fill="#e07a5f" opacity=".22"/>
+        <ellipse cx="44.2" cy="38" rx="2.4" ry="1.5" fill="#e07a5f" opacity=".22"/>
+        <path d="M31.6 39.4 q4.4 3.4 8.8 0" stroke="#2b1d13" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </g>
+      <circle cx="16.4" cy="62" r="4" fill="url(#sk-${u})"/>
+      <circle cx="55.6" cy="62" r="4" fill="url(#sk-${u})"/>
+      <path d="M55.6 58 a4 4 0 0 1 0 8 a4 4 0 0 0 0-8z" fill="#000" opacity=".12"/>
     </g>
-    <rect x=".9" y=".9" width="70.2" height="70.2" rx="17.1" fill="none" stroke="rgba(13,43,34,.18)" stroke-width="1.8"/>
-  </svg>`;
+    <rect width="72" height="72" rx="18" fill="none" stroke="#fff" stroke-width="2.4" opacity=".22"/>
+  </g>
+  <rect x=".9" y=".9" width="70.2" height="70.2" rx="17.1" fill="none" stroke="rgba(13,43,34,.22)" stroke-width="1.8"/>
+</svg>`;
 }
 const VADE_SCHEMA=`<svg viewBox="-40 0 480 366" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto"><path d="M200 80 A112 112 0 0 1 312 192" fill="none" stroke="#2e8b6e" stroke-width="3.4"/><path d="M312 192 A112 112 0 0 1 200 304" fill="none" stroke="#2d6a9f" stroke-width="3.4"/><path d="M200 304 A112 112 0 0 1 88 192" fill="none" stroke="#c8732a" stroke-width="3.4"/><path d="M88 192 A128 128 0 0 1 140 70" fill="none" stroke="#6b5b95" stroke-width="3.4"/><polygon points="139,60 132,74 148,73" fill="#6b5b95"/><text x="120" y="44" text-anchor="middle" font-size="12.5" font-weight="700" fill="#018262">un cran plus haut</text><circle cx="200" cy="192" r="60" fill="#e6f4ec"/><text x="200" y="184" text-anchor="middle" font-size="9.5" font-weight="700" letter-spacing="3" fill="#4aab8f">SPIRALE</text><text x="200" y="205" text-anchor="middle" font-size="21" font-weight="900" fill="#0d2b22">VADE</text><text x="200" y="230" text-anchor="middle" font-size="15">🏡 🌿 🌾</text><g class="vnode" onmouseover="vadeHover('V')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Valoriser : personnalise les espaces pour révéler le potentiel du lieu (la Vadance).</title><circle cx="200" cy="80" r="24" fill="#fff" stroke="#018262" stroke-width="2.6"/><text x="200" y="87" text-anchor="middle" font-size="20" font-weight="900" fill="#018262">V</text><text x="234" y="60" text-anchor="start" font-size="13" font-weight="800" fill="#2f4038">Valoriser</text></g><g class="vnode" onmouseover="vadeHover('A')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Activer : installe des solutions de la Bibliothèque dans tes espaces.</title><circle cx="312" cy="192" r="24" fill="#fff" stroke="#2d6a9f" stroke-width="2.6"/><text x="312" y="199" text-anchor="middle" font-size="20" font-weight="900" fill="#2d6a9f">A</text><text x="344" y="197" text-anchor="start" font-size="13" font-weight="800" fill="#2f4038">Activer</text></g><g class="vnode" onmouseover="vadeHover('D')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Développer : publie une annonce sur le Réseau pour attirer Bâtisseurs et Semeurs.</title><circle cx="200" cy="304" r="24" fill="#fff" stroke="#c8732a" stroke-width="2.6"/><text x="200" y="311" text-anchor="middle" font-size="20" font-weight="900" fill="#c8732a">D</text><text x="200" y="338" text-anchor="middle" font-size="13" font-weight="800" fill="#2f4038">Développer</text></g><g class="vnode" onmouseover="vadeHover('E')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Essaimer : valide les preuves d'impact pour faire monter la Vadité, et relance la spirale.</title><circle cx="88" cy="192" r="24" fill="#fff" stroke="#6b5b95" stroke-width="2.6"/><text x="88" y="199" text-anchor="middle" font-size="20" font-weight="900" fill="#6b5b95">E</text><text x="56" y="197" text-anchor="end" font-size="13" font-weight="800" fill="#2f4038">Essaimer</text></g></svg>`;
 const INTRO_STEPS=7;
