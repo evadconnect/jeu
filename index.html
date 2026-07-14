@@ -3705,8 +3705,6 @@ function reseauCta(kind,who){
 function reseauActions(){
   let h='';
   if(S.profile==='pilote'){
-    if(!S.reseauBat) h+=`<div class="rz-offer bat"><div class="rz-offer-t" style="color:var(--batisseur)">🌿 Un Bâtisseur te propose son aide</div><div class="rz-offer-d">« Léa, Bâtisseuse, peut venir installer une solution chez toi ce week-end, bénévolement. »</div><button class="btn btn-primary" onclick="reseauOfferBat()">Accepter le coup de main</button></div>`;
-    if(!S.reseauSem) h+=`<div class="rz-offer sem"><div class="rz-offer-t" style="color:var(--semeur)">🌾 Un Semeur te propose une avance</div><div class="rz-offer-d">« Un fonds d'impact finance une solution + son ICI dans ton lieu : installée ET déjà mesurée. »</div><button class="btn btn-primary" onclick="reseauOfferSem()">Accepter le financement</button></div>`;
     if(S.reseauBat&&S.reseauSem) h+=`<div class="hint">✅ Tu as tissé des liens avec un Bâtisseur et un Semeur. Le réseau, c'est ta force : chaque impact prouvé attire de nouveaux soutiens.</div>`;
   } else if(S.profile==='batisseur'){
     h+=`<div class="rz-offer"><div class="rz-offer-t" style="color:var(--pilote)">🏡 Des Pilotes cherchent tes compétences</div><div class="rz-offer-d">Trois lieux du réseau ont des chantiers ouverts. Rejoins-en un pour gagner des Graines et faire grandir un lieu.</div><button class="btn btn-primary" onclick="reseauGoto('a','🌿 Direction les missions ! Choisis un chantier.')">Voir les missions →</button></div>`;
@@ -3716,24 +3714,6 @@ function reseauActions(){
   return h;
 }
 function reseauGoto(tab,msg){ S.badges.add('reseau'); markFirstAct('reseau'); if(tab==='a'&&S.profile==='batisseur') S.batSub='missions'; switchTab(tab); toast(msg,'win'); }
-function reseauFreeInstall(cands, measured){
-  for(const id of cands){ const sp=S.spaces.find(x=>!x.existant && x.sols.length===0 && SOL[id].cap.includes(x.type)); if(sp){ sp.sols.push({id, ici: measured?SOL[id].ici:null, proven: measured?true:false, vad:SOL[id].vadance}); if(measured) S.refs=new Set([...S.refs, ...ICI[SOL[id].ici].refs.map(r=>r.split(' ')[0])]); return {id,sp}; } }
-  return null;
-}
-function reseauOfferBat(){
-  S.reseauBat=true; S.badges.add('reseau'); markFirstAct('reseau');
-  const done=reseauFreeInstall(['compost','potager','atelier','recyclerie','poulailler','recup-eau','mur-vegetal'], false);
-  if(done) toast(`🌿 Léa (Bâtisseuse) a installé ${SOL[done.id].ic} ${SOL[done.id].name} dans « ${done.sp.name} » · +${SOL[done.id].vadance} ${pts(SOL[done.id].vadance)} de Vadance ✨`,'win');
-  else { addVadance(3); toast('🌿 Léa a donné un coup de main : +3 points de Vadance ✨ (ton lieu est déjà bien rempli)','win'); }
-  checkLoops(true); render();
-}
-function reseauOfferSem(){
-  S.reseauSem=true; S.badges.add('reseau'); markFirstAct('reseau');
-  const done=reseauFreeInstall(['recup-eau','mur-vegetal','phyto','solaire','compost'], true);
-  if(done) toast(`🌾 Un Semeur a financé ${SOL[done.id].ic} ${SOL[done.id].name} avec son ICI dans « ${done.sp.name} » · installé ET mesuré 🌿`,'win');
-  else { addVadance(4); toast('🌾 Un Semeur t\'a fait une avance : +4 points de Vadance ✨','win'); }
-  checkLoops(true); render();
-}
 
 /* ═══════════════ SPIRALE VADE, progression ═══════════════ */
 function allSpacesEquipped(){
