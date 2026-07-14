@@ -526,6 +526,30 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .det-lock{font-size:.78rem;color:var(--terracotta);background:#fbe9e4;border-radius:10px;padding:.55rem .7rem;margin-bottom:.9rem;line-height:1.45}
 .det-action{width:100%;margin-top:.2rem}
 
+/* Fiches de profil (carte) */
+.fiche-hero{height:auto;padding:1.15rem 1.25rem 1.1rem;display:flex;gap:.85rem;align-items:flex-start;color:#fff}
+.fiche-hero .det-close{background:rgba(255,255,255,.18);color:#fff}
+.fiche-hero .det-close:hover{background:rgba(255,255,255,.32)}
+.fh-av{width:54px;height:54px;border-radius:16px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:1.75rem;flex-shrink:0}
+.fh-txt{min-width:0;padding-right:2rem}
+.fh-nm{font-size:1.2rem;font-weight:900;line-height:1.2;margin-top:.15rem}
+.fh-sub{font-size:.72rem;opacity:.78;margin-top:.15rem;line-height:1.35}
+.fiche-badges{display:flex;flex-wrap:wrap;gap:.3rem}
+.fb{font-size:.6rem;font-weight:800;padding:.2rem .45rem;border-radius:100px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.2)}
+.fiche-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:.45rem;margin-bottom:1rem}
+.fs{background:var(--cream);border-radius:12px;padding:.55rem .6rem;text-align:center}
+.fs-v{font-size:.95rem;font-weight:900;line-height:1.2}
+.fs-l{font-size:.56rem;font-weight:800;color:var(--moss);opacity:.75;text-transform:uppercase;letter-spacing:.02em;margin-top:.15rem}
+.fiche-tags{display:flex;flex-wrap:wrap;gap:.35rem}
+.ftag{font-size:.68rem;font-weight:700;border-radius:100px;padding:.28rem .6rem;background:var(--cream);color:#33564a}
+.ftag.gr{background:rgba(1,130,98,.1);color:var(--forest)}
+.ftag.am{background:#f3ede2;color:#a06c00}
+.ftag.go{background:rgba(240,200,74,.16);color:#8a6d00}
+.ftag.bl{background:#e6f2f8;color:var(--sky)}
+.ftag.la{background:#f1eef7;color:var(--lavender)}
+.fiche-bar{height:6px;border-radius:100px;background:rgba(58,110,140,.14);overflow:hidden}
+.fiche-bar-f{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--sky),#6ab0d0)}
+
 /* ══════════════════ PILOTE : personnalisation & biblio ══════════════════ */
 .lieu-edit-head{display:flex;align-items:center;gap:.5rem;margin:.2rem 0 .1rem}
 .lieu-edit-head h2{font-size:1.3rem;font-weight:900;color:var(--ink)}
@@ -2790,15 +2814,56 @@ function goalLabel(){
 
 /* ═══════════════ CARTE DE L'ÉCOSYSTÈME ═══════════════ */
 const CARTE_BAT=[
-  {id:'h',name:'Hugo D.',metier:'Charpentier bois & paille',ville:'Bègles',x:392,y:300},
-  {id:'k',name:'Karim T.',metier:'Électricien solaire',ville:'Bordeaux',x:414,y:230},
-  {id:'m',name:'Manon L.',metier:'Maraîchère & semences',ville:'Bordeaux',x:316,y:206},
+  {id:'h',name:'Hugo D.',metier:'Charpentier bois & paille',ville:'Bègles',x:392,y:300,
+   niveau:4,bio:"Charpentier depuis 12 ans, passé au bois local et à l'isolation paille. Il monte des ateliers de chantier participatif où chacun repart avec un savoir-faire.",
+   comps:['Charpente','Isolation paille','Réemploi bois','Chantier participatif'],
+   graines:184,done:11,actif:2,dispo:'2 jours par semaine, chantiers dans un rayon de 30 km',
+   lieux:['Darwin Écosystème','La Ferme du Coteau'],certifs:['Artisan RGE','Formateur paille']},
+  {id:'k',name:'Karim T.',metier:'Électricien solaire',ville:'Bordeaux',x:414,y:230,
+   niveau:5,bio:"Électricien reconverti dans le photovoltaïque en autoconsommation. Il dimensionne, installe et surtout apprend aux lieux à lire leurs propres courbes de production.",
+   comps:['Photovoltaïque','Autoconsommation','Stockage batterie','Suivi de production'],
+   graines:262,done:17,actif:1,dispo:'Disponible en semaine, interventions sous 15 jours',
+   lieux:['Darwin Écosystème','La Halle des Douves'],certifs:['QualiPV','Habilitation B2V']},
+  {id:'m',name:'Manon L.',metier:'Maraîchère & semences',ville:'Bordeaux',x:316,y:206,
+   niveau:3,bio:"Maraîchère en sol vivant, elle transforme les friches et les cours bitumées en potagers nourriciers et anime la grainothèque du réseau.",
+   comps:['Maraîchage sol vivant','Compostage','Semences paysannes','Animation d’ateliers'],
+   graines:97,done:6,actif:3,dispo:'Mercredis et samedis, saison de mars à octobre',
+   lieux:['La Ferme du Coteau','La Halle des Douves'],certifs:['Certification bio']},
 ];
 const CARTE_SEM=[
-  {id:'r',name:'Région Nouvelle-Aquitaine',meta:'Financeur public',x:294,y:168},
-  {id:'a',name:'ADEME',meta:'Nouvelle-Aquitaine · Cenon',x:434,y:290},
-  {id:'mf',name:'MAIF',meta:'Fonds d impact · Niort',x:492,y:126},
+  {id:'r',name:'Région Nouvelle-Aquitaine',meta:'Financeur public',x:294,y:168,ville:'Bordeaux',
+   desc:"Le fonds Territoires Vivants soutient les lieux qui documentent leur impact. La Région finance les solutions, à condition que les preuves (ICI) remontent chaque saison.",
+   engages:48000,contrats:12,retour:86,score:78,
+   priorites:['Sobriété énergétique','Alimentation locale','Emploi non délocalisable'],
+   refs:['ODD 11','PCAET','ESRS E1']},
+  {id:'a',name:'ADEME',meta:'Nouvelle-Aquitaine · Cenon',x:434,y:290,ville:'Cenon',
+   desc:"L'agence de la transition écologique cible l'énergie, l'eau et les déchets. Elle finance volontiers ce qui se mesure, et refuse ce qui se raconte.",
+   engages:35000,contrats:9,retour:92,score:84,
+   priorites:['Énergie renouvelable','Économie circulaire','Sobriété eau'],
+   refs:['ESRS E1','ESRS E3','ESRS E5']},
+  {id:'mf',name:'MAIF',meta:'Fonds d’impact · Niort',x:492,y:126,ville:'Niort',
+   desc:"Mutuelle à mission, elle place une part de ses réserves dans des lieux régénératifs et attend en retour de la Vadité vérifiée pour son rapport extra-financier.",
+   engages:60000,contrats:7,retour:74,score:71,
+   priorites:['Résilience climatique','Lien social','Biodiversité'],
+   refs:['ESRS S3','ESRS E4','ODD 13']},
 ];
+const CARTE_LIEU_FICHE={
+  darwin:{desc:"Ancienne caserne militaire devenue tiers-lieu emblématique : coworking, skatepark, ferme urbaine et cantine bio sur 10 000 m² de friche réhabilitée.",
+    annee:'2009',surface:'10 000 m²',statut:'Coopérative',
+    espaces:['Coworking','Café-cantine','Jardin nourricier','Scène'],
+    solutions:['Panneaux solaires','Compost partagé','Récupérateur d eau','AMAP'],
+    vadance:112,vadite:24,cherche:'Un Bâtisseur pour doubler la surface photovoltaïque'},
+  halle:{desc:"Halle de quartier gérée par les habitants : café associatif, cuisine partagée et salle des fêtes. Le lieu où le quartier se croise, se répare et se nourrit.",
+    annee:'2014',surface:'600 m²',statut:'Association',
+    espaces:['Café associatif','Cuisine partagée','Salle polyvalente'],
+    solutions:['Compost partagé','Repair café','Cuisine anti-gaspi'],
+    vadance:64,vadite:11,cherche:'Un Semeur pour financer la rénovation thermique du toit'},
+  ferme:{desc:"Ferme périurbaine en agroécologie : maraîchage sol vivant, poulailler, serre et point de vente direct. Elle nourrit 300 familles et forme les futurs paysans.",
+    annee:'2018',surface:'4 ha',statut:'SCIC',
+    espaces:['Jardin','Serre','Boutique','Compost'],
+    solutions:['Maraîchage sol vivant','Serre bioclimatique','Compost partagé','Vente directe'],
+    vadance:88,vadite:17,cherche:'Des Bâtisseurs pour monter la serre et le système d’irrigation'},
+};
 const CARTE_LIEUX_POS={darwin:[372,250],halle:[334,278],ferme:[350,314]};
 const CARTE_SHORT={darwin:'Darwin',halle:'La Halle',ferme:'La Ferme',you:'La Friche'};
 function carteLieux(){
@@ -2813,8 +2878,8 @@ function carteLieux(){
   if(S.profile==='pilote') arr.unshift({id:'you',name:S.lieuName||'La Friche des Possibles',ic:'🌟',ville:'Bordeaux',x:300,y:236,you:true,openM:0,openF:0});
   return arr;
 }
-function carteBats(){ const a=CARTE_BAT.slice(); if(S.profile==='batisseur') a.unshift({id:'you',name:'Toi',metier:'Bâtisseur d impact',ville:'Bordeaux',x:356,y:224,you:true}); return a; }
-function carteSems(){ const a=CARTE_SEM.slice(); if(S.profile==='semeur') a.unshift({id:'you',name:'Toi',meta:'Semeur d impact',x:360,y:252,you:true}); return a; }
+function carteBats(){ const a=CARTE_BAT.slice(); if(S.profile==='batisseur') a.unshift({id:'you',name:'Toi',metier:'Bâtisseur d’impact',ville:'Bordeaux',x:356,y:224,you:true}); return a; }
+function carteSems(){ const a=CARTE_SEM.slice(); if(S.profile==='semeur') a.unshift({id:'you',name:'Toi',meta:'Semeur d’impact',x:360,y:252,you:true}); return a; }
 function hexPts(cx,cy,r){ let p=[]; for(let i=0;i<6;i++){ const a=(Math.PI/180)*(60*i-90); p.push((cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1)); } return p.join(' '); }
 function cityDot(x,y,name){ return `<g><circle cx="${x}" cy="${y}" r="2.4" fill="#7c8b81"/><text x="${x+5}" y="${y+3.2}" font-size="8.5" fill="#5c6c62" font-weight="600" style="paint-order:stroke;stroke:#e6f5ec;stroke-width:2.5px">${name}</text></g>`; }
 function cpItem(type,o){
@@ -2830,16 +2895,140 @@ function cpItem(type,o){
 }
 function setCarteFilter(f){ S.carteFilter=f; renderCarte(); }
 function carteClick(type,id){
-  if(type==='lieu'){
-    const l=carteLieux().find(x=>x.id===id); if(!l) return;
-    if(l.you){ toast('🌟 La Friche des Possibles, ton lieu. Reconnu, il inspirera dix autres lieux.','win'); return; }
-    let msg=`🏡 ${l.name} · ${l.ville}`;
-    if(S.profile==='semeur'){ if(l.fin) msg+=`, 🌿 ${lieuVadite(l.id)} points de Vadité financée ici`; else if(l.openF) msg+=`, ${l.openF} besoin(s) à financer`; }
-    else if(S.profile==='batisseur'){ if(l.done) msg+=`, ✅ ${l.done} mission(s) accomplie(s)`; else if(l.openM) msg+=`, ${l.openM} mission(s) ouverte(s)`; }
-    else msg+=', lieu du réseau EVAD';
-    toast(msg,'win');
-  } else if(type==='bat'){ const b=carteBats().find(x=>x.id===id); if(b) toast(`🌿 ${b.name}${b.you?' (toi)':''}, ${b.metier} · ${b.ville}`); }
-  else { const s=carteSems().find(x=>x.id===id); if(s) toast(`🌾 ${s.name}${s.you?' (toi)':''}${s.meta?', '+s.meta:''}`); }
+  if(type==='lieu') openFicheLieu(id);
+  else if(type==='bat') openFicheBat(id);
+  else openFicheSem(id);
+}
+
+/* ── Fiches de profil (lieu, bâtisseur, semeur) ── */
+function ficheHero(grad,ic,badges,name,sub){
+  return `<div class="det-media fiche-hero" style="background:${grad}">
+    <button class="det-close" onclick="closeModal()">✕</button>
+    <div class="fh-av">${ic}</div>
+    <div class="fh-txt">
+      <div class="fiche-badges">${badges.map(b=>`<span class="fb">${b}</span>`).join('')}</div>
+      <div class="fh-nm">${name}</div>
+      <div class="fh-sub">${sub}</div>
+    </div>
+  </div>`;
+}
+function ficheStats(arr){ return `<div class="fiche-stats">${arr.map(s=>`<div class="fs"><div class="fs-v" style="color:${s.c||'var(--forest)'}">${s.v}</div><div class="fs-l">${s.l}</div></div>`).join('')}</div>`; }
+function ficheTags(arr,cls){ return `<div class="fiche-tags">${arr.map(t=>`<span class="ftag ${cls||''}">${t}</span>`).join('')}</div>`; }
+function stars(n){ return '★'.repeat(n)+'☆'.repeat(5-n); }
+
+function openFicheLieu(id){
+  const l=carteLieux().find(x=>x.id===id); if(!l) return;
+  if(l.you) return openFicheMonLieu(l);
+  const f=CARTE_LIEU_FICHE[id]||{};
+  const quetes=(l.openM||0)+(l.openF||0);
+  const stats=[
+    {v:'✨ '+(f.vadance||0), l:'Vadance', c:'var(--forest)'},
+    {v:'🌿 '+(f.vadite||0), l:'Vadité', c:'var(--sky)'},
+    {v:'⚡ '+quetes, l:'Quêtes ouvertes', c:'var(--amber)'},
+  ];
+  if(S.profile==='semeur' && l.fin) stats.push({v:'💶 '+lieuVadite(id), l:'Vadité que tu as financée', c:'var(--lavender)'});
+  else if(S.profile==='batisseur' && l.done) stats.push({v:'✅ '+l.done, l:'Missions accomplies ici', c:'var(--lavender)'});
+  let cta='';
+  if(S.profile==='batisseur' && l.openM) cta=`<button class="btn btn-primary det-action" onclick="closeModal();switchTab('a')">🛠️ Voir les ${l.openM} mission(s) de ce lieu →</button>`;
+  else if(S.profile==='semeur' && l.openF) cta=`<button class="btn btn-primary det-action" onclick="closeModal();switchTab('a')">💶 Financer ce lieu →</button>`;
+  else cta=`<button class="btn btn-ghost det-action" onclick="closeModal();toast('✉️ Message envoyé à ${l.name}, le lieu te répondra sous 48h')">✉️ Contacter ce lieu</button>`;
+  openDetailModal(`
+    ${ficheHero('linear-gradient(135deg,#0e2a1a,#2e6b47)', l.ic||'🏡', ['🏡 Lieu d’impact','📍 '+(l.ville||'Bordeaux')], l.name, (f.statut||'Lieu du réseau')+' · depuis '+(f.annee||'2020')+' · '+(f.surface||''))}
+    <div class="det-body">
+      <p class="det-desc">${f.desc||'Lieu du réseau EVAD.'}</p>
+      ${ficheStats(stats)}
+      ${f.espaces?`<div class="det-sec"><div class="det-sec-t">🧩 Espaces du lieu</div>${ficheTags(f.espaces)}</div>`:''}
+      ${f.solutions?`<div class="det-sec"><div class="det-sec-t">🌱 Solutions installées</div>${ficheTags(f.solutions,'gr')}</div>`:''}
+      ${f.cherche?`<div class="det-regen"><div class="det-regen-t">⚡ Ce lieu cherche</div><div class="det-regen-d">${f.cherche}</div></div>`:''}
+      ${cta}
+    </div>`);
+}
+function openFicheMonLieu(l){
+  const mine=(S.spaces||[]).filter(sp=>!sp.existant);
+  const sols=mine.reduce((a,sp)=>a+(sp.sols?sp.sols.length:0),0);
+  const acts=[...new Set(mine.flatMap(sp=>sp.activities||[]))];
+  const names=[...new Set(mine.flatMap(sp=>(sp.sols||[]).map(x=>SOL[x.id]?SOL[x.id].ic+' '+SOL[x.id].name:'')))].filter(Boolean);
+  openDetailModal(`
+    ${ficheHero('linear-gradient(135deg,#0e2a1a,#018262)','🌟',['🏡 Ton lieu','📍 Bordeaux'], S.lieuName||'La Friche des Possibles', 'Piloté par toi · phase '+(['Valoriser','Activer','Développer','Essaimer'][pilotVadePhase()]))}
+    <div class="det-body">
+      <p class="det-desc">Ton lieu, tel que le réseau le voit. Plus tu installes et mesures, plus cette fiche parle pour toi : c'est elle que lisent les Bâtisseurs et les Semeurs avant de te rejoindre.</p>
+      ${ficheStats([
+        {v:'✨ '+round1(curVadance()), l:'Vadance', c:'var(--forest)'},
+        {v:'🌿 '+round1(S.vadite||0), l:'Vadité', c:'var(--sky)'},
+        {v:'🧩 '+mine.length, l:'Espaces', c:'var(--amber)'},
+        {v:'🌱 '+sols, l:'Solutions installées', c:'var(--lavender)'},
+      ])}
+      ${acts.length?`<div class="det-sec"><div class="det-sec-t">🧩 Activités de tes espaces</div>${ficheTags(acts)}</div>`:''}
+      ${names.length?`<div class="det-sec"><div class="det-sec-t">🌱 Solutions installées</div>${ficheTags(names,'gr')}</div>`:'<div class="det-flux">Aucune solution installée pour l’instant : ouvre la Bibliothèque et pose ta première carte.</div>'}
+      <button class="btn btn-primary det-action" onclick="closeModal();switchTab('a')">🏡 Aller à mon lieu →</button>
+    </div>`);
+}
+function openFicheBat(id){
+  const b=carteBats().find(x=>x.id===id); if(!b) return;
+  if(b.you){
+    openDetailModal(`
+      ${ficheHero('linear-gradient(135deg,#3d2a08,#c8732a)','🌿',['🌿 Bâtisseur d’impact','📍 Bordeaux'],'Toi','Ta fiche publique dans le réseau')}
+      <div class="det-body">
+        <p class="det-desc">Voilà ce que les Pilotes voient de toi quand ils cherchent quelqu’un pour une quête. Chaque mission accomplie et chaque compétence apprise enrichit cette fiche.</p>
+        ${ficheStats([
+          {v:'🌰 '+S.graines, l:'Graines', c:'var(--amber)'},
+          {v:'✅ '+(S.missionsDone||0), l:'Missions accomplies', c:'var(--forest)'},
+          {v:'🛠️ '+((S.missions||[]).length), l:'Missions en cours', c:'var(--sky)'},
+        ])}
+        ${S.pcomps&&S.pcomps.size?`<div class="det-sec"><div class="det-sec-t">🔧 Compétences</div>${ficheTags([...S.pcomps].map(c=>PCOMP[c]?PCOMP[c].ic+' '+PCOMP[c].name:c),'am')}</div>`:'<div class="det-flux">Aucune compétence encore : va en apprendre une dans l’onglet Compétences.</div>'}
+        <button class="btn btn-primary det-action" onclick="closeModal();switchTab('a')">🛠️ Voir mes missions →</button>
+      </div>`);
+    return;
+  }
+  openDetailModal(`
+    ${ficheHero('linear-gradient(135deg,#3d2a08,#c8732a)','🌿',['🌿 Bâtisseur','📍 '+b.ville], b.name, b.metier+' · '+stars(b.niveau))}
+    <div class="det-body">
+      <p class="det-desc">${b.bio}</p>
+      ${ficheStats([
+        {v:'🌰 '+b.graines, l:'Graines', c:'var(--amber)'},
+        {v:'✅ '+b.done, l:'Quêtes accomplies', c:'var(--forest)'},
+        {v:'🛠️ '+b.actif, l:'En cours', c:'var(--sky)'},
+      ])}
+      <div class="det-sec"><div class="det-sec-t">🔧 Compétences</div>${ficheTags(b.comps,'am')}</div>
+      <div class="det-sec"><div class="det-sec-t">📅 Disponibilité</div><div class="det-flux">⏱ ${b.dispo}</div></div>
+      <div class="det-sec"><div class="det-sec-t">🏡 Lieux où il intervient</div>${ficheTags(b.lieux)}</div>
+      ${b.certifs.length?`<div class="det-sec"><div class="det-sec-t">🏅 Certifications</div>${ficheTags(b.certifs.map(c=>'✓ '+c),'go')}</div>`:''}
+      <button class="btn btn-primary det-action" onclick="closeModal();toast('✉️ Message envoyé à ${b.name}, réponse sous 48h','win')">✉️ Contacter ce Bâtisseur →</button>
+    </div>`);
+}
+function openFicheSem(id){
+  const s=carteSems().find(x=>x.id===id); if(!s) return;
+  if(s.you){
+    openDetailModal(`
+      ${ficheHero('linear-gradient(135deg,#08182a,#3a6e8c)','🌾',['🌾 Semeur d’impact','📍 Bordeaux'],'Toi','Ta fiche publique dans le réseau')}
+      <div class="det-body">
+        <p class="det-desc">Voilà ce que les Pilotes voient de toi quand ils cherchent un financement. Chaque solution financée fait remonter de la Vadité vérifiée dans ton rapport.</p>
+        ${ficheStats([
+          {v:'💶 '+(S.financed||[]).length, l:'Solutions financées', c:'var(--sky)'},
+          {v:'🌿 '+round1(S.vaditeFin||0), l:'Vadité financée', c:'var(--forest)'},
+          {v:'🏷️ '+(S.refs?S.refs.size:0), l:'Référentiels couverts', c:'var(--lavender)'},
+        ])}
+        <button class="btn btn-primary det-action" onclick="closeModal();switchTab('a')">💶 Financer la régénération →</button>
+      </div>`);
+    return;
+  }
+  openDetailModal(`
+    ${ficheHero('linear-gradient(135deg,#08182a,#3a6e8c)','🌾',['🌾 Semeur','📍 '+(s.ville||'')], s.name, s.meta||'')}
+    <div class="det-body">
+      <p class="det-desc">${s.desc}</p>
+      ${ficheStats([
+        {v:(s.engages||0).toLocaleString('fr-FR')+' €', l:'Engagés dans le réseau', c:'var(--sky)'},
+        {v:'📄 '+s.contrats, l:'Contrats actifs', c:'var(--forest)'},
+        {v:s.retour+' %', l:'Preuves reçues', c:'var(--amber)'},
+      ])}
+      <div class="det-sec"><div class="det-sec-t">🎯 Ce qu’il finance en priorité</div>${ficheTags(s.priorites,'bl')}</div>
+      <div class="det-sec"><div class="det-sec-t">🔗 Référentiels attendus</div>${ficheTags(s.refs,'la')}</div>
+      <div class="det-sec"><div class="det-sec-t">📈 Score d’impact EVAD</div>
+        <div class="fiche-bar"><div class="fiche-bar-f" style="width:${s.score}%"></div></div>
+        <div class="det-flux" style="margin-top:.4rem">${s.score} / 100 : la part de ses financements dont l’impact est prouvé par des ICI.</div>
+      </div>
+      <button class="btn btn-primary det-action" onclick="closeModal();toast('✉️ Dossier envoyé à ${s.name}, réponse à la prochaine saison','win')">✉️ Solliciter ce Semeur →</button>
+    </div>`);
 }
 function renderCarte(){
   const el=document.getElementById('view-carte');
@@ -2999,7 +3188,7 @@ const RESEAU_FEED=[
   {prof:'pilote', author:"Le Jardin de ta Sœur", lieu:"Bordeaux", time:"il y a 3 j", vade:'d', cta:'quete',
    text:"Quête verger 🌳 Tailler et pailler les 22 arbres fruitiers avant l hiver. 5 mains motivées recherchées !"},
   {prof:'semeur', author:"MAIF", lieu:"Niort", time:"il y a 3 j", vade:'v', cta:'rencontre',
-   text:"Notre fonds d impact cherche des lieux à utilité sociale et écologique 💚 Présentez-nous vos projets !"},
+   text:"Notre fonds d’impact cherche des lieux à utilité sociale et écologique 💚 Présentez-nous vos projets !"},
 ];
 const VADE_KEY={v:0,a:1,d:2,e:3};
 function renderReseau(){
