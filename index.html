@@ -68,6 +68,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .intro-prof{display:flex;align-items:center;gap:.7rem;background:rgba(255,255,255,.05);border:1.5px solid rgba(130,184,148,.2);border-radius:14px;padding:.7rem .85rem;cursor:pointer;text-align:left;transition:all .15s;font-family:var(--font);width:100%}
 .intro-prof:hover{background:rgba(74,140,92,.2);border-color:var(--fern)}
 .intro-prof .ip-ic{font-size:1.55rem;flex-shrink:0}
+.intro-prof .ip-art{width:52px;height:52px;flex-shrink:0;display:block}
 .intro-prof .ip-txt{flex:1;min-width:0}
 .intro-prof .ip-name{font-weight:800;font-size:.86rem;color:var(--cream)}
 .intro-prof .ip-role{font-size:.68rem;color:var(--sage);opacity:.9}
@@ -119,7 +120,10 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   text-align:left;border:2px solid transparent;transition:transform .15s,box-shadow .15s,border-color .15s;
   display:flex;flex-direction:column;box-shadow:0 8px 26px rgba(0,0,0,.22)}
 .pcard:hover{transform:translateY(-5px);box-shadow:0 18px 40px rgba(0,0,0,.32)}
-.pcard .pico{font-size:2.1rem;margin-bottom:.5rem}
+.pcard .pico{font-size:2.1rem;margin-bottom:.5rem;width:64px;height:64px}
+.perso{display:block;width:100%;height:100%}
+.pcard:hover .perso{transform:scale(1.05)}
+.perso{transition:transform .25s}
 .pcard h3{font-size:1.08rem;font-weight:800;margin-bottom:.15rem}
 .pcard .prole{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;opacity:.7;margin-bottom:.6rem}
 .pcard p{font-size:.82rem;line-height:1.5;color:#33564a;flex:1;margin-bottom:.9rem}
@@ -808,7 +812,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 
     <div class="profiles-grid">
       <div class="pcard pilote" onclick="chooseProfile('pilote')">
-        <div class="pico">🏡</div>
+        <div class="pico" data-perso="pilote"></div>
         <div class="prole">Vous opérez un lieu</div>
         <h3>Pilote d'impact</h3>
         <p>Composez vos 4 espaces, installez des solutions de la Bibliothèque, mesurez-les avec les ICI, tissez des boucles circulaires.</p>
@@ -816,7 +820,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
         <div class="pgo">Opérer un lieu →</div>
       </div>
       <div class="pcard batisseur" onclick="chooseProfile('batisseur')">
-        <div class="pico">🌿</div>
+        <div class="pico" data-perso="batisseur"></div>
         <div class="prole">Vous contribuez</div>
         <h3>Bâtisseur d'impact</h3>
         <p>Trois lieux ont besoin de vos compétences. Accomplissez des missions (installer, mesurer, animer), apprenez, gagnez des Graines.</p>
@@ -824,7 +828,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
         <div class="pgo">Contribuer →</div>
       </div>
       <div class="pcard semeur" onclick="chooseProfile('semeur')">
-        <div class="pico">🌾</div>
+        <div class="pico" data-perso="semeur"></div>
         <div class="prole">Vous financez</div>
         <h3>Semeur d'impact</h3>
         <p>Financez la régénération en euros. Chaque financement installe la solution avec sa mesure : vous récoltez de la Vadité vérifiée.</p>
@@ -1296,6 +1300,105 @@ const VADE_DESC={
 function vadeHover(k){ const el=document.getElementById('vade-hover'); if(!el) return; if(k&&VADE_DESC[k]){ el.innerHTML='<b>'+VADE_DESC[k].t+'</b> · '+VADE_DESC[k].d; } else { el.innerHTML='Survole une phase pour la découvrir 🌀'; }
   // Si la description depasse sous la fenetre, on fait defiler pour la rendre visible
   if(k){ const sc=el.closest('.ob-scroll'); if(sc){ const er=el.getBoundingClientRect(), sr=sc.getBoundingClientRect(); const over=er.bottom-sr.bottom; if(over>0) sc.scrollTop+=over+10; } } }
+/* ═══════════════ PERSONNAGES SOLARPUNK (un par profil) ═══════════════ */
+function persoSVG(p){
+  const D={
+    pilote:{
+      sky:['#dff3e4','#9ed9b6'], sun:'#f6d25e', hill:'#5fb587', hill2:'#2e8b6e',
+      skin:'#c98a5e', hair:'#3b2a1e', cloth:'#2e6b47', cloth2:'#245939',
+      scene:`<g>
+        <path d="M8 54 q6-16 16-16 t16 16 z" fill="#7fc9a0" opacity=".55"/>
+        <rect x="46" y="30" width="18" height="24" rx="2.5" fill="#e8e2d0"/>
+        <path d="M44 31 L55 22 L66 31 z" fill="#3f7f5e"/>
+        <rect x="49" y="24" width="12" height="5" rx="1" transform="rotate(-13 55 26)" fill="#3a6e8c"/>
+        <rect x="52" y="42" width="6" height="12" fill="#2e6b47"/>
+        <circle cx="12" cy="14" r="7" fill="#f6d25e" opacity=".85"/>
+      </g>`,
+      chara:`<g>
+        <path d="M13 72 C13 58 22 50 36 50 C50 50 59 58 59 72 z" fill="#2e6b47"/>
+        <path d="M30 50 h12 l-2 8 h-8 z" fill="#245939"/>
+        <rect x="32" y="42" width="8" height="8" rx="2" fill="#b87c52"/>
+        <circle cx="36" cy="33" r="12" fill="#c98a5e"/>
+        <path d="M24 31 q1-11 12-11 t12 11 q-4-5-12-5 t-12 5z" fill="#3b2a1e"/>
+        <ellipse cx="36" cy="24" rx="20" ry="4.6" fill="#e8c37a"/>
+        <path d="M25 24 q1-12 11-12 t11 12 z" fill="#f0d492"/>
+        <path d="M25 23 h22" stroke="#cfa85c" stroke-width="1.6"/>
+        <path d="M45 19 q5-3 7 1 q-5 2-7-1z" fill="#4aab8f"/>
+        <circle cx="31.5" cy="34" r="1.5" fill="#2b1d13"/><circle cx="40.5" cy="34" r="1.5" fill="#2b1d13"/>
+        <path d="M32 39 q4 3 8 0" stroke="#2b1d13" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <circle cx="17" cy="63" r="3.4" fill="#c98a5e"/><circle cx="55" cy="63" r="3.4" fill="#c98a5e"/>
+      </g>`},
+    batisseur:{
+      sky:['#fdeccd','#f3c98a'], sun:'#f0a93c', hill:'#e0a021', hill2:'#c8732a',
+      skin:'#8a5a3c', hair:'#20150e', cloth:'#c8732a', cloth2:'#a4561c',
+      scene:`<g>
+        <circle cx="58" cy="15" r="8" fill="#f6d25e" opacity=".8"/>
+        <g transform="translate(11 20)">
+          <rect x="-1" y="0" width="18" height="12" rx="1.5" transform="skewX(-8)" fill="#3a6e8c"/>
+          <path d="M-1 4 h18 M-1 8 h18 M5 0 v12 M11 0 v12" stroke="#8fc3dd" stroke-width=".8" transform="skewX(-8)"/>
+          <rect x="6" y="12" width="2.5" height="8" fill="#7e6a52"/>
+        </g>
+        <path d="M0 54 q10-12 20-6 t22 6 z" fill="#e6b45a" opacity=".5"/>
+      </g>`,
+      chara:`<g>
+        <rect x="49" y="24" width="4.5" height="30" rx="2" transform="rotate(24 51 39)" fill="#8fa3ad"/>
+        <path d="M56 24 a5 5 0 1 1 -8 3 l3-2 z" transform="rotate(24 51 30)" fill="#8fa3ad"/>
+        <path d="M13 72 C13 58 22 50 36 50 C50 50 59 58 59 72 z" fill="#c8732a"/>
+        <path d="M28 50 q8 7 16 0 l-3 10 h-10 z" fill="#f0d492"/>
+        <rect x="32" y="42" width="8" height="8" rx="2" fill="#764a30"/>
+        <circle cx="36" cy="33" r="12" fill="#8a5a3c"/>
+        <path d="M24 32 q0-12 12-12 t12 12 q-3-6-12-6 t-12 6z" fill="#20150e"/>
+        <path d="M23 27 q3-13 13-13 t13 13 z" fill="#f0a93c"/>
+        <path d="M20 27 h32 a2 2 0 0 1 0 3.4 h-32 a2 2 0 0 1 0-3.4z" fill="#d98a24"/>
+        <path d="M31 21 q5-4 10 0" stroke="#fff0c8" stroke-width="1.4" fill="none" opacity=".8"/>
+        <circle cx="31.5" cy="34" r="1.5" fill="#1a1109"/><circle cx="40.5" cy="34" r="1.5" fill="#1a1109"/>
+        <path d="M32 39 q4 3 8 0" stroke="#1a1109" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <circle cx="17" cy="63" r="3.4" fill="#8a5a3c"/><circle cx="55" cy="63" r="3.4" fill="#8a5a3c"/>
+      </g>`},
+    semeur:{
+      sky:['#e3f0f8','#a9cfe4'], sun:'#f6d25e', hill:'#8fc3dd', hill2:'#3a6e8c',
+      skin:'#e8c39e', hair:'#6b4a2f', cloth:'#3a6e8c', cloth2:'#2a5670',
+      scene:`<g>
+        <circle cx="36" cy="20" r="15" fill="#f6d25e" opacity=".45"/>
+        <circle cx="36" cy="20" r="9" fill="#f6d25e" opacity=".7"/>
+        <path d="M0 56 q12-10 24-4 t26 2 q12-6 22 2 v16 H0 z" fill="#7fc9a0" opacity=".5"/>
+        <g stroke="#c8a44e" stroke-width="1.3" fill="none">
+          <path d="M6 60 v-12"/><path d="M6 50 q-3-2-3-5 q3 1 3 5z"/><path d="M6 50 q3-2 3-5 q-3 1-3 5z"/>
+          <path d="M66 60 v-12"/><path d="M66 50 q-3-2-3-5 q3 1 3 5z"/><path d="M66 50 q3-2 3-5 q-3 1-3 5z"/>
+        </g>
+      </g>`,
+      chara:`<g>
+        <path d="M13 72 C13 58 22 50 36 50 C50 50 59 58 59 72 z" fill="#3a6e8c"/>
+        <path d="M24 54 q12 6 24 0" stroke="#2a5670" stroke-width="2" fill="none"/>
+        <path d="M44 55 a9 8 0 0 1 12 8 a9 8 0 0 1 -12 -8z" fill="#b98c50"/>
+        <path d="M30 50 q6 4 12 0 l-2 7 h-8 z" fill="#2a5670"/>
+        <rect x="32" y="42" width="8" height="8" rx="2" fill="#d6ac83"/>
+        <circle cx="36" cy="33" r="12" fill="#e8c39e"/>
+        <path d="M23.5 33 q-1-14 12.5-14 t12.5 14 q-2-8-12.5-8 t-12.5 8z" fill="#6b4a2f"/>
+        <path d="M24 33 q-3 6-1 10 q-3-5-1-10z" fill="#6b4a2f"/>
+        <path d="M48 33 q3 6 1 10 q3-5 1-10z" fill="#6b4a2f"/>
+        <circle cx="31.5" cy="34" r="1.5" fill="#3d2a1a"/><circle cx="40.5" cy="34" r="1.5" fill="#3d2a1a"/>
+        <path d="M32 39 q4 3 8 0" stroke="#3d2a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <circle cx="16" cy="60" r="3.6" fill="#e8c39e"/>
+        <g fill="#f0c04a"><circle cx="11" cy="52" r="1.7"/><circle cx="7" cy="45" r="1.5"/><circle cx="14" cy="44" r="1.3"/><circle cx="9" cy="37" r="1.2"/></g>
+        <circle cx="55" cy="63" r="3.4" fill="#e8c39e"/>
+      </g>`},
+  }[p];
+  if(!D) return '';
+  return `<svg class="perso" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Personnage ${p}">
+    <defs>
+      <linearGradient id="pg-${p}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${D.sky[0]}"/><stop offset="1" stop-color="${D.sky[1]}"/></linearGradient>
+      <clipPath id="pc-${p}"><rect width="72" height="72" rx="18"/></clipPath>
+    </defs>
+    <g clip-path="url(#pc-${p})">
+      <rect width="72" height="72" fill="url(#pg-${p})"/>
+      ${D.scene}
+      <path d="M0 62 q18-10 36-4 t36 -2 v16 H0 z" fill="${D.hill}" opacity=".45"/>
+      ${D.chara}
+    </g>
+    <rect x=".9" y=".9" width="70.2" height="70.2" rx="17.1" fill="none" stroke="rgba(13,43,34,.18)" stroke-width="1.8"/>
+  </svg>`;
+}
 const VADE_SCHEMA=`<svg viewBox="-40 0 480 366" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto"><path d="M200 80 A112 112 0 0 1 312 192" fill="none" stroke="#2e8b6e" stroke-width="3.4"/><path d="M312 192 A112 112 0 0 1 200 304" fill="none" stroke="#2d6a9f" stroke-width="3.4"/><path d="M200 304 A112 112 0 0 1 88 192" fill="none" stroke="#c8732a" stroke-width="3.4"/><path d="M88 192 A128 128 0 0 1 140 70" fill="none" stroke="#6b5b95" stroke-width="3.4"/><polygon points="139,60 132,74 148,73" fill="#6b5b95"/><text x="120" y="44" text-anchor="middle" font-size="12.5" font-weight="700" fill="#018262">un cran plus haut</text><circle cx="200" cy="192" r="60" fill="#e6f4ec"/><text x="200" y="184" text-anchor="middle" font-size="9.5" font-weight="700" letter-spacing="3" fill="#4aab8f">SPIRALE</text><text x="200" y="205" text-anchor="middle" font-size="21" font-weight="900" fill="#0d2b22">VADE</text><text x="200" y="230" text-anchor="middle" font-size="15">🏡 🌿 🌾</text><g class="vnode" onmouseover="vadeHover('V')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Valoriser : personnalise les espaces pour révéler le potentiel du lieu (la Vadance).</title><circle cx="200" cy="80" r="24" fill="#fff" stroke="#018262" stroke-width="2.6"/><text x="200" y="87" text-anchor="middle" font-size="20" font-weight="900" fill="#018262">V</text><text x="234" y="60" text-anchor="start" font-size="13" font-weight="800" fill="#2f4038">Valoriser</text></g><g class="vnode" onmouseover="vadeHover('A')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Activer : installe des solutions de la Bibliothèque dans tes espaces.</title><circle cx="312" cy="192" r="24" fill="#fff" stroke="#2d6a9f" stroke-width="2.6"/><text x="312" y="199" text-anchor="middle" font-size="20" font-weight="900" fill="#2d6a9f">A</text><text x="344" y="197" text-anchor="start" font-size="13" font-weight="800" fill="#2f4038">Activer</text></g><g class="vnode" onmouseover="vadeHover('D')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Développer : publie une annonce sur le Réseau pour attirer Bâtisseurs et Semeurs.</title><circle cx="200" cy="304" r="24" fill="#fff" stroke="#c8732a" stroke-width="2.6"/><text x="200" y="311" text-anchor="middle" font-size="20" font-weight="900" fill="#c8732a">D</text><text x="200" y="338" text-anchor="middle" font-size="13" font-weight="800" fill="#2f4038">Développer</text></g><g class="vnode" onmouseover="vadeHover('E')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Essaimer : valide les preuves d'impact pour faire monter la Vadité, et relance la spirale.</title><circle cx="88" cy="192" r="24" fill="#fff" stroke="#6b5b95" stroke-width="2.6"/><text x="88" y="199" text-anchor="middle" font-size="20" font-weight="900" fill="#6b5b95">E</text><text x="56" y="197" text-anchor="end" font-size="13" font-weight="800" fill="#2f4038">Essaimer</text></g></svg>`;
 const INTRO_STEPS=7;
 function devaIntroModal(){ INTRO={step:0,name:''}; introStep(0); }
@@ -1319,9 +1422,9 @@ function introStep(n){
   // Widgets attaches a certaines etapes
   const wName=c=>`<input class="ob-input${c?' ob-pop':''}" id="intro-name" placeholder="Ton prénom…" value="${nm}" maxlength="24" onkeydown="if(event.key==='Enter')introNameNext()">`;
   const wProfils=c=>`<div class="intro-profiles${c?' ob-pop':''}">
-        <div class="intro-prof static"><span class="ip-ic">🏡</span><div class="ip-txt"><div class="ip-tag">Porteurs de lieu</div><div class="ip-name">Pilote d'impact</div><div class="ip-desc">Tiers-lieu, écolieu, ferme, association. Tu publies des quêtes, accueilles des Bâtisseurs et vérifies les preuves d'impact.</div></div></div>
-        <div class="intro-prof static"><span class="ip-ic">🌿</span><div class="ip-txt"><div class="ip-tag">Citoyens</div><div class="ip-name">Bâtisseur d'impact</div><div class="ip-desc">Membre, étudiant, entrepreneur. Tu rejoins des quêtes concrètes, tu contribues et tu gagnes des Graines à utiliser dans le réseau.</div></div></div>
-        <div class="intro-prof static"><span class="ip-ic">🌾</span><div class="ip-txt"><div class="ip-tag">Financeurs</div><div class="ip-name">Semeur d'impact</div><div class="ip-desc">Financeur, fondation, collectivité. Tu finances des projets contre des preuves d'impact vérifiées.</div></div></div>
+        <div class="intro-prof static"><span class="ip-art">${persoSVG('pilote')}</span><div class="ip-txt"><div class="ip-tag">Porteurs de lieu</div><div class="ip-name">Pilote d'impact</div><div class="ip-desc">Tiers-lieu, écolieu, ferme, association. Tu publies des quêtes, accueilles des Bâtisseurs et vérifies les preuves d'impact.</div></div></div>
+        <div class="intro-prof static"><span class="ip-art">${persoSVG('batisseur')}</span><div class="ip-txt"><div class="ip-tag">Citoyens</div><div class="ip-name">Bâtisseur d'impact</div><div class="ip-desc">Membre, étudiant, entrepreneur. Tu rejoins des quêtes concrètes, tu contribues et tu gagnes des Graines à utiliser dans le réseau.</div></div></div>
+        <div class="intro-prof static"><span class="ip-art">${persoSVG('semeur')}</span><div class="ip-txt"><div class="ip-tag">Financeurs</div><div class="ip-name">Semeur d'impact</div><div class="ip-desc">Financeur, fondation, collectivité. Tu finances des projets contre des preuves d'impact vérifiées.</div></div></div>
       </div>`;
   const wSpirale=c=>`<div class="vade-schema-box${c?' ob-pop':''}">${VADE_SCHEMA}</div><div id="vade-hover" class="vade-hover">Survole une phase pour la découvrir 🌀</div>`;
   const wVade=c=>`<div class="vade-def${c?' ob-pop':''}">
@@ -2231,6 +2334,7 @@ function detailSelectIci(id){
 }
 document.addEventListener('click',(e)=>{ if(e.target && e.target.id==='modal' && document.getElementById('modal-box').classList.contains('det-modal')) closeModal(); });
 setIntroDate();
+document.querySelectorAll('[data-perso]').forEach(el=>{ el.innerHTML=persoSVG(el.dataset.perso); });
 const PCOMP_COL={maraichage:'#2e6b47',energie:'#c8732a',eau:'#3a6e8c',reparation:'#a06c00',mesure:'#018262',animation:'#7a6ea8'};
 function pcompCard(id){
   const c=PCOMP[id]; const owned=S.pcomps.has(id); const col=PCOMP_COL[id]||'#018262';
