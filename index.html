@@ -561,6 +561,18 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .ftag.la{background:#f1eef7;color:var(--lavender)}
 .fiche-bar{height:6px;border-radius:100px;background:rgba(58,110,140,.14);overflow:hidden}
 .fiche-bar-f{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--sky),#6ab0d0)}
+.fiche-actions{display:flex;gap:.5rem;margin-top:.2rem}
+.fiche-actions .btn{flex:1;justify-content:center}
+.f-field{margin-bottom:.85rem}
+.f-lab{display:block;font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--moss);opacity:.75;margin-bottom:.3rem}
+.f-inp{width:100%;font-family:var(--font);font-size:.86rem;color:var(--ink);background:var(--cream);border:1.5px solid rgba(1,130,98,.16);border-radius:12px;padding:.6rem .75rem;outline:none;transition:border-color .15s}
+.f-inp:focus{border-color:var(--forest)}
+.f-area{min-height:88px;resize:vertical;line-height:1.5}
+.f-hint{font-size:.66rem;color:var(--moss);opacity:.7;margin-top:.3rem;line-height:1.4}
+.f-types{display:flex;flex-wrap:wrap;gap:.35rem}
+.f-type{font-family:var(--font);font-size:.72rem;font-weight:700;color:#33564a;background:var(--cream);border:1.5px solid rgba(1,130,98,.16);border-radius:100px;padding:.35rem .7rem;cursor:pointer;transition:all .15s}
+.f-type:hover{border-color:var(--forest)}
+.f-type.on{background:var(--forest);border-color:var(--forest);color:#fff}
 
 /* ══════════════════ PILOTE : personnalisation & biblio ══════════════════ */
 .lieu-edit-head{display:flex;align-items:center;gap:.5rem;margin:.2rem 0 .1rem}
@@ -1254,6 +1266,7 @@ function newState(profile){
     tab:'a', devaOpen:false,
     // pilote
     hand:[], spaces:null, sel:null, pcomps:new Set(), lieuName:'La Friche des Possibles', lieuType:'jardin', ob:null, playerName:'', loopsActive:0, loopBadgeShown:false, vadanceBonus:0,
+    lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false,
     mktFilter:'all', purchases:[], ecoMissions:{},
     // batisseur
     comps:new Set(['jardiner','bricoler']), missions:[], // missions actives
@@ -3051,7 +3064,7 @@ function carteLieux(){
     const openF=financePool().filter(f=>f.lieu===l.id && !S.financed.find(x=>x.id===f.id)).length;
     return {...l,x:pos[0],y:pos[1],fin,done,openM,openF};
   });
-  if(S.profile==='pilote') arr.unshift({id:'you',name:S.lieuName||'La Friche des Possibles',ic:'🌟',ville:'Bordeaux',x:300,y:236,you:true,openM:0,openF:0});
+  if(S.profile==='pilote') arr.unshift({id:'you',name:S.lieuName||'La Friche des Possibles',ic:'🌟',ville:S.lieuVille||'Bordeaux',x:300,y:236,you:true,openM:0,openF:0});
   return arr;
 }
 function carteBats(){ const a=CARTE_BAT.slice(); if(S.profile==='batisseur') a.unshift({id:'you',name:'Toi',metier:'Bâtisseur d’impact',ville:'Bordeaux',x:356,y:224,you:true}); return a; }
@@ -3061,7 +3074,7 @@ function cityDot(x,y,name){ return `<g><circle cx="${x}" cy="${y}" r="2.4" fill=
 function cpItem(type,o){
   const cfg={lieu:{ic:o.ic||'🏡',bg:'rgba(46,107,71,.14)'},bat:{ic:'🌿',bg:'rgba(240,176,50,.22)'},sem:{ic:'🌾',bg:'rgba(37,99,168,.14)'}}[type];
   let meta;
-  if(type==='lieu') meta=(o.you?'Ton lieu · Bordeaux':(o.ville||'Bordeaux')+(o.fin?' · 🌿 '+o.fin+' financé(s)':(o.done?' · ✅ '+o.done+' mission(s)':((o.openM||o.openF)?' · ⚡ '+((o.openM||0)+(o.openF||0))+' quête(s)':''))));
+  if(type==='lieu') meta=(o.you?('Ton lieu · '+escapeHtml(S.lieuVille||'Bordeaux')+(S.lieuPublished?' · 🌐 publiée':' · 📝 brouillon')):(o.ville||'Bordeaux')+(o.fin?' · 🌿 '+o.fin+' financé(s)':(o.done?' · ✅ '+o.done+' mission(s)':((o.openM||o.openF)?' · ⚡ '+((o.openM||0)+(o.openF||0))+' quête(s)':''))));
   else if(type==='bat') meta=o.metier+' · '+o.ville;
   else meta=o.meta||'';
   return `<div class="cp-item" onclick="carteClick('${type}','${o.id}')">
@@ -3119,15 +3132,22 @@ function openFicheLieu(id){
       ${cta}
     </div>`);
 }
+function lieuTypeMeta(){ return LIEU_TYPES.find(t=>t.id===S.lieuType)||LIEU_TYPES[0]; }
+function lieuDescDefault(){
+  const t=lieuTypeMeta();
+  return `${t.name} en devenir à ${S.lieuVille||'Bordeaux'}. Ici, on cultive l'impact par la preuve : chaque solution installée est mesurée, saison après saison.`;
+}
 function openFicheMonLieu(l){
   const mine=(S.spaces||[]).filter(sp=>!sp.existant);
   const sols=mine.reduce((a,sp)=>a+(sp.sols?sp.sols.length:0),0);
   const acts=[...new Set(mine.flatMap(sp=>sp.activities||[]))];
   const names=[...new Set(mine.flatMap(sp=>(sp.sols||[]).map(x=>SOL[x.id]?SOL[x.id].ic+' '+SOL[x.id].name:'')))].filter(Boolean);
+  const t=lieuTypeMeta(), pub=!!S.lieuPublished;
   openDetailModal(`
-    ${ficheHero('linear-gradient(135deg,#0e2a1a,#018262)','🌟',['🏡 Ton lieu','📍 Bordeaux'], S.lieuName||'La Friche des Possibles', 'Piloté par toi · phase '+(['Valoriser','Activer','Développer','Essaimer'][pilotVadePhase()]))}
+    ${ficheHero('linear-gradient(135deg,#0e2a1a,#018262)','🌟',[t.ic+' '+t.name,'📍 '+escapeHtml(S.lieuVille||'Bordeaux'), pub?'🌐 Fiche publiée':'📝 Brouillon'], escapeHtml(S.lieuName||'La Friche des Possibles'), 'Piloté par toi · phase '+(['Valoriser','Activer','Développer','Essaimer'][pilotVadePhase()]))}
     <div class="det-body">
-      <p class="det-desc">Ton lieu, tel que le réseau le voit. Plus tu installes et mesures, plus cette fiche parle pour toi : c'est elle que lisent les Bâtisseurs et les Semeurs avant de te rejoindre.</p>
+      <p class="det-desc">${escapeHtml(S.lieuDesc||lieuDescDefault())}</p>
+      ${pub?'':'<div class="det-flux" style="margin-bottom:.9rem">📝 Ta fiche est encore un <b>brouillon</b> : le réseau ne la voit pas. Complète-la, puis publie-la pour attirer Bâtisseurs et Semeurs.</div>'}
       ${ficheStats([
         {v:'✨ '+round1(curVadance()), l:'Vadance', c:'var(--forest)'},
         {v:'🌿 '+round1(S.vadite||0), l:'Vadité', c:'var(--sky)'},
@@ -3136,8 +3156,64 @@ function openFicheMonLieu(l){
       ])}
       ${acts.length?`<div class="det-sec"><div class="det-sec-t">🧩 Activités de tes espaces</div>${ficheTags(acts)}</div>`:''}
       ${names.length?`<div class="det-sec"><div class="det-sec-t">🌱 Solutions installées</div>${ficheTags(names,'gr')}</div>`:'<div class="det-flux">Aucune solution installée pour l’instant : ouvre la Bibliothèque et pose ta première carte.</div>'}
-      <button class="btn btn-primary det-action" onclick="closeModal();switchTab('a')">🏡 Aller à mon lieu →</button>
+      <div class="fiche-actions">
+        <button class="btn btn-ghost" onclick="openLieuEditModal()">✏️ Modifier ma fiche</button>
+        ${pub
+          ? `<button class="btn btn-primary" onclick="closeModal();switchTab('reseau')">🌐 Voir mon annonce →</button>`
+          : `<button class="btn btn-primary" onclick="publishLieu()">🌐 Publier ma fiche</button>`}
+      </div>
+      <button class="btn btn-ghost det-action" onclick="closeModal();switchTab('a')">🏡 Aller à mon lieu →</button>
     </div>`);
+}
+/* ── Modifier la fiche publique du lieu ── */
+function openLieuEditModal(){
+  const t=lieuTypeMeta();
+  openDetailModal(`
+    ${ficheHero('linear-gradient(135deg,#0e2a1a,#018262)','✏️',['🏡 Fiche publique'],'Modifier ma fiche','Ce que le réseau lira sur ton lieu')}
+    <div class="det-body">
+      <div class="f-field"><label class="f-lab" for="le-name">Nom du lieu</label>
+        <input id="le-name" class="f-inp" maxlength="40" value="${escapeHtml(S.lieuName||'')}" placeholder="Ex. La Canopée"></div>
+      <div class="f-field"><label class="f-lab" for="le-ville">Ville</label>
+        <input id="le-ville" class="f-inp" maxlength="30" value="${escapeHtml(S.lieuVille||'Bordeaux')}" placeholder="Ex. Bordeaux"></div>
+      <div class="f-field"><div class="f-lab">Type de lieu</div>
+        <div class="f-types">${LIEU_TYPES.map(x=>`<button type="button" class="f-type ${x.id===t.id?'on':''}" onclick="S.lieuTypeDraft='${x.id}';document.querySelectorAll('.f-type').forEach(b=>b.classList.remove('on'));this.classList.add('on')">${x.ic} ${x.name}</button>`).join('')}</div></div>
+      <div class="f-field"><label class="f-lab" for="le-desc">Description</label>
+        <textarea id="le-desc" class="f-inp f-area" maxlength="280" placeholder="Que trouve-t-on chez toi ? Qu'y cherches-tu ?">${escapeHtml(S.lieuDesc||lieuDescDefault())}</textarea>
+        <div class="f-hint">280 caractères max. C'est le premier texte que lisent les Bâtisseurs et les Semeurs.</div></div>
+      <div class="fiche-actions">
+        <button class="btn btn-ghost" onclick="openFicheLieu('you')">Annuler</button>
+        <button class="btn btn-primary" onclick="saveLieuEdit()">✓ Enregistrer</button>
+      </div>
+    </div>`);
+  S.lieuTypeDraft=S.lieuType;
+  setTimeout(()=>{ const i=document.getElementById('le-name'); if(i) i.focus(); },60);
+}
+function saveLieuEdit(){
+  const nm=(document.getElementById('le-name').value||'').trim();
+  if(!nm){ toast('Donne un nom à ton lieu 🌿','warn'); return; }
+  S.lieuName=nm.slice(0,40);
+  S.lieuVille=((document.getElementById('le-ville').value||'').trim()||'Bordeaux').slice(0,30);
+  S.lieuDesc=(document.getElementById('le-desc').value||'').trim().slice(0,280);
+  if(S.lieuTypeDraft && LIEU_TYPES.find(x=>x.id===S.lieuTypeDraft)) S.lieuType=S.lieuTypeDraft;
+  toast('✓ Fiche mise à jour'+(S.lieuPublished?', le réseau voit la nouvelle version 🌐':''),'win');
+  render();
+  openFicheLieu('you');
+}
+/* ── Publier la fiche sur le Réseau ── */
+function publishLieu(){
+  S.lieuPublished=true;
+  closeModal();
+  if(S.navUnlocked && !S.navUnlocked.has('reseau')) S.navUnlocked.add('reseau');
+  S.badges.add('reseau');
+  switchTab('reseau');
+  setTimeout(()=>devaCoachPublie(),250);
+}
+function devaCoachPublie(){
+  S.tour={ steps:[
+    {sel:'#deva-pill', side:'top', title:'🎉 Ta fiche est publiée !', text:`« <b>${escapeHtml(S.lieuName||'Ton lieu')}</b> » est désormais visible par tout le réseau 🌿 Je t'ouvre le <b>Réseau</b> : c'est là que Bâtisseurs et Semeurs vont te trouver.`},
+  ], i:0 };
+  document.getElementById('tour-overlay').classList.add('on');
+  showTourStep(0);
 }
 function openFicheBat(id){
   const b=carteBats().find(x=>x.id===id); if(!b) return;
