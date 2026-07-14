@@ -1013,6 +1013,7 @@ const CATS = {
   dechets:      {label:'♻️ Déchets',       color:'#a06c00'},
   biodiversite: {label:'🌿 Biodiversité',  color:'#4aab8f'},
   social:       {label:'🤝 Social',        color:'#7a6ea8'},
+  economie:     {label:'🪙 Économie locale', color:'#c8732a'},
 };
 const SOLUTIONS = [
   {id:'potager',   name:'Potager en pleine terre', ic:'🥬', cat:'alimentaire', cap:['jardin'],
@@ -1091,6 +1092,32 @@ const SOLUTIONS = [
   {id:'materiautheque', name:'Matériauthèque', ic:'🧰', cat:'dechets', cap:['stockage','fablab','atelier'], desc:'Prêt de matériaux, outils et matériel mutualisés.', vadance:8, graines:2, ici:'objets', flux:{in:[],out:[]}, cout:2, regen:'Mutualise la matière et les outils : posséder moins, partager plus, extraire moins de ressources neuves.'},
   {id:'pepiniere', name:'Pépinière participative', ic:'🌱', cat:'biodiversite', cap:['serre','jardin'], desc:'Semis, plants et boutures produits pour le quartier.', vadance:9, graines:3, ici:'biodiv', flux:{in:['eau'],out:['legumes']}, cout:3, regen:'Multiplie le vivant localement : produire ses propres plants, c\'est de l\'autonomie et de la biodiversité en plus.'},
   {id:'evenements', name:'Événements communautaires', ic:'🎪', cat:'social', cap:['autre','scene','salle_reunion'], desc:'Fêtes de quartier et temps forts collectifs.', vadance:9, graines:3, ici:'accueil', flux:{in:[],out:[]}, cout:3, regen:'Rassemble et célèbre : les temps forts collectifs régénèrent le sentiment d\'appartenance au lieu.'},
+
+  /* ---------- Économie locale : faire circuler la valeur sur le territoire ---------- */
+  {id:'epicerie', name:'Épicerie solidaire', ic:'🧺', cat:'economie', cap:['boutique','stockage','cantine'],
+   desc:'Une épicerie à prix ajusté aux revenus, approvisionnée par les producteurs du coin et les invendus du quartier.',
+   vadance:9, graines:4, ici:'repas', flux:{in:['legumes'],out:['biodechets']}, cout:4,
+   regen:'Reconnecte les producteurs voisins aux habitants sans intermédiaire : la valeur reste sur le territoire, et personne n\'est exclu de la bonne nourriture par son budget.'},
+  {id:'marche-producteurs', name:'Marché de producteurs', ic:'🧑‍🌾', cat:'economie', cap:['jardin','scene','expo','boutique'],
+   desc:'Un marché régulier où les paysans du territoire vendent en direct, sans centrale d\'achat entre eux et toi.',
+   vadance:10, graines:5, ici:'repas', flux:{in:['legumes'],out:[]}, cout:3,
+   regen:'Chaque euro dépensé ici reste chez un paysan voisin au lieu de partir dans une chaîne logistique : des fermes vivantes se maintiennent autour du lieu.'},
+  {id:'monnaie-locale', name:'Monnaie locale', ic:'🪙', cat:'economie', cap:['boutique','cafe_bar','coworking','bibliotheque'],
+   desc:'Le lieu devient comptoir de change et accepte la monnaie locale : elle ne s\'échappe pas du territoire.',
+   vadance:8, graines:3, ici:'local', flux:{in:[],out:[]}, cout:3,
+   regen:'Une monnaie qui ne peut pas être spéculée ni délocalisée : elle circule en boucle entre commerces et habitants, et chaque passage nourrit un acteur du coin.'},
+  {id:'gratiferia', name:'Gratiferia et troc', ic:'🔄', cat:'economie', cap:['expo','salle_reunion','atelier','bibliotheque'],
+   desc:'Un espace où l\'on donne, prend et échange sans argent : vêtements, outils, savoir-faire.',
+   vadance:8, graines:3, ici:'objets', flux:{in:[],out:[]}, cout:2,
+   regen:'Prolonge la vie des objets et crée une économie du lien : ce qui dormait chez l\'un sert à l\'autre, et rien n\'est extrait ni jeté pour ça.'},
+  {id:'amap', name:'AMAP et paniers', ic:'🥕', cat:'economie', cap:['jardin','serre','boutique','stockage'],
+   desc:'Des paniers payés d\'avance à un maraîcher partenaire : le risque de la récolte est partagé, le revenu est garanti.',
+   vadance:10, graines:4, ici:'repas', flux:{in:['legumes'],out:['biodechets']}, cout:3,
+   regen:'Sécurise le revenu d\'un paysan sur toute une saison : il peut enfin sortir des pesticides et soigner ses sols, parce qu\'il ne joue plus sa survie sur chaque récolte.'},
+  {id:'coop-achat', name:'Coopérative d\'achat', ic:'🤝', cat:'economie', cap:['cuisine','cantine','stockage','coworking'],
+   desc:'Le lieu et ses voisins commandent ensemble, en gros et en direct : les prix baissent, les producteurs sont mieux payés.',
+   vadance:9, graines:4, ici:'local', flux:{in:[],out:[]}, cout:3,
+   regen:'Remplace la marge d\'un intermédiaire par de la coopération entre voisins : le surplus retourne à ceux qui produisent et à ceux qui consomment.'},
 ];
 const SOL = Object.fromEntries(SOLUTIONS.map(s=>[s.id,s]));
 
@@ -1207,6 +1234,7 @@ const ICI = {
   dechets:   {ic:'♻️', name:'Déchets détournés',      unit:'kg',      refs:['ODD 12','ESRS E5']},
   biodechets:{ic:'🥕', name:'Biodéchets valorisés',   unit:'kg',      refs:['ODD 12','PCAET']},
   accueil:   {ic:'🤝', name:'Personnes accueillies',  unit:'pers.',   refs:['ODD 11','ESRS S1','RSE']},
+  local:     {ic:'🪙', name:'Valeur circulée localement', unit:'€',    refs:['ODD 8','ESRS S3','RSE']},
 };
 const REFS = {
   'ODD':  {ic:'🌍', name:'ODD',   full:'Objectifs de Dév. Durable'},
@@ -2268,6 +2296,7 @@ const SKY={
   biodiversite:{sky:'#dcf0e8',hb:'#bfe3d4',hf:'#9bcfbb',sun:'#f2c14e'},
   construction:{sky:'#efe7db',hb:'#ddd0bb',hf:'#c9b894',sun:'#eabf5f'},
   social:{sky:'#ece6f2',hb:'#dbd0ea',hf:'#c6b6e0',sun:'#efce74'},
+  economie:{sky:'#f9ead0',hb:'#ecd7a8',hf:'#dcbe82',sun:'#efb659'},
   ici:{sky:'#e2e8f2',hb:'#cdd7ea',hf:'#b3c2e0',sun:'#efce74'},
   comp:{sky:'#ece6f2',hb:'#dbd0ea',hf:'#c6b6e0',sun:'#efce74'},
   alim:{sky:'#dcf0df',hb:'#bfe3c4',hf:'#9bcfa6',sun:'#f2c14e'},
@@ -2289,8 +2318,9 @@ const MOTIF={
   people:`<circle cx="86" cy="66" r="6" fill="#e0a95a"/><path d="M76 92 q0 -16 10 -16 q10 0 10 16 Z" fill="#4cb267"/><circle cx="108" cy="64" r="6" fill="#c98a5a"/><path d="M98 92 q0 -18 10 -18 q10 0 10 18 Z" fill="#3a6e8c"/>`,
   chart:`<path d="M80 74 L100 64 L120 54" fill="none" stroke="#c8732a" stroke-width="2.4" stroke-linecap="round"/><rect x="80" y="76" width="10" height="16" rx="1" fill="#4cb267"/><rect x="95" y="68" width="10" height="24" rx="1" fill="#2f7a45"/><rect x="110" y="60" width="10" height="32" rx="1" fill="#41a05c"/>`,
 };
-const SOL_MOTIF={potager:'garden',serre:'greenhouse',rucher:'hive',poulailler:'coop',compost:'compost','recup-eau':'water','mur-vegetal':'greenwall',ombriere:'canopy',phyto:'reeds',solaire:'panel',atelier:'tools',recyclerie:'recycle',cuisine:'pot'};
-const ICI_MOTIF={eau:'water',repas:'pot',objets:'tools',biodiv:'garden',energie:'panel',dechets:'recycle',biodechets:'compost',accueil:'people'};
+const SOL_MOTIF={potager:'garden',serre:'greenhouse',rucher:'hive',poulailler:'coop',compost:'compost','recup-eau':'water','mur-vegetal':'greenwall',ombriere:'canopy',phyto:'reeds',solaire:'panel',atelier:'tools',recyclerie:'recycle',cuisine:'pot',
+  epicerie:'pot','marche-producteurs':'garden','monnaie-locale':'chart',gratiferia:'recycle',amap:'garden','coop-achat':'people'};
+const ICI_MOTIF={eau:'water',repas:'pot',objets:'tools',biodiv:'garden',energie:'panel',dechets:'recycle',biodechets:'compost',accueil:'people',local:'chart'};
 const PCOMP_MOTIF={maraichage:'garden',energie:'panel',eau:'water',reparation:'tools',mesure:'chart',animation:'people'};
 function svgScene(theme, motifKey){
   const t=SKY[theme]||SKY.alim, m=MOTIF[motifKey]||MOTIF.garden;
@@ -2863,7 +2893,7 @@ function refCoverage(k){ let n=0; S.financed.forEach(f=>{ if(!f.pending && ICI[S
 /* ═══════════════ TABLEAU DE BORD ═══════════════ */
 /* Triptyque des 3 capitaux (jamais compenses) a partir des solutions installees */
 function pilotCapitals(){
-  const MAP={eau:'eco',energie:'eco',alimentaire:'eco',biodiversite:'eco',construction:'eco',social:'social',dechets:'econo'};
+  const MAP={eau:'eco',energie:'eco',alimentaire:'eco',biodiversite:'eco',construction:'eco',social:'social',dechets:'econo',economie:'econo'};
   const cap={eco:{prom:0,proof:0}, social:{prom:0,proof:0}, econo:{prom:0,proof:0}};
   (S.spaces||[]).forEach(sp=>sp.sols.forEach(inst=>{
     const s=SOL[inst.id]; if(!s) return;
