@@ -2285,9 +2285,11 @@ function pilotLieu(){
   return h;
 }
 function measureBtn(spaceId, solId, selIci){
+  // La mesure passe désormais par la Bibliothèque : on sélectionne une carte ICI, puis on clique la solution.
+  if(!selIci) return '';
   const sid = solId?`'${solId}'`:'null';
-  if(selIci){ const i=S.sel.id; return `<button class="mini-btn gold" onclick="event.stopPropagation();attachICI('${spaceId}',${sid},'${i}')">📊 ${ICI[i].ic} Mesurer</button>`; }
-  return `<button class="mini-btn" onclick="event.stopPropagation();attachICI('${spaceId}',${sid})">📊 Mesurer · ${MEASURE_COST}🌰</button>`;
+  const i=S.sel.id;
+  return `<button class="mini-btn gold" onclick="event.stopPropagation();attachICI('${spaceId}',${sid},'${i}')">📊 ${ICI[i].ic} Mesurer</button>`;
 }
 function spaceCard(sp){
   const selSol = S.sel&&S.sel.type==='solution';
