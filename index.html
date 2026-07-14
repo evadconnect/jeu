@@ -1176,7 +1176,7 @@ const SOL = Object.fromEntries(SOLUTIONS.map(s=>[s.id,s]));
 
 /* ---------- Coûts d'installation (Graines) & verrous de compétence ---------- */
 const SOL_COUT={potager:3,serre:5,rucher:2,poulailler:3,compost:2,'recup-eau':3,'mur-vegetal':3,ombriere:5,phyto:4,solaire:5,atelier:3,recyclerie:3,cuisine:3};
-const SOL_LOCK={serre:'maraichage',solaire:'energie',ombriere:'energie',phyto:'eau'};
+const SOL_LOCK={}; // plus de verrou de compétence : toutes les solutions sont installables
 /* En quoi chaque solution est régénérative (répare le vivant, pas seulement « moins nuire ») */
 const SOL_REGEN={
   potager:'Nourrit un sol vivant (humus, vers de terre) et stocke du carbone, au lieu de l\'épuiser. Chaque récolte laisse la terre plus fertile.',
@@ -2169,7 +2169,7 @@ const MARCHE_NAV = {k:'marche',ic:'🛒',label:'Place de marché',title:'Place d
 const NAV = {
   pilote:[
     {k:'a',ic:'🏡',label:'Mon lieu',title:'Mon lieu · La Friche des Possibles',sub:'Ton tableau de bord et ton lieu réunis : suis ta progression, compose, installe et mesure.'},
-    {k:'b',ic:'📚',label:'Bibliothèque',title:'Bibliothèque complète',sub:'Solutions, ICI et compétences. Sélectionne une carte, puis place-la dans ton lieu.'},
+    {k:'b',ic:'📚',label:'Bibliothèque',title:'Bibliothèque complète',sub:'Le catalogue des solutions. Sélectionne une carte, puis place-la dans ton lieu.'},
     RESEAU_NAV,
     CARTE_NAV,
     MARCHE_NAV,
@@ -2215,7 +2215,7 @@ function switchTab(k){ if(!S.tabsSeen) S.tabsSeen=new Set(); S.tabsSeen.add(k); 
 }
 /* Deverrouille un onglet, l'ouvre et laisse Deva l'expliquer (mini visite guidee) */
 const REVEAL_INFO={
-  b:{title:'📚 La Bibliothèque s\'ouvre',text:'Le catalogue commun d\'EVAD 🌿 Choisis une <b>Solution</b>, puis pose-la dans un espace compatible : elle crée de la <b>Vadance</b> (impact promis). Tu y trouveras aussi les <b>ICI</b> pour mesurer et prouver.'},
+  b:{title:'📚 La Bibliothèque s\'ouvre',text:'Le catalogue commun d\'EVAD 🌿 Choisis une <b>Solution</b>, puis pose-la dans un espace compatible : elle crée de la <b>Vadance</b> (impact promis) et arrive avec son <b>indicateur</b> déjà lié.'},
 };
 function revealTab(k){
   const first = S.navUnlocked && !S.navUnlocked.has(k);
@@ -2416,13 +2416,10 @@ function spaceCard(sp){
 
 /* ---- PILOTE : bibliothèque complète (3 rangées) ---- */
 function pilotBiblio(){
-  const bt=S.biblioTab||'solutions';
   let h=`<div class="sect-sub">La Bibliothèque complète d'EVAD. Sélectionne une carte, puis place-la dans ton lieu.</div>`;
   h+=`<div style="font-size:.72rem;color:var(--moss);opacity:.8;margin-bottom:.65rem">🌰 ${S.graines} Graines disponibles</div>`;
-  const tabs=[['solutions','🧩 Solutions'],['ici','📊 Indicateurs (ICI)'],['comp','🎓 Compétences']];
-  h+=`<div class="biblio-tabs">${tabs.map(t=>`<button class="biblio-tab ${bt===t[0]?'active':''}" onclick="S.biblioTab='${t[0]}';render()">${t[1]}</button>`).join('')}</div>`;
-  if(bt==='solutions'){
-    h+=`<div class="biblio-row-desc">Installe une solution dans un espace compatible : elle produit de la <b>Vadance</b>.</div>`;
+  {
+    h+=`<div class="biblio-row-desc">Installe une solution dans un espace compatible : son <b>indicateur</b> arrive avec elle, et elle produit de la <b>Vadance</b>.</div>`;
     // Filtre par catégorie
     h+=`<div class="filter-lab">Catégorie</div>`;
     h+=`<div class="cats">${['all',...Object.keys(CATS)].map(c=>{
@@ -2447,12 +2444,6 @@ function pilotBiblio(){
     h+= sols.length
       ? `<div class="cards-grid">${sols.map(s=>solutionCard(s.id)).join('')}</div>`
       : `<div class="empty-state"><div class="es-ic">🔍</div>Aucune solution ne correspond à ces filtres. Essaie une autre catégorie ou un autre espace.</div>`;
-  } else if(bt==='ici'){
-    h+=`<div class="biblio-row-desc">Sélectionne un ICI, puis clique « Mesurer » sur une solution. La mesure devient <b>Vadité vérifiée</b> quand la preuve est apportée par le réseau : un <b>Bâtisseur</b> (vérification de terrain) ou un <b>Semeur</b> (finance la vérification).</div>`;
-    h+=`<div class="cards-grid">${Object.keys(ICI).map(iciCard).join('')}</div>`;
-  } else {
-    h+=`<div class="biblio-row-desc">Acquiers des compétences pour <b>débloquer</b> des solutions et <b>booster</b> ta production chaque saison.</div>`;
-    h+=`<div class="comp-grid">${Object.keys(PCOMP).map(pcompCard).join('')}</div>`;
   }
   return h;
 }
@@ -2523,21 +2514,7 @@ function solutionCard(id){
     </div>
   </div>`;
 }
-function iciCard(id){
-  const i=ICI[id];
-  return `<div class="card2" onclick="openIciDetail('${id}')">
-    <div class="c2-media">${svgScene('ici', ICI_MOTIF[id])}</div>
-    <div class="c2-body">
-      <div class="c2-cat"><span class="c2-dot" style="background:var(--sky)"></span>Indicateur · ICI</div>
-      <div class="c2-title">${i.name}</div>
-      <div class="c2-desc">Mesuré en ${i.unit}. Convertit la Vadance en Vadité vérifiée.</div>
-      <div class="c2-foot">
-        <div class="c2-metric"><div class="c2-mlab">Référentiels couverts</div><div class="c2-mval" style="color:var(--sky)">${i.refs.length}</div></div>
-        <span class="c2-cost" style="background:#e6f2f8;color:var(--sky)">🔗 ${i.refs.length}</span>
-      </div>
-    </div>
-  </div>`;
-}
+
 /* ---- Détail carte (ouverture en grand) ---- */
 function openDetailModal(html){ const b=document.getElementById('modal-box'); b.className='modal-box det-modal'; b.innerHTML=html; document.getElementById('modal').classList.add('open'); }
 /* ---- Quêtes de terrain attachées aux solutions ---- */
@@ -2633,68 +2610,13 @@ function detailInstall(id){
   S.sel={type:'solution',id}; closeModal(); S.tab='a'; render();
   toast(`${s.ic} ${s.name} sélectionné · clique un espace compatible dans « Mon lieu »`);
 }
-function openIciDetail(id){
-  const i=ICI[id];
-  const fits=SOLUTIONS.filter(s=>s.ici===id).map(s=>s.ic+' '+s.name);
-  openDetailModal(`
-    <div class="det-media">
-      ${svgScene('ici', ICI_MOTIF[id])}
-      <button class="det-close" onclick="closeModal()">✕</button>
-    </div>
-    <div class="det-body">
-      <div class="c2-cat"><span class="c2-dot" style="background:var(--sky)"></span>Indicateur · ICI</div>
-      <h2 class="det-title">${i.name}</h2>
-      <p class="det-desc">Un <b>Indicateur de Changement d'Impact</b> mesure une <b>variation</b> en ${i.unit} : la flèche entre une base <b>T0</b> et l'état constaté. Jamais la valeur absolue d'arrivée.</p>
-      <div class="det-flux" style="margin-bottom:.9rem">📏 <b>Référence « excellent » : ${Math.round(iciRef(id)).toLocaleString('fr-FR')} ${i.unit}</b> = 100/100 (fixée par la méthode, contextualisée par ton type de lieu, jamais choisie par le Pilote). Le Δ observé se place entre 0 (aucun changement) et 100, plafonné pour qu'un indicateur démesuré n'écrase pas les autres.</div>
-      <div class="det-sec"><div class="det-sec-t">🧪 Échelle de preuve</div><div class="det-refs">${Object.values(PREUVE).map(p=>`<span class="pill" style="background:var(--cream);color:var(--moss)" title="${p.desc}">${p.ic} ${p.name} ×${p.coef}</span>`).join('')}</div></div>
-      <div class="det-sec"><div class="det-sec-t">🔗 Référentiels couverts</div><div class="det-refs">${i.refs.map(r=>`<span class="pill" style="background:#f1eef7;color:var(--lavender)">${r}</span>`).join('')}</div></div>
-      ${fits.length?`<div class="det-sec"><div class="det-sec-t">🧩 Mesure typiquement</div><div class="det-flux">${fits.join(' · ')}</div></div>`:''}
-      <button class="btn btn-ghost det-action" onclick="closeModal()">Compris ✓</button>
-    </div>`);
-}
+
 document.addEventListener('click',(e)=>{ if(e.target && e.target.id==='modal' && document.getElementById('modal-box').classList.contains('det-modal')) closeModal(); });
 setIntroDate();
 document.querySelectorAll('[data-perso]').forEach(el=>{ el.innerHTML=persoSVG(el.dataset.perso); });
 const PCOMP_COL={maraichage:'#2e6b47',energie:'#c8732a',eau:'#3a6e8c',reparation:'#a06c00',mesure:'#018262',animation:'#7a6ea8'};
-function pcompCard(id){
-  const c=PCOMP[id]; const owned=S.pcomps.has(id); const col=PCOMP_COL[id]||'#018262';
-  return `<div class="card2 ${owned?'sel':''}" onclick="openCompDetail('${id}')">
-    <div class="c2-media">
-      ${svgScene('comp', PCOMP_MOTIF[id])}
-      ${owned?'<span class="c2-flag" style="color:var(--forest)">✓ Acquise</span>':''}
-    </div>
-    <div class="c2-body">
-      <div class="c2-cat"><span class="c2-dot" style="background:${col}"></span>Compétence</div>
-      <div class="c2-title">${c.name}</div>
-      <div class="c2-desc">${c.desc}</div>
-      <div class="c2-foot">
-        <div class="c2-metric"><div class="c2-mlab">${owned?'Statut':'Coût'}</div><div class="c2-mval" style="color:${owned?'var(--forest)':'var(--amber)'};font-size:${owned?'.88rem':'1.02rem'}">${owned?'✓ Acquise':c.cost+' 🌰'}</div></div>
-      </div>
-    </div>
-  </div>`;
-}
-function openCompDetail(id){
-  const c=PCOMP[id], col=PCOMP_COL[id]||'#018262', owned=S.pcomps.has(id);
-  const unlocks=SOLUTIONS.filter(s=>s.lock===id);
-  openDetailModal(`
-    <div class="det-media">
-      ${svgScene('comp', PCOMP_MOTIF[id])}
-      <button class="det-close" onclick="closeModal()">✕</button>
-    </div>
-    <div class="det-body">
-      <div class="c2-cat"><span class="c2-dot" style="background:${col}"></span>Compétence du Pilote</div>
-      <h2 class="det-title">${c.name}</h2>
-      <p class="det-desc">${c.desc}</p>
-      <div class="det-grid">
-        <div class="det-fact"><div class="df-lab">🌰 Coût</div><div class="df-val">${c.cost} Graines</div></div>
-        <div class="det-fact"><div class="df-lab">📈 Statut</div><div class="df-val" style="color:${owned?'var(--forest)':'var(--ink)'}">${owned?'✓ Acquise':'À acquérir'}</div></div>
-      </div>
-      ${unlocks.length?`<div class="det-sec"><div class="det-sec-t">🔓 Débloque ces solutions</div><div class="det-flux">${unlocks.map(s=>s.ic+' '+s.name).join(' · ')}</div></div>`:''}
-      ${owned?`<button class="btn btn-ghost det-action" onclick="closeModal()">✓ Déjà acquise</button>`
-             :`<button class="btn btn-primary det-action" onclick="detailAcquire('${id}')" ${S.graines<c.cost?'disabled':''}>${S.graines<c.cost?'Pas assez de Graines ('+c.cost+'🌰)':'Acquérir · '+c.cost+' 🌰'}</button>`}
-    </div>`);
-}
-function detailAcquire(id){ acquireComp(id); if(S.pcomps.has(id)) closeModal(); }
+
+
 
 /* ---- PILOTE actions ---- */
 function selectCard(type,id){
@@ -2805,17 +2727,7 @@ function proveBySemeur(spaceId, solId){
   toast(`🌾 Un Semeur a financé la vérification de « ${s?s.name:sp.name} » : Vadité validée, référentiels couverts ✅`,'win');
   render();
 }
-function acquireComp(id){
-  const c=PCOMP[id];
-  if(S.pcomps.has(id)) return;
-  if(S.graines<c.cost){ toast(`Pas assez de Graines (${c.cost}🌰)`,'warn'); return; }
-  S.graines-=c.cost; S.pcomps.add(id);
-  markFirstAct('competence');
-  const unl = SOLUTIONS.filter(s=>s.lock===id);
-  const unlTxt = unl.length ? ' · débloque '+unl.map(s=>s.name).join(', ') : '';
-  toast(`🎓 Compétence acquise : ${c.ic} ${c.name}${unlTxt}`,'win');
-  render();
-}
+
 function addSpace(type){
   const creation=S.spaces.filter(s=>!s.existant).length;
   if(creation>=8){ toast('Ton lieu est déjà bien rempli (8 espaces max)','warn'); return; }
@@ -4304,7 +4216,7 @@ function biblioTourOpenDemo(){
 function biblioTour(){
   if(S.biblioTourDone) return;
   S.biblioTourDone=true;
-  S.biblioTab='solutions'; S.catFilter='all'; S.capFilter='all'; render();
+  S.catFilter='all'; S.capFilter='all'; render();
   const d=SOL[BIBLIO_TOUR_DEMO]||SOLUTIONS[0];
   S.tour={ steps:[
     {sel:'.cards-grid .card2', side:'right', title:'📚 Le catalogue commun',
