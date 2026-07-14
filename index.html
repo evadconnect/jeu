@@ -271,6 +271,23 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .sol-chip .sinfo{flex:1;min-width:0}
 .sol-chip .sname{font-size:.76rem;font-weight:800;line-height:1.1}
 .sol-chip .sstate{font-size:.6rem;font-weight:700;margin-top:.1rem}
+.sol-chip .q-badge{display:inline-block;margin-left:.35rem;font-size:.58rem;font-weight:800;border-radius:100px;padding:.12rem .4rem;background:#f3ede2;color:#a06c00;cursor:pointer;vertical-align:middle}
+.sol-chip .q-badge:hover{background:#eadfc9}
+.sol-chip .q-badge.done{background:rgba(1,130,98,.12);color:var(--forest)}
+.quest-box{background:var(--cream);border:1.5px solid rgba(1,130,98,.14);border-left:3px solid var(--amber);border-radius:12px;padding:.75rem .85rem}
+.quest-box.off{opacity:.7}
+.quest-head{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.45rem}
+.quest-count{font-size:.66rem;font-weight:900;color:var(--amber);white-space:nowrap}
+.quest-bar{height:5px;border-radius:100px;background:rgba(200,115,42,.16);overflow:hidden;margin-bottom:.6rem}
+.quest-bar span{display:block;height:100%;border-radius:100px;background:linear-gradient(90deg,var(--amber),var(--sun));transition:width .3s}
+.quest-steps{display:flex;flex-direction:column;gap:.35rem}
+.quest-step{display:flex;align-items:flex-start;gap:.5rem;width:100%;text-align:left;font-family:var(--font);font-size:.78rem;line-height:1.4;color:#33564a;background:#fff;border:1.5px solid rgba(1,130,98,.12);border-radius:10px;padding:.45rem .55rem;cursor:pointer;transition:all .15s}
+.quest-step:hover{border-color:var(--forest)}
+.quest-step .qs-box{flex-shrink:0;width:17px;height:17px;border-radius:5px;border:1.5px solid rgba(1,130,98,.3);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:900;color:#fff;margin-top:.05rem}
+.quest-step.on{background:rgba(1,130,98,.06);border-color:rgba(1,130,98,.3)}
+.quest-step.on .qs-box{background:var(--forest);border-color:var(--forest)}
+.quest-step.on .qs-txt{text-decoration:line-through;opacity:.65}
+.quest-hint{font-size:.66rem;color:var(--moss);opacity:.75;margin-top:.5rem;line-height:1.4}
 .seal{position:absolute;top:-8px;right:-6px;font-size:.9rem}
 .mini-btn{border-radius:8px;padding:.28rem .5rem;font-size:.62rem;font-weight:800;background:var(--cream);color:var(--moss);white-space:nowrap}
 .mini-btn.gold{background:#fff5da;color:var(--amber)}
@@ -1141,7 +1158,65 @@ const SOL_REGEN={
   cuisine:'Cuisine local et renvoie les restes vers compost et poulailler : la boucle alimentaire se referme et le lien social se tisse.',
 };
 const FLUX_LABEL={compost:'compost',eau:'eau',legumes:'légumes',biodechets:'biodéchets',restes:'restes de cuisine',fumier:'fumier',energie:'énergie',pollinisation:'pollinisation',eauxusees:'eaux grises'};
-SOLUTIONS.forEach(s=>{ s.cout=SOL_COUT[s.id]||s.cout||3; if(SOL_LOCK[s.id]) s.lock=SOL_LOCK[s.id]; s.regen=SOL_REGEN[s.id]||s.regen||''; });
+/* ---------- Quêtes de terrain : ce qu'il faut faire, dans la vraie vie, pour installer chaque solution ---------- */
+const SOL_QUETE={
+  potager:{titre:'Ouvrir le potager',etapes:['Analyser le sol et repérer l\'exposition au soleil','Récupérer terre, compost et paillage auprès des voisins','Organiser un chantier participatif pour monter les buttes','Semer les premières cultures et poser un calendrier d\'arrosage']},
+  serre:{titre:'Monter la serre',etapes:['Choisir l\'emplacement (sud, hors vent) et vérifier les règles d\'urbanisme','Chiffrer la structure et trouver du réemploi (châssis, vitrages)','Organiser le chantier de montage sur un week-end','Installer la récupération d\'eau et le thermomètre de suivi']},
+  rucher:{titre:'Installer le rucher',etapes:['Se former à l\'apiculture ou trouver un apiculteur parrain','Déclarer les ruches et souscrire l\'assurance','Installer les ruches à l\'écart des passages et planter des mellifères','Prévoir la première visite de printemps et la récolte']},
+  poulailler:{titre:'Accueillir les poules',etapes:['Construire ou récupérer un poulailler et sécuriser l\'enclos','Trouver des poules réformées à sauver','Organiser un tour de garde entre habitants (eau, grain, œufs)','Mettre en place la collecte des restes de cuisine']},
+  compost:{titre:'Lancer le composteur',etapes:['Choisir le modèle (bacs bois, lombricomposteur) et l\'emplacement','Former deux ou trois référents compost','Récupérer du broyat auprès des espaces verts de la commune','Afficher les consignes et ouvrir les apports aux habitants']},
+  'recup-eau':{titre:'Récupérer l\'eau de pluie',etapes:['Calculer la surface de toiture et le volume récupérable','Trouver une cuve (réemploi industriel, IBC) et un filtre','Poser la descente, le trop-plein et le robinet','Relever le volume récupéré chaque mois']},
+  'mur-vegetal':{titre:'Végétaliser le mur',etapes:['Vérifier la portance du mur et l\'exposition','Choisir des essences locales adaptées à l\'ombre ou au soleil','Installer le support, le substrat et le goutte-à-goutte','Organiser un chantier de plantation avec les habitants']},
+  ombriere:{titre:'Poser l\'ombrière solaire',etapes:['Faire étudier la structure par un pro (charge, vent)','Demander l\'autorisation d\'urbanisme','Choisir installateur et onduleur, déposer la demande de raccordement','Suivre la production et l\'ombre gagnée le premier été']},
+  phyto:{titre:'Créer la phytoépuration',etapes:['Faire une étude de sol et de pente','Concevoir les bassins et choisir les plantes épuratrices (roseaux, iris)','Creuser, bâcher et planter lors d\'un chantier collectif','Faire contrôler la qualité de l\'eau en sortie']},
+  solaire:{titre:'Passer au solaire',etapes:['Relever la consommation du lieu et la surface de toiture','Demander trois devis à des installateurs certifiés','Monter le financement (aides, subvention, financement citoyen)','Faire raccorder et afficher la production en temps réel']},
+  atelier:{titre:'Ouvrir l\'atelier de réparation',etapes:['Récupérer outillage et établis (dons, réemploi)','Trouver deux ou trois bricoleurs bénévoles référents','Sécuriser l\'espace (électricité, extincteur, EPI)','Ouvrir une première permanence et tenir le registre des objets réparés']},
+  recyclerie:{titre:'Ouvrir la recyclerie',etapes:['Trouver un local de stockage et une zone de tri','Organiser la collecte (points d\'apport, partenariat déchèterie)','Recruter des bénévoles pour le tri et la remise en état','Fixer les prix solidaires et ouvrir la boutique']},
+  cuisine:{titre:'Ouvrir la cuisine partagée',etapes:['Mettre la cuisine aux normes d\'hygiène et déclarer l\'activité','Équiper en matériel de collectivité (réemploi possible)','Former les usagers aux règles HACCP de base','Lancer le planning de réservation et le premier atelier']},
+  'repas-partages':{titre:'Lancer les repas partagés',etapes:['Fixer un rythme (une fois par semaine, par mois) et un lieu','Trouver des cuisiniers bénévoles tournants','Sourcer les ingrédients en local ou en invendus','Ouvrir les inscriptions et cuisiner le premier repas']},
+  conserverie:{titre:'Monter la conserverie',etapes:['S\'équiper (autoclave, bocaux, étiqueteuse) et se former à la stérilisation','Nouer un accord avec des maraîchers pour les surplus','Déclarer l\'activité et écrire le plan de maîtrise sanitaire','Organiser la première session de mise en bocaux']},
+  'cuisine-pedago':{titre:'Ouvrir la cuisine pédagogique',etapes:['Aménager un espace visible et sécurisé pour les groupes','Construire un programme d\'ateliers (saison, anti-gaspi, budget)','Trouver un animateur ou une association partenaire','Programmer et remplir le premier atelier']},
+  'traiteur-solidaire':{titre:'Lancer le traiteur solidaire',etapes:['Cadrer l\'offre et la grille tarifaire (dont tarif solidaire)','Obtenir l\'agrément sanitaire et l\'assurance','Recruter et former une première équipe','Décrocher une première prestation (asso, collectivité)']},
+  'cafe-associatif':{titre:'Ouvrir le café associatif',etapes:['Choisir le statut et demander la licence adaptée','Aménager le bar et sourcer des boissons locales','Constituer une équipe de bénévoles et un planning de permanences','Fixer les prix libres ou solidaires et faire l\'inauguration']},
+  'bar-jeux':{titre:'Créer le bar à jeux',etapes:['Constituer la ludothèque (dons, achat groupé, éditeurs locaux)','Trouver des animateurs pour expliquer les règles','Aménager tables et rangements','Lancer une première soirée jeux et un rendez-vous régulier']},
+  'scene-ouverte':{titre:'Ouvrir la scène',etapes:['Équiper en son et lumière (location ou mutualisation)','Traiter l\'acoustique et prévenir le voisinage','Déclarer les droits (SACEM) et l\'assurance','Programmer la première scène ouverte et appeler les artistes locaux']},
+  'repair-cafe':{titre:'Lancer le repair café',etapes:['Recruter des réparateurs bénévoles (électro, couture, vélo)','Réunir outillage, multimètres et pièces détachées','Fixer un rendez-vous mensuel et le faire connaître','Tenir le registre des objets sauvés de la benne']},
+  'jardin-partage':{titre:'Ouvrir les parcelles partagées',etapes:['Obtenir la mise à disposition du terrain et analyser le sol','Écrire la charte du jardin (bio, entraide, eau)','Découper les parcelles et attribuer par tirage au sort','Installer l\'eau, le cabanon et fêter l\'ouverture']},
+  menuiserie:{titre:'Ouvrir l\'atelier menuiserie',etapes:['Équiper en machines et sécuriser (aspiration, arrêt d\'urgence, EPI)','Former les usagers et instaurer un permis machine','Sourcer du bois de réemploi (palettes, chutes de chantier)','Ouvrir les créneaux et lancer un premier chantier collectif']},
+  'couture-textile':{titre:'Ouvrir l\'atelier couture',etapes:['Rassembler machines à coudre, surjeteuse et mercerie','Collecter du textile à réparer ou à transformer','Trouver une couturière animatrice','Programmer les premiers ateliers de retouche et upcycling']},
+  'fablab-3d':{titre:'Monter le FabLab',etapes:['Choisir les machines (imprimante 3D, découpe, électronique)','Former des fabmanagers et écrire les règles d\'usage','Rejoindre le réseau des fablabs et documenter les projets','Ouvrir un créneau public et réaliser le premier prototype']},
+  'atelier-velo':{titre:'Ouvrir l\'atelier vélo',etapes:['Récupérer vélos et pièces (déchèterie, dons, épaves)','S\'équiper en pieds d\'atelier et outillage spécifique','Former des bénévoles mécanos','Ouvrir une permanence d\'autoréparation et compter les vélos remis en selle']},
+  coworking:{titre:'Ouvrir le coworking',etapes:['Aménager postes, fibre et coin visio','Fixer les formules (jour, mois, solidaire)','Animer la communauté (petit-déj, entraide)','Accueillir les premiers coworkers et récolter leurs retours']},
+  incubateur:{titre:'Lancer l\'incubateur',etapes:['Écrire l\'appel à candidatures et les critères d\'impact','Réunir un réseau de mentors et d\'experts locaux','Bâtir le parcours d\'accompagnement (6 à 12 mois)','Sélectionner la première promotion']},
+  'permanences-asso':{titre:'Ouvrir les permanences',etapes:['Recenser les associations du quartier et leurs besoins','Bâtir un planning d\'occupation partagée','Communiquer les horaires auprès des habitants','Tenir la première permanence et compter les personnes reçues']},
+  'ateliers-creatifs':{titre:'Programmer les ateliers créatifs',etapes:['Choisir les disciplines et trouver les intervenants','Réunir le matériel (récup, dons, achat groupé)','Fixer une tarification accessible','Ouvrir les inscriptions et animer le premier atelier']},
+  'yoga-bienetre':{titre:'Ouvrir l\'espace bien-être',etapes:['Aménager une salle calme (sol, tapis, lumière douce)','Trouver un professeur et caler un créneau régulier','Fixer un tarif libre ou solidaire','Lancer la première séance et fidéliser le groupe']},
+  'cine-club':{titre:'Lancer le ciné-club',etapes:['Acquérir vidéoprojecteur, écran et son','Obtenir les droits de diffusion non commerciale','Bâtir une programmation et inviter des intervenants','Projeter la première séance et animer le débat']},
+  spectacles:{titre:'Accueillir les spectacles',etapes:['Vérifier la sécurité du lieu (ERP, sorties, jauge)','Prendre la licence d\'entrepreneur de spectacle si besoin','Monter la programmation avec des compagnies locales','Vendre les premières places et accueillir le public']},
+  'galerie-expo':{titre:'Ouvrir la galerie',etapes:['Aménager cimaises et éclairage','Lancer un appel à artistes du territoire','Assurer les œuvres et écrire la convention d\'exposition','Accrocher la première expo et organiser le vernissage']},
+  grainotheque:{titre:'Créer la grainothèque',etapes:['Récupérer un meuble et des sachets, poser les étiquettes','Collecter les premières graines auprès des jardiniers','Écrire les règles (variétés libres de droits, don pour don)','Animer un atelier de récolte et de tri des semences']},
+  mediatheque:{titre:'Ouvrir la médiathèque partagée',etapes:['Collecter les livres et faire un premier tri','Mettre en place un catalogue simple et un système de prêt','Aménager un coin lecture confortable','Ouvrir les créneaux et animer une première lecture']},
+  'formations-pro':{titre:'Lancer les formations',etapes:['Identifier les compétences recherchées sur le territoire','Trouver des formateurs et bâtir le programme','Se déclarer organisme de formation (ou passer par un partenaire)','Remplir la première session et recueillir les évaluations']},
+  'mediation-num':{titre:'Ouvrir la médiation numérique',etapes:['Équiper en ordinateurs reconditionnés et connexion fiable','Former ou recruter un conseiller numérique','Repérer les besoins (démarches en ligne, mail, sécurité)','Ouvrir les permanences et accompagner les premiers usagers']},
+  alphabetisation:{titre:'Ouvrir les cours',etapes:['Évaluer les besoins et constituer les groupes de niveau','Recruter et former des bénévoles formateurs','Réunir manuels et supports adaptés','Lancer le premier cycle et suivre la progression']},
+  'chambres-solidaires':{titre:'Ouvrir les chambres solidaires',etapes:['Mettre les chambres aux normes (sécurité, confort)','Écrire la convention d\'accueil et le règlement','Nouer un partenariat avec une asso d\'hébergement','Accueillir les premiers résidents et assurer un suivi']},
+  'residence-artistes':{titre:'Lancer la résidence',etapes:['Définir la durée, le cadre et la contrepartie (restitution)','Lancer un appel à candidatures et réunir un jury','Trouver une bourse ou un financement pour l\'artiste','Accueillir le premier résident et organiser la restitution']},
+  'sport-collectif':{titre:'Lancer les cours de sport',etapes:['Choisir les disciplines douces adaptées à tous les âges','Trouver un coach diplômé et souscrire l\'assurance','Aménager le sol et le matériel','Programmer le premier cycle et constituer le groupe']},
+  'meditation-cercle':{titre:'Ouvrir les cercles',etapes:['Aménager un espace calme et sans passage','Trouver un facilitateur et poser un cadre de parole','Fixer un rythme régulier et un tarif libre','Animer le premier cercle et recueillir les ressentis']},
+  'epicerie-solidaire':{titre:'Ouvrir l\'épicerie solidaire',etapes:['Trouver un local accessible et un lieu de stockage','Nouer des partenariats (banque alimentaire, producteurs, invendus)','Définir la grille de tarifs selon le reste à vivre','Recruter des bénévoles et tenir la première permanence']},
+  'boutique-createurs':{titre:'Ouvrir la boutique de créateurs',etapes:['Lancer un appel aux artisans et créateurs du territoire','Fixer le mode de dépôt-vente et la commission','Aménager la vitrine et l\'espace de vente','Organiser un marché de lancement']},
+  'collecte-biodechets':{titre:'Organiser la collecte de biodéchets',etapes:['Repérer les gros producteurs (restaurants, cantines, marchés)','Trouver bacs, contenants et un moyen de transport (vélo cargo)','Caler une tournée hebdomadaire et former les apporteurs','Peser chaque collecte et suivre les tonnages détournés']},
+  materiautheque:{titre:'Créer la matériauthèque',etapes:['Nouer des accords avec les chantiers pour récupérer les chutes','Trouver un espace de stockage sec et le ranger par matière','Écrire les règles de dépôt et de retrait','Ouvrir aux bricoleurs et tenir l\'inventaire']},
+  pepiniere:{titre:'Lancer la pépinière',etapes:['Récolter graines et boutures d\'essences locales','Installer les tables de semis, l\'ombrage et l\'arrosage','Organiser des chantiers de rempotage','Distribuer les premiers plants aux habitants et aux jardins voisins']},
+  evenements:{titre:'Organiser les événements',etapes:['Bâtir un calendrier annuel avec les habitants','Monter le budget et chercher des partenaires','Gérer la logistique (autorisations, sécurité, bénévoles)','Tenir le premier événement et compter les participants']},
+  epicerie:{titre:'Ouvrir l\'épicerie solidaire',etapes:['Trouver un local accessible avec un point de stockage','Contacter les producteurs locaux et récupérer les invendus','Lancer un appel à bénévoles et former l\'équipe','Fixer les prix selon les revenus et tenir la première permanence']},
+  'marche-producteurs':{titre:'Monter le marché de producteurs',etapes:['Recenser les paysans dans un rayon de 50 km','Obtenir l\'autorisation d\'occupation et l\'assurance','Fixer le jour, les emplacements et la charte (local, de saison)','Communiquer dans le quartier et tenir le premier marché']},
+  'monnaie-locale':{titre:'Rejoindre la monnaie locale',etapes:['Prendre contact avec l\'association qui gère la monnaie du territoire','Signer la charte et devenir comptoir de change','Former l\'équipe à l\'encaissement et afficher les autocollants','Convaincre trois commerces voisins de l\'accepter aussi']},
+  gratiferia:{titre:'Organiser la gratiferia',etapes:['Fixer une date et réserver l\'espace','Lancer l\'appel aux dons et trier ce qui est réutilisable','Installer les tables par catégories (vêtements, outils, livres)','Tenir l\'événement et donner le reste à une recyclerie']},
+  amap:{titre:'Créer l\'AMAP',etapes:['Trouver un maraîcher partenaire et visiter sa ferme','Construire le contrat de saison et le prix du panier','Réunir assez d\'adhérents pour sécuriser son revenu','Organiser la distribution hebdomadaire et les tours de permanence']},
+  'coop-achat':{titre:'Lancer la coopérative d\'achat',etapes:['Réunir les voisins intéressés et lister les besoins communs','Trouver des producteurs ou grossistes en direct','Organiser la commande groupée et la répartition','Assurer la première livraison et tenir les comptes']},
+};
+SOLUTIONS.forEach(s=>{ s.cout=SOL_COUT[s.id]||s.cout||3; if(SOL_LOCK[s.id]) s.lock=SOL_LOCK[s.id]; s.regen=SOL_REGEN[s.id]||s.regen||''; s.quete=SOL_QUETE[s.id]||s.quete||null; });
 
 /* ---------- Compétences du Pilote (débloquent & boostent) ---------- */
 const PCOMP={
@@ -1294,7 +1369,7 @@ function newState(profile){
     tab:'a', devaOpen:false,
     // pilote
     hand:[], spaces:null, sel:null, pcomps:new Set(), lieuName:'La Friche des Possibles', lieuType:'jardin', ob:null, playerName:'', loopsActive:0, loopBadgeShown:false, vadanceBonus:0,
-    lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false,
+    lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{},
     mktFilter:'all', purchases:[], ecoMissions:{},
     // batisseur
     comps:new Set(['jardiner','bricoler']), missions:[], // missions actives
@@ -2239,7 +2314,7 @@ function spaceCard(sp){
     h+=`<div class="sol-chip ${proven?'vadite':'vadance'}">
       ${proven?'<span class="seal">🌿</span>':''}
       <span class="sic">${s.ic}</span>
-      <div class="sinfo"><div class="sname">${s.name}</div>
+      <div class="sinfo"><div class="sname">${s.name}${s.quete?`<span class="q-badge ${questComplete(inst.id)?'done':''}" title="Quête : ${escapeHtml(s.quete.titre)}" onclick="event.stopPropagation();openSolutionDetail('${inst.id}')">${questComplete(inst.id)?'✅ Quête accomplie':'⚔️ '+questDone(inst.id)+'/'+questSteps(inst.id).length+' étapes'}</span>`:''}</div>
       <div class="sstate" style="color:${stateCol}">${stateTxt}</div></div>
       ${!meas?measureBtn(sp.id,inst.id,selIci):(!proven?`<div class="prove-btns"><button class="mini-btn gold" onclick="event.stopPropagation();proveByBatisseur('${sp.id}','${inst.id}')">🌿 Preuve · Bâtisseur</button><button class="mini-btn sem" onclick="event.stopPropagation();proveBySemeur('${sp.id}','${inst.id}')">🌾 Financer · Semeur</button></div>`:'')}
     </div>`;
@@ -2374,6 +2449,44 @@ function iciCard(id){
 }
 /* ---- Détail carte (ouverture en grand) ---- */
 function openDetailModal(html){ const b=document.getElementById('modal-box'); b.className='modal-box det-modal'; b.innerHTML=html; document.getElementById('modal').classList.add('open'); }
+/* ---- Quêtes de terrain attachées aux solutions ---- */
+function solInstalled(id){ return (S.spaces||[]).some(sp=>(sp.sols||[]).some(x=>x.id===id)); }
+function questSteps(id){ const s=SOL[id]; return (s&&s.quete&&s.quete.etapes)?s.quete.etapes:[]; }
+function questState(id){
+  if(!S.questProgress) S.questProgress={};
+  const n=questSteps(id).length;
+  if(!Array.isArray(S.questProgress[id]) || S.questProgress[id].length!==n) S.questProgress[id]=new Array(n).fill(false);
+  return S.questProgress[id];
+}
+function questDone(id){ return questState(id).filter(Boolean).length; }
+function questComplete(id){ const n=questSteps(id).length; return n>0 && questDone(id)===n; }
+function toggleQuestStep(id,i){
+  if(!solInstalled(id)){ toast('Installe d\'abord cette solution dans un espace pour lancer sa quête 🌿','warn'); return; }
+  const st=questState(id); st[i]=!st[i];
+  if(questComplete(id)) toast(`✅ Quête accomplie : « ${SOL[id].quete.titre} » 🌿`,'win');
+  render();
+  openSolutionDetail(id);
+}
+function questHTML(id){
+  const s=SOL[id]; if(!s.quete) return '';
+  const st=questState(id), n=questSteps(id).length, done=questDone(id), inst=solInstalled(id);
+  const pct=n?Math.round(done/n*100):0;
+  return `<div class="det-sec quest-box${inst?'':' off'}">
+    <div class="quest-head">
+      <div class="det-sec-t" style="margin:0">⚔️ Quête de terrain · ${escapeHtml(s.quete.titre)}</div>
+      <span class="quest-count">${done}/${n}</span>
+    </div>
+    <div class="quest-bar"><span style="width:${pct}%"></span></div>
+    <div class="quest-steps">
+      ${s.quete.etapes.map((e,i)=>`<button type="button" class="quest-step ${st[i]?'on':''}" onclick="toggleQuestStep('${id}',${i})">
+        <span class="qs-box">${st[i]?'✓':''}</span><span class="qs-txt">${escapeHtml(e)}</span>
+      </button>`).join('')}
+    </div>
+    <div class="quest-hint">${inst
+      ? (questComplete(id)?'🌿 Quête accomplie : la solution existe pour de vrai, pas seulement dans le jeu.':'Coche chaque étape quand tu l\'as vraiment faite, dans la vraie vie.')
+      : 'Installe cette solution dans un espace pour lancer sa quête.'}</div>
+  </div>`;
+}
 function openSolutionDetail(id){
   const s=SOL[id], c=CATS[s.cat]; const locked=s.lock&&!S.pcomps.has(s.lock); const ici=ICI[s.ici];
   const flux=[];
@@ -2400,6 +2513,7 @@ function openSolutionDetail(id){
         <div class="det-fact"><div class="df-lab">📊 Mesuré par</div><div class="df-val">${ici.ic} ${ici.name}</div></div>
       </div>
       ${tags?`<div class="det-tags">${tags}</div>`:''}
+      ${questHTML(id)}
       <div class="det-sec"><div class="det-sec-t">🔗 Référentiels couverts (via l'ICI)</div><div class="det-refs">${ici.refs.map(r=>`<span class="pill" style="background:#f1eef7;color:var(--lavender)">${r}</span>`).join('')}</div></div>
       ${(s.flux.in.length||s.flux.out.length)?`<div class="det-sec"><div class="det-sec-t">🔄 Flux & boucles circulaires</div><div class="det-flux">${flux.join(' · ')}</div></div>`:''}
       ${locked?`<div class="det-lock">🔒 Nécessite la compétence <b>${PCOMP[s.lock].ic} ${PCOMP[s.lock].name}</b>, à acquérir dans l'onglet Compétences.</div>`:''}
