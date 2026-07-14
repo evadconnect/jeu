@@ -3235,11 +3235,19 @@ function saveLieuEdit(){
 /* ── Publier la fiche sur le Réseau ── */
 function publishLieu(){
   S.lieuPublished=true;
+  S.vadeDShown=true; // la bulle « fiche publiée » tient lieu de message Développer
   closeModal();
   if(S.navUnlocked && !S.navUnlocked.has('reseau')) S.navUnlocked.add('reseau');
   S.badges.add('reseau');
   switchTab('reseau');
   setTimeout(()=>devaCoachPublie(),250);
+}
+function devaCoachDevelopper(){
+  S.tour={ steps:[
+    {sel:'#deva-pill', side:'top', title:'🌐 Cap sur Développer !', text:'Te voilà sur le <b>Réseau</b> 🌿 Seul, ton lieu plafonne. <b>🎯 Objectif : trouve un Bâtisseur</b> (qui installe et mesure sur le terrain) <b>et un Semeur</b> (qui finance) : c\'est comme ça que ta Vadance deviendra de la <b>Vadité</b> prouvée.'},
+  ], i:0 };
+  document.getElementById('tour-overlay').classList.add('on');
+  showTourStep(0);
 }
 function devaCoachPublie(){
   S.tour={ steps:[
@@ -3607,7 +3615,8 @@ function pilotVadePhase(){
   const allValued = toValue.length>0 && toValue.every(sp=>Array.isArray(sp.activities)&&sp.activities.length>0);
   if(!allValued) return 0;                            // Valoriser : il reste des espaces sans activité
   if(countProven()>0) return 3;                       // Essaimer
-  if(S.reseauBat || S.reseauSem) return 2;            // Développer
+  // Développer : le joueur est allé sur le Réseau (fiche publiée, ou onglet visité), ou un partenaire a répondu
+  if(S.reseauBat || S.reseauSem || S.lieuPublished || (S.tabsSeen && S.tabsSeen.has('reseau'))) return 2;
   return 1;                                           // V validé → Activer
 }
 function checkVade(){
@@ -3626,6 +3635,7 @@ function checkVade(){
   if(!S.won && cyc>beforeCyc){ setTimeout(()=>toast(`🌀 Spirale bouclée ! On repart de V · Valoriser, un cran plus haut (cycle ${cyc}/3).`,'gold'),200); }
   else if(phase>before){
     if(S.profile==='pilote' && before===0){ setTimeout(()=>devaCoachActiver(),250); }
+    else if(S.profile==='pilote' && phase===2 && !S.vadeDShown){ S.vadeDShown=true; setTimeout(()=>devaCoachDevelopper(),250); }
     else { const v=VADE[phase]; setTimeout(()=>toast(`🌀 Spirale VADE : ${v.k} · ${v.label}`,'win'),200); }
   }
   renderTopbar();
