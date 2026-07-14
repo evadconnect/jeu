@@ -3821,8 +3821,8 @@ function revealBiblioTab(){
 /* Transition V→A : bulle blanche « visite guidée » pointant vers le bouton Deva, en 2 temps */
 function devaCoachActiver(){
   S.tour={ steps:[
-    {sel:'#deva-pill', side:'top', title:'🎉 Valoriser validé !', text:'Chaque espace a désormais sa vocation.'},
-    {sel:'#deva-pill', side:'top', title:'Cap sur Activer 🌿', text:'Installe des solutions de la <b>Bibliothèque</b> dans tes espaces. Je viens de te l\'ouvrir 👇', onEnter:revealBiblioTab},
+    {sel:'#deva-pill', side:'top', title:'🎉 Valoriser validé !', text:'Chaque espace a désormais sa vocation. Je t\'ouvre la <b>Bibliothèque</b> 👇', onEnter:revealBiblioTab},
+    {sel:'#deva-pill', side:'top', title:'Cap sur Activer 🌿', text:'Installe maintenant des solutions de la <b>Bibliothèque</b> dans tes espaces.'},
   ], i:0 };
   document.getElementById('tour-overlay').classList.add('on');
   showTourStep(0);
