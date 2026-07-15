@@ -1846,6 +1846,7 @@ function buildTourSteps(){
       {sel:navSel('dash'), side:'right', title:'📊 Tableau de bord', text:'Ta progression, tes badges et ta quête finale, en un coup d\'œil.'},
     ]),
     {sel:navSel('a'), side:'right', title:navBy('a').ic+' '+navBy('a').label, text:AB.a},
+    {sel:'#stats', side:'bottom', title:'Tes ressources', text:'🌰 <b>Graines</b> (agir), ✨ <b>Vadance</b> (impact promis) et 🌿 <b>Vadité</b> (impact prouvé, ta devise).'},
     ...(S.profile==='pilote' ? [
       {sel:'.biblio-tab[data-sub="recompenses"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏅 Mes Récompenses', text:`Ta <b>ligne d'arrivée</b>. Tu y suis tes badges et ta quête finale : atteindre <b>30 de Vadité</b> pour que « ${escapeHtml(S.lieuName||'ton lieu')} » rejoigne les hubs régénératifs reconnus. C'est ça, finir le jeu.`},
       {sel:'.biblio-tab[data-sub="espaces"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏡 Mes Espaces', text:'C\'est ici que tout démarre 🌱 <b>Ta première action</b> : choisis une activité pour chacun de tes espaces, puis installe des solutions de la Bibliothèque. La spirale se met en route.'},
@@ -1853,7 +1854,6 @@ function buildTourSteps(){
     {sel:navSel('b'), side:'right', title:navBy('b').ic+' '+navBy('b').label, text:AB.b},
     {sel:navSel('reseau'), side:'right', title:'🌐 Réseau EVAD', text:'La communauté des trois profils. C\'est ici qu\'un lieu propose une quête, qu\'un bâtisseur donne un coup de main, qu\'un semeur avance des fonds.'},
     {sel:navSel('carte'), side:'right', title:'🗺️ Carte de l\'écosystème', text:'Tu y retrouves tous les lieux de la communauté et leurs quêtes, près de chez toi.'},
-    {sel:'#stats', side:'bottom', title:'Tes ressources', text:'🌰 <b>Graines</b> (agir), ✨ <b>Vadance</b> (impact promis) et 🌿 <b>Vadité</b> (impact prouvé, ta devise).'},
     {sel:'.season-btn', side:'bottom', title:'⏳ Le temps qui passe', text:'Ce bouton fait avancer la saison : tes espaces produisent, les revenus tombent, et les aléas climatiques arrivent.'},
     {sel:'#vade-bar', side:'bottom', title:'🌀 La spirale VADE', text:'Valoriser → Activer → Développer → Essaimer : le fil rouge de ta partie, phase après phase.'},
     {sel:'#deva-pill', side:'top', title:'🌱 Moi, Deva', text:`Un doute, une question ? Clique-moi et demande. À toi de jouer${nm} !`},
