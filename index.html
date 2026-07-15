@@ -42,7 +42,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .intro-scene{opacity:0;animation:introUp .9s .9s forwards;width:100%;max-width:420px}
 .intro-hero-svg{width:100%;height:auto;border-radius:20px;box-shadow:0 16px 40px rgba(1,90,68,.16)}
 .intro-date{opacity:0;animation:introUp .8s 1.8s forwards;font-size:1.45rem;font-weight:900;color:var(--ink)}
-.intro-tag{opacity:0;animation:introUp .8s 2.2s forwards;font-size:.92rem;color:var(--moss);font-weight:600}
+.intro-story{opacity:0;animation:introUp .8s 1.9s forwards;font-size:.92rem;line-height:1.6;color:#33564a;max-width:440px;margin:0 auto}
+.intro-story b{color:var(--forest)}
+.intro-tag{opacity:0;animation:introUp .8s 2.4s forwards;font-size:.92rem;color:var(--moss);font-weight:700;margin-top:.3rem}
 .intro-cta{opacity:0;animation:introUp .8s 2.8s forwards;background:var(--forest);color:#fff;border:none;border-radius:100px;padding:.8rem 1.7rem;font-family:var(--font);font-weight:800;font-size:.95rem;cursor:pointer;box-shadow:0 8px 22px rgba(1,130,98,.32);margin-top:.3rem}
 .intro-cta:hover{background:var(--moss)}
 @keyframes introUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
@@ -52,7 +54,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 #intro.chatting .intro-logo{transform:scale(.42);transform-origin:top center;margin-bottom:-.7rem;animation:none;opacity:1}
 #intro.chatting .intro-scene{max-width:236px;animation:none;opacity:1;transition:max-width .55s ease}
 #intro.chatting .intro-hero-svg{box-shadow:0 10px 26px rgba(1,90,68,.14)}
-#intro.chatting .intro-date,#intro.chatting .intro-tag,#intro.chatting .intro-cta{display:none}
+#intro.chatting .intro-date,#intro.chatting .intro-story,#intro.chatting .intro-tag,#intro.chatting .intro-cta{display:none}
 #modal.over-intro{background:rgba(255,255,255,.25);backdrop-filter:none}
 
 /* ══════════════════ SESSION (3 actes) ══════════════════ */
@@ -859,6 +861,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
  <g stroke="#2f7a45" stroke-width="2" stroke-linecap="round"><line x1="95" y1="200" x2="95" y2="184"/><line x1="105" y1="200" x2="105" y2="182"/><line x1="115" y1="200" x2="115" y2="186"/></g>
 </svg></div>
     <div class="intro-date" id="intro-date">2030</div>
+    <p class="intro-story">Face au dérèglement climatique, des lieux vivants ont poussé partout : tiers-lieux, écolieux, jardins partagés, fermes urbaines. On y tire l'énergie du soleil, la nourriture des toits et des cours, on répare, on partage, on teste des solutions concrètes contre les catastrophes.</p>
+    <p class="intro-story">Ils sont devenus des <b>infrastructures de résilience</b> pour leur territoire. Chaque innovation y est partagée, éprouvée, améliorée. Et pour se relier, ils se sont fédérés en un réseau qui ne croit ni aux promesses ni aux dogmes : ici, <b>la preuve de l'impact prime sur tout le reste</b>.</p>
+    <p class="intro-story"><b>EVAD</b> est né de ce besoin. C'est leur outil commun.</p>
     <div class="intro-tag">Le futur se cultive. Par la preuve.</div>
     <button class="intro-cta" id="intro-cta" onclick="introDeva()">Rencontrer Deva →</button>
   </div>
