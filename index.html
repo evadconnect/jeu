@@ -938,7 +938,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 
     <div class="nav-bottom">
       <button class="ob-intro-btn" onclick="showOnboarding()"><span class="oib-ico">💡</span><span class="oib-txt">Comment jouer</span></button>
-      <button class="ob-intro-btn" id="nav-switch" onclick="restart()"><span class="oib-ico">🔄</span><span class="oib-txt">Changer de profil</span></button>
+      <button class="ob-intro-btn" id="nav-switch" onclick="replayTour()"><span class="oib-ico">🧭</span><span class="oib-txt">Revoir la visite guidée</span></button>
       <div class="deva-pill" id="deva-pill" onclick="toggleDeva()" title="Parler à Deva">
         <span class="dp-av deva-av"></span>
         <div class="dp-meta"><span class="deva-name">Deva</span><span class="deva-status">Active</span></div>
@@ -1762,14 +1762,19 @@ function startSession(){ SESSION={act:1, playerName:null, started:Date.now()}; c
 function startAct(profile){ closeModal(); chooseProfile(profile); }
 function renderSessionBar(){
   const el=document.getElementById('session-bar');
-  const btn=document.getElementById('nav-switch');
-  if(!SESSION){ if(el) el.style.display='none'; if(btn){ btn.onclick=restart; const t=btn.querySelector('.oib-txt'), i=btn.querySelector('.oib-ico'); if(t)t.textContent='Changer de profil'; if(i)i.textContent='🔄'; } return; }
+  if(!SESSION){ if(el) el.style.display='none'; return; }
   const prof=SESSION_ACTS[SESSION.act], next=SESSION_ACTS[SESSION.act+1];
   if(el){ el.style.display='flex';
     el.innerHTML=`<span>🎬 <b>Session découverte</b> · Acte ${SESSION.act}/3 · ${SESSION_META[prof].ic} ${SESSION_META[prof].label}</span>
       <span class="sb-right">${next?`<button class="sb-next" onclick="nextAct()">${SESSION_META[next].ic} Passer au ${SESSION_META[next].label.split(' ')[0]} →</button>`:`<button class="sb-next" onclick="sessionEnd()">🎉 Terminer la session</button>`}</span>`;
   }
-  if(btn){ btn.onclick=nextAct; const t=btn.querySelector('.oib-txt'), i=btn.querySelector('.oib-ico'); if(t)t.textContent=(SESSION.act<3?'Passer au profil suivant':'Terminer la session'); if(i)i.textContent='🎬'; }
+}
+function replayTour(){
+  if(S && S.ob) return;
+  if(document.getElementById('deva-panel')) toggleDeva&&(document.getElementById('deva-panel').classList.contains('open')&&toggleDeva());
+  S.tourDone=false;
+  if(S.profile==='pilote'){ S.tab='a'; S.lieuSub='dash'; render(); }
+  startTour();
 }
 function nextAct(){
   if(!SESSION) return;
