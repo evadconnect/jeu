@@ -2444,8 +2444,8 @@ function pilotBiblio(){
   {
     h+=`<div class="biblio-row-desc">Installe une solution dans un espace compatible : son <b>indicateur</b> arrive avec elle, et elle produit de la <b>Vadance</b>.</div>`;
     // Filtre par catégorie
-    h+=`<div class="filter-lab">Catégorie</div>`;
-    h+=`<div class="cats">${['all',...Object.keys(CATS)].map(c=>{
+    h+=`<div class="filter-lab" data-flab="cat">Catégorie</div>`;
+    h+=`<div class="cats" data-frow="cat">${['all',...Object.keys(CATS)].map(c=>{
       const on=(S.catFilter||'all')===c; const col=c==='all'?'var(--forest)':CATS[c].color;
       return `<button class="cat-pill ${on?'on':''}" style="${on?`background:${col};border-color:${col}`:''}" onclick="S.catFilter='${c}';render()">${c==='all'?'Tout':CATS[c].label}</button>`;
     }).join('')}</div>`;
@@ -2453,8 +2453,8 @@ function pilotBiblio(){
     const myTypes=[...new Set((S.spaces||[]).filter(sp=>!sp.existant).map(sp=>sp.type))].filter(t=>TYPE_META[t]);
     const capF = (S.capFilter && myTypes.includes(S.capFilter)) ? S.capFilter : 'all';
     if(myTypes.length){
-      h+=`<div class="filter-lab">Compatible avec mes espaces</div>`;
-      h+=`<div class="cats">${['all',...myTypes].map(t=>{
+      h+=`<div class="filter-lab" data-flab="cap">Compatible avec mes espaces</div>`;
+      h+=`<div class="cats" data-frow="cap">${['all',...myTypes].map(t=>{
         const on=capF===t;
         const lab = t==='all' ? '🏠 Tous' : `${TYPE_META[t].ic} ${TYPE_META[t].name}`;
         return `<button class="cat-pill ${on?'on':''}" style="${on?'background:var(--forest);border-color:var(--forest)':''}" onclick="S.capFilter='${t}';render()">${lab}</button>`;
@@ -4251,7 +4251,11 @@ function biblioTourSteps(withNav){
      title:'📚 La Bibliothèque', text:'Voici la <b>Bibliothèque</b>, ton catalogue commun. C\'est ici que tu piocheras les solutions à installer dans ton lieu. Ouvrons-la 👇'});
   steps.push(
     {sel:'.cards-grid .card2', side:'right', title:'📚 Le catalogue commun',
-     text:'Chaque <b>carte Solution</b> est une action concrète que ton lieu peut accueillir. Ouvrons-en une pour lire ce qu\'elle raconte 👇'},
+     text:'Chaque <b>carte Solution</b> est une action concrète que ton lieu peut accueillir. Il y en a beaucoup : deux filtres t\'aident à t\'y retrouver 👇'},
+    {sel:'[data-frow="cat"]', side:'bottom', scroll:true, title:'🏷️ Filtrer par catégorie',
+     text:'Eau, énergie, alimentaire, déchets, biodiversité, social, économie locale… Choisis un thème pour ne voir que les solutions qui vont avec.'},
+    {sel:'[data-frow="cap"]', side:'bottom', scroll:true, title:'🏡 Compatible avec mes espaces',
+     text:'Ce filtre ne montre que les solutions <b>installables dans tes espaces</b> à toi. Pratique pour aller droit au but, sans tomber amoureux d\'une carte qui n\'ira nulle part.'},
     {sel:'.det-regen', side:'bottom', over:true, scroll:true, onEnter:biblioTourOpenDemo,
      title:'🌱 En quoi c\'est régénératif',
      text:'Chaque fiche dit <b>ce que la solution répare</b>, pas seulement ce qu\'elle évite. C\'est la différence entre « moins nuire » et faire revenir le vivant.'},
