@@ -3224,7 +3224,7 @@ function dashStat(ic,num,lab){ return `<div class="dash-stat"><div class="ds-num
 function countProven(){ let n=0; S.spaces.forEach(sp=>{ if(sp.existant&&sp.ici&&sp.proven)n++; sp.sols.forEach(x=>{if(x.ici&&x.proven)n++;}); }); return n; }
 function goalLabel(){
   return {
-    pilote:`Atteindre 30 points de Vadité pour que La Friche rejoigne les hubs régénératifs reconnus`,
+    pilote:`Atteindre 30 points de Vadité pour que « ${escapeHtml(S.lieuName||'ton lieu')} » rejoigne les hubs régénératifs reconnus`,
     batisseur:`Accomplir 5 missions pour devenir Bâtisseur·se confirmé·e`,
     semeur:`Atteindre 25 points de Vadité financée et produire votre rapport d'impact`,
   }[S.profile];
