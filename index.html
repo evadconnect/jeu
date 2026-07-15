@@ -4244,14 +4244,12 @@ function biblioTourOpenDemo(){
   S.tourDemo=true;
   openSolutionDetail(id);
 }
-function biblioTour(){
-  if(S.biblioTourDone) return;
-  S.biblioTourDone=true;
-  S.catFilter='all'; S.capFilter='all'; render();
+function biblioTourSteps(withNav){
   const d=SOL[BIBLIO_TOUR_DEMO]||SOLUTIONS[0];
-  S.tour={ steps:[
-    {sel:'.nav-item[data-tab="b"]', side:'right', onEnter:()=>{ if(S.tab!=='b'){ S.tab='b'; render(); } },
-     title:'📚 La Bibliothèque', text:'Voici la <b>Bibliothèque</b>, ton catalogue commun. C\'est ici que tu piocheras les solutions à installer dans ton lieu. Ouvrons-la 👇'},
+  const steps=[];
+  if(withNav) steps.push({sel:'.nav-item[data-tab="b"]', side:'right', onEnter:()=>{ if(S.tab!=='b'){ S.tab='b'; render(); } },
+     title:'📚 La Bibliothèque', text:'Voici la <b>Bibliothèque</b>, ton catalogue commun. C\'est ici que tu piocheras les solutions à installer dans ton lieu. Ouvrons-la 👇'});
+  steps.push(
     {sel:'.cards-grid .card2', side:'right', title:'📚 Le catalogue commun',
      text:'Chaque <b>carte Solution</b> est une action concrète que ton lieu peut accueillir. Ouvrons-en une pour lire ce qu\'elle raconte 👇'},
     {sel:'.det-regen', side:'bottom', over:true, scroll:true, onEnter:biblioTourOpenDemo,
@@ -4265,8 +4263,14 @@ function biblioTour(){
      text:`Son <b>ICI</b> (${ICI[d.ici].ic} ${ICI[d.ici].name}) est lié d\'office : c\'est lui qui transformera la promesse en <b>Vadité</b> prouvée, une fois la mesure relevée sur le terrain.`},
     {sel:'.quest-box', side:'top', over:true, scroll:true,
      title:'⚔️ Sa quête de terrain',
-     text:'Et dans la vraie vie ? La <b>quête</b> détaille les étapes à accomplir pour l\'installer pour de bon. Coche-les au fur et à mesure, puis publie tes réalisations sur le Réseau.'},
-  ], i:0 };
+     text:'Et dans la vraie vie ? La <b>quête</b> détaille les étapes à accomplir pour l\'installer pour de bon. Coche-les au fur et à mesure, puis publie tes réalisations sur le Réseau.'});
+  return steps;
+}
+function biblioTour(){
+  if(S.biblioTourDone) return;
+  S.biblioTourDone=true;
+  S.catFilter='all'; S.capFilter='all'; render();
+  S.tour={ steps:biblioTourSteps(true), i:0 };
   document.getElementById('tour-overlay').classList.add('on');
   showTourStep(0);
 }
@@ -4275,9 +4279,15 @@ function revealBiblioTab(){
 }
 /* Transition V→A : bulle blanche « visite guidée » pointant vers le bouton Deva, en 2 temps */
 function devaCoachActiver(){
+  // On enchaîne directement sur la présentation de la Bibliothèque : plus de double déclenchement.
+  S.biblioTourDone=true;
+  S.catFilter='all'; S.capFilter='all';
   S.tour={ steps:[
-    {sel:'#deva-pill', side:'top', title:'🎉 Valoriser validé !', text:'Chaque espace a désormais sa vocation. Je t\'ouvre la <b>Bibliothèque</b> 👇', onEnter:revealBiblioTab},
-    {sel:'#deva-pill', side:'top', title:'Cap sur Activer 🌿', text:'Installe maintenant des solutions de la <b>Bibliothèque</b> dans tes espaces.'},
+    {sel:'#deva-pill', side:'top', title:'🎉 Valoriser validé !', text:'Chaque espace a désormais sa vocation 🌱 Cap sur <b>Activer</b> : installe des solutions de la <b>Bibliothèque</b> dans tes espaces. Je te la présente 👇',
+      onEnter:()=>{ revealBiblioTab(); if(S.tab!=='b'){ S.tab='b'; render(); } }},
+    ...biblioTourSteps(true),
+    {sel:'#deva-pill', side:'top', title:'À toi de jouer 🌿', text:'Choisis une solution dans la <b>Bibliothèque</b>, puis pose-la dans un espace compatible. La spirale se met en route.',
+      onEnter:()=>{ if(S.tourDemo){ S.tourDemo=false; closeModal(); } }},
   ], i:0 };
   document.getElementById('tour-overlay').classList.add('on');
   showTourStep(0);
