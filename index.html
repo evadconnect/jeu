@@ -878,7 +878,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
     <p class="splash-sub">Un futur solarpunk qui pousse déjà. Et vous allez le faire fleurir.</p>
 
     <div class="story">
-      <p>Les étés sont plus chauds, c'est vrai. Mais pendant qu'on regardait ailleurs, quelque chose de magnifique a grandi dans les friches, sur les toits et dans les campagnes : des <b>laboratoires vivants régénératifs</b>, des lieux où l'énergie vient du soleil, la nourriture des cours et des terrasses, où l'on répare, partage et décide ensemble.</p>
+      <p>Les étés sont plus chauds, c'est vrai. Mais pendant qu'on regardait ailleurs, quelque chose de magnifique a grandi dans les friches, sur les toits et dans les campagnes : des <b>hubs régénératifs</b>, des lieux où l'énergie vient du soleil, la nourriture des cours et des terrasses, où l'on répare, partage et décide ensemble.</p>
       <p>Sans attendre les subventions, ces lieux, leurs habitants et les financeurs d'impact se sont fédérés : un réseau où la confiance se cultive comme le reste, par la preuve. Chaque impact vérifié attire de nouveaux Semeurs, chaque lieu prouvé en inspire dix autres.</p>
       <p>Ce réseau, et l'outil commun qui le fait vivre, s'appelle <span class="em">EVAD</span>. Quatre vraies saisons par an, du soleil à revendre, quelques caprices du ciel à apprivoiser, et tout un territoire à faire fleurir d'ici <span class="em">2033</span>.</p>
     </div>
@@ -1681,7 +1681,7 @@ function introStep(n){
   const MSG=[
     `Bonjour 🌿 Je suis <b>Deva</b>, l'<b>esprit régénératif d'EVAD</b> : une IA frugale et bienveillante, née de l'écosystème pour t'accompagner. Ravie de te rencontrer.`,
     `Avant tout, faisons connaissance. <b>Comment t'appelles-tu ?</b>`,
-    `Enchantée, <b>${nm}</b> 🌱 Laisse-moi te présenter <b>EVAD</b>.<br><br>Nous sommes en 2030. Partout, des <b>laboratoires vivants régénératifs</b> (tiers-lieu, écolieu, jardin partagé...) développent leur territoire et y testent de nouvelles solutions face aux catastrophes naturelles : énergie du soleil, nourriture des toits et des cours, réparation, partage. Ces lieux se sont fédérés en un <b>réseau</b> qui cultive la confiance <b>par la preuve</b>. <b>EVAD en est l'outil commun.</b>`,
+    `Enchantée, <b>${nm}</b> 🌱 Laisse-moi te présenter <b>EVAD</b>.<br><br>Nous sommes en 2030. Partout, des <b>hubs régénératifs</b> (tiers-lieu, écolieu, jardin partagé...) développent leur territoire et y testent de nouvelles solutions face aux catastrophes naturelles : énergie du soleil, nourriture des toits et des cours, réparation, partage. Ces lieux se sont fédérés en un <b>réseau</b> qui cultive la confiance <b>par la preuve</b>. <b>EVAD en est l'outil commun.</b>`,
     `Trois profils font vivre EVAD. Ils jouent le même monde avec les mêmes règles de preuve, chacun à sa façon 🌱`,
     `Chaque projet suit la <b>spirale VADE</b> : quatre phases qui s'enchaînent, puis <b>recommencent un cran plus haut</b>. C'est le cœur d'EVAD.`,
     `À chaque tour de la boucle, un lieu transforme ses <b>promesses</b> en <b>preuves</b>. Deux mots pour ça : la <b>Vadance</b> 💭, l'impact <b>promis</b> (installé, pas encore mesuré), et la <b>Vadité</b> 🌿, l'impact <b>prouvé</b>, vérifié.<br><br>Leur rapport, le <b>taux de tenue</b> (Vadité ÷ Vadance), mesure la capacité d'un lieu à tenir ses promesses : notre garde-fou anti-greenwashing.`,
@@ -3224,7 +3224,7 @@ function dashStat(ic,num,lab){ return `<div class="dash-stat"><div class="ds-num
 function countProven(){ let n=0; S.spaces.forEach(sp=>{ if(sp.existant&&sp.ici&&sp.proven)n++; sp.sols.forEach(x=>{if(x.ici&&x.proven)n++;}); }); return n; }
 function goalLabel(){
   return {
-    pilote:`Atteindre 30 points de Vadité pour que La Friche rejoigne les laboratoires vivants régénératifs reconnus`,
+    pilote:`Atteindre 30 points de Vadité pour que La Friche rejoigne les hubs régénératifs reconnus`,
     batisseur:`Accomplir 5 missions pour devenir Bâtisseur·se confirmé·e`,
     semeur:`Atteindre 25 points de Vadité financée et produire votre rapport d'impact`,
   }[S.profile];
