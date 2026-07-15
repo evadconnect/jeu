@@ -1771,9 +1771,15 @@ function renderSessionBar(){
 }
 function replayTour(){
   if(S && S.ob) return;
-  if(document.getElementById('deva-panel')) toggleDeva&&(document.getElementById('deva-panel').classList.contains('open')&&toggleDeva());
+  const p=document.getElementById('deva-panel');
+  if(p && p.classList.contains('open')) toggleDeva();
+  // On relance la visite guidée de l'onglet où l'on se trouve.
+  if(S.profile==='pilote' && S.tab==='b'){
+    S.biblioTourDone=false;
+    biblioTour();
+    return;
+  }
   S.tourDone=false;
-  if(S.profile==='pilote'){ S.tab='a'; S.lieuSub='dash'; render(); }
   startTour();
 }
 function nextAct(){
