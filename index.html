@@ -1848,8 +1848,8 @@ function buildTourSteps(){
     {sel:navSel('a'), side:'right', title:navBy('a').ic+' '+navBy('a').label, text:AB.a},
     {sel:'#stats', side:'bottom', title:'Tes ressources', text:'🌰 <b>Graines</b> (agir), ✨ <b>Vadance</b> (impact promis) et 🌿 <b>Vadité</b> (impact prouvé, ta devise).'},
     ...(S.profile==='pilote' ? [
-      {sel:'.biblio-tab[data-sub="recompenses"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏅 Mes Récompenses', text:`Ta <b>ligne d'arrivée</b>. Tu y suis tes badges et ta quête finale : atteindre <b>30 de Vadité</b> pour que « ${escapeHtml(S.lieuName||'ton lieu')} » rejoigne les hubs régénératifs reconnus. C'est ça, finir le jeu.`},
-      {sel:'.biblio-tab[data-sub="espaces"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏡 Mes Espaces', text:'C\'est ici que tout démarre 🌱 <b>Ta première action</b> : choisis une activité pour chacun de tes espaces, puis installe des solutions de la Bibliothèque. La spirale se met en route.'},
+      {sel:'.biblio-tab[data-sub="recompenses"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏅 Récompenses', text:`Ta <b>ligne d'arrivée</b>. Tu y suis tes badges et ta quête finale : atteindre <b>30 de Vadité</b> pour que « ${escapeHtml(S.lieuName||'ton lieu')} » rejoigne les hubs régénératifs reconnus. C'est ça, finir le jeu.`},
+      {sel:'.biblio-tab[data-sub="espaces"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏡 Espaces', text:'C\'est ici que tout démarre 🌱 <b>Ta première action</b> : choisis une activité pour chacun de tes espaces, puis installe des solutions de la Bibliothèque. La spirale se met en route.'},
     ] : []),
     {sel:navSel('b'), side:'right', title:navBy('b').ic+' '+navBy('b').label, text:AB.b},
     {sel:navSel('reseau'), side:'right', title:'🌐 Réseau EVAD', text:'La communauté des trois profils. C\'est ici qu\'un lieu propose une quête, qu\'un bâtisseur donne un coup de main, qu\'un semeur avance des fonds.'},
@@ -2316,7 +2316,7 @@ function renderTabA(){
   const el=document.getElementById('view-a');
   if(S.profile==='pilote'){
     const sub=S.lieuSub||'dash';
-    const tabs=[['dash','📊 Tableau de bord'],['espaces','🏡 Mes Espaces'],['recompenses','🏅 Mes Récompenses']];
+    const tabs=[['dash','📊 Tableau de bord'],['espaces','🏡 Espaces'],['recompenses','🏅 Récompenses']];
     let h=defiBanner();
     h+=`<div class="biblio-tabs">${tabs.map(t=>{
       const badge = (t[0]==='espaces' && !S.espacesSeen) ? '<span class="tab-badge"></span>' : '';
