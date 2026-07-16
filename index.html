@@ -2050,7 +2050,7 @@ function buildTourSteps(){
   const navSel=k=>`.nav-item[data-tab="${k}"]`;
   const navBy=k=>nav.find(n=>n.k===k)||{ic:'',label:''};
   const AB={
-    pilote:{a:'Compose tes espaces, installe des solutions et mesure-les avec des ICI pour prouver ton impact.', b:'Le catalogue complet : Solutions à installer, ICI pour mesurer, Compétences pour débloquer et booster.'},
+    pilote:{a:'Ton tableau de bord et ton lieu réunis : compose tes espaces, installe des solutions et relève leurs mesures pour prouver ton impact.', b:`Le catalogue commun : toutes les solutions à installer dans tes espaces. Chaque carte arrive avec son <b>ICI</b> de mesure, et sa quête de terrain.`},
     batisseur:{a:'Les quêtes ouvertes sur les trois lieux du réseau. Accepte une quête, réalise-la, gagne des Graines.', b:'Apprends de nouvelles compétences pour débloquer davantage de quêtes.'},
     semeur:{a:'Finance des besoins en euros : la solution ET son ICI sont posés, ta Vadité arrive déjà vérifiée.', b:'Une seule saisie de terrain couvre tous les langages : ODD, ESRS, PCAET, RSE.'},
   }[S.profile];
@@ -2068,8 +2068,10 @@ function buildTourSteps(){
     ...(S.profile==='pilote' ? [
       {sel:'.season-btn', side:'bottom', title:'⏳ Le temps qui passe', text:'Ce bouton fait avancer la saison : tes espaces produisent, les revenus tombent, et les aléas climatiques arrivent.'},
       {sel:'#vade-bar', side:'bottom', title:'🌀 La spirale VADE', text:'Valoriser → Activer → Développer → Essaimer : le fil rouge de ta partie, phase après phase.'},
+      {sel:'.biblio-tab[data-sub="dash"]', side:'bottom', onEnter:()=>{ S.tab='a'; S.lieuSub='dash'; render(); }, title:'📊 Tableau de bord', text:'L\'état de ton lieu en un coup d\'œil : ta Vadance promise, ta Vadité prouvée, et le triptyque de tes <b>3 capitaux</b> (🌿 Écologie, 🤝 Social, 🪙 Économie locale).'},
+      {sel:'.mo-head', side:'bottom', scroll:true, onEnter:()=>{ S.tab='a'; S.lieuSub='dash'; S.modelOpen=true; render(); }, title:'📈 Modélisation', text:'Décider <b>avant</b> d\'agir. La <b>🔮 projection</b> rejoue le vrai calcul sur ton lieu enrichi et montre où ta Vadance sera dans 1, 3 ou 6 mois. Le <b>🧪 simulateur de scénarios</b> te propose, pour un budget donné, les combos qui maximisent chaque capital — et « Adopter ce scénario » pré-sélectionne les solutions dans la Bibliothèque.'},
       {sel:'.biblio-tab[data-sub="recompenses"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏅 Récompenses', text:`Ta <b>ligne d'arrivée</b>. Tu y suis tes badges et ta quête finale : atteindre <b>60/100 de Vadité</b> pour que « ${escapeHtml(S.lieuName||'ton lieu')} » rejoigne les hubs régénératifs reconnus. C'est ça, finir le jeu.`},
-      {sel:'.biblio-tab[data-sub="espaces"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏡 Espaces', text:'C\'est ici que tout démarre 🌱 <b>Ta première action</b> : choisis une activité pour chacun de tes espaces, puis installe des solutions de la Bibliothèque. La spirale se met en route.'},
+      {sel:'.biblio-tab[data-sub="espaces"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏡 Espaces', text:`C'est ici que tout démarre 🌱 <b>Ta première action</b> : choisis une activité pour chacun de tes espaces, puis installe des solutions de la Bibliothèque — jusqu'à <b>${MAX_PER_SPACE} par espace</b>. La spirale se met en route.`},
     ] : []),
     {sel:navSel('b'), side:'right', title:navBy('b').ic+' '+navBy('b').label, text:AB.b},
     {sel:navSel('carte'), side:'right', title:'🗺️ Carte de l\'écosystème', text:'Tu y retrouves tous les lieux de la communauté et leurs quêtes, près de chez toi.'},
@@ -2896,7 +2898,6 @@ function selectCard(type,id){
   if(S.sel && S.sel.type===type && S.sel.id===id){ S.sel=null; render(); return; }
   S.sel={type,id};
   if(type==='solution') toast(`${SOL[id].ic} ${SOL[id].name} sélectionné · va dans « Mon lieu » et clique un espace`);
-  else if(type==='ici') toast(`${ICI[id].ic} ICI sélectionné · clique « Mesurer » sur une solution`);
   if(S.tab==='b') S.tab='a';
   render();
 }
@@ -3221,7 +3222,7 @@ function missionDesc(m){
   const l=RESEAU_LIEUX.find(x=>x.id===m.lieu);
   return {
     installer:`Installer la solution sur le lieu, elle y restera et produira de la Vadance.`,
-    mesurer:`Attacher un ICI pour transformer la promesse en preuve (Vadité).`,
+    mesurer:`Relever la mesure de l'ICI sur le terrain pour transformer la promesse en preuve (Vadité).`,
     animer:`Mobiliser habitants et bénévoles autour de la solution.`,
   }[m.type];
 }
@@ -4839,7 +4840,7 @@ function pilotHasFresh(){ return S.profile==='pilote' && S.spaces.some(sp=>sp.so
 /* ---- défis de saison ---- */
 const DEFIS = [
   {id:'boucle', txt:'Crée une boucle circulaire ce trimestre', reward:5, profiles:['pilote'], check:()=>fluxLoops(installedIds()).length>=1},
-  {id:'ici2', txt:'Attache 2 ICI ce trimestre', reward:5, profiles:['pilote'], check:()=>countProven()>=2},
+  {id:'ici2', txt:'Fais prouver 2 mesures ce trimestre', reward:5, profiles:['pilote'], check:()=>countProven()>=2},
   {id:'install3', txt:'Installe 3 solutions au total', reward:6, profiles:['pilote'], check:()=>installedIds().length>=3},
   {id:'m2', txt:'Accomplis 2 quêtes ce trimestre', reward:6, profiles:['batisseur'], check:()=>{return (S.missionsDone-(S.defi._base||0))>=2;}, base:()=>S.missionsDone},
   {id:'learn', txt:'Apprends une nouvelle compétence', reward:5, profiles:['batisseur'], check:()=>S.comps.size>(S.defi._base||2), base:()=>S.comps.size},
@@ -5008,6 +5009,8 @@ function biblioTourSteps(withNav){
   if(withNav) steps.push({sel:'.nav-item[data-tab="b"]', side:'right', onEnter:()=>{ if(S.tab!=='b'){ S.tab='b'; render(); } },
      title:'📚 La Bibliothèque', text:'Voici la <b>Bibliothèque</b>, ton catalogue commun. C\'est ici que tu piocheras les solutions à installer dans ton lieu. Ouvrons-la 👇'});
   steps.push(
+    {sel:'.cap-legend', side:'bottom', scroll:true, title:'🎨 Le code couleur des capitaux',
+     text:`La barre de couleur en tête de chaque carte dit quel <b>capital</b> la solution alimente : <b style="color:${CAP_META.eco.color}">🌿 Écologie</b>, <b style="color:${CAP_META.social.color}">🤝 Social</b> ou <b style="color:${CAP_META.econo.color}">🪙 Économie locale</b>. Tu retrouves ces mêmes couleurs sur les solutions posées dans tes espaces. Vise les trois : tant qu'un capital reste sous ${PLANCHER_CAPITAL}/100, la Vadance de ton lieu plafonne.`},
     {sel:'[data-frow="cat"]', side:'bottom', scroll:true, title:'🏷️ Filtrer par catégorie',
      text:'Il y a beaucoup de solutions : deux filtres t\'aident à t\'y retrouver. D\'abord par <b>catégorie</b> : eau, énergie, alimentaire, déchets, biodiversité, social, économie locale…'},
     {sel:'[data-frow="cap"]', side:'bottom', scroll:true, title:'🏡 Compatible avec mes espaces',
@@ -5018,14 +5021,14 @@ function biblioTourSteps(withNav){
      title:'🌱 En quoi c\'est régénératif',
      text:'Chaque fiche dit <b>ce que la solution répare</b>, pas seulement ce qu\'elle évite. C\'est la différence entre « moins nuire » et faire revenir le vivant.'},
     {sel:'.det-grid', side:'top', over:true, scroll:true,
-     title:'✨ Sa Vadance',
-     text:`Où l\'installer, ce qu\'elle coûte, et sa <b>Vadance</b> : +${d.vadance} points ici. C\'est l\'impact <i>promis</i>, celui que tu vises.`},
+     title:'✨ Ce que ça change',
+     text:`<b>Où l'installer</b> : les types d'espace qui l'accueillent — un espace en tient jusqu'à <b>${MAX_PER_SPACE}</b>. Et <b>ce que ça change</b> : l'écart avant → après, noté sur 100 selon une barre que tu ne choisis pas. C'est l'impact <i>promis</i>, ta <b>Vadance</b>.`},
     {sel:'.det-ici', side:'top', over:true, scroll:true,
      title:'📊 Son indicateur',
-     text:`Son <b>ICI</b> (${ICI[d.ici].ic} ${ICI[d.ici].name}) est lié d\'office : c\'est lui qui transformera la promesse en <b>Vadité</b> prouvée, une fois la mesure relevée sur le terrain.`},
+     text:`Son <b>ICI</b> (${ICI[d.ici].ic} ${ICI[d.ici].name}) est lié <b>d'office</b> : rien à choisir, il arrive avec la solution dès que tu l'installes. C'est lui qui transformera la promesse en <b>Vadité</b> prouvée, une fois la mesure relevée sur le terrain avec « 📊 Mesurer ».`},
     {sel:'.quest-box', side:'top', over:true, scroll:true,
      title:'⚔️ Sa quête de terrain',
-     text:'Et dans la vraie vie ? La <b>quête</b> détaille les étapes à accomplir pour l\'installer pour de bon. Coche-les au fur et à mesure, puis publie tes réalisations sur le Réseau.'});
+     text:'Et dans la vraie vie ? Chaque solution porte sa <b>quête</b> : les étapes concrètes à accomplir pour l\'installer pour de bon. Elle démarre dès que tu poses la solution dans un espace ; <b>coche une étape quand tu l\'as vraiment faite</b>, dehors. Quand tout est coché, la quête est accomplie — et sur le <b>🌐 Réseau</b>, « Publier mes quêtes » montre tes réalisations à toute la communauté.'});
   return steps;
 }
 function biblioTour(){
@@ -5241,19 +5244,20 @@ function devaAnswer(qraw){
   const q=qraw.toLowerCase();
   const has=(...w)=>w.some(x=>q.includes(x));
   if(has('bonjour','salut','coucou','hello','hey')) return `Bonjour 🌱 Demande-moi ce qu'est un <b>ICI</b>, une <b>boucle</b>, la différence entre <b>Vadance</b> et <b>Vadité</b>, ou comment avancer.<br><br>${devaTip()}`;
-  if(has('ici','indicateur','mesur','prouv')) return `Un <b>ICI</b> (Indicateur de Changement d'Impact) mesure une chose concrète du terrain (m³ d'eau, repas servis, objets réparés…) et converge automatiquement vers <b>ODD, ESRS, PCAET, RSE</b>. Attache-en un à une solution : sa <b>Vadance</b> (promesse) devient de la <b>Vadité</b> (preuve) 🌿.`;
+  if(has('ici','indicateur','mesur','prouv')) return `Un <b>ICI</b> (Indicateur de Changement d'Impact) mesure une chose concrète du terrain (m³ d'eau, repas servis, objets réparés…) et converge automatiquement vers <b>ODD, ESRS, PCAET, RSE</b>. Il est lié d'office à chaque solution que tu installes : relève sa mesure sur le terrain et la <b>Vadance</b> (promesse) devient de la <b>Vadité</b> (preuve) 🌿.`;
   if(has('vadance') && has('vadité','vadite')) return `<b>Vadance</b> ✨ = l'impact <i>promis</i> (installé mais pas mesuré). <b>Vadité</b> 🌿 = l'impact <i>prouvé</i> (un ICI le mesure). Le réseau ne fait confiance qu'à la Vadité : vérifié bat certifié.`;
-  if(has('vadance')) return `La <b>Vadance</b> ✨ c'est l'impact <i>promis</i> : tu installes une solution, elle promet un impact. Attache un ICI et cette promesse se convertit en <b>Vadité</b> prouvée, saison après saison.`;
-  if(has('vadité','vadite')) return `La <b>Vadité</b> 🌿 c'est l'impact <i>prouvé</i> : dès qu'un ICI mesure une solution, sa Vadance devient Vadité. C'est la devise du réseau.<br><br>${devaTip()}`;
+  if(has('vadance')) return `La <b>Vadance</b> ✨ c'est l'impact <i>promis</i> : tu installes une solution, elle promet un impact. Relève la mesure de son ICI et cette promesse se convertit en <b>Vadité</b> prouvée, saison après saison.`;
+  if(has('vadité','vadite')) return `La <b>Vadité</b> 🌿 c'est l'impact <i>prouvé</i> : dès que l'ICI d'une solution est mesuré et vérifié, sa Vadance devient Vadité. C'est la devise du réseau.<br><br>${devaTip()}`;
   if(has('boucle','circulaire','flux')) return `Une <b>boucle circulaire</b> 🔄 s'active quand deux solutions dont les flux se répondent sont sur le même lieu (ex. <i>Cuisine → Composteur → Potager</i>). Elle rapporte des Graines chaque saison : 3 boucles = Écosystème vivant (×1,5), 5 = Forêt nourricière (×2).`;
   if(has('canicule','climat','aléa','alea','tempête','tempete','gel','sécheresse','secheresse','météo','meteo','saison')) return `Le climat se corse chaque année, mais chaque aléa a sa parade : 🌊 <b>Fraîcheur</b> (eau de pluie, mur végétal, ombrière, phytoépuration) contre la canicule, 🏡 serre contre le gel, 🔧 atelier contre la tempête, 💧 réserves d'eau contre la sécheresse. Bien équipé, un coup dur devient une heure de gloire.`;
-  if(has('graine')) return `Les <b>Graines</b> 🌰 récompensent l'action (quêtes, défis, boucles) et servent à agir : piocher, apprendre, installer. Elles ne sont <b>pas convertibles</b> en euros, ni l'inverse : les deux circuits sont strictement séparés.`;
+  if(has('graine')) return `Les <b>Graines</b> 🌰 récompensent l'action (quêtes, défis, boucles) et servent à agir : mesurer, aménager un espace, apprendre. Elles ne sont <b>pas convertibles</b> en euros, ni l'inverse : les deux circuits sont strictement séparés.`;
   if(has('euro','argent','financ','budget')) return `Les <b>euros</b> 💶 sont la monnaie des financements (profil Semeur). Un financement installe la solution <b>et</b> son ICI : la Vadité arrive déjà vérifiée. Ta Vadité financée renouvelle ton budget chaque saison, la preuve fidélise.`;
   if(has('quête','quete','mission')) return `Les <b>quêtes</b> 🛠️ (profil Bâtisseur) viennent des <b>solutions de la Bibliothèque</b> : elles exigent une compétence, se résolvent en fin de saison et transforment durablement le lieu. Max 2 en parallèle. En <b>canicule</b>, les quêtes de fraîcheur paient double !`;
   if(has('compétence','competence','apprendre')) return `Tu démarres avec 2 compétences ; les autres s'apprennent pour <b>4 🌰</b>. « Mesurer » débloque toutes les quêtes de mesure. Chaque compétence apprise fait avancer ta spirale VADE (A · Activer).`;
   if(has('badge')) return `Les <b>badges</b> 🏅 récompensent tes hauts faits : Gardien de la fraîcheur, Écosystème vivant, Forêt nourricière, Brigades du climat, Pari d'innovation gagné, Triple défi… Retrouve-les au Tableau de bord.`;
   if(has('spirale','vade')) return `La <b>spirale VADE</b> structure la partie : <b>V</b>aloriser (reconnaître l'existant) → <b>A</b>ctiver (mesurer) → <b>D</b>évelopper (faire système) → <b>E</b>ssaimer (passer au réel & inspirer). Puis elle recommence, un cran plus haut.`;
   if(has('carte','réseau','reseau','communauté','communaute')) return `La <b>Carte de l'écosystème</b> 🗺️ montre les lieux, bâtisseurs et semeurs du réseau EVAD près de toi. Clique un marqueur pour ses infos, et filtre par type ou par quêtes ouvertes.`;
+  if(has('projection','scénario','scenario','simulat','projeter','avant d\'agir')) return `Au <b>Tableau de bord</b>, la section <b>📈 Modélisation</b> te fait décider avant d'agir : la <b>🔮 projection</b> montre où sera ta Vadance dans 1, 3 ou 6 mois au rythme d'une solution par mois, et le <b>🧪 simulateur de scénarios</b> compare, pour un budget donné, les combos qui maximisent chaque capital. « Adopter ce scénario » te pré-sélectionne les solutions dans la Bibliothèque 🌱`;
   if(has('modélis','modelis','maquette','bloc','construire','luanti','minetest')) return `La <b>Modélisation</b> 🧱 te laisse construire ton hub en blocs : pose tes <b>espaces</b> sur le terrain, les <b>solutions</b> installées y apparaissent, et tu ajoutes arbres, chemins et mare. Un lieu, ça se dessine aussi 🌱`;
   if(has('ferme','nommer',' nom','créer','creer','fiche','appeler')) return `Pour bien nommer un lieu, sois précis et inspirant, et ajoute un mot-clé d'impact : « <i>Ferme des Lucioles, maraîchage régénératif</i> » ou « <i>Les Racines, permaculture & biodiversité</i> ». Le nom doit dire ce que le lieu <b>prouve</b>.`;
   if(has('objectif','gagner',' but','comment jouer','finir','réussir','reussir')) return `Ton objectif : <b>${goalLabel()}</b>.<br><br>${devaTip()}`;
@@ -5265,8 +5269,8 @@ function devaAnswer(qraw){
 function devaTip(){
   const vad=S.profile==='semeur'?S.vaditeFin:curVadite();
   if(S.profile==='pilote'){
-    if(countProven()===0) return `Bienvenue 🌱 Commencez par <b>reconnaître l'existant</b> : votre café produit déjà de la Vadance, mais rien n'est prouvé. Cliquez « 📊 Attacher ICI » dessus pour la transformer en Vadité.`;
-    if(installedIds().length<2) return `Ouvre la 📚 <b>Bibliothèque</b> et installe une solution dans la <b>Pleine terre</b> ou la <b>Toiture</b> (chaque solution coûte des Graines). Pense aux flux : Cuisine, Composteur et Potager forment une belle boucle.`;
+    if(countProven()===0) return `Bienvenue 🌱 Commencez par <b>reconnaître l'existant</b> : votre lieu produit déjà de la Vadance, mais rien n'est prouvé. Cliquez « 📊 Mesurer » dessus pour la transformer en Vadité.`;
+    if(installedIds().length<2) return `Ouvre la 📚 <b>Bibliothèque</b> et installe une solution dans un espace compatible : ça ne te coûte rien, ce sont les <b>Semeurs</b> qui financent la facture. Pense aux flux : Cuisine, Composteur et Potager forment une belle boucle.`;
     if(fluxLoops(installedIds()).length===0) return `Vous avez des solutions, mais pas encore de <b>boucle</b> 🔄. Cherchez deux cartes dont les flux se répondent (une qui produit ce qu'une autre consomme) : la boucle rapporte des Graines chaque saison.`;
     if(!pilotHasFresh()) return `Un conseil pour l'été : installez une solution 🌊 <b>Fraîcheur</b> (eau de pluie, mur végétal, ombrière). En canicule, votre lieu deviendra un îlot de fraîcheur au lieu de perdre de la Vadance.`;
     return `Vous êtes à ${round1(vad)}/60 de Vadité 🌿. Continuez à <b>mesurer</b> ce que vous installez (chaque ICI convertit la Vadance) et à densifier vos boucles : 5 boucles = Forêt nourricière ×2.`;
