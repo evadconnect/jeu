@@ -890,54 +890,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 </div>
 
 
-<!-- ══════════════════ SPLASH (entrée alternative) ══════════════════ -->
-<div id="splash" style="display:none">
-  <div class="splash-inner">
-    <div class="splash-badge">🌍 Le réseau EVAD</div>
-    <h1 class="splash-title">Nous sommes en <span class="sun">2030</span>.</h1>
-    <p class="splash-sub">Un futur solarpunk qui pousse déjà. Et vous allez le faire fleurir.</p>
-
-    <div class="story">
-      <p>Les étés sont plus chauds, c'est vrai. Mais pendant qu'on regardait ailleurs, quelque chose de magnifique a grandi dans les friches, sur les toits et dans les campagnes : des <b>hubs régénératifs</b>, des lieux où l'énergie vient du soleil, la nourriture des cours et des terrasses, où l'on répare, partage et décide ensemble.</p>
-      <p>Sans attendre les subventions, ces lieux, leurs habitants et les financeurs d'impact se sont fédérés : un réseau où la confiance se cultive comme le reste, par la preuve. Chaque impact vérifié attire de nouveaux Semeurs, chaque lieu prouvé en inspire dix autres.</p>
-      <p>Ce réseau, et l'outil commun qui le fait vivre, s'appelle <span class="em">EVAD</span>. Quatre vraies saisons par an, du soleil à revendre, quelques caprices du ciel à apprivoiser, et tout un territoire à faire fleurir d'ici <span class="em">2033</span>.</p>
-    </div>
-
-    <p class="splash-why">En attendant la bêta d'octobre, ce serious game vous fait découvrir EVAD en jouant. Tout ce que vous y manipulez existe (ou existera) dans la vraie plateforme : les cartes de la Bibliothèque, les indicateurs ICI, les Graines, la Vadance et la Vadité, les trois profils, et Deva. Vos retours orienteront directement la bêta.</p>
-
-    <h2 style="font-size:1.15rem;font-weight:900;margin-bottom:.3rem">Choisissez qui vous êtes</h2>
-    <p style="font-size:.82rem;opacity:.82;margin-bottom:1.3rem">Trois profils, trois façons de jouer, un seul monde, les mêmes règles de preuve.</p>
-
-    <div class="profiles-grid">
-      <div class="pcard pilote" onclick="chooseProfile('pilote')">
-        <div class="pico">🏡</div>
-        <div class="prole">Vous opérez un lieu</div>
-        <h3>Pilote d'impact</h3>
-        <p>Composez vos 4 espaces, installez des solutions de la Bibliothèque, mesurez-les avec les ICI, tissez des boucles circulaires.</p>
-        <div class="pgoal">🎯 Atteindre <b>60/100 de Vadité</b> pour que votre lieu rejoigne les hubs régénératifs reconnus.</div>
-        <div class="pgo">Opérer un lieu →</div>
-      </div>
-      <div class="pcard batisseur" onclick="chooseProfile('batisseur')">
-        <div class="pico">🌿</div>
-        <div class="prole">Vous contribuez</div>
-        <h3>Bâtisseur d'impact</h3>
-        <p>Trois lieux ont besoin de vos compétences. Accomplissez des missions (installer, mesurer, animer), apprenez, gagnez des Graines.</p>
-        <div class="pgoal">🎯 Accomplir <b>5 missions</b> pour devenir Bâtisseur·se confirmé·e.</div>
-        <div class="pgo">Contribuer →</div>
-      </div>
-      <div class="pcard semeur" onclick="chooseProfile('semeur')">
-        <div class="pico">🌾</div>
-        <div class="prole">Vous financez</div>
-        <h3>Semeur d'impact</h3>
-        <p>Financez la régénération en euros. Chaque financement installe la solution avec sa mesure : vous récoltez de la Vadité vérifiée.</p>
-        <div class="pgoal">🎯 Atteindre <b>25 points de Vadité financée</b> et produire votre rapport d'impact.</div>
-        <div class="pgo">Financer →</div>
-      </div>
-    </div>
-    <p class="splash-note">Prototype de découverte · aucun compte, aucune donnée envoyée · votre partie vit dans ce navigateur.</p>
-  </div>
-</div>
-
 <!-- ══════════════════ APP SHELL (sidebar + main) ══════════════════ -->
 <div class="app" id="app" style="display:none">
 
@@ -1603,7 +1555,7 @@ function introStep(n){
     else if(i===6){ thread += wChoix(cur); }
   }
   const body=`<div class="ob-thread">${thread}</div>`;
-  if(n===0) actions=`<button class="ob-skip" onclick="introFreeExplore()">Explorer librement</button><button class="ob-next" onclick="introStep(1)">Suivant →</button>`;
+  if(n===0) actions=`<button class="ob-next" onclick="introStep(1)">Suivant →</button>`;
   else if(n===1) actions=back(0)+`<button class="ob-next" onclick="introNameNext()">Continuer →</button>`;
   else if(n===2) actions=back(1)+`<button class="ob-next" onclick="introStep(3)">Suivant →</button>`;
   else if(n===3) actions=back(2)+`<button class="ob-next" onclick="introStep(4)">Suivant →</button>`;
@@ -1632,7 +1584,15 @@ function introLaunch(){
   closeModal(); startAct('pilote');
 }
 function startProfileDirect(profile){ PLAYER_NAME=(INTRO&&INTRO.name)||PLAYER_NAME; SESSION=null; closeModal(); chooseProfile(profile); }
-function introFreeExplore(){ introEnd(); closeModal(); SESSION=null; document.getElementById('splash').style.display='block'; document.getElementById('app').style.display='none'; }
+/* Retour à l'intro guidée de Deva (remplace l'ancien écran d'accueil #splash) */
+function goToIntro(){
+  closeModal(); SESSION=null;
+  const app=document.getElementById('app'); if(app) app.style.display='none';
+  const dp=document.getElementById('deva-panel'); if(dp) dp.classList.remove('open');
+  const iv=document.getElementById('intro'); if(iv){ iv.style.display='flex'; iv.classList.remove('hide','chatting'); }
+  window.scrollTo(0,0);
+  introDeva();
+}
 /* Passer tout l'onboarding et arriver directement au jeu (dispo a chaque etape) */
 function skipOnboarding(){
   if(S && S.ob){ obSkip(); return; }            // onboarding du profil en cours → terminer avec les defauts
@@ -1703,13 +1663,12 @@ function sessionEnd(){
     <p>Tu as parcouru tout EVAD : <b>🏡 Pilote</b> (opérer un lieu), <b>🌿 Bâtisseur</b> (contribuer et prouver), <b>🌾 Semeur</b> (financer le vérifié). Trois rôles, un même principe : <b>vérifié bat certifié</b>.</p>
     <div class="mb-detail">Envie d'aller plus loin ? Rejoue un profil en profondeur, ou attends la bêta d'octobre. Tes retours orientent EVAD 🌱</div>
     <button class="btn btn-primary" style="width:100%" onclick="closeModal()">Continuer à explorer</button>
-    <button class="btn btn-ghost" style="width:100%;margin-top:.5rem" onclick="closeModal();document.getElementById('splash').style.display='block';document.getElementById('app').style.display='none'">← Écran d'accueil</button>
+    <button class="btn btn-ghost" style="width:100%;margin-top:.5rem" onclick="goToIntro()">← Revoir l'intro</button>
   `);
 }
 function chooseProfile(p){
   S = newState(p);
   if(p==='pilote'){ S.spaces = makeSpaces(); }
-  document.getElementById('splash').style.display='none';
   setupNav();
   render();
   // L'app reste masquee : l'onboarding du profil (nom du lieu, type, motivation...)
@@ -2089,7 +2048,6 @@ function obFinish(){
   S.ob=null;
   closeModal();
   introEnd();
-  document.getElementById('splash').style.display='none';
   document.getElementById('app').style.display='flex';
   setupNav();
   S.devaMsgs=[{role:'deva',html:`Ravie de t'accueillir, <b>${escapeHtml(S.playerName)}</b> 🌿 ${devaTip()}`}];
@@ -4177,11 +4135,7 @@ function produceReport(){
     <button class="btn btn-primary" style="width:100%" onclick="closeModal()">Fermer</button>`;
   openModal(h);
 }
-function restart(){ closeModal(); document.getElementById('splash').style.display='block';
-  document.getElementById('app').style.display='none';
-  document.getElementById('deva-panel').classList.remove('open');
-  window.scrollTo(0,0);
-}
+function restart(){ goToIntro(); }
 
 function openModal(html){ const b=document.getElementById('modal-box'); b.className='modal-box'; b.innerHTML=html; document.getElementById('modal').classList.add('open'); }
 function openOnboarding(html){ const b=document.getElementById('modal-box'); b.className='modal-box deva-ob'; b.innerHTML=html; document.getElementById('modal').classList.add('open'); }
