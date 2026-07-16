@@ -1856,7 +1856,9 @@ function buildTourSteps(){
       {sel:navSel('dash'), side:'right', title:'📊 Tableau de bord', text:'Ta progression, tes badges et ta quête finale, en un coup d\'œil.'},
     ]),
     {sel:navSel('a'), side:'right', title:navBy('a').ic+' '+navBy('a').label, text:AB.a},
-    {sel:'#stats', side:'bottom', title:'Tes ressources', text:'🌰 <b>Graines</b> (agir), ✨ <b>Vadance</b> (impact promis) et 🌿 <b>Vadité</b> (impact prouvé, ta devise).'},
+    {sel:'[data-stat="graines"]', side:'bottom', title:'🌰 Graines', text:'La <b>monnaie de l\'action</b>. Elle se gagne en agissant, jamais avec des euros. Les euros, eux, financent : c\'est un circuit à part, côté Semeurs.'},
+    {sel:'[data-stat="vadance"]', side:'bottom', title:'✨ Vadance', text:'L\'impact <b>promis</b> : une solution est installée, mais pas encore mesurée. C\'est ce que ton lieu <i>annonce</i>.'},
+    {sel:'[data-stat="vadite"]', side:'bottom', title:'🌿 Vadité', text:'L\'impact <b>prouvé</b> : un <b>ICI</b> (Indicateur de Changement d\'Impact) est attaché et vérifié. Un indicateur de terrain qui parle tous les langages (ODD, ESRS, PCAET, RSE). C\'est ta devise, ta ligne d\'arrivée.'},
     ...(S.profile==='pilote' ? [
       {sel:'.season-btn', side:'bottom', title:'⏳ Le temps qui passe', text:'Ce bouton fait avancer la saison : tes espaces produisent, les revenus tombent, et les aléas climatiques arrivent.'},
       {sel:'#vade-bar', side:'bottom', title:'🌀 La spirale VADE', text:'Valoriser → Activer → Développer → Essaimer : le fil rouge de ta partie, phase après phase.'},
@@ -2308,11 +2310,11 @@ function renderTopbar(){
   const sz=SEASONS[S.seasonIdx%4], yr=2030+Math.floor(S.seasonIdx/4);
   document.getElementById('season-lab').textContent=`${sz.ic} ${sz.name} ${yr}`;
   // stats
-  let html=`<span class="stat">🌰 ${S.graines}<span class="lab">Graines</span></span>`;
-  if(S.profile==='semeur') html+=`<span class="stat">💶 ${S.euros}<span class="lab">€</span></span>`;
-  html+=`<span class="stat">✨ ${round1(curVadance())} ${pts(curVadance())}<span class="lab">Vadance</span></span>`;
+  let html=`<span class="stat" data-stat="graines">🌰 ${S.graines}<span class="lab">Graines</span></span>`;
+  if(S.profile==='semeur') html+=`<span class="stat" data-stat="euros">💶 ${S.euros}<span class="lab">€</span></span>`;
+  html+=`<span class="stat" data-stat="vadance">✨ ${round1(curVadance())} ${pts(curVadance())}<span class="lab">Vadance</span></span>`;
   const vad = S.profile==='semeur'?S.vaditeFin:curVadite();
-  html+=`<span class="stat vadite">🌿 ${round1(vad)} / ${PROFILS[S.profile].goal} points<span class="lab">Vadité</span></span>`;
+  html+=`<span class="stat vadite" data-stat="vadite">🌿 ${round1(vad)} / ${PROFILS[S.profile].goal} points<span class="lab">Vadité</span></span>`;
   document.getElementById('stats').innerHTML=html;
   // VADE bar
   document.getElementById('vade-bar').innerHTML = `<span class="vade-cycle">🌀 Cycle ${S.vadeCycle||1}/3</span>` + VADE.map((v,i)=>{
