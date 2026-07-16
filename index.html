@@ -1489,7 +1489,7 @@ function newState(profile){
     tab:'a', devaOpen:false,
     // pilote
     hand:[], spaces:null, sel:null, pcomps:new Set(), lieuName:'La Friche des Possibles', lieuType:'jardin', ob:null, playerName:'', loopsActive:0, loopBadgeShown:false, vadanceBonus:0,
-    lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{}, questesPubliees:false, questesPublieesSnap:'', myPosts:[], biblioTourDone:false, carteTourDone:false, reseauTourDone:false, tourDemo:false,
+    lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{}, questesPubliees:false, questesPublieesSnap:'', myPosts:[], biblioTourDone:false, carteTourDone:false, reseauTourDone:false, batMissionsTourDone:false, batCompTourDone:false, pendingBatTour:false, tourDemo:false,
     pondMode:'egalite', measureCtx:null,
     mktFilter:'all', purchases:[], ecoMissions:{},
     // batisseur
@@ -1672,6 +1672,16 @@ function replayTour(){
     reseauTour();
     return;
   }
+  if(S.profile==='batisseur' && S.tab==='a' && S.batSub!=='dash'){
+    S.batMissionsTourDone=false;
+    batMissionsTour();
+    return;
+  }
+  if(S.profile==='batisseur' && S.tab==='b'){
+    S.batCompTourDone=false;
+    batCompTour();
+    return;
+  }
   S.tourDone=false;
   startTour();
 }
@@ -1837,6 +1847,7 @@ function endTour(){
   const tip=document.getElementById('tour-tip'), ov=document.getElementById('tour-overlay');
   tip.classList.remove('on','over-modal'); ov.classList.remove('on','over-modal');
   if(S.tourDemo){ S.tourDemo=false; closeModal(); }
+  if(S.pendingBatTour && S.profile==='batisseur'){ S.pendingBatTour=false; setTimeout(()=>batMissionsTour(), 420); }
 }
 window.addEventListener('resize',()=>{ if(S&&S.tour){ const st=S.tour.steps[S.tour.i]; positionTip(document.getElementById('tour-tip'), document.querySelector(st.sel), st.side); } });
 
@@ -2085,7 +2096,8 @@ function obFinish(){
   render();
   // Message de bienvenue « prend racine » en bulle Deva (visite guidée) au lieu d'un toast :
   // 1re étape du tour si le tour se lance, sinon une bulle de bienvenue autonome (actes 2/3).
-  if(!SESSION || SESSION.act===1) setTimeout(()=>startTour(), 550);
+  if(!SESSION || SESSION.act===1){ if(S.profile==='batisseur') S.pendingBatTour=true; setTimeout(()=>startTour(), 550); }
+  else if(S.profile==='batisseur') setTimeout(()=>batMissionsTour(), 550);
   else setTimeout(()=>devaWelcome(), 550);
   renderSessionBar();
 }
@@ -2142,6 +2154,8 @@ function switchTab(k){ if(!S.tabsSeen) S.tabsSeen=new Set(); S.tabsSeen.add(k); 
   if(k==='b' && S.profile==='pilote' && !S.biblioTourDone && !S.tour) setTimeout(()=>biblioTour(), 380);
   if(k==='carte' && S.profile==='pilote' && !S.carteTourDone && !S.lieuPublished && !S.tour) setTimeout(()=>carteTour(), 380);
   if(k==='reseau' && !S.reseauTourDone && !S.tour) setTimeout(()=>reseauTour(), 380);
+  if(k==='a' && S.profile==='batisseur' && S.batSub!=='dash' && !S.batMissionsTourDone && !S.tour) setTimeout(()=>batMissionsTour(), 380);
+  if(k==='b' && S.profile==='batisseur' && !S.batCompTourDone && !S.tour) setTimeout(()=>batCompTour(), 380);
 }
 /* Deverrouille un onglet, l'ouvre et laisse Deva l'expliquer (mini visite guidee) */
 const REVEAL_INFO={
@@ -4300,6 +4314,65 @@ function reseauTour(){
   S.reseauTourDone=true;
   S.reseauFilter='tous'; if(S.tab!=='reseau'){ S.tab='reseau'; } render();
   S.tour={ steps:reseauTourSteps(true), i:0 };
+  document.getElementById('tour-overlay').classList.add('on');
+  showTourStep(0);
+}
+/* ══ BÂTISSEUR : visites guidées d'onglet, chacune finit sur une action ══ */
+/* Onglet Missions : découvrir un chantier, puis en accepter un (ou apprendre la compétence requise) */
+function batMissionsTourSteps(withNav){
+  const nm=S.playerName&&S.playerName!=='toi'?(' '+escapeHtml(S.playerName)):'';
+  const steps=[];
+  if(withNav) steps.push({sel:'.nav-item[data-tab="a"]', side:'right', onEnter:()=>{ S.tab='a'; S.batSub='missions'; render(); },
+     title:'🛠️ Les missions du réseau', text:`Voici tes <b>chantiers</b>${nm} : trois lieux du réseau ont besoin de tes mains. Accepte une mission, réalise-la, gagne des Graines. Regardons de plus près 👇`});
+  steps.push({sel:'.mission', side:'left', scroll:true, title:'🧩 Une mission, c\'est quoi ?',
+     text:'Chaque mission demande une <b>compétence</b>, rapporte des <b>🌰 Graines</b>, et se résout à la <b>fin de la saison</b> en modifiant durablement le lieu. Tu peux en mener <b>2 en parallèle</b>.'});
+  const acceptSel='.mission .m-cta.btn-primary:not([disabled])';
+  const learnSel='.mission .m-cta.btn-ghost:not([disabled])';
+  if(document.querySelector(acceptSel)){
+    steps.push({sel:acceptSel, side:'left', scroll:true, title:'✋ Accepte ta première mission',
+      text:'Celle-ci correspond à une compétence que tu as <b>déjà</b>. En l\'acceptant, tu t\'engages sur le chantier : il se résoudra à la prochaine saison et te rapportera des Graines 🌱',
+      cta:'🛠️ Accepter cette mission', action:()=>{ const b=document.querySelector(acceptSel); if(b) b.click(); endTour(); }});
+  } else if(document.querySelector(learnSel)){
+    steps.push({sel:learnSel, side:'left', scroll:true, title:'🎓 Apprends la compétence requise',
+      text:'Ces missions demandent une compétence que tu n\'as pas encore. Apprends-la pour <b>4🌰</b> et tu pourras enchaîner sur la mission juste après 🌱',
+      cta:'🎓 Apprendre cette compétence', action:()=>{ const b=document.querySelector(learnSel); if(b) b.click(); endTour(); }});
+  } else {
+    steps.push({sel:'.sect-sub', side:'bottom', scroll:true, title:'🛠️ À toi de jouer',
+      text:'Reviens ici dès que tu as des Graines ou une place libre pour accepter un nouveau chantier 🌿'});
+  }
+  return steps;
+}
+function batMissionsTour(){
+  if(S.batMissionsTourDone) return;
+  S.batMissionsTourDone=true;
+  S.tab='a'; S.batSub='missions'; render();
+  S.tour={ steps:batMissionsTourSteps(true), i:0 };
+  document.getElementById('tour-overlay').classList.add('on');
+  showTourStep(0);
+}
+/* Onglet Compétences : comprendre, puis en apprendre une */
+function batCompTourSteps(withNav){
+  const steps=[];
+  if(withNav) steps.push({sel:'.nav-item[data-tab="b"]', side:'right', onEnter:()=>{ if(S.tab!=='b'){ S.tab='b'; render(); } },
+     title:'🎓 Tes compétences', text:'Chaque <b>compétence</b> débloque un nouveau type de mission et fait avancer ta spirale (A · Activer). Voyons comment en gagner 👇'});
+  steps.push({sel:'.comp', side:'right', scroll:true, title:'🧩 Une compétence',
+     text:'Tu démarres avec deux compétences. Les autres s\'apprennent pour <b>4🌰</b> et t\'ouvrent des missions à plus fort impact.'});
+  const learnSel='.comp:not(.owned) .mini-btn:not([disabled])';
+  if(document.querySelector(learnSel)){
+    steps.push({sel:learnSel, side:'top', scroll:true, title:'🎓 Apprends-en une',
+      text:'Débloque une nouvelle compétence pour <b>4🌰</b> : tu pourras aussitôt accepter les missions qu\'elle ouvre, et ta spirale avance 🌱',
+      cta:'🎓 Apprendre cette compétence', action:()=>{ const b=document.querySelector(learnSel); if(b) b.click(); endTour(); }});
+  } else {
+    steps.push({sel:'.comp-grid', side:'top', scroll:true, title:'🎓 Monte en compétence',
+      text:'Il te faut <b>4🌰</b> pour apprendre une compétence. Gagne des Graines en accomplissant des missions, puis reviens en débloquer 🌿'});
+  }
+  return steps;
+}
+function batCompTour(){
+  if(S.batCompTourDone) return;
+  S.batCompTourDone=true;
+  if(S.tab!=='b'){ S.tab='b'; } render();
+  S.tour={ steps:batCompTourSteps(true), i:0 };
   document.getElementById('tour-overlay').classList.add('on');
   showTourStep(0);
 }
