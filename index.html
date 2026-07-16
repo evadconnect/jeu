@@ -1769,9 +1769,7 @@ function showTourStep(i){
   tip.querySelector('.tt-title').innerHTML=st.title;
   tip.querySelector('.tt-text').innerHTML=st.text;
   tip.querySelector('.tt-dots').innerHTML=t.steps.map((_,k)=>`<span class="tt-dot ${k===i?'on':(k<i?'done':'')}"></span>`).join('');
-  const nb=tip.querySelector('.tt-next');
-  if(st.cta){ nb.textContent=st.cta; nb.onclick=()=>{ if(st.action) st.action(); }; }
-  else { nb.textContent = i<t.steps.length-1 ? 'Suivant →' : 'C\'est parti ✦'; nb.onclick=tourNext; }
+  tip.querySelector('.tt-next').textContent = i<t.steps.length-1 ? 'Suivant →' : 'C\'est parti ✦';
   tip.classList.add('on');
   positionTip(tip, target, st.side);
 }
@@ -4300,12 +4298,10 @@ function batMissionsTourSteps(withNav){
   const learnSel='.mission .m-cta.btn-ghost:not([disabled])';
   if(document.querySelector(acceptSel)){
     steps.push({sel:acceptSel, side:'left', scroll:true, title:'✋ Accepte ta première mission',
-      text:'Celle-ci correspond à une compétence que tu as <b>déjà</b>. En l\'acceptant, tu t\'engages sur le chantier : il se résoudra à la prochaine saison et te rapportera des Graines 🌱',
-      cta:'🛠️ Accepter cette mission', action:()=>{ const b=document.querySelector(acceptSel); if(b) b.click(); endTour(); }});
+      text:'Celle-ci correspond à une compétence que tu as <b>déjà</b>. Clique <b>« Accepter »</b> quand tu es prêt·e : tu t\'engages sur le chantier, il se résoudra à la prochaine saison et te rapportera des Graines 🌱'});
   } else if(document.querySelector(learnSel)){
     steps.push({sel:learnSel, side:'left', scroll:true, title:'🎓 Apprends la compétence requise',
-      text:'Ces missions demandent une compétence que tu n\'as pas encore. Apprends-la pour <b>4🌰</b> et tu pourras enchaîner sur la mission juste après 🌱',
-      cta:'🎓 Apprendre cette compétence', action:()=>{ const b=document.querySelector(learnSel); if(b) b.click(); endTour(); }});
+      text:'Ces missions demandent une compétence que tu n\'as pas encore. Clique <b>« Apprendre · 4🌰 »</b> pour la débloquer : tu pourras enchaîner sur la mission juste après 🌱'});
   } else {
     steps.push({sel:'.sect-sub', side:'bottom', scroll:true, title:'🛠️ À toi de jouer',
       text:'Reviens ici dès que tu as des Graines ou une place libre pour accepter un nouveau chantier 🌿'});
@@ -4330,8 +4326,7 @@ function batCompTourSteps(withNav){
   const learnSel='.comp:not(.owned) .mini-btn:not([disabled])';
   if(document.querySelector(learnSel)){
     steps.push({sel:learnSel, side:'top', scroll:true, title:'🎓 Apprends-en une',
-      text:'Débloque une nouvelle compétence pour <b>4🌰</b> : tu pourras aussitôt accepter les missions qu\'elle ouvre, et ta spirale avance 🌱',
-      cta:'🎓 Apprendre cette compétence', action:()=>{ const b=document.querySelector(learnSel); if(b) b.click(); endTour(); }});
+      text:'Clique <b>« Apprendre »</b> pour débloquer une compétence (<b>4🌰</b>) : tu pourras aussitôt accepter les missions qu\'elle ouvre, et ta spirale avance 🌱'});
   } else {
     steps.push({sel:'.comp-grid', side:'top', scroll:true, title:'🎓 Monte en compétence',
       text:'Il te faut <b>4🌰</b> pour apprendre une compétence. Gagne des Graines en accomplissant des missions, puis reviens en débloquer 🌿'});
