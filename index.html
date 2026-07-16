@@ -3335,6 +3335,7 @@ function openFicheLieu(id){
       ${ficheStats(stats)}
       ${f.espaces?`<div class="det-sec"><div class="det-sec-t">🧩 Espaces du lieu</div>${ficheTags(f.espaces)}</div>`:''}
       ${f.solutions?`<div class="det-sec"><div class="det-sec-t">🌱 Solutions installées</div>${ficheTags(f.solutions,'gr')}</div>`:''}
+      ${MODEL_LIEUX[id]?`<div class="det-sec"><div class="det-sec-t">🧱 Modélisation du lieu</div><div class="model-map">${modelLieuSvg(id)}</div></div>`:''}
       ${f.cherche?`<div class="det-regen"><div class="det-regen-t">⚡ Ce lieu cherche</div><div class="det-regen-d">${f.cherche}</div></div>`:''}
       ${cta}
     </div>`);
@@ -3364,6 +3365,11 @@ function openFicheMonLieu(l){
       ])}
       ${acts.length?`<div class="det-sec"><div class="det-sec-t">🧩 Activités de tes espaces</div>${ficheTags(acts)}</div>`:''}
       ${names.length?`<div class="det-sec"><div class="det-sec-t">🌱 Solutions installées</div>${ficheTags(names,'gr')}</div>`:'<div class="det-flux">Aucune solution installée pour l’instant : ouvre la Bibliothèque et pose ta première carte.</div>'}
+      ${(S.navUnlocked&&S.navUnlocked.has('modele'))?`<div class="det-sec"><div class="det-sec-t">🧱 Modélisation du lieu</div>${
+        Object.keys((S.model&&S.model.placed)||{}).length
+          ? `<div class="model-map">${modelSceneSvg(mine, modelState(), false)}</div>`
+          : `<div class="det-flux">Ton hub n'est pas encore modélisé : pose tes espaces sur le terrain pour donner corps à ton lieu 🧱</div>`
+      }<button class="btn btn-ghost det-action" onclick="closeModal();switchTab('modele')">🧱 Ouvrir la Modélisation →</button></div>`:''}
       ${qpub.length?`<div class="det-sec"><div class="det-sec-t">⚔️ Réalisations publiées</div>
         ${qpub.map(q=>`<div class="mq-item mini"><span class="mq-ic">${q.sol.ic}</span>
           <div class="mq-body"><div class="mq-nm">${escapeHtml(q.sol.quete.titre)}</div></div>
@@ -3629,13 +3635,8 @@ function modSpaceHTML(sp,p,n){
   }
   return s;
 }
-function renderModele(){
-  const el=document.getElementById('view-modele'); if(!el) return;
-  if(S.profile!=='pilote'){ el.innerHTML=''; return; }
-  const m=modelState();
-  const spaces=(S.spaces||[]).filter(sp=>!sp.existant);
-  Object.keys(m.placed).forEach(id=>{ if(!spaces.find(sp=>sp.id===id)) delete m.placed[id]; }); // espaces disparus
-
+/* Construit la scène isométrique complète ; interactive=false pour un aperçu en lecture seule (fiches) */
+function modelSceneSvg(spaces, m, interactive){
   /* ---- terrain ---- */
   let g='';
   const GREENS=['#cde7c8','#c6e2c1','#d3ebce'];
@@ -3658,8 +3659,8 @@ function renderModele(){
     items.push({d:d.x+d.y, html:`<ellipse cx="${cx}" cy="${cy+5}" rx="10" ry="4" fill="rgba(13,43,34,.16)"/><text x="${cx}" y="${cy+2-(big?8:2)}" text-anchor="middle" font-size="${big?24:17}">${MODEL_DECO[d.t].ic}</text>`});
   });
   items.sort((a,b)=>a.d-b.d).forEach(it=>{ g+=it.html; });
-  /* ---- tuiles cliquables (par-dessus tout) ---- */
-  for(let y=0;y<MOD_N;y++) for(let x=0;x<MOD_N;x++)
+  /* ---- tuiles cliquables (mode interactif seulement) ---- */
+  if(interactive) for(let y=0;y<MOD_N;y++) for(let x=0;x<MOD_N;x++)
     g+=`<polygon class="mtile" points="${modDia(modCx(x,y),modCy(x,y),MOD_W,MOD_H)}" onclick="modelTileClick(${x},${y})"/>`;
   /* ---- étiquettes des espaces (non cliquables) ---- */
   let labels='';
@@ -3670,7 +3671,15 @@ function renderModele(){
     const w=nm.length*6.2+34;
     labels+=`<g pointer-events="none"><rect x="${bx-w/2}" y="${by-13}" width="${w}" height="19" rx="9.5" fill="#fff" opacity=".92" stroke="rgba(13,43,34,.15)"/><text x="${bx}" y="${by+1}" text-anchor="middle" font-size="10.5" font-weight="800" fill="#0d2b22">${sp.ic} ${escapeHtml(nm)}</text></g>`;
   }
-  const svg=`<svg viewBox="0 0 ${MOD_VW} ${MOD_OY+MOD_N*MOD_H*2+34}" xmlns="http://www.w3.org/2000/svg">${g}${labels}</svg>`;
+  return `<svg viewBox="0 0 ${MOD_VW} ${MOD_OY+MOD_N*MOD_H*2+34}" xmlns="http://www.w3.org/2000/svg">${g}${labels}</svg>`;
+}
+function renderModele(){
+  const el=document.getElementById('view-modele'); if(!el) return;
+  if(S.profile!=='pilote'){ el.innerHTML=''; return; }
+  const m=modelState();
+  const spaces=(S.spaces||[]).filter(sp=>!sp.existant);
+  Object.keys(m.placed).forEach(id=>{ if(!spaces.find(sp=>sp.id===id)) delete m.placed[id]; }); // espaces disparus
+  const svg=modelSceneSvg(spaces, m, true);
 
   /* ---- panneau ---- */
   const hint = m.sel ? `📐 Choisis la taille ci-dessous, puis 👆 clique le terrain pour poser « <b>${escapeHtml((spaces.find(s=>s.id===m.sel)||{}).name||'')}</b> » (${modSize(m,m.sel)}×${modSize(m,m.sel)})`
@@ -3758,6 +3767,33 @@ function modelSelectSpace(id){
 function modelSelectDeco(t){ const m=modelState(); m.sel=null; m.mode=(m.mode===t?null:t); render(); }
 function modelEraseMode(){ const m=modelState(); m.sel=null; m.mode=(m.mode==='erase'?null:'erase'); render(); }
 function modelClear(){ const m=modelState(); m.placed={}; m.deco=[]; m.sel=null; m.mode=null; toast('Terrain vidé'); render(); }
+/* ── Modélisations des lieux du réseau (aperçus en lecture seule dans les fiches) ── */
+const MODEL_LIEUX={
+  darwin:{spaces:[
+    {id:'dw1',name:'Coworking',ic:'💻',bg:'rgba(122,110,168,.18)',size:3,x:1,y:1,sols:[{id:'solaire'}]},
+    {id:'dw2',name:'Café-cantine',ic:'🍽️',bg:'rgba(200,115,42,.16)',size:2,x:6,y:1,sols:[{id:'amap'}]},
+    {id:'dw3',name:'Jardin nourricier',ic:'🌾',bg:'rgba(46,107,71,.16)',size:2,x:2,y:6,sols:[{id:'potager'},{id:'compost'}]},
+    {id:'dw4',name:'Scène',ic:'🎤',bg:'rgba(58,110,140,.16)',size:2,x:6,y:6,sols:[{id:'recup-eau'}]},
+  ],deco:[{t:'arbre',x:5,y:4},{t:'arbre',x:0,y:5},{t:'chemin',x:4,y:2},{t:'chemin',x:4,y:3},{t:'eau',x:9,y:4}]},
+  halle:{spaces:[
+    {id:'hl1',name:'Café associatif',ic:'☕',bg:'rgba(200,115,42,.16)',size:2,x:1,y:2,sols:[{id:'repair-cafe'}]},
+    {id:'hl2',name:'Cuisine partagée',ic:'🍳',bg:'rgba(46,107,71,.16)',size:2,x:6,y:1,sols:[{id:'cuisine'}]},
+    {id:'hl3',name:'Salle polyvalente',ic:'🎪',bg:'rgba(122,110,168,.18)',size:3,x:3,y:5,sols:[{id:'compost'}]},
+  ],deco:[{t:'arbre',x:1,y:6},{t:'fleur',x:5,y:2},{t:'chemin',x:4,y:3},{t:'chemin',x:4,y:4},{t:'rocher',x:8,y:7}]},
+  ferme:{spaces:[
+    {id:'fm1',name:'Jardin',ic:'🌾',bg:'rgba(46,107,71,.16)',size:3,x:1,y:1,sols:[{id:'potager'}]},
+    {id:'fm2',name:'Serre',ic:'🌿',bg:'rgba(74,171,143,.18)',size:2,x:6,y:2,sols:[{id:'serre'}]},
+    {id:'fm3',name:'Boutique',ic:'🛒',bg:'rgba(200,115,42,.16)',size:2,x:2,y:6,sols:[{id:'marche-producteurs'}]},
+    {id:'fm4',name:'Compost',ic:'♻️',bg:'rgba(160,108,0,.14)',size:1,x:7,y:7,sols:[{id:'compost'}]},
+  ],deco:[{t:'arbre',x:5,y:0},{t:'arbre',x:0,y:5},{t:'arbre',x:9,y:5},{t:'fleur',x:5,y:5},{t:'eau',x:5,y:8},{t:'chemin',x:4,y:4}]},
+};
+/* Aperçu isométrique d'un lieu du réseau (spécification statique) */
+function modelLieuSvg(id){
+  const spec=MODEL_LIEUX[id]; if(!spec) return '';
+  const placed={}, sizes={};
+  spec.spaces.forEach(sp=>{ placed[sp.id]={x:sp.x,y:sp.y}; sizes[sp.id]=sp.size; });
+  return modelSceneSvg(spec.spaces, {placed, deco:spec.deco||[], sizes}, false);
+}
 
 
 /* ═══════════════ PLACE DE MARCHÉ (échange de Graines) ═══════════════ */
