@@ -937,7 +937,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
     <div class="nav-menu" id="nav-menu"></div>
 
     <div class="nav-bottom">
-      <button class="ob-intro-btn" onclick="showOnboarding()"><span class="oib-ico">💡</span><span class="oib-txt">Comment jouer</span></button>
       <button class="ob-intro-btn" id="nav-switch" onclick="replayTour()"><span class="oib-ico">🧭</span><span class="oib-txt">Revoir la visite guidée</span></button>
       <div class="deva-pill" id="deva-pill" onclick="toggleDeva()" title="Parler à Deva">
         <span class="dp-av deva-av"></span>
@@ -2062,7 +2061,7 @@ function obHowtoBody(){
   const h=HOWTO[S.profile]||HOWTO.pilote;
   let out=`<div class="ob-goal">🎯 <b>But du jeu :</b> ${h.goal}</div><div class="ob-howto">`;
   h.steps.forEach(s=>{ out+=`<div class="ohw"><span class="ohw-ic">${s[0]}</span><span class="ohw-t">${s[1]}</span></div>`; });
-  out+=`</div><div class="ob-howfoot">🌱 Un doute à tout moment ? <b>Deva</b> (en bas à gauche) répond, et « Comment jouer » rouvre ce récap.</div>`;
+  out+=`</div><div class="ob-howfoot">🌱 Un doute à tout moment ? <b>Deva</b> (en bas à gauche) répond, et « Revoir la visite guidée » relance le tour de l'onglet.</div>`;
   return out;
 }
 function devaOnboarding(){
