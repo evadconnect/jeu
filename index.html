@@ -910,7 +910,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 
     <div class="nav-bottom">
       <button class="ob-intro-btn" id="nav-switch" onclick="replayTour()" title="Revoir la visite guidée"><span class="oib-ico">🧭</span><span class="oib-txt">Revoir la visite guidée</span></button>
-      <button class="ob-intro-btn" id="nav-profile" onclick="goToBatisseur()" title="Aller au profil Bâtisseur"><span class="oib-ico">🌿</span><span class="oib-txt">Aller au profil Bâtisseur</span></button>
+      <button class="ob-intro-btn" id="nav-profile" onclick="goToNextProfile()" title="Aller au profil suivant"><span class="oib-ico">🌿</span><span class="oib-txt">Aller au profil suivant</span></button>
       <div class="deva-pill" id="deva-pill" onclick="toggleDeva()" title="Parler à Deva">
         <span class="dp-av deva-av"></span>
         <div class="dp-meta"><span class="deva-name">Deva</span><span class="deva-status">Active</span></div>
@@ -1594,16 +1594,22 @@ function goToIntro(){
   window.scrollTo(0,0);
   introDeva();
 }
-/* Aller au profil Bâtisseur depuis la barre latérale. La partie en cours étant perdue, on confirme. */
-function goToBatisseur(){
+/* Profil suivant proposé en raccourci, dans l'ordre de la découverte (le Semeur clôt la chaîne) */
+const NEXT_PROFILE={pilote:'batisseur', batisseur:'semeur'};
+const profShort=p=>PROFILS[p].label.split(' ')[0];
+/* Aller au profil suivant depuis la barre latérale. La partie en cours étant perdue, on confirme. */
+function goToNextProfile(){
   if(S && S.ob) return;                       // onboarding de profil en cours : rien à abandonner
-  if(!S || !S.onboarded){ switchToBatisseur(); return; }
-  const p=PROFILS[S.profile];
+  const np=S?NEXT_PROFILE[S.profile]:null;
+  if(!np) return;
+  if(!S.onboarded){ switchToProfile(np); return; }
+  const cur=PROFILS[S.profile], nxt=PROFILS[np], short=profShort(np);
   openModal(`
-    <div class="mb-ic">🌿</div>
-    <h2>Aller au profil Bâtisseur ?</h2>
-    <p>Ta partie en cours (<b>${p.ic} ${p.label}</b>) sera abandonnée : tu repars en <b>🌿 Bâtisseur d'impact</b> pour réaliser les quêtes du réseau.</p>
-    <button class="btn btn-primary" style="width:100%" onclick="switchToBatisseur()">🌿 Aller au profil Bâtisseur</button>
+    <div class="mb-ic">${nxt.ic}</div>
+    <h2>Aller au profil ${short} ?</h2>
+    <p>Ta partie en cours (<b>${cur.ic} ${cur.label}</b>) sera abandonnée : tu repars en <b>${nxt.ic} ${nxt.label}</b>.</p>
+    <div class="mb-detail">${SESSION_META[np].goal}</div>
+    <button class="btn btn-primary" style="width:100%" onclick="switchToProfile('${np}')">${nxt.ic} Aller au profil ${short}</button>
     <button class="btn btn-ghost" style="width:100%;margin-top:.5rem" onclick="closeModal()">Annuler</button>
   `);
 }
@@ -2119,9 +2125,17 @@ function setupNav(){
     return `<div class="nav-item ${S.tab===n.k?'active':''}" data-tab="${n.k}" onclick="switchTab('${n.k}')">
        <span class="nav-icon">${n.ic}${badge}</span><span class="nl">${n.label}</span></div>`;
   }).join('');
-  // Raccourci « Aller au profil Bâtisseur » : sans objet quand on y est déjà
-  const pb=document.getElementById('nav-profile');
-  if(pb) pb.style.display = S.profile==='batisseur' ? 'none' : '';
+  // Raccourci vers le profil suivant (Pilote → Bâtisseur → Semeur) ; masqué en bout de chaîne
+  const pb=document.getElementById('nav-profile'), np=NEXT_PROFILE[S.profile];
+  if(pb){
+    pb.style.display = np ? '' : 'none';
+    if(np){
+      const lab='Aller au profil '+profShort(np);
+      pb.title=lab;
+      pb.querySelector('.oib-ico').textContent=PROFILS[np].ic;
+      pb.querySelector('.oib-txt').textContent=lab;
+    }
+  }
 }
 function switchTab(k){ if(!S.tabsSeen) S.tabsSeen=new Set(); S.tabsSeen.add(k); S.tab=k; setupNav(); render();
   if(k==='b' && S.profile==='pilote' && !S.biblioTourDone && !S.tour) setTimeout(()=>biblioTour(), 380);
@@ -3698,11 +3712,13 @@ function devaProposeRelais(){
   `);
 }
 /* Bascule le joueur sur le profil Bâtisseur pour aller réaliser les quêtes du réseau */
-function switchToBatisseur(){
+function switchToProfile(p){
   closeModal();
-  if(SESSION){ SESSION.act=2; startAct('batisseur'); }
-  else { SESSION=null; chooseProfile('batisseur'); }
+  const act=SESSION_ACTS.indexOf(p);
+  if(SESSION && act>0){ SESSION.act=act; startAct(p); }
+  else { SESSION=null; chooseProfile(p); }
 }
+function switchToBatisseur(){ switchToProfile('batisseur'); }
 function reseauPost(p){
   const pr=RESEAU_PROF[p.prof], vd=VADE[VADE_KEY[p.vade]];
   const cta={quete:'Rejoindre la quête',rencontre:'Proposer un créneau',info:'Voir le lieu',you:'Voir ma fiche →'}[p.cta]||'Voir';
