@@ -3677,6 +3677,30 @@ function publishQuests(){
   toast(maj?`🔄 Réalisations mises à jour · ${finies} quête${finies>1?'s':''} accomplie${finies>1?'s':''} 🌿`
            :`🌐 Réalisations publiées ! ${qs.length} post${qs.length>1?'s':''} dans le fil du Réseau 🌿`,'win');
   render();
+  if(!maj && S.profile==='pilote') setTimeout(devaProposeRelais, 820); // Deva : place au réseau (Bâtisseurs & Semeurs)
+}
+/* Deva reprend la parole une fois les quêtes postées : le lieu a promis, le réseau va prouver */
+function devaProposeRelais(){
+  if(document.getElementById('modal').classList.contains('open')) return; // ne pas recouvrir une autre modale
+  const nm=(S.playerName&&S.playerName!=='toi')?(' '+escapeHtml(S.playerName)):'';
+  openOnboarding(`
+    <div class="ob-head"><div class="ob-av deva-av"></div><div class="ob-hmeta"><div class="ob-dname">Deva</div><div class="ob-dsub">🌐 Cap sur Développer</div></div></div>
+    <div class="ob-scroll">
+      <div class="ob-bubble ob-pop">Belles réalisations${nm} 🌿 Tes quêtes sont publiées : tout le <b>Réseau</b> voit maintenant ce que ton lieu met en place.</div>
+      <div class="ob-bubble">Ton lieu a fait sa part : il a <b>promis</b> l'impact — c'est la <b>Vadance</b>. Pour la transformer en <b>Vadité prouvée</b>, place au réseau 🌱</div>
+      <div class="ob-bubble">🌿 Les <b>Bâtisseurs</b> vont venir <b>réaliser tes quêtes</b> et installer les solutions sur le terrain.<br>🌾 Les <b>Semeurs</b> vont <b>financer</b> ce qu'il faut.<br><br>En attendant qu'ils répondent, à toi de choisir 👇</div>
+    </div>
+    <div class="ob-actions" style="flex-direction:column;align-items:stretch;gap:.55rem">
+      <button class="ob-next" style="margin-left:0" onclick="switchToBatisseur()">🌿 Devenir Bâtisseur et réaliser les quêtes →</button>
+      <button class="ob-next" style="margin-left:0;background:rgba(255,255,255,.08);color:var(--cream);box-shadow:none" onclick="closeModal()">🏡 Continuer mon lieu &amp; viser tous les badges</button>
+    </div>
+  `);
+}
+/* Bascule le joueur sur le profil Bâtisseur pour aller réaliser les quêtes du réseau */
+function switchToBatisseur(){
+  closeModal();
+  if(SESSION){ SESSION.act=2; startAct('batisseur'); }
+  else { SESSION=null; chooseProfile('batisseur'); }
 }
 function reseauPost(p){
   const pr=RESEAU_PROF[p.prof], vd=VADE[VADE_KEY[p.vade]];
