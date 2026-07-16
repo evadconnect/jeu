@@ -4584,7 +4584,7 @@ function modelTour(){
 function reseauTourSteps(withNav){
   const steps=[];
   if(withNav) steps.push({sel:'.nav-item[data-tab="reseau"]', side:'right', onEnter:()=>{ if(S.tab!=='reseau'){ S.tab='reseau'; render(); } },
-     title:'🌐 Le Réseau EVAD', text:'Voici le <b>Réseau</b> : le fil vivant où les trois profils se rencontrent. Un lieu propose une quête, un Bâtisseur donne un coup de main, un Semeur avance des fonds. Découvrons-le 👇'});
+     title:'🌐 Le Réseau EVAD', text:'Voici le <b>Réseau</b> : le fil vivant où les trois profils se rencontrent. Un Pilote propose une quête, un Bâtisseur donne un coup de main, un Semeur avance des fonds. Découvrons-le 👇'});
   if(S.profile==='pilote' && document.querySelector('.mq-card')){
     steps.push({sel:'.mq-card', side:'bottom', scroll:true, title:'⚔️ Publier mes réalisations',
       text:'Tes quêtes de terrain, telles que le réseau les verra. En les <b>publiant</b>, tu montres ce que ton lieu met vraiment en place : la preuve concrète qui attire Bâtisseurs et Semeurs 🌿'});
