@@ -1479,7 +1479,7 @@ function newState(profile){
     tab:'a', devaOpen:false,
     // pilote
     hand:[], spaces:null, sel:null, pcomps:new Set(), lieuName:'La Friche des Possibles', lieuType:'jardin', ob:null, playerName:'', loopsActive:0, loopBadgeShown:false, vadanceBonus:0,
-    lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{}, questesPubliees:false, questesPublieesSnap:'', myPosts:[], biblioTourDone:false, carteTourDone:false, reseauTourDone:false, batMissionsTourDone:false, batCompTourDone:false, pendingBatTour:false, tourDemo:false, model:null, modelTourDone:false,
+    lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{}, questesPubliees:false, questesPublieesSnap:'', myPosts:[], biblioTourDone:false, carteTourDone:false, reseauTourDone:false, batMissionsTourDone:false, batCompTourDone:false, pendingBatTour:false, tourDemo:false, model:null, modelTourDone:false, relaisShown:false,
     pondMode:'egalite', measureCtx:null,
     mktFilter:'all', purchases:[], ecoMissions:{},
     // batisseur
@@ -3853,6 +3853,8 @@ function buyOffer(id){
   S.badges.add('marche'); markFirstAct('marche');
   toast(`${o.ic} « ${o.t} » ${o.prix>0?'échangé pour '+o.prix+'🌰':'réservé (gratuit)'} · chez ${o.lieu} 🌿`,'win');
   render();
+  // Première action à la Place de marché (pilote) : Deva propose le relais vers les Bâtisseurs & Semeurs
+  if(S.profile==='pilote' && !S.relaisShown) setTimeout(devaProposeRelais, 820);
 }
 
 /* ═══════════════ RÉSEAU (fil communautaire + liens entre profils) ═══════════════ */
@@ -3955,17 +3957,17 @@ function publishQuests(){
   toast(maj?`🔄 Réalisations mises à jour · ${finies} quête${finies>1?'s':''} accomplie${finies>1?'s':''} 🌿`
            :`🌐 Réalisations publiées ! ${qs.length} post${qs.length>1?'s':''} dans le fil du Réseau 🌿`,'win');
   render();
-  if(!maj && S.profile==='pilote') setTimeout(devaProposeRelais, 820); // Deva : place au réseau (Bâtisseurs & Semeurs)
 }
-/* Deva reprend la parole une fois les quêtes postées : le lieu a promis, le réseau va prouver */
+/* Deva reprend la parole après la première action à la Place de marché : le lieu a promis, le réseau va prouver */
 function devaProposeRelais(){
-  if(document.getElementById('modal').classList.contains('open')) return; // ne pas recouvrir une autre modale
+  if(document.getElementById('modal').classList.contains('open')) return; // ne pas recouvrir une autre modale (on réessaiera au prochain échange)
+  S.relaisShown=true;
   const nm=(S.playerName&&S.playerName!=='toi')?(' '+escapeHtml(S.playerName)):'';
   openOnboarding(`
     <div class="ob-head"><div class="ob-av deva-av"></div><div class="ob-hmeta"><div class="ob-dname">Deva</div><div class="ob-dsub">🌐 Cap sur Développer</div></div></div>
     <div class="ob-scroll">
-      <div class="ob-bubble ob-pop">Belles réalisations${nm} 🌿 Tes quêtes sont publiées : tout le <b>Réseau</b> voit maintenant ce que ton lieu met en place.</div>
-      <div class="ob-bubble">Ton lieu a fait sa part : il a <b>promis</b> l'impact — c'est la <b>Vadance</b>. Pour la transformer en <b>Vadité prouvée</b>, place au réseau 🌱</div>
+      <div class="ob-bubble ob-pop">Bel échange${nm} 🌰 Ta <b>Place de marché</b> est lancée : ton lieu produit, valorise et fait vivre le quartier.</div>
+      <div class="ob-bubble">Ton lieu a fait sa part : il a <b>promis</b> l'impact, c'est la <b>Vadance</b>. Pour la transformer en <b>Vadité prouvée</b>, place au réseau 🌱</div>
       <div class="ob-bubble">🌿 Les <b>Bâtisseurs</b> vont venir <b>réaliser tes quêtes</b> et installer les solutions sur le terrain.<br>🌾 Les <b>Semeurs</b> vont <b>financer</b> ce qu'il faut.<br><br>En attendant qu'ils répondent, à toi de choisir 👇</div>
     </div>
     <div class="ob-actions" style="flex-direction:column;align-items:stretch;gap:.55rem">
