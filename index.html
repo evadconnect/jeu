@@ -4254,12 +4254,10 @@ function carteTourSteps(withNav){
     {sel:'.carte-panel', side:'left', scroll:true, title:'📇 L\'annuaire du réseau',
      text:'La même communauté en liste, avec une recherche. Clique un lieu, un Bâtisseur ou un Semeur pour voir sa fiche et le contacter.'},
     {sel:'.fiche-actions', side:'top', over:true, scroll:true, onEnter:()=>openFicheLieu('you'),
-     title:'🌐 Publie ta fiche',
+     title:'🌐 Ta fiche de lieu',
      text:pub
-       ? 'Voici la fiche de ton lieu, telle que le réseau la voit déjà 🌿 Tu peux la retrouver à tout moment dans ton annonce.'
-       : `Voici la fiche de « ${lieu} », telle que le réseau la verra. Tant qu\'elle est en <b>brouillon</b>, personne ne la voit. <b>Publie-la</b> pour apparaître sur la Carte et attirer Bâtisseurs et Semeurs 🌱`,
-     cta: pub ? '🌐 Voir mon annonce →' : '🌐 Publier ma fiche',
-     action: ()=>{ endTour(); if(!S.lieuPublished) publishLieu(); else { closeModal(); switchTab('reseau'); } }});
+       ? 'Voici la fiche de ton lieu, telle que le réseau la voit déjà 🌿 Prends le temps de la relire ; tu peux la retrouver à tout moment dans ton annonce.'
+       : `Voici la fiche de « ${lieu} », telle que le réseau la verra. Prends le temps de la lire : tant qu\'elle est en <b>brouillon</b>, personne ne la voit. Quand tu es prêt·e, clique <b>« 🌐 Publier ma fiche »</b> pour apparaître sur la Carte et attirer Bâtisseurs et Semeurs 🌱`});
   return steps;
 }
 function carteTour(){
