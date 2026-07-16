@@ -1489,7 +1489,7 @@ function newState(profile){
     tab:'a', devaOpen:false,
     // pilote
     hand:[], spaces:null, sel:null, pcomps:new Set(), lieuName:'La Friche des Possibles', lieuType:'jardin', ob:null, playerName:'', loopsActive:0, loopBadgeShown:false, vadanceBonus:0,
-    lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{}, questesPubliees:false, questesPublieesSnap:'', myPosts:[], biblioTourDone:false, tourDemo:false,
+    lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{}, questesPubliees:false, questesPublieesSnap:'', myPosts:[], biblioTourDone:false, carteTourDone:false, tourDemo:false,
     pondMode:'egalite', measureCtx:null,
     mktFilter:'all', purchases:[], ecoMissions:{},
     // batisseur
@@ -1662,6 +1662,11 @@ function replayTour(){
     biblioTour();
     return;
   }
+  if(S.profile==='pilote' && S.tab==='carte'){
+    S.carteTourDone=false;
+    carteTour();
+    return;
+  }
   S.tourDone=false;
   startTour();
 }
@@ -1790,7 +1795,9 @@ function showTourStep(i){
   tip.querySelector('.tt-title').innerHTML=st.title;
   tip.querySelector('.tt-text').innerHTML=st.text;
   tip.querySelector('.tt-dots').innerHTML=t.steps.map((_,k)=>`<span class="tt-dot ${k===i?'on':(k<i?'done':'')}"></span>`).join('');
-  tip.querySelector('.tt-next').textContent = i<t.steps.length-1 ? 'Suivant →' : 'C\'est parti ✦';
+  const nb=tip.querySelector('.tt-next');
+  if(st.cta){ nb.textContent=st.cta; nb.onclick=()=>{ if(st.action) st.action(); }; }
+  else { nb.textContent = i<t.steps.length-1 ? 'Suivant →' : 'C\'est parti ✦'; nb.onclick=tourNext; }
   tip.classList.add('on');
   positionTip(tip, target, st.side);
 }
@@ -2128,6 +2135,7 @@ function setupNav(){
 }
 function switchTab(k){ if(!S.tabsSeen) S.tabsSeen=new Set(); S.tabsSeen.add(k); S.tab=k; setupNav(); render();
   if(k==='b' && S.profile==='pilote' && !S.biblioTourDone && !S.tour) setTimeout(()=>biblioTour(), 380);
+  if(k==='carte' && S.profile==='pilote' && !S.carteTourDone && !S.lieuPublished && !S.tour) setTimeout(()=>carteTour(), 380);
 }
 /* Deverrouille un onglet, l'ouvre et laisse Deva l'expliquer (mini visite guidee) */
 const REVEAL_INFO={
@@ -4228,6 +4236,37 @@ function biblioTour(){
   S.biblioTourDone=true;
   S.catFilter='all'; S.capFilter='all'; render();
   S.tour={ steps:biblioTourSteps(true), i:0 };
+  document.getElementById('tour-overlay').classList.add('on');
+  showTourStep(0);
+}
+/* Visite guidée de la Carte de l'écosystème, qui débouche sur « Publier ma fiche » */
+function carteTourSteps(withNav){
+  const lieu=escapeHtml(S.lieuName||'ton lieu');
+  const pub=!!S.lieuPublished;
+  const steps=[];
+  if(withNav) steps.push({sel:'.nav-item[data-tab="carte"]', side:'right', onEnter:()=>{ if(S.tab!=='carte'){ S.tab='carte'; render(); } },
+     title:'🗺️ La Carte de l\'écosystème', text:`Voici la <b>Carte</b> : tous les lieux, Bâtisseurs et Semeurs du réseau EVAD, près de chez toi. Découvrons-la 👇`});
+  steps.push(
+    {sel:'.carte-filters', side:'bottom', scroll:true, title:'🔎 Filtrer la carte',
+     text:'Affiche ce qui t\'intéresse : les <b>🏡 Lieux</b>, les <b>🌿 Bâtisseurs</b>, les <b>🌾 Semeurs</b>, ou les <b>⚡ Quêtes ouvertes</b> à rejoindre près de toi.'},
+    {sel:'.carte-map', side:'right', scroll:true, title:`🏡 « ${lieu} » sur la carte`,
+     text:'Chaque marqueur est un membre de la communauté. Le tien pulse au milieu des autres : ton lieu fait désormais partie du réseau 🌿'},
+    {sel:'.carte-panel', side:'left', scroll:true, title:'📇 L\'annuaire du réseau',
+     text:'La même communauté en liste, avec une recherche. Clique un lieu, un Bâtisseur ou un Semeur pour voir sa fiche et le contacter.'},
+    {sel:'.fiche-actions', side:'top', over:true, scroll:true, onEnter:()=>openFicheLieu('you'),
+     title:'🌐 Publie ta fiche',
+     text:pub
+       ? 'Voici la fiche de ton lieu, telle que le réseau la voit déjà 🌿 Tu peux la retrouver à tout moment dans ton annonce.'
+       : `Voici la fiche de « ${lieu} », telle que le réseau la verra. Tant qu\'elle est en <b>brouillon</b>, personne ne la voit. <b>Publie-la</b> pour apparaître sur la Carte et attirer Bâtisseurs et Semeurs 🌱`,
+     cta: pub ? '🌐 Voir mon annonce →' : '🌐 Publier ma fiche',
+     action: ()=>{ endTour(); if(!S.lieuPublished) publishLieu(); else { closeModal(); switchTab('reseau'); } }});
+  return steps;
+}
+function carteTour(){
+  if(S.carteTourDone) return;
+  S.carteTourDone=true;
+  S.carteFilter='tous'; if(S.tab!=='carte'){ S.tab='carte'; } render();
+  S.tour={ steps:carteTourSteps(true), i:0 };
   document.getElementById('tour-overlay').classList.add('on');
   showTourStep(0);
 }
