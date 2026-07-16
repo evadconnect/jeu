@@ -909,7 +909,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
     <div class="nav-menu" id="nav-menu"></div>
 
     <div class="nav-bottom">
-      <button class="ob-intro-btn" id="nav-switch" onclick="replayTour()"><span class="oib-ico">🧭</span><span class="oib-txt">Revoir la visite guidée</span></button>
+      <button class="ob-intro-btn" id="nav-switch" onclick="replayTour()" title="Revoir la visite guidée"><span class="oib-ico">🧭</span><span class="oib-txt">Revoir la visite guidée</span></button>
+      <button class="ob-intro-btn" id="nav-profile" onclick="changeProfile()" title="Changer de profil"><span class="oib-ico">🔄</span><span class="oib-txt">Changer de profil</span></button>
       <div class="deva-pill" id="deva-pill" onclick="toggleDeva()" title="Parler à Deva">
         <span class="dp-av deva-av"></span>
         <div class="dp-meta"><span class="deva-name">Deva</span><span class="deva-status">Active</span></div>
@@ -1592,6 +1593,19 @@ function goToIntro(){
   const iv=document.getElementById('intro'); if(iv){ iv.style.display='flex'; iv.classList.remove('hide','chatting'); }
   window.scrollTo(0,0);
   introDeva();
+}
+/* Changer de profil : on repasse par l'intro guidée. La partie en cours étant perdue, on confirme. */
+function changeProfile(){
+  if(S && S.ob) return;                       // onboarding de profil en cours : rien à abandonner
+  if(!S || !S.onboarded){ goToIntro(); return; }
+  const p=PROFILS[S.profile];
+  openModal(`
+    <div class="mb-ic">🔄</div>
+    <h2>Changer de profil ?</h2>
+    <p>Ta partie en cours (<b>${p.ic} ${p.label}</b>) sera abandonnée : tu repars de l'intro pour choisir un nouveau profil.</p>
+    <button class="btn btn-primary" style="width:100%" onclick="goToIntro()">🔄 Changer de profil</button>
+    <button class="btn btn-ghost" style="width:100%;margin-top:.5rem" onclick="closeModal()">Annuler</button>
+  `);
 }
 /* Passer tout l'onboarding et arriver directement au jeu (dispo a chaque etape) */
 function skipOnboarding(){
