@@ -2224,25 +2224,6 @@ function revealNav(k, title, text, forceDefer, pre){
   if(forceDefer || document.getElementById('modal').classList.contains('open')) PENDING_REVEAL=fire;
   else fire();
 }
-/* Quand chaque espace a une solution : Modélisation + Carte s'ouvrent ensemble, en une seule visite Deva */
-function revealModeleCarte(){
-  if(!S.navUnlocked) return;
-  const newModele=!S.navUnlocked.has('modele'), newCarte=!S.navUnlocked.has('carte');
-  if(!newModele && !newCarte) return;
-  S.navUnlocked.add('modele'); S.navUnlocked.add('carte');
-  setupNav();
-  const steps=[
-    {sel:'#stats', side:'bottom', title:`✨ Ta Vadance : ${round1(curVadance())} ${pts(curVadance())} !`,
-     text:`Chacun de tes espaces accueille une solution 🌿 Ton lieu rayonne avec <b>${round1(curVadance())} ${pts(curVadance())} de Vadance</b> ✨ C'est ton impact <i>promis</i>. Deux nouveaux onglets s'ouvrent 👇`},
-    ...(newModele?[{sel:'.nav-item[data-tab="modele"]', side:'top', title:'🧱 La Modélisation s\'ouvre',
-     text:'Donne corps à ton lieu : pose tes espaces sur un terrain en blocs et regarde tes solutions y pousser. <b>🎯 Objectif : modélise ton hub régénératif.</b>'}]:[]),
-    ...(newCarte?[{sel:'.nav-item[data-tab="carte"]', side:'top', title:'🗺️ Mets ton lieu sur la Carte',
-     text:'Ton lieu mérite d\'être visible dans l\'écosystème. <b>🎯 Objectif : valide ta fiche publique</b> sur la Carte, pour attirer la communauté.'}]:[]),
-  ];
-  const fire=()=>setTimeout(()=>{ S.tour={steps, i:0}; document.getElementById('tour-overlay').classList.add('on'); showTourStep(0); }, 420);
-  if(document.getElementById('modal').classList.contains('open')) PENDING_REVEAL=fire;
-  else fire();
-}
 
 /* ═══════════════ RENDER MASTER ═══════════════ */
 function render(){
@@ -3734,7 +3715,11 @@ function modelTileClick(x,y){
     m.deco=m.deco.filter(d=>!(d.x>=px&&d.x<px+n&&d.y>=py&&d.y<py+n));   // le décor laisse la place
     const sp=spaces.find(s=>s.id===m.sel);
     m.placed[m.sel]={x:px,y:py}; m.sel=null;
-    toast(`🏡 « ${sp?sp.name:'Espace'} » posé sur le terrain`,'win'); render(); return;
+    toast(`🏡 « ${sp?sp.name:'Espace'} » posé sur le terrain`,'win'); render();
+    // Modélisation terminée (tous les espaces posés) → la Carte s'ouvre
+    if(spaces.length && spaces.every(s=>m.placed[s.id]))
+      revealNav('carte', '🗺️ Mets ton lieu sur la Carte', 'Ton hub est modélisé 🧱 Chaque espace a trouvé sa place ✨ Ton lieu mérite maintenant d\'être visible dans l\'écosystème. <b>🎯 Objectif : valide ta fiche publique</b> sur la Carte, pour attirer la communauté.');
+    return;
   }
   if(m.mode==='erase'){
     const di=m.deco.findIndex(d=>d.x===x&&d.y===y);
@@ -4003,8 +3988,11 @@ function markFirstAct(act){ S.firstActs.add(act);
   // Pilote : les onglets se deverrouillent un par un, quand ils deviennent utiles.
   if(S.profile==='pilote' && S.navUnlocked){
     if(act==='installed'){
-      // La Modélisation et la Carte s'ouvrent quand chaque espace accueille au moins une solution
-      if(allSpacesEquipped()) revealModeleCarte();
+      // La Modélisation s'ouvre quand chaque espace accueille au moins une solution
+      // (la Carte suivra, une fois tous les espaces posés sur le terrain de la Modélisation)
+      if(allSpacesEquipped()) revealNav('modele', '🧱 La Modélisation s\'ouvre', 'Donne corps à ton lieu : pose tes espaces sur un terrain en blocs et regarde tes solutions y pousser. <b>🎯 Objectif : modélise ton hub régénératif</b>, la Carte s\'ouvrira ensuite.', false,
+        {sel:'#stats', side:'bottom', title:`✨ Ta Vadance : ${round1(curVadance())} ${pts(curVadance())} !`,
+         text:`Chacun de tes espaces accueille une solution 🌿 Ton lieu rayonne avec <b>${round1(curVadance())} ${pts(curVadance())} de Vadance</b> ✨ C'est ton impact <i>promis</i>. Un nouvel onglet s'ouvre 👇`});
       // Le Réseau s'ouvre quand la Vadance du lieu atteint 70
       if(curVadance()>=70) revealNav('reseau', '🌐 Publie une annonce sur le Réseau', 'Ton lieu atteint déjà <b>'+round1(curVadance())+' de Vadance</b> 🌿 Pour la transformer en <b>Vadité</b> prouvée, il te faut de l\'aide. <b>🎯 Objectif : trouve un Bâtisseur (preuve terrain) et un Semeur (financement)</b> en publiant une annonce sur le Réseau.');
     }
