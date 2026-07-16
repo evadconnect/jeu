@@ -4010,9 +4010,7 @@ function reseauActions(){
   let h='';
   if(S.profile==='pilote'){
     if(S.reseauBat&&S.reseauSem) h+=`<div class="hint">✅ Tu as tissé des liens avec un Bâtisseur et un Semeur. Le réseau, c'est ta force : chaque impact prouvé attire de nouveaux soutiens.</div>`;
-  } else if(S.profile==='batisseur'){
-    h+=`<div class="rz-offer"><div class="rz-offer-t" style="color:var(--pilote)">🏡 Des Pilotes cherchent tes compétences</div><div class="rz-offer-d">Trois lieux du réseau ont des chantiers ouverts. Rejoins-en un pour gagner des Graines et faire grandir un lieu.</div><button class="btn btn-primary" onclick="reseauGoto('a','🌿 Direction les quêtes ! Choisis une quête.')">Voir les quêtes →</button></div>`;
-  } else {
+  } else if(S.profile==='semeur'){
     h+=`<div class="rz-offer"><div class="rz-offer-t" style="color:var(--pilote)">🏡 Des lieux ont besoin de financement</div><div class="rz-offer-d">Les Pilotes du réseau publient leurs besoins. Finance-les : la solution ET son ICI sont posés, ta Vadité arrive vérifiée.</div><button class="btn btn-primary" onclick="reseauGoto('a','🌾 Direction les financements !')">Voir les besoins à financer →</button></div>`;
   }
   return h;
@@ -4590,9 +4588,7 @@ function reseauTourSteps(withNav){
       text:'Tes quêtes de terrain, telles que le réseau les verra. En les <b>publiant</b>, tu montres ce que ton lieu met vraiment en place : la preuve concrète qui attire Bâtisseurs et Semeurs 🌿'});
   } else if(document.querySelector('.rz-offer')){
     steps.push({sel:'.rz-offer', side:'bottom', scroll:true, title:'🎯 Ta prochaine action',
-      text:S.profile==='batisseur'
-        ? 'Des Pilotes ont ouvert des chantiers près de toi. Rejoins-en un pour agir sur le terrain et gagner des <b>Graines</b> 🌿'
-        : 'Des lieux cherchent un financement. Finance-les : la solution <b>et</b> son indicateur sont déjà posés, ta Vadité arrive vérifiée 🌾'});
+      text:'Des lieux cherchent un financement. Finance-les : la solution <b>et</b> son indicateur sont déjà posés, ta Vadité arrive vérifiée 🌾'});
   }
   steps.push(
     {sel:'.reseau-filters', side:'bottom', scroll:true, title:'🔎 Filtrer le fil',
