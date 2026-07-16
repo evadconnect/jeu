@@ -558,6 +558,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .reseau-filter.on{background:var(--forest);color:#fff;border-color:var(--forest)}
 .reseau-feed{display:flex;flex-direction:column;gap:.75rem;max-width:640px}
 .rz-post{background:#fff;border:1px solid var(--line);border-radius:16px;padding:.9rem 1rem;box-shadow:var(--shadow)}
+.rz-post.mine{border-color:rgba(1,130,98,.35);background:linear-gradient(180deg,#f4fbf7,#fff)}
 .rz-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.55rem}
 .rz-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0}
 .rz-meta{flex:1;min-width:0}
@@ -1486,7 +1487,7 @@ function newState(profile){
     tab:'a', devaOpen:false,
     // pilote
     hand:[], spaces:null, sel:null, pcomps:new Set(), lieuName:'La Friche des Possibles', lieuType:'jardin', ob:null, playerName:'', loopsActive:0, loopBadgeShown:false, vadanceBonus:0,
-    lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{}, questesPubliees:false, questesPublieesSnap:'', biblioTourDone:false, tourDemo:false,
+    lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{}, questesPubliees:false, questesPublieesSnap:'', myPosts:[], biblioTourDone:false, tourDemo:false,
     pondMode:'egalite', measureCtx:null,
     mktFilter:'all', purchases:[], ecoMissions:{},
     // batisseur
@@ -3616,7 +3617,8 @@ function renderReseau(){
   if(S.profile==='pilote') h+=mesQuetesHTML();
   const pills=[['tous','Tous'],['pilote','🏡 Pilotes'],['batisseur','🌿 Bâtisseurs'],['semeur','🌾 Semeurs']];
   h+=`<div class="reseau-filters">${pills.map(x=>`<button class="reseau-filter ${f===x[0]?'on':''}" onclick="S.reseauFilter='${x[0]}';render()">${x[1]}</button>`).join('')}</div>`;
-  const posts=RESEAU_FEED.filter(p=>f==='tous'||p.prof===f);
+  const mine=(S.myPosts||[]).filter(p=>f==='tous'||f==='pilote');
+  const posts=mine.concat(RESEAU_FEED.filter(p=>f==='tous'||p.prof===f));
   h+=`<div class="reseau-feed">${posts.map(reseauPost).join('')}</div>`;
   el.innerHTML=h;
 }
@@ -3659,28 +3661,39 @@ function mesQuetesHTML(){
   h+=`</div>`;
   return h;
 }
+/* Un post de fil pour chaque quête publiée, au nom du lieu du joueur */
+function questToPost(q){
+  const lieu=S.lieuName||'Mon lieu', ville=S.lieuVille||'Bordeaux';
+  return q.fini
+    ? {prof:'pilote', you:true, author:lieu, lieu:ville, time:'à l\'instant', vade:'e', cta:'you',
+       text:`✅ <b>${escapeHtml(q.sol.quete.titre)}</b> : c'est fait ! ${q.sol.ic} ${q.sol.name} tourne pour de vrai dans notre ${escapeHtml(q.espace)}. Impact prouvé, pas promis 🌿`}
+    : {prof:'pilote', you:true, author:lieu, lieu:ville, time:'à l\'instant', vade:'a', cta:'you',
+       text:`🚧 <b>${escapeHtml(q.sol.quete.titre)}</b> en cours (${q.done}/${q.total}) : on installe ${q.sol.ic} ${q.sol.name} dans notre ${escapeHtml(q.espace)}. Un coup de main sur le réseau ?`};
+}
 function publishQuests(){
   const qs=installedQuests();
   if(!qs.length){ toast('Installe d\'abord une solution : sa quête de terrain démarrera 🌿','warn'); return; }
   const maj=S.questesPubliees;
   S.questesPubliees=true; S.questesPublieesSnap=questsSnapshot();
+  S.myPosts=qs.map(questToPost); // les posts correspondants apparaissent dans le fil
   S.badges.add('reseau'); markFirstAct('reseau');
   const finies=qs.filter(q=>q.fini).length;
   toast(maj?`🔄 Réalisations mises à jour · ${finies} quête${finies>1?'s':''} accomplie${finies>1?'s':''} 🌿`
-           :`🌐 Réalisations publiées ! Le réseau voit ce que tu as mis en place · ${qs.length} quête${qs.length>1?'s':''} 🌿`,'win');
+           :`🌐 Réalisations publiées ! ${qs.length} post${qs.length>1?'s':''} dans le fil du Réseau 🌿`,'win');
   render();
 }
 function reseauPost(p){
   const pr=RESEAU_PROF[p.prof], vd=VADE[VADE_KEY[p.vade]];
-  const cta={quete:'Rejoindre la quête',rencontre:'Proposer un créneau',info:'Voir le lieu'}[p.cta]||'Voir';
-  return `<div class="rz-post">
+  const cta={quete:'Rejoindre la quête',rencontre:'Proposer un créneau',info:'Voir le lieu',you:'Voir ma fiche →'}[p.cta]||'Voir';
+  const onClick = p.cta==='you' ? `closeModal();switchTab('carte');openFicheLieu('you')` : `reseauCta('${p.cta}',&quot;${escapeHtml(p.author)}&quot;)`;
+  return `<div class="rz-post${p.you?' mine':''}">
     <div class="rz-head">
       <div class="rz-av" style="background:${pr.bg}">${pr.ic}</div>
-      <div class="rz-meta"><div class="rz-author">${p.author}</div><div class="rz-sub">${pr.label} · 📍 ${p.lieu} · ${p.time}</div></div>
+      <div class="rz-meta"><div class="rz-author">${escapeHtml(p.author)}${p.you?' <span style="font-size:.6rem;color:var(--forest);font-weight:800">· toi</span>':''}</div><div class="rz-sub">${pr.label} · 📍 ${escapeHtml(p.lieu)} · ${p.time}</div></div>
       <span class="rz-vade" style="background:${vd.color}1a;color:${vd.color}">${vd.k} · ${vd.label}</span>
     </div>
     <div class="rz-text">${p.text}</div>
-    <button class="rz-cta" onclick="reseauCta('${p.cta}',&quot;${p.author}&quot;)">${cta}</button>
+    <button class="rz-cta" onclick="${onClick}">${cta}</button>
   </div>`;
 }
 function reseauCta(kind,who){
