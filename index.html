@@ -4180,12 +4180,12 @@ function biblioTourSteps(withNav){
   if(withNav) steps.push({sel:'.nav-item[data-tab="b"]', side:'right', onEnter:()=>{ if(S.tab!=='b'){ S.tab='b'; render(); } },
      title:'📚 La Bibliothèque', text:'Voici la <b>Bibliothèque</b>, ton catalogue commun. C\'est ici que tu piocheras les solutions à installer dans ton lieu. Ouvrons-la 👇'});
   steps.push(
-    {sel:'.cards-grid .card2', side:'right', title:'📚 Le catalogue commun',
-     text:'Chaque <b>carte Solution</b> est une action concrète que ton lieu peut accueillir. Il y en a beaucoup : deux filtres t\'aident à t\'y retrouver 👇'},
     {sel:'[data-frow="cat"]', side:'bottom', scroll:true, title:'🏷️ Filtrer par catégorie',
-     text:'Eau, énergie, alimentaire, déchets, biodiversité, social, économie locale… Choisis un thème pour ne voir que les solutions qui vont avec.'},
+     text:'Il y a beaucoup de solutions : deux filtres t\'aident à t\'y retrouver. D\'abord par <b>catégorie</b> : eau, énergie, alimentaire, déchets, biodiversité, social, économie locale…'},
     {sel:'[data-frow="cap"]', side:'bottom', scroll:true, title:'🏡 Compatible avec mes espaces',
-     text:'Ce filtre ne montre que les solutions <b>installables dans tes espaces</b> à toi. Pratique pour aller droit au but, sans tomber amoureux d\'une carte qui n\'ira nulle part.'},
+     text:'Ensuite ce filtre ne montre que les solutions <b>installables dans tes espaces</b> à toi. Pratique pour aller droit au but, sans tomber amoureux d\'une carte qui n\'ira nulle part.'},
+    {sel:'.cards-grid .card2', side:'right', title:'📚 Le catalogue commun',
+     text:'Chaque <b>carte Solution</b> est une action concrète que ton lieu peut accueillir. Ouvrons-en une pour lire ce qu\'elle raconte 👇'},
     {sel:'.det-regen', side:'bottom', over:true, scroll:true, onEnter:biblioTourOpenDemo,
      title:'🌱 En quoi c\'est régénératif',
      text:'Chaque fiche dit <b>ce que la solution répare</b>, pas seulement ce qu\'elle évite. C\'est la différence entre « moins nuire » et faire revenir le vivant.'},
