@@ -1482,7 +1482,7 @@ function newState(profile){
     hand:[], spaces:null, sel:null, pcomps:new Set(), lieuName:'La Friche des Possibles', lieuType:'jardin', ob:null, playerName:'', loopsActive:0, loopBadgeShown:false, vadanceBonus:0,
     lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{}, questesPubliees:false, questesPublieesSnap:'', myPosts:[], biblioTourDone:false, carteTourDone:false, reseauTourDone:false, batMissionsTourDone:false, batCompTourDone:false, pendingBatTour:false, tourDemo:false, model:null, modelTourDone:false, relaisShown:false,
     pondMode:'egalite', measureCtx:null,
-    mktFilter:'all', purchases:[], ecoMissions:{},
+    mktFilter:'all', purchases:[], myOffers:[], ecoMissions:{},
     // batisseur
     comps:new Set(['jardiner','bricoler']), missions:[], // missions actives
     // semeur
@@ -3827,9 +3827,22 @@ function renderMarche(){
   const f=S.mktFilter||'all';
   let h=`<div class="sect-sub">La <b>place de marché</b> du réseau EVAD : convertis tes Graines gagnées en <b>avantages locaux</b> proposés par les lieux, alimentation, formation, artisanat, services. Les Graines circulent, l'économie locale vit. <i>Les Graines ne s'achètent pas en euros : elles se gagnent par l'action.</i></div>`;
   h+=`<div style="font-size:.74rem;color:var(--moss);opacity:.85;margin-bottom:.7rem;font-weight:700">🌰 ${S.graines} Graines à dépenser${(S.purchases&&S.purchases.length)?' · 🎒 '+S.purchases.length+' échange(s) réalisé(s)':''}</div>`;
+  // Pilote : ton lieu vend aussi, dépose une annonce avec ce que tes espaces produisent
+  if(S.profile==='pilote'){
+    const n=(S.myOffers||[]).length;
+    h+=`<div class="card mq-card">
+      <div class="mq-head">
+        <div><div class="mq-t">📣 Déposer une annonce</div>
+        <div class="mq-sub">Propose ce que <b>tes espaces produisent</b> : récoltes, ateliers, services… Les Graines gagnées reviennent à ton lieu.</div></div>
+        ${n?`<span class="mq-flag">📣 ${n} en ligne</span>`:''}
+      </div>
+      <button class="btn btn-primary mq-btn" onclick="openDeposeAnnonce()">📣 Déposer une annonce</button>
+    </div>`;
+  }
   const cats=[['all','Tout']].concat(Object.keys(MKT_CATS).map(k=>[k,MKT_CATS[k].label]));
   h+=`<div class="cats">${cats.map(c=>{const on=f===c[0];const col=c[0]==='all'?'var(--forest)':MKT_CATS[c[0]].color;return `<button class="cat-pill ${on?'on':''}" style="${on?`background:${col};border-color:${col}`:''}" onclick="S.mktFilter='${c[0]}';render()">${c[1]}</button>`;}).join('')}</div><div style="height:.7rem"></div>`;
-  const items=f==='all'?MKT_OFFERS:MKT_OFFERS.filter(o=>o.cat===f);
+  const mine=(S.profile==='pilote'?(S.myOffers||[]):[]).filter(o=>f==='all'||o.cat===f);
+  const items=mine.concat(f==='all'?MKT_OFFERS:MKT_OFFERS.filter(o=>o.cat===f));
   h+=`<div class="cards-grid">${items.map(mktCard).join('')}</div>`;
   el.innerHTML=h;
 }
@@ -3837,14 +3850,15 @@ function mktCard(o){
   const c=MKT_CATS[o.cat], free=o.prix===0, can=free||S.graines>=o.prix;
   const bought=(S.purchases||[]).filter(x=>x===o.id).length;
   return `<div class="card2">
-    <div class="c2-media mkt-media" style="background:linear-gradient(135deg,${c.color}22,${c.color}0a)"><span class="mkt-emoji">${o.ic}</span>${bought?`<span class="c2-flag" style="color:var(--forest)">🎒 ×${bought}</span>`:''}</div>
+    <div class="c2-media mkt-media" style="background:linear-gradient(135deg,${c.color}22,${c.color}0a)"><span class="mkt-emoji">${o.ic}</span>${o.mine?`<span class="c2-flag" style="color:var(--forest)">📣 ton annonce</span>`:(bought?`<span class="c2-flag" style="color:var(--forest)">🎒 ×${bought}</span>`:'')}</div>
     <div class="c2-body">
       <div class="c2-cat"><span class="c2-dot" style="background:${c.color}"></span>${c.label}</div>
       <div class="c2-title">${o.t}</div>
-      <div class="c2-desc">📍 ${o.lieu} · ${o.impact}</div>
+      <div class="c2-desc">📍 ${o.lieu}${o.mine?' <b style="color:var(--forest)">· toi</b>':''} · ${o.impact}</div>
       <div class="c2-foot">
         <div class="c2-metric"><div class="c2-mlab">${o.unite}</div><div class="c2-mval" style="color:${free?'var(--forest)':'var(--amber)'};font-size:.95rem">${free?'🎁 Gratuit':o.prix+' 🌰'}</div></div>
-        <button class="mini-btn ${can?'gold':''}" ${can?'':'disabled'} onclick="buyOffer('${o.id}')">${bought?'↺ Encore':'Échanger'}</button>
+        ${o.mine?`<button class="mini-btn" onclick="removeAnnonce('${o.id}')">🗑️ Retirer</button>`
+                :`<button class="mini-btn ${can?'gold':''}" ${can?'':'disabled'} onclick="buyOffer('${o.id}')">${bought?'↺ Encore':'Échanger'}</button>`}
       </div>
     </div>
   </div>`;
@@ -3856,8 +3870,64 @@ function buyOffer(id){
   S.badges.add('marche'); markFirstAct('marche');
   toast(`${o.ic} « ${o.t} » ${o.prix>0?'échangé pour '+o.prix+'🌰':'réservé (gratuit)'} · chez ${o.lieu} 🌿`,'win');
   render();
-  // Première action à la Place de marché (pilote) : Deva propose le relais vers les Bâtisseurs & Semeurs
+}
+/* ── Pilote : déposer une annonce avec ce que produisent ses espaces ── */
+function prodCat(label){
+  if(/repas|cuisine|conserv|buffet|cantine|panier|traiteur|épicerie|vrac|marché|potager|légume|maraîch|plant|semis|récolte|amap|pain|fruit/i.test(label)) return 'alim';
+  if(/formation|atelier|cours|sensibilisation|initiation|accompagnement|alphabét|permaculture|écriture|conte/i.test(label)) return 'formation';
+  if(/menuiserie|couture|textile|créateur|fablab|impression|prototyp|artisan|bois|savon|électronique|gravure/i.test(label)) return 'artisanat';
+  if(/concert|spectacle|théâtre|projection|soirée|expo|vernissage|événement|tournoi|fête|scène/i.test(label)) return 'evenement';
+  return 'service';
+}
+function prodEmoji(cat){ return {alim:'🥕',formation:'🎓',artisanat:'🛠️',evenement:'🎪',service:'🤝'}[cat]||'🌿'; }
+/* Tout ce que les espaces produisent : leurs activités (Valoriser) et leurs solutions installées */
+function marcheProduits(){
+  const out=[], seen=new Set();
+  (S.spaces||[]).forEach(sp=>{
+    (sp.activities||[]).forEach(a=>{ const k=a+'|'+sp.name; if(seen.has(k)) return; seen.add(k);
+      const cat=prodCat(a); out.push({ic:prodEmoji(cat), label:a, espace:sp.name, cat}); });
+    (sp.sols||[]).forEach(inst=>{ const s=SOL[inst.id]; if(!s) return; const k=s.name+'|'+sp.name; if(seen.has(k)) return; seen.add(k);
+      out.push({ic:s.ic, label:s.name, espace:sp.name, cat:prodCat(s.name)}); });
+  });
+  return out;
+}
+function openDeposeAnnonce(){
+  const prods=marcheProduits();
+  if(!prods.length){
+    openModal(`<div class="mb-ic">📣</div><h2>Rien à proposer pour l'instant</h2>
+      <p>Ton annonce se construit avec ce que <b>tes espaces produisent</b>. Donne une activité à tes espaces (phase 🌱 Valoriser) ou installe une solution, puis reviens.</p>
+      <button class="btn btn-primary" style="width:100%" onclick="closeModal();switchTab('a')">🏡 Aller à mes espaces →</button>`);
+    return;
+  }
+  openModal(`
+    <div class="mb-ic">📣</div>
+    <h2>Déposer une annonce</h2>
+    <p style="margin-bottom:.8rem">Choisis ce que ton lieu propose au réseau : la production vient de tes espaces, les Graines reviennent à ton lieu.</p>
+    <div class="f-field"><label class="f-lab" for="ma-src">Ce que ton lieu propose</label>
+      <select id="ma-src" class="f-inp">${prods.map((p,i)=>`<option value="${i}">${p.ic} ${escapeHtml(p.label)} · ${escapeHtml(p.espace)}</option>`).join('')}</select></div>
+    <div class="f-field"><label class="f-lab" for="ma-prix">Prix en Graines (0 = gratuit)</label>
+      <input id="ma-prix" class="f-inp" type="number" min="0" max="200" value="5"></div>
+    <button class="btn btn-primary" style="width:100%" onclick="publishAnnonce()">📣 Publier l'annonce</button>
+    <button class="btn btn-ghost" style="width:100%;margin-top:.5rem" onclick="closeModal()">Annuler</button>
+  `);
+}
+function publishAnnonce(){
+  const prods=marcheProduits();
+  const p=prods[parseInt(document.getElementById('ma-src').value,10)||0]; if(!p) return;
+  const prix=Math.max(0,Math.min(200,parseInt(document.getElementById('ma-prix').value,10)||0));
+  S.myOffers=S.myOffers||[];
+  S.myOfferSeq=(S.myOfferSeq||0)+1;
+  S.myOffers.unshift({id:'my'+S.myOfferSeq, cat:p.cat, t:p.label, lieu:S.lieuName||'Mon lieu', prix, unite:`depuis « ${p.espace} »`, ic:p.ic, impact:'Production de ton lieu : les Graines reviennent au lieu.', mine:true});
+  S.badges.add('marche'); markFirstAct('marche');
+  closeModal();
+  toast(`📣 Annonce publiée : ${p.ic} « ${p.label} » ${prix>0?'· '+prix+'🌰':'· gratuit'} 🌿`,'win');
+  render();
+  // Première annonce déposée (pilote) : Deva propose le relais vers les Bâtisseurs & Semeurs
   if(S.profile==='pilote' && !S.relaisShown) setTimeout(devaProposeRelais, 820);
+}
+function removeAnnonce(id){
+  S.myOffers=(S.myOffers||[]).filter(o=>o.id!==id);
+  toast('🗑️ Annonce retirée'); render();
 }
 
 /* ═══════════════ RÉSEAU (fil communautaire + liens entre profils) ═══════════════ */
@@ -3961,15 +4031,15 @@ function publishQuests(){
            :`🌐 Réalisations publiées ! ${qs.length} post${qs.length>1?'s':''} dans le fil du Réseau 🌿`,'win');
   render();
 }
-/* Deva reprend la parole après la première action à la Place de marché : le lieu a promis, le réseau va prouver */
+/* Deva reprend la parole après la première annonce déposée à la Place de marché : le lieu a promis, le réseau va prouver */
 function devaProposeRelais(){
-  if(document.getElementById('modal').classList.contains('open')) return; // ne pas recouvrir une autre modale (on réessaiera au prochain échange)
+  if(document.getElementById('modal').classList.contains('open')) return; // ne pas recouvrir une autre modale (on réessaiera à la prochaine annonce)
   S.relaisShown=true;
   const nm=(S.playerName&&S.playerName!=='toi')?(' '+escapeHtml(S.playerName)):'';
   openOnboarding(`
     <div class="ob-head"><div class="ob-av deva-av"></div><div class="ob-hmeta"><div class="ob-dname">Deva</div><div class="ob-dsub">🌐 Cap sur Développer</div></div></div>
     <div class="ob-scroll">
-      <div class="ob-bubble ob-pop">Bel échange${nm} 🌰 Ta <b>Place de marché</b> est lancée : ton lieu produit, valorise et fait vivre le quartier.</div>
+      <div class="ob-bubble ob-pop">Belle annonce${nm} 📣 Ta <b>Place de marché</b> est lancée : ton lieu propose ce que ses espaces produisent et fait vivre le quartier.</div>
       <div class="ob-bubble">Ton lieu a fait sa part : il a <b>promis</b> l'impact, c'est la <b>Vadance</b>. Pour la transformer en <b>Vadité prouvée</b>, place au réseau 🌱</div>
       <div class="ob-bubble">🌿 Les <b>Bâtisseurs</b> vont venir <b>réaliser tes quêtes</b> et installer les solutions sur le terrain.<br>🌾 Les <b>Semeurs</b> vont <b>financer</b> ce qu'il faut.<br><br>En attendant qu'ils répondent, à toi de choisir 👇</div>
     </div>
