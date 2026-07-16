@@ -327,6 +327,51 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .ici-steps{display:flex;flex-direction:column;gap:.5rem;margin-top:.6rem}
 .ici-step{display:flex;gap:.5rem;align-items:flex-start;font-size:.78rem;line-height:1.5;color:#33564a}
 .ici-step .is-n{flex-shrink:0;width:18px;height:18px;border-radius:50%;background:var(--forest);color:#fff;font-size:.62rem;font-weight:900;display:flex;align-items:center;justify-content:center;margin-top:.12rem}
+/* Modélisation */
+.mo-card-main{padding:0;margin-bottom:1rem;overflow:hidden}
+.mo-head{display:flex;align-items:center;gap:.6rem;width:100%;background:none;border:none;cursor:pointer;font-family:var(--font);text-align:left;padding:1rem 1.1rem}
+.mo-head:hover{background:rgba(1,130,98,.04)}
+.mo-head-t{font-size:.95rem;font-weight:900;color:var(--ink);flex-shrink:0}
+.mo-head-s{font-size:.72rem;color:var(--moss);opacity:.8;flex:1;min-width:0}
+.mo-caret{font-size:.8rem;color:var(--forest);font-weight:900}
+.mo-body{padding:0 1.1rem 1.1rem;display:flex;flex-direction:column;gap:1rem}
+.mo-block{background:var(--cream);border-radius:14px;padding:.85rem .9rem}
+.mo-t{font-size:.86rem;font-weight:900;color:var(--ink)}
+.mo-sub{font-size:.72rem;color:var(--moss);opacity:.85;line-height:1.45;margin:.2rem 0 .7rem}
+.mo-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.4rem}
+.mo-lab{font-size:.7rem;font-weight:800;color:var(--moss);width:88px;flex-shrink:0}
+.mo-bar{position:relative;flex:1;height:12px;border-radius:100px;background:#e7efe9;overflow:hidden}
+.mo-fill{position:absolute;left:0;top:0;bottom:0;border-radius:100px;background:linear-gradient(90deg,var(--fern),var(--forest))}
+.mo-mark{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--amber);border-radius:2px}
+.mo-val{font-size:.8rem;font-weight:900;color:var(--ink);width:92px;text-align:right;flex-shrink:0}
+.mo-sur{font-size:.6rem;font-weight:800;opacity:.5}
+.mo-gain{font-size:.62rem;font-weight:800;color:var(--forest);background:rgba(1,130,98,.1);border-radius:100px;padding:.1rem .3rem;margin-left:.25rem}
+.mo-legend{font-size:.66rem;color:var(--moss);opacity:.8;line-height:1.45;margin-top:.5rem}
+.mo-ask{margin-top:.7rem;padding-top:.7rem;border-top:1px solid rgba(1,130,98,.12)}
+.mo-ask-t{font-size:.78rem;font-weight:800;color:var(--ink);margin-bottom:.4rem}
+.mo-chips{display:flex;gap:.3rem;flex-wrap:wrap}
+.mo-chip{font-family:var(--font);font-size:.72rem;font-weight:800;color:#33564a;background:#fff;border:1.5px solid rgba(1,130,98,.16);border-radius:100px;padding:.28rem .65rem;cursor:pointer}
+.mo-chip:hover{border-color:var(--forest)}
+.mo-chip.on{background:var(--forest);border-color:var(--forest);color:#fff}
+.mo-plan{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.5rem}
+.mo-pill{font-size:.68rem;font-weight:700;background:#fff;border:1px solid rgba(1,130,98,.14);border-radius:100px;padding:.2rem .5rem;color:#33564a}
+.mo-res{font-size:.76rem;font-weight:700;color:var(--moss);margin-top:.5rem}
+.mo-res b{color:var(--forest)}
+.mo-budget{display:flex;align-items:center;gap:.3rem;flex-wrap:wrap;margin-bottom:.7rem}
+.mo-blab{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--moss);opacity:.75;margin-right:.2rem}
+.mo-scen{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.55rem}
+.mo-card{background:#fff;border:1.5px solid rgba(1,130,98,.12);border-radius:12px;padding:.7rem .75rem;display:flex;flex-direction:column}
+.mo-card-t{font-size:.78rem;font-weight:900;color:var(--ink);margin-bottom:.45rem}
+.mo-sols{display:flex;flex-direction:column;gap:.25rem;margin-bottom:.5rem}
+.mo-sol{display:flex;justify-content:space-between;gap:.4rem;font-size:.68rem;color:#33564a;line-height:1.3}
+.mo-sol b{color:var(--sky);white-space:nowrap}
+.mo-kpi{display:flex;justify-content:space-between;font-size:.7rem;color:var(--moss);padding:.2rem 0;border-top:1px solid rgba(1,130,98,.08)}
+.mo-kpi b{color:var(--ink)}
+.mo-adopt{width:100%;margin-top:.5rem;font-size:.72rem;padding:.45rem}
+.mo-scen-banner{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;background:rgba(1,130,98,.08);border:1.5px solid rgba(1,130,98,.22);border-radius:12px;padding:.55rem .7rem;font-size:.76rem;color:#33564a;margin-bottom:.7rem}
+.mo-quit{margin-left:auto;font-family:var(--font);font-size:.68rem;font-weight:800;color:var(--moss);background:#fff;border:1.5px solid rgba(1,130,98,.16);border-radius:100px;padding:.22rem .55rem;cursor:pointer}
+.mo-quit:hover{border-color:var(--forest)}
+@media(max-width:600px){.mo-head{flex-wrap:wrap}.mo-head-s{flex-basis:100%}}
 .mep{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}
 .mep-col{background:var(--cream);border-radius:12px;padding:.6rem .7rem}
 .mep-lab{font-size:.58rem;font-weight:800;color:var(--moss);opacity:.75;text-transform:uppercase;letter-spacing:.02em;margin-bottom:.35rem}
@@ -1481,7 +1526,7 @@ function newState(profile){
     // pilote
     hand:[], spaces:null, sel:null, pcomps:new Set(), lieuName:'La Friche des Possibles', lieuType:'jardin', ob:null, playerName:'', loopsActive:0, loopBadgeShown:false, vadanceBonus:0,
     lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{}, questesPubliees:false, questesPublieesSnap:'', myPosts:[], biblioTourDone:false, carteTourDone:false, reseauTourDone:false, batMissionsTourDone:false, batCompTourDone:false, pendingBatTour:false, tourDemo:false, model:null, modelTourDone:false, relaisShown:false,
-    pondMode:'egalite', measureCtx:null,
+    pondMode:'egalite', measureCtx:null, modelOpen:false, projN:3, simBudget:600, scenarioIds:[],
     mktFilter:'all', purchases:[], myOffers:[], ecoMissions:{},
     // batisseur
     comps:new Set(['jardiner','bricoler']), missions:[], // missions actives
@@ -2422,6 +2467,13 @@ function pilotBiblio(){
     }
     h+=`<div style="height:.7rem"></div>`;
     let sols=SOLUTIONS;
+    const scen=(S.scenarioIds||[]).filter(id=>SOL[id]);
+    if(scen.length){
+      h+=`<div class="mo-scen-banner">🧪 <b>Scénario adopté</b> · ${scen.length} solution${scen.length>1?'s':''} à poser dans tes espaces.<button class="mo-quit" onclick="S.scenarioIds=[];S.sel=null;render()">Voir tout le catalogue ✕</button></div>`;
+      sols=sols.filter(s=>scen.indexOf(s.id)>=0);
+      h+= `<div class="cards-grid">${sols.map(s=>solutionCard(s.id)).join('')}</div>`;
+      return h;
+    }
     if(S.catFilter && S.catFilter!=='all') sols=sols.filter(s=>s.cat===S.catFilter);
     if(capF!=='all') sols=sols.filter(s=>s.cap.includes(capF));
     h+= sols.length
@@ -3109,6 +3161,93 @@ function etatLieuHTML(){
     </div>
   </div>`;
 }
+/* Section repliable « Modélisation » : projections + scénarios */
+function projRowHTML(label, ids){
+  const v=simVadance(ids), cur=curVadance(), gain=v-cur;
+  return `<div class="mo-row">
+    <div class="mo-lab">${label}</div>
+    <div class="mo-bar">
+      <span class="mo-fill" style="width:${Math.round(v)}%"></span>
+      <span class="mo-mark" style="left:70%" title="70 = le Réseau s'ouvre"></span>
+    </div>
+    <div class="mo-val">${round1(v)}<span class="mo-sur">/100</span>${gain>0.05?`<span class="mo-gain">+${round1(gain)}</span>`:''}</div>
+  </div>`;
+}
+function projectionsHTML(){
+  const n=S.projN||3;
+  const plan=bestNextSolutions(Math.max(6,n));
+  const noms=plan.slice(0,n).map(id=>SOL[id].ic+' '+SOL[id].name);
+  let h=`<div class="mo-block">
+    <div class="mo-t">🔮 Projection · si tu continues à ce rythme</div>
+    <div class="mo-sub">On rejoue le vrai calcul (Δ normalisés, moyenne par capital, plancher) sur ton lieu enrichi. Rythme estimé : <b>1 solution par mois</b>.</div>`;
+  h+=projRowHTML('Aujourd\'hui', []);
+  h+=projRowHTML('Dans 1 mois', plan.slice(0,1));
+  h+=projRowHTML('Dans 3 mois', plan.slice(0,3));
+  h+=projRowHTML('Dans 6 mois', plan.slice(0,6));
+  h+=`<div class="mo-legend">▏ Le repère à 70 : c'est là que le <b>Réseau</b> s'ouvre.</div>`;
+  h+=`<div class="mo-ask">
+    <div class="mo-ask-t">Et si j'installais <b>${n}</b> solution${n>1?'s':''} de plus ?</div>
+    <div class="mo-chips">${[1,3,6].map(k=>`<button class="mo-chip ${n===k?'on':''}" onclick="S.projN=${k};render()">+${k}</button>`).join('')}</div>
+    ${noms.length?`<div class="mo-plan">Deva te suggère : ${noms.map(x=>`<span class="mo-pill">${escapeHtml(x)}</span>`).join('')}</div>`:'<div class="hint">Toutes les solutions sont déjà installées 🌿</div>'}
+    <div class="mo-res">Vadance projetée : <b>${round1(simVadance(plan.slice(0,n)))}/100</b> (aujourd'hui ${round1(curVadance())}/100)</div>
+  </div>`;
+  h+=`</div>`;
+  return h;
+}
+function scenariosHTML(){
+  const budget=S.simBudget||600;
+  const FOCUS=[
+    {k:'eco', ic:'🌿', t:'Max Impact Écologique'},
+    {k:'social', ic:'🤝', t:'Max Impact Social'},
+    {k:'econo', ic:'🪙', t:'Max Impact Économique'},
+  ];
+  let h=`<div class="mo-block">
+    <div class="mo-t">🧪 Simulateur de scénario</div>
+    <div class="mo-sub">Installer ne coûte rien au Pilote : c'est un <b>Semeur</b> qui finance la facture. Choisis le budget à financer, et regarde quels combos maximisent chaque capital.</div>
+    <div class="mo-budget"><span class="mo-blab">Budget à financer</span>
+      ${[300,600,1000,1500].map(b=>`<button class="mo-chip ${budget===b?'on':''}" onclick="S.simBudget=${b};render()">${b} €</button>`).join('')}
+    </div>
+    <div class="mo-scen">`;
+  FOCUS.forEach(f=>{
+    const sc=scenarioFor(f.k, budget);
+    const sols=sc.ids.map(id=>SOL[id]);
+    h+=`<div class="mo-card">
+      <div class="mo-card-t">${f.ic} ${f.t}</div>
+      ${sols.length?`<div class="mo-sols">${sols.map(x=>`<div class="mo-sol"><span>${x.ic} ${escapeHtml(x.name)}</span><b>${x.euros} €</b></div>`).join('')}</div>`
+        :`<div class="hint">Aucune solution de ce capital dans ce budget.</div>`}
+      <div class="mo-kpi"><span>${f.ic} Capital ${f.k==='eco'?'Écologie':(f.k==='social'?'Social':'Économie')}</span><b>${round1(sc.cap)}/100</b></div>
+      <div class="mo-kpi"><span>✨ Vadance du lieu</span><b>${round1(sc.vadance)}/100</b></div>
+      <div class="mo-kpi"><span>🌾 À financer</span><b>${sc.euros} €</b></div>
+      ${sols.length?`<button class="btn btn-primary mo-adopt" onclick="adoptScenario('${sc.ids.join(',')}')">Adopter ce scénario →</button>`:''}
+    </div>`;
+  });
+  h+=`</div>
+    <div class="mo-legend">🚧 Un capital seul ne suffit pas : tant qu'un des trois reste sous ${PLANCHER_CAPITAL}/100, la Vadance du lieu plafonne. C'est la non-compensation.</div>
+  </div>`;
+  return h;
+}
+function modelisationHTML(){
+  const open=!!S.modelOpen;
+  return `<div class="card mo-card-main">
+    <button class="mo-head" onclick="S.modelOpen=${open?'false':'true'};render()">
+      <span class="mo-head-t">📈 Modélisation</span>
+      <span class="mo-head-s">Projections et scénarios pour décider avant d'agir</span>
+      <span class="mo-caret">${open?'▾':'▸'}</span>
+    </button>
+    ${open?`<div class="mo-body">${projectionsHTML()}${scenariosHTML()}</div>`:''}
+  </div>`;
+}
+function adoptScenario(csv){
+  const ids=csv.split(',').filter(Boolean);
+  if(!ids.length) return;
+  S.scenarioIds=ids;
+  S.biblioTourDone=true;
+  if(S.navUnlocked && !S.navUnlocked.has('b')) S.navUnlocked.add('b');
+  switchTab('b');
+  S.sel={type:'solution', id:ids[0]};
+  render();
+  toast(`🧪 Scénario adopté · ${ids.length} solution${ids.length>1?'s':''} pré-sélectionnée${ids.length>1?'s':''} dans la Bibliothèque. Pose-les dans tes espaces 🌿`,'win');
+}
 function dashHTML(opts){
   const P=PROFILS[S.profile];
   const vad = S.profile==='semeur'?S.vaditeFin:curVadite();
@@ -3128,6 +3267,7 @@ function dashHTML(opts){
   </div>`;
   // Etat du lieu : promesse (Vadance) → Indice de Confiance → preuve (Vadité) + triptyque des 3 capitaux
   if(S.profile==='pilote') h+=etatLieuHTML();
+  if(S.profile==='pilote') h+=modelisationHTML();
   // stats (masquées pour le Pilote : déjà couvertes par le panneau « État du lieu » et la barre du haut)
   if(S.profile!=='pilote'){
     h+=`<div class="dash-grid">`;
@@ -4163,6 +4303,57 @@ function pilotScore(kind){ // pondération des trois capitaux, plafonnée si un 
   const mini=Math.min(vals.eco, vals.social, vals.econo);
   if(mini<PLANCHER_CAPITAL) sc=Math.min(sc, PLANCHER_CAPITAL); // non-compensation
   return Math.max(0, Math.min(100, sc));
+}
+/* ═══════════════ MODÉLISATION : projections & scénarios (Pilote) ═══════════════ */
+/* On ne devine pas la Vadance avec une moyenne par solution : on rejoue le vrai calcul
+   (Δ normalisés, moyenne par capital, pondération, plancher) sur un lieu hypothétique. */
+function installedIdsSet(){ const set=new Set(); (S.spaces||[]).forEach(sp=>(sp.sols||[]).forEach(i=>set.add(i.id))); return set; }
+function availableSolutions(){ const inst=installedIdsSet(); return SOLUTIONS.filter(s=>!inst.has(s.id)); }
+function simCapitals(extraIds){
+  const cap={eco:{prom:0,n:0}, social:{prom:0,n:0}, econo:{prom:0,n:0}};
+  const add=(sol,delta)=>{ const k=CAP_DE_CAT[sol.cat]||'eco'; cap[k].prom+=iciNorm(delta, sol.ici); cap[k].n++; };
+  (S.spaces||[]).forEach(sp=>(sp.sols||[]).forEach(inst=>{ const sol=SOL[inst.id]; if(sol) add(sol, solDeltaProj(inst)); }));
+  (extraIds||[]).forEach(id=>{ const sol=SOL[id]; if(sol) add(sol, sol.delta); });
+  Object.values(cap).forEach(c=>{ if(c.n) c.prom/=c.n; });
+  return cap;
+}
+function simVadance(extraIds){
+  const cap=simCapitals(extraIds), w=PONDERATIONS[pondMode()].w;
+  let sc = cap.eco.prom*w.eco + cap.social.prom*w.social + cap.econo.prom*w.econo;
+  const mini=Math.min(cap.eco.prom, cap.social.prom, cap.econo.prom);
+  if(mini<PLANCHER_CAPITAL) sc=Math.min(sc, PLANCHER_CAPITAL);
+  return Math.max(0, Math.min(100, sc + (S.vadanceBonus||0)));
+}
+/* Classement d'un lieu hypothétique : la Vadance d'abord, puis le capital le plus faible
+   (sinon, tant que le plancher écrase le score, toutes les pistes se valent et le conseil devient aveugle). */
+function simRank(ids){
+  const cap=simCapitals(ids), w=PONDERATIONS[pondMode()].w;
+  const raw=cap.eco.prom*w.eco + cap.social.prom*w.social + cap.econo.prom*w.econo;
+  const mini=Math.min(cap.eco.prom, cap.social.prom, cap.econo.prom);
+  return simVadance(ids)*1000 + mini*10 + raw;
+}
+/* Les n prochaines solutions qui font le plus monter la Vadance (elles équilibrent naturellement les capitaux) */
+function bestNextSolutions(n){
+  const pool=availableSolutions().map(x=>x.id), chosen=[];
+  for(let k=0;k<n;k++){
+    let best=null, bestV=-1;
+    pool.forEach(id=>{ if(chosen.indexOf(id)>=0) return; const v=simRank(chosen.concat(id)); if(v>bestV){ bestV=v; best=id; } });
+    if(best===null) break;
+    chosen.push(best);
+  }
+  return chosen;
+}
+/* Meilleur combo pour un capital, dans un budget donné (en euros : ce qu'un Semeur finance) */
+function scenarioFor(capK, budget){
+  const cands=availableSolutions().filter(x=>(CAP_DE_CAT[x.cat]||'eco')===capK)
+    .sort((a,b)=>iciNorm(b.delta,b.ici)-iciNorm(a.delta,a.ici));
+  const chosen=[]; let spent=0, cur=simCapitals([])[capK].prom;
+  cands.forEach(x=>{
+    if(spent+x.euros>budget) return;
+    const next=simCapitals(chosen.concat(x.id))[capK].prom;
+    if(chosen.length===0 || next>=cur-0.01){ chosen.push(x.id); spent+=x.euros; cur=next; }
+  });
+  return {ids:chosen, euros:spent, cap:simCapitals(chosen)[capK].prom, vadance:simVadance(chosen)};
 }
 function capitalSinistre(){ // le capital qui plafonne le score, s'il y en a un
   const cap=pilotCapitals();
