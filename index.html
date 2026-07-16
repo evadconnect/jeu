@@ -1464,6 +1464,7 @@ const BADGES = {
   reseau:     {ic:'🔗', name:'Réseau tissé', how:'Publie une annonce sur le Réseau et relie-toi à un Bâtisseur ou à un Semeur.'},
   marche:     {ic:'🛒', name:'Marché animé', how:'Échange tes Graines contre un avantage local sur la Place de marché.'},
   quetes:     {ic:'📣', name:'Réalisations partagées', how:'Publie tes quêtes de terrain sur le Réseau : le réseau voit ce que ton lieu a vraiment mis en place.'},
+  modele:     {ic:'🧱', name:'Hub modélisé', how:'Donne corps à ton lieu : pose chacun de tes espaces sur le terrain de la 🧱 Modélisation.'},
   ecocitoyen: {ic:'🌍', name:'Éco-citoyen·ne', how:'Valide 3 preuves d’éco-gestes : mesure-les et fais-les vérifier pour qu’elles deviennent de la Vadité.'},
 };
 
@@ -3725,9 +3726,11 @@ function modelTileClick(x,y){
     const sp=spaces.find(s=>s.id===m.sel);
     m.placed[m.sel]={x:px,y:py}; m.sel=null;
     toast(`🏡 « ${sp?sp.name:'Espace'} » posé sur le terrain`,'win'); render();
-    // Modélisation terminée (tous les espaces posés) → la Carte s'ouvre
-    if(spaces.length && spaces.every(s=>m.placed[s.id]))
+    // Modélisation terminée (tous les espaces posés) → badge + la Carte s'ouvre
+    if(spaces.length && spaces.every(s=>m.placed[s.id])){
+      if(!S.badges.has('modele')){ S.badges.add('modele'); setTimeout(()=>toastBadge('modele'),900); }
       revealNav('carte', '🗺️ Mets ton lieu sur la Carte', 'Ton hub est modélisé 🧱 Chaque espace a trouvé sa place ✨ Ton lieu mérite maintenant d\'être visible dans l\'écosystème. <b>🎯 Objectif : valide ta fiche publique</b> sur la Carte, pour attirer la communauté.');
+    }
     return;
   }
   if(m.mode==='erase'){
