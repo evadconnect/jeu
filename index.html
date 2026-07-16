@@ -894,7 +894,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
         <div class="prole">Vous opérez un lieu</div>
         <h3>Pilote d'impact</h3>
         <p>Composez vos 4 espaces, installez des solutions de la Bibliothèque, mesurez-les avec les ICI, tissez des boucles circulaires.</p>
-        <div class="pgoal">🎯 Atteindre <b>30 points de Vadité</b> pour que votre lieu rejoigne les lieux durables reconnus.</div>
+        <div class="pgoal">🎯 Atteindre <b>60/100 de Vadité</b> pour que votre lieu rejoigne les hubs régénératifs reconnus.</div>
         <div class="pgo">Opérer un lieu →</div>
       </div>
       <div class="pcard batisseur" onclick="chooseProfile('batisseur')">
@@ -1026,7 +1026,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 
 /* ---------- Données : profils, VADE, saisons ---------- */
 const PROFILS = {
-  pilote:    {label:'Pilote d\'impact',    ic:'🏡', color:'#2e6b47', bg:'rgba(46,107,71,.14)', goal:30, goalLabel:'Vadité'},
+  pilote:    {label:'Pilote d\'impact',    ic:'🏡', color:'#2e6b47', bg:'rgba(46,107,71,.14)', goal:60, goalLabel:'Vadité'},
   batisseur: {label:'Bâtisseur d\'impact', ic:'🌿', color:'#a06c00', bg:'rgba(240,176,50,.20)', goal:5,  goalLabel:'missions'},
   semeur:    {label:'Semeur d\'impact',    ic:'🌾', color:'#2563a8', bg:'rgba(37,99,168,.14)', goal:25, goalLabel:'Vadité financée'},
 };
@@ -1450,7 +1450,7 @@ const BADGES = {
   vade_v:     {ic:'🌱', name:'Valoriser validé', how:'Passe la phase 🌱 Valoriser de la spirale : donne une vocation (une activité) à chacun de tes espaces.'},
   vade_a:     {ic:'⚡', name:'Activer validé', how:'Passe la phase ⚡ Activer : installe des solutions de la Bibliothèque dans tes espaces.'},
   vade_d:     {ic:'🌐', name:'Développer validé', how:'Passe la phase 🌐 Développer : rejoins le Réseau, publie ta fiche et relie-toi à un Bâtisseur ou un Semeur.'},
-  essaime:    {ic:'✨', name:'Essaimer validé', how:'Boucle la spirale sur ✨ Essaimer : atteins l’objectif de ton profil (30 points de Vadité pour le Pilote, 5 missions pour le Bâtisseur, 25 points financés pour le Semeur).'},
+  essaime:    {ic:'✨', name:'Essaimer validé', how:'Boucle la spirale sur ✨ Essaimer : atteins l’objectif de ton profil (60/100 de Vadité pour le Pilote, 5 missions pour le Bâtisseur, 25 points financés pour le Semeur).'},
   reseau:     {ic:'🔗', name:'Réseau tissé', how:'Publie une annonce sur le Réseau et relie-toi à un Bâtisseur ou à un Semeur.'},
   marche:     {ic:'🛒', name:'Marché animé', how:'Échange tes Graines contre un avantage local sur la Place de marché.'},
   ecocitoyen: {ic:'🌍', name:'Éco-citoyen·ne', how:'Valide 3 preuves d’éco-gestes : mesure-les et fais-les vérifier pour qu’elles deviennent de la Vadité.'},
@@ -1832,7 +1832,7 @@ function showOnboarding(){
       <div class="vocab"><span class="v-ic">🌰</span><div><div class="v-t">Graines</div><div class="v-d">Monnaie de l'action. Non convertible en euros.</div></div></div>
       <div class="vocab"><span class="v-ic">💶</span><div><div class="v-t">Euros</div><div class="v-d">Monnaie des financements. Circuit séparé.</div></div></div>
       <div class="vocab"><span class="v-ic">✨</span><div><div class="v-t">Vadance</div><div class="v-d">L'impact <i>promis</i>, installé, pas encore mesuré.</div></div></div>
-      <div class="vocab"><span class="v-ic">🌿</span><div><div class="v-t">Vadité</div><div class="v-d">L'impact <i>prouvé</i>, un ICI est attaché. Vérifié bat certifié.</div></div></div>
+      <div class="vocab"><span class="v-ic">🌿</span><div><div class="v-t">Vadité</div><div class="v-d">L'impact <i>prouvé</i> : un ICI est attaché et vérifié sur le terrain, pas seulement déclaré.</div></div></div>
       <div class="vocab"><span class="v-ic">📊</span><div><div class="v-t">ICI · Indicateur de Changement d'Impact</div><div class="v-d">Indicateur de terrain qui converge vers ODD, ESRS, PCAET, RSE.</div></div></div>
       <div class="vocab"><span class="v-ic deva-av" style="width:1.5rem;height:1.5rem;display:inline-block"></span><div><div class="v-t">Deva</div><div class="v-d">Votre assistante frugale, en bas à gauche.</div></div></div>
     </div>
@@ -1865,7 +1865,7 @@ function buildTourSteps(){
     ...(S.profile==='pilote' ? [
       {sel:'.season-btn', side:'bottom', title:'⏳ Le temps qui passe', text:'Ce bouton fait avancer la saison : tes espaces produisent, les revenus tombent, et les aléas climatiques arrivent.'},
       {sel:'#vade-bar', side:'bottom', title:'🌀 La spirale VADE', text:'Valoriser → Activer → Développer → Essaimer : le fil rouge de ta partie, phase après phase.'},
-      {sel:'.biblio-tab[data-sub="recompenses"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏅 Récompenses', text:`Ta <b>ligne d'arrivée</b>. Tu y suis tes badges et ta quête finale : atteindre <b>30 de Vadité</b> pour que « ${escapeHtml(S.lieuName||'ton lieu')} » rejoigne les hubs régénératifs reconnus. C'est ça, finir le jeu.`},
+      {sel:'.biblio-tab[data-sub="recompenses"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏅 Récompenses', text:`Ta <b>ligne d'arrivée</b>. Tu y suis tes badges et ta quête finale : atteindre <b>60/100 de Vadité</b> pour que « ${escapeHtml(S.lieuName||'ton lieu')} » rejoigne les hubs régénératifs reconnus. C'est ça, finir le jeu.`},
       {sel:'.biblio-tab[data-sub="espaces"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏡 Espaces', text:'C\'est ici que tout démarre 🌱 <b>Ta première action</b> : choisis une activité pour chacun de tes espaces, puis installe des solutions de la Bibliothèque. La spirale se met en route.'},
     ] : []),
     {sel:navSel('b'), side:'right', title:navBy('b').ic+' '+navBy('b').label, text:AB.b},
@@ -2032,10 +2032,10 @@ function obEspacePicker(ob){
 }
 const HOWTO = {
   pilote: {
-    goal:`Atteindre <b>30 points de Vadité</b> (impact prouvé) pour que ton lieu devienne un lieu d'impact reconnu du réseau.`,
+    goal:`Atteindre <b>60/100 de Vadité</b> (impact prouvé) pour que ton lieu devienne un hub régénératif reconnu du réseau.`,
     steps:[
       ['🧩',`Installe des <b>solutions</b> de la Bibliothèque dans tes espaces : elles créent de la <b>Vadance</b> (impact promis).`],
-      ['📊',`Mesure-les avec un <b>ICI</b>, puis fais valider la preuve par le réseau, un <b>Bâtisseur</b> (terrain) ou un <b>Semeur</b> (financement) : ta Vadance devient <b>Vadité</b>. Vérifié bat certifié.`],
+      ['📊',`Mesure-les avec un <b>ICI</b>, puis fais valider la preuve par le réseau, un <b>Bâtisseur</b> (terrain) ou un <b>Semeur</b> (financement) : ta Vadance devient <b>Vadité</b>, un impact vérifié sur le terrain, pas seulement annoncé.`],
       ['🔄',`Relie tes espaces en <b>boucles</b> circulaires pour récolter des <b>Graines</b> 🌰 chaque saison.`],
       ['⏳',`Clique <b>« Saison ▸ »</b> en haut pour faire avancer le temps : ça produit, ça rapporte, des aléas surviennent.`],
       ['🎯',`Suis la <b>mission en cours</b> sous la spirale VADE : elle t'indique quoi faire pour passer à l'étape suivante.`],
@@ -2315,9 +2315,15 @@ function renderTopbar(){
   // stats
   let html=`<span class="stat" data-stat="graines">🌰 ${S.graines}<span class="lab">Graines</span></span>`;
   if(S.profile==='semeur') html+=`<span class="stat" data-stat="euros">💶 ${S.euros}<span class="lab">€</span></span>`;
-  html+=`<span class="stat" data-stat="vadance">✨ ${round1(curVadance())} ${pts(curVadance())}<span class="lab">Vadance</span></span>`;
-  const vad = S.profile==='semeur'?S.vaditeFin:curVadite();
-  html+=`<span class="stat vadite" data-stat="vadite">🌿 ${round1(vad)} / ${PROFILS[S.profile].goal} points<span class="lab">Vadité</span></span>`;
+  // Pilote : Vadance et Vadité sont des notes sur 100. Batisseur/Semeur gardent leur compteur de points.
+  if(S.profile==='pilote'){
+    html+=`<span class="stat" data-stat="vadance">✨ ${round1(curVadance())}<span class="lab">/100 Vadance</span></span>`;
+    html+=`<span class="stat vadite" data-stat="vadite">🌿 ${round1(curVadite())}<span class="lab">/100 Vadité</span></span>`;
+  } else {
+    html+=`<span class="stat" data-stat="vadance">✨ ${round1(curVadance())} ${pts(curVadance())}<span class="lab">Vadance</span></span>`;
+    const vad = S.profile==='semeur'?S.vaditeFin:curVadite();
+    html+=`<span class="stat vadite" data-stat="vadite">🌿 ${round1(vad)} / ${PROFILS[S.profile].goal} points<span class="lab">Vadité</span></span>`;
+  }
   document.getElementById('stats').innerHTML=html;
   // VADE bar
   document.getElementById('vade-bar').innerHTML = `<span class="vade-cycle">🌀 Cycle ${S.vadeCycle||1}/3</span>` + VADE.map((v,i)=>{
@@ -2679,6 +2685,11 @@ function installSelected(spaceId){
   S.sel=null;
   markFirstAct('installed');
   toast(`${s.ic} ${s.name} installé · Δ projeté ${fmtDelta(s.delta)} ${ICI[s.ici].unit} ✨`,'win');
+  // Conseil une fois : un espace plein rappelle qu'il faut varier les espaces pour couvrir les 3 capitaux
+  if(sp.sols.length>=MAX_PER_SPACE && !S.tipFullShown){
+    S.tipFullShown=true;
+    setTimeout(()=>toast(`🌿 Un espace accueille ${MAX_PER_SPACE} solutions max. Pour tenir tes 3 capitaux (🌿 Écologie, 🤝 Social, 🏘️ Économie locale), aménage d'autres espaces plutôt que d'empiler.`,'win'),700);
+  }
   checkLoops(true);
   render();
 }
@@ -2890,7 +2901,7 @@ function ecoSection(){
   const em=S.ecoMissions||{};
   const proven=Object.values(em).filter(v=>v==='proven').length;
   let h=`<div class="lieu-title" style="margin-top:.3rem">🌍 Défis écolo du quotidien <span style="font-size:.66rem;opacity:.7;font-weight:600">· ${proven} prouvé(s)</span></div>`;
-  h+=`<div class="hint">💡 La règle d'or d'EVAD, à vivre ici : <b>relever un défi = une promesse (Vadance ✨)</b>. <b>Fournir la preuve = de la Vadité 🌿 vérifiée</b>, et des Graines à dépenser à la place de marché. Vérifié bat certifié.</div>`;
+  h+=`<div class="hint">💡 La règle d'or d'EVAD, à vivre ici : <b>relever un défi = une promesse (Vadance ✨)</b>. <b>Fournir la preuve = de la Vadité 🌿 vérifiée</b>, et des Graines à dépenser à la place de marché.</div>`;
   h+=`<div class="cards-grid" style="margin-bottom:1.3rem">`;
   ECO_MISSIONS.forEach(m=>{
     const st=em[m.id];
@@ -3137,7 +3148,7 @@ function etatLieuHTML(){
     <span class="el-pond-lab">Qui décide de l'importance ?</span>
     ${Object.entries(PONDERATIONS).map(([k,p])=>`<button class="el-pond-btn ${pondMode()===k?'on':''}" title="${p.sub}" onclick="S.pondMode='${k}';render()">${p.label}</button>`).join('')}
   </div>`;
-  const alerte = sin ? `<div class="el-floor">🚧 <b>Ton lieu est bloqué à ${PLANCHER_CAPITAL}/100</b> tant que <b>${CAPS_META.find(c=>c.k===sin).label}</b> reste au tapis. Ici, on n'achète pas le droit de saccager une colonne en excellant dans une autre. Trois piliers, ou rien.</div>` : '';
+  const alerte = sin ? `<div class="el-floor">🚧 <b>Ton lieu est bloqué à ${PLANCHER_CAPITAL}/100</b> tant que <b>${CAPS_META.find(c=>c.k===sin).label}</b> reste au tapis. Ici, on n'achète pas le droit de saccager une colonne en excellant dans une autre. Trois piliers, ou rien.<button class="btn btn-primary" style="margin-top:.5rem;width:100%" onclick="openBiblioForCapital('${sin}')">🔧 Voir les solutions ${CAPS_META.find(c=>c.k===sin).label} →</button></div>` : '';
   return `<div class="card el-card">
     <div class="el-head"><span class="el-eyebrow">🌱 État du lieu</span><span class="el-badge">${proven>0?'🌿 Impact prouvé':'✨ Impact déclaré'}</span></div>
     <div class="el-top">
@@ -3170,11 +3181,14 @@ function dashHTML(opts){
   // objectif principal
   const goalNum = S.profile==='batisseur'?S.missionsDone:round1(vad);
   const goalMax = P.goal;
+  const goalUnit = S.profile==='batisseur'?'missions':(S.profile==='pilote'?'de Vadité':'points de '+P.goalLabel);
+  const capActif = S.profile==='pilote' && !hasExternalProof() && pilotScore('proof')>=VADITE_SELF_CAP-0.5;
   h+=`<div class="card" style="padding:1.1rem;margin-bottom:1rem">
     <div style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:${P.color}">🎯 Quête finale · Essaimer</div>
     <div style="font-size:1.05rem;font-weight:800;margin:.3rem 0">${goalLabel()}</div>
     <div class="progress"><span style="width:${S.profile==='batisseur'?Math.min(100,S.missionsDone/5*100):prog}%"></span></div>
-    <div style="font-size:.8rem;font-weight:800;color:${P.color}">${goalNum} / ${goalMax} ${P.goalLabel==='missions'?'missions':'points de '+P.goalLabel}</div>
+    <div style="font-size:.8rem;font-weight:800;color:${P.color}">${goalNum} / ${goalMax} ${goalUnit}</div>
+    ${capActif?`<div class="el-floor" style="margin-top:.6rem">🔒 <b>Ta Vadité plafonne à ${VADITE_SELF_CAP}/100</b> tant que tu te certifies toi-même. Pour aller plus haut, fais <b>vérifier</b> une mesure par un Bâtisseur 🤝 ou un Semeur 🛡️ sur le Réseau. <button class="btn btn-primary" style="margin-top:.5rem;width:100%" onclick="gotoReseauPreuve()">🌐 Trouver une preuve sur le Réseau →</button></div>`:''}
   </div>`;
   // Etat du lieu : promesse (Vadance) → taux de tenue → preuve (Vadité) + triptyque des 3 capitaux
   if(S.profile==='pilote') h+=etatLieuHTML();
@@ -3252,7 +3266,7 @@ function dashStat(ic,num,lab){ return `<div class="dash-stat"><div class="ds-num
 function countProven(){ let n=0; S.spaces.forEach(sp=>{ if(sp.existant&&sp.ici&&sp.proven)n++; sp.sols.forEach(x=>{if(x.ici&&x.proven)n++;}); }); return n; }
 function goalLabel(){
   return {
-    pilote:`Atteindre 30 points de Vadité pour que « ${escapeHtml(S.lieuName||'ton lieu')} » rejoigne les hubs régénératifs reconnus`,
+    pilote:`Atteindre 60/100 de Vadité pour que « ${escapeHtml(S.lieuName||'ton lieu')} » rejoigne les hubs régénératifs reconnus`,
     batisseur:`Accomplir 5 missions pour devenir Bâtisseur·se confirmé·e`,
     semeur:`Atteindre 25 points de Vadité financée et produire votre rapport d'impact`,
   }[S.profile];
@@ -3883,7 +3897,13 @@ function capitalSinistre(){ // le capital qui plafonne le score, s'il y en a un
   return arr[0][1]<PLANCHER_CAPITAL?arr[0][0]:null;
 }
 function pilotVadance(){ return Math.max(0, Math.min(100, pilotScore('prom') + (S.vadanceBonus||0))); }
-function pilotVadite(){ return pilotScore('proof'); }
+const VADITE_SELF_CAP=50; // sans preuve externe, on ne se certifie pas soi-même : la Vadité plafonne
+function hasExternalProof(){ return (S.spaces||[]).some(sp=>(sp.sols||[]).some(i=>i.proven && (i.preuve==='pairs'||i.preuve==='tiers'))); }
+function pilotVadite(){
+  let v=pilotScore('proof');
+  if(!hasExternalProof()) v=Math.min(v, VADITE_SELF_CAP);
+  return v;
+}
 function curVadance(){ return S.profile==='pilote' ? pilotVadance() : S.vadance; }
 function curVadite(){ return S.profile==='pilote' ? pilotVadite() : (S.profile==='semeur' ? S.vaditeFin : S.vadite); }
 function tauxTenue(){ const v=curVadance(); return v>0 ? Math.min(100, Math.round(curVadite()/v*100)) : 0; }
@@ -4157,7 +4177,7 @@ function loopMultLabel(n, short){
 function checkWin(){
   if(S.won) return false;
   let won=false;
-  if(S.profile==='pilote' && curVadite()>=30) won=true;
+  if(S.profile==='pilote' && curVadite()>=PROFILS.pilote.goal) won=true;
   if(S.profile==='batisseur' && S.missionsDone>=5) won=true;
   if(S.profile==='semeur' && S.vaditeFin>=25) won=true;
   if(won){ S.won=true; S.vade=3; S.badges.add('essaime'); }
@@ -4187,14 +4207,14 @@ function seasonModal(sz, yr, gains, vaditeGain, msgs, hazMsg, won){
 }
 function winModal(){
   const cfg={
-    pilote:{ic:'🌳',t:'Lieu durable reconnu !',p:(S.lieuName||'La Friche des Possibles')+' atteint <b>30 points de Vadité prouvée</b>. Votre lieu rejoint les lieux d\'impact reconnus du réseau EVAD. La spirale VADE peut maintenant recommencer un cran plus haut : de nouveaux espaces à valoriser, de nouvelles boucles à tisser… et d\'autres lieux à inspirer.'},
+    pilote:{ic:'🌳',t:'Lieu durable reconnu !',p:(S.lieuName||'La Friche des Possibles')+' atteint <b>60/100 de Vadité prouvée</b>. Votre lieu rejoint les lieux d\'impact reconnus du réseau EVAD. La spirale VADE peut maintenant recommencer un cran plus haut : de nouveaux espaces à valoriser, de nouvelles boucles à tisser… et d\'autres lieux à inspirer.'},
     batisseur:{ic:'🌿',t:'Bâtisseur·se confirmé·e !',p:'Vous avez accompli <b>5 missions</b> sur le réseau. Vos compétences ont transformé trois lieux durablement. On vous réclame déjà pour de nouveaux chantiers, et pour transmettre à votre tour.'},
     semeur:{ic:'🌾',t:'Impact vérifié, mission accomplie !',p:'Vous avez atteint <b>25 points de Vadité financée</b>, entièrement vérifiée. Vos référentiels sont couverts, vos financements ont fait pousser des preuves, pas des promesses. Place au rapport d\'impact.'},
   }[S.profile];
   let h=`<div class="season-anim">${cfg.ic}</div><h2>${cfg.t}</h2><p>${cfg.p}</p>`;
   h+=`<div class="mb-detail" style="text-align:center">
     🏅 <b>${S.badges.size} badge(s)</b> · 🌀 Spirale VADE bouclée jusqu'à <b>E · Essaimer</b><br>
-    <span style="font-size:.78rem;opacity:.8">Vérifié bat certifié. Voilà EVAD.</span>
+    <span style="font-size:.78rem;opacity:.8">Un impact prouvé, pas promis. Voilà EVAD.</span>
   </div>`;
   if(S.profile==='semeur') h+=`<button class="btn btn-primary" style="width:100%;margin-bottom:.5rem" onclick="closeModal();produceReport()">📄 Produire mon rapport d'impact</button>`;
   h+=`<button class="btn ${S.profile==='semeur'?'btn-ghost':'btn-primary'}" style="width:100%;margin-bottom:.5rem" onclick="closeModal()">Continuer à jouer</button>`;
@@ -4299,6 +4319,21 @@ function biblioTour(){
   document.getElementById('tour-overlay').classList.add('on');
   showTourStep(0);
 }
+/* Ouvre la Bibliothèque filtrée sur les solutions qui nourrissent un capital donné */
+function openBiblioForCapital(cap){
+  const catByCap={eco:'alimentaire', social:'social', econo:'economie'};
+  if(S.navUnlocked && !S.navUnlocked.has('b')) S.navUnlocked.add('b');
+  S.biblioTourDone=true; // on vient chercher une solution précise, pas suivre le tour
+  switchTab('b');
+  S.catFilter=catByCap[cap]||'all'; S.capFilter='all';
+  render();
+}
+/* Emmène le joueur sur le Réseau pour faire vérifier une mesure (preuve externe) */
+function gotoReseauPreuve(){
+  if(S.navUnlocked && !S.navUnlocked.has('reseau')) S.navUnlocked.add('reseau');
+  switchTab('reseau');
+  toast('🌿 Fais installer et mesurer par un Bâtisseur, ou financer la vérification par un Semeur : leur preuve fait décoller ta Vadité.','win');
+}
 function revealBiblioTab(){
   if(S.navUnlocked && !S.navUnlocked.has('b')){ S.navUnlocked.add('b'); setupNav(); render(); }
 }
@@ -4382,7 +4417,7 @@ function devaTip(){
     if(installedIds().length<2) return `Ouvre la 📚 <b>Bibliothèque</b> et installe une solution dans la <b>Pleine terre</b> ou la <b>Toiture</b> (chaque solution coûte des Graines). Pense aux flux : Cuisine, Composteur et Potager forment une belle boucle.`;
     if(fluxLoops(installedIds()).length===0) return `Vous avez des solutions, mais pas encore de <b>boucle</b> 🔄. Cherchez deux cartes dont les flux se répondent (une qui produit ce qu'une autre consomme) : la boucle rapporte des Graines chaque saison.`;
     if(!pilotHasFresh()) return `Un conseil pour l'été : installez une solution 🌊 <b>Fraîcheur</b> (eau de pluie, mur végétal, ombrière). En canicule, votre lieu deviendra un îlot de fraîcheur au lieu de perdre de la Vadance.`;
-    return `Vous êtes à ${round1(vad)}/30 points de Vadité 🌿. Continuez à <b>mesurer</b> ce que vous installez (chaque ICI convertit la Vadance) et à densifier vos boucles : 5 boucles = Forêt nourricière ×2.`;
+    return `Vous êtes à ${round1(vad)}/60 de Vadité 🌿. Continuez à <b>mesurer</b> ce que vous installez (chaque ICI convertit la Vadance) et à densifier vos boucles : 5 boucles = Forêt nourricière ×2.`;
   }
   if(S.profile==='batisseur'){
     if(S.missionsDone===0 && S.missions.length===0) return `Pour démarrer, <b>acceptez une mission</b> qui correspond à vos 2 compétences de départ (🌱 Jardiner, 🔧 Réparer). Elle se résoudra à la prochaine saison.`;
