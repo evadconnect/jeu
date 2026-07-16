@@ -3229,8 +3229,11 @@ function badgeTip(k){
 function badgesHTML(){
   let h=`<div class="sect-title" style="font-size:1rem">🏅 Badges · ${S.badges.size}/${Object.keys(BADGES).length}</div>
     <div class="badges-grid">`;
-  Object.entries(BADGES).forEach(([k,b])=>{
-    const got=S.badges.has(k);
+  // Ordre d'obtention : les badges déjà gagnés d'abord (dans l'ordre où ils l'ont été), puis les verrouillés.
+  const gained=[...S.badges].filter(k=>BADGES[k]);
+  const locked=Object.keys(BADGES).filter(k=>!S.badges.has(k));
+  [...gained, ...locked].forEach(k=>{
+    const b=BADGES[k]; const got=S.badges.has(k);
     const tip=got?'✅ Débloqué ! '+b.how:'🔒 Comment l’obtenir : '+b.how;
     h+=`<div class="badge ${got?'got':''}" tabindex="0" onclick="badgeTip('${k}')">
       <div class="b-ic">${b.ic}</div><div class="b-name">${b.name}</div>
