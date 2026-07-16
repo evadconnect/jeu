@@ -910,7 +910,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 
     <div class="nav-bottom">
       <button class="ob-intro-btn" id="nav-switch" onclick="replayTour()" title="Revoir la visite guidée"><span class="oib-ico">🧭</span><span class="oib-txt">Revoir la visite guidée</span></button>
-      <button class="ob-intro-btn" id="nav-profile" onclick="changeProfile()" title="Changer de profil"><span class="oib-ico">🔄</span><span class="oib-txt">Changer de profil</span></button>
+      <button class="ob-intro-btn" id="nav-profile" onclick="goToBatisseur()" title="Aller au profil Bâtisseur"><span class="oib-ico">🌿</span><span class="oib-txt">Aller au profil Bâtisseur</span></button>
       <div class="deva-pill" id="deva-pill" onclick="toggleDeva()" title="Parler à Deva">
         <span class="dp-av deva-av"></span>
         <div class="dp-meta"><span class="deva-name">Deva</span><span class="deva-status">Active</span></div>
@@ -1594,16 +1594,16 @@ function goToIntro(){
   window.scrollTo(0,0);
   introDeva();
 }
-/* Changer de profil : on repasse par l'intro guidée. La partie en cours étant perdue, on confirme. */
-function changeProfile(){
+/* Aller au profil Bâtisseur depuis la barre latérale. La partie en cours étant perdue, on confirme. */
+function goToBatisseur(){
   if(S && S.ob) return;                       // onboarding de profil en cours : rien à abandonner
-  if(!S || !S.onboarded){ goToIntro(); return; }
+  if(!S || !S.onboarded){ switchToBatisseur(); return; }
   const p=PROFILS[S.profile];
   openModal(`
-    <div class="mb-ic">🔄</div>
-    <h2>Changer de profil ?</h2>
-    <p>Ta partie en cours (<b>${p.ic} ${p.label}</b>) sera abandonnée : tu repars de l'intro pour choisir un nouveau profil.</p>
-    <button class="btn btn-primary" style="width:100%" onclick="goToIntro()">🔄 Changer de profil</button>
+    <div class="mb-ic">🌿</div>
+    <h2>Aller au profil Bâtisseur ?</h2>
+    <p>Ta partie en cours (<b>${p.ic} ${p.label}</b>) sera abandonnée : tu repars en <b>🌿 Bâtisseur d'impact</b> pour réaliser les quêtes du réseau.</p>
+    <button class="btn btn-primary" style="width:100%" onclick="switchToBatisseur()">🌿 Aller au profil Bâtisseur</button>
     <button class="btn btn-ghost" style="width:100%;margin-top:.5rem" onclick="closeModal()">Annuler</button>
   `);
 }
@@ -2119,6 +2119,9 @@ function setupNav(){
     return `<div class="nav-item ${S.tab===n.k?'active':''}" data-tab="${n.k}" onclick="switchTab('${n.k}')">
        <span class="nav-icon">${n.ic}${badge}</span><span class="nl">${n.label}</span></div>`;
   }).join('');
+  // Raccourci « Aller au profil Bâtisseur » : sans objet quand on y est déjà
+  const pb=document.getElementById('nav-profile');
+  if(pb) pb.style.display = S.profile==='batisseur' ? 'none' : '';
 }
 function switchTab(k){ if(!S.tabsSeen) S.tabsSeen=new Set(); S.tabsSeen.add(k); S.tab=k; setupNav(); render();
   if(k==='b' && S.profile==='pilote' && !S.biblioTourDone && !S.tour) setTimeout(()=>biblioTour(), 380);
