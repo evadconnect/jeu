@@ -701,6 +701,37 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .cp-empty{font-size:.72rem;color:var(--moss);opacity:.6;padding:.3rem .2rem}
 .carte-legend{display:flex;flex-wrap:wrap;gap:.85rem;margin-top:.9rem;padding-top:.7rem;border-top:1px solid var(--line);font-size:.66rem;color:var(--moss);font-weight:700}
 .carte-legend span{display:inline-flex;align-items:center;gap:.32rem}
+
+/* ══════ Modélisation (terrain isométrique en blocs, façon Luanti) ══════ */
+.model-wrap{display:grid;grid-template-columns:1fr 300px;gap:1rem;align-items:start}
+@media(max-width:900px){.model-wrap{grid-template-columns:1fr}}
+.model-map{background:linear-gradient(180deg,#dcefF7,#e7f5ec 60%);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)}
+.model-map svg{display:block;width:100%;height:auto}
+.mtile{fill:transparent;cursor:pointer}
+.mtile:hover{fill:rgba(240,200,74,.42)}
+.model-panel{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:1rem 1.05rem;box-shadow:var(--shadow)}
+.mp-hint{font-size:.72rem;color:var(--moss);background:var(--cream);border-radius:10px;padding:.5rem .65rem;margin:.5rem 0 .8rem;line-height:1.45}
+.mp-sect{font-size:.68rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--moss);margin:.9rem 0 .45rem}
+.mp-item{display:flex;align-items:center;gap:.55rem;width:100%;border:1.5px solid var(--line);border-radius:12px;background:#fff;padding:.5rem .6rem;margin-bottom:.4rem;cursor:pointer;font-family:var(--font);text-align:left;transition:all .15s}
+.mp-item:hover{border-color:var(--fern)}
+.mp-item.on{border-color:var(--forest);background:var(--cream);box-shadow:0 3px 10px rgba(1,130,98,.14)}
+.mp-item .mpi-ic{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.mp-item .mpi-tx{flex:1;min-width:0;display:flex;flex-direction:column}
+.mp-item .mpi-nm{font-size:.78rem;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mp-item .mpi-sub{font-size:.62rem;color:var(--moss);opacity:.8}
+.mp-item .mpi-st{font-size:.6rem;font-weight:800;color:var(--amber);white-space:nowrap}
+.mp-item .mpi-st.ok{color:var(--forest)}
+.mp-deco{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:.4rem}
+.mp-deco-btn{display:flex;flex-direction:column;align-items:center;gap:.15rem;border:1.5px solid var(--line);border-radius:11px;background:#fff;padding:.45rem .2rem;cursor:pointer;font-family:var(--font);transition:all .15s}
+.mp-deco-btn span{font-size:1.05rem}
+.mp-deco-btn small{font-size:.58rem;font-weight:700;color:var(--moss)}
+.mp-deco-btn:hover{border-color:var(--fern)}
+.mp-deco-btn.on{border-color:var(--forest);background:var(--cream)}
+.mp-tools{display:flex;gap:.4rem;margin-top:.8rem}
+.mp-tools button{flex:1;border:1.5px solid var(--line);border-radius:10px;background:#fff;padding:.42rem .3rem;font-size:.66rem;font-weight:700;color:var(--moss);cursor:pointer;font-family:var(--font)}
+.mp-tools button:hover{border-color:var(--fern)}
+.mp-tools button.on{border-color:var(--amber);background:#fff7e6;color:var(--amber)}
+.mp-counts{font-size:.66rem;color:var(--moss);margin-top:.7rem;text-align:center}
 .marker{cursor:pointer;transition:transform .15s;transform-box:fill-box;transform-origin:center}
 .marker:hover{transform:scale(1.14)}
 .mkt-media{display:flex;align-items:center;justify-content:center}
@@ -939,6 +970,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
       <div class="view" id="view-dash"></div>
       <div class="view" id="view-reseau"></div>
       <div class="view" id="view-carte"></div>
+      <div class="view" id="view-modele"></div>
       <div class="view" id="view-marche"></div>
     </div>
   </main>
@@ -1442,7 +1474,7 @@ function newState(profile){
     tab:'a', devaOpen:false,
     // pilote
     hand:[], spaces:null, sel:null, pcomps:new Set(), lieuName:'La Friche des Possibles', lieuType:'jardin', ob:null, playerName:'', loopsActive:0, loopBadgeShown:false, vadanceBonus:0,
-    lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{}, questesPubliees:false, questesPublieesSnap:'', myPosts:[], biblioTourDone:false, carteTourDone:false, reseauTourDone:false, batMissionsTourDone:false, batCompTourDone:false, pendingBatTour:false, tourDemo:false,
+    lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{}, questesPubliees:false, questesPublieesSnap:'', myPosts:[], biblioTourDone:false, carteTourDone:false, reseauTourDone:false, batMissionsTourDone:false, batCompTourDone:false, pendingBatTour:false, tourDemo:false, model:null, modelTourDone:false,
     pondMode:'egalite', measureCtx:null,
     mktFilter:'all', purchases:[], ecoMissions:{},
     // batisseur
@@ -1645,6 +1677,11 @@ function replayTour(){
   if(S.profile==='pilote' && S.tab==='carte'){
     S.carteTourDone=false;
     carteTour();
+    return;
+  }
+  if(S.profile==='pilote' && S.tab==='modele'){
+    S.modelTourDone=false;
+    modelTour();
     return;
   }
   if(S.tab==='reseau'){
@@ -2086,6 +2123,7 @@ const NAV = {
   pilote:[
     {k:'a',ic:'🏡',label:'Mon lieu',title:'Mon lieu · La Friche des Possibles',sub:'Ton tableau de bord et ton lieu réunis : suis ta progression, compose, installe et mesure.'},
     {k:'b',ic:'📚',label:'Bibliothèque',title:'Bibliothèque complète',sub:'Le catalogue des solutions. Sélectionne une carte, puis place-la dans ton lieu.'},
+    {k:'modele',ic:'🧱',label:'Modélisation',title:'Modélisation du hub',sub:'Construis ton hub régénératif en blocs : pose tes espaces sur le terrain, tes solutions y prennent forme.'},
     RESEAU_NAV,
     CARTE_NAV,
     MARCHE_NAV,
@@ -2140,6 +2178,7 @@ function setupNav(){
 function switchTab(k){ if(!S.tabsSeen) S.tabsSeen=new Set(); S.tabsSeen.add(k); S.tab=k; setupNav(); render();
   if(k==='b' && S.profile==='pilote' && !S.biblioTourDone && !S.tour) setTimeout(()=>biblioTour(), 380);
   if(k==='carte' && S.profile==='pilote' && !S.carteTourDone && !S.lieuPublished && !S.tour) setTimeout(()=>carteTour(), 380);
+  if(k==='modele' && S.profile==='pilote' && !S.modelTourDone && !S.tour) setTimeout(()=>modelTour(), 380);
   if(k==='reseau' && !S.reseauTourDone && !S.tour) setTimeout(()=>reseauTour(), 380);
   if(k==='a' && S.profile==='batisseur' && S.batSub!=='dash' && !S.batMissionsTourDone && !S.tour) setTimeout(()=>batMissionsTour(), 380);
   if(k==='b' && S.profile==='batisseur' && !S.batCompTourDone && !S.tour) setTimeout(()=>batCompTour(), 380);
@@ -2187,13 +2226,14 @@ function render(){
   renderSessionBar();
   document.querySelectorAll('.nav-item').forEach(t=>t.classList.toggle('active', t.dataset.tab===S.tab));
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  const VIEWMAP={dash:'view-dash',a:'view-a',b:'view-b',reseau:'view-reseau',carte:'view-carte',marche:'view-marche'};
+  const VIEWMAP={dash:'view-dash',a:'view-a',b:'view-b',reseau:'view-reseau',carte:'view-carte',modele:'view-modele',marche:'view-marche'};
   document.getElementById(VIEWMAP[S.tab]||'view-a').classList.add('active');
   if(S.tab==='dash') renderDash();
   else if(S.tab==='a') renderTabA();
   else if(S.tab==='b') renderTabB();
   else if(S.tab==='reseau') renderReseau();
   else if(S.tab==='carte') renderCarte();
+  else if(S.tab==='modele') renderModele();
   else if(S.tab==='marche') renderMarche();
   checkVade();
 }
@@ -3532,6 +3572,166 @@ function renderCarte(){
   el.innerHTML=`<div class="carte-wrap"><div class="carte-map">${filterBar}${mapSvg}</div>${panel}</div>`;
 }
 
+/* ═══════════════ MODÉLISATION (terrain isométrique en blocs, façon Luanti) ═══════════════ */
+const MODEL_DECO={
+  arbre: {ic:'🌳', n:'Arbre'},
+  fleur: {ic:'🌼', n:'Fleurs'},
+  rocher:{ic:'🪨', n:'Rocher'},
+  chemin:{ic:'🛤️', n:'Chemin', flat:'#e6d5a8', stroke:'#d3bf8a'},
+  eau:   {ic:'💧', n:'Mare',   flat:'#a9d5ea', stroke:'#8fc2dc'},
+};
+const MOD_N=10, MOD_W=32, MOD_H=16;                 // grille N×N, demi-largeur/hauteur d'une tuile
+const MOD_VW=MOD_N*MOD_W*2+92, MOD_OX=MOD_VW/2, MOD_OY=52;
+function modelState(){ if(!S.model) S.model={placed:{}, deco:[], sel:null, mode:null}; return S.model; }
+function modCx(x,y){ return MOD_OX+(x-y)*MOD_W; }
+function modCy(x,y){ return MOD_OY+(x+y)*MOD_H+MOD_H; }
+function modDia(cx,cy,w,h){ return `${cx},${cy-h} ${cx+w},${cy} ${cx},${cy+h} ${cx-w},${cy}`; }
+function modPoly(pts,fill,op,stroke){ return `<polygon points="${pts}" fill="${fill}"${op!=null?` fill-opacity="${op}"`:''}${stroke?` stroke="${stroke}" stroke-width="1"`:''}/>`; }
+/* Un bloc isométrique : élévation de base, hauteur, échelle k, couleur, icône sur la face du dessus */
+function modCube(x,y,elev,ht,k,color,ic,icSize){
+  const cx=modCx(x,y), cy=modCy(x,y), w=MOD_W*k, h=MOD_H*k, e=elev+ht;
+  const top=modDia(cx,cy-e,w,h);
+  const L=`${cx-w},${cy-e} ${cx},${cy-e+h} ${cx},${cy-elev+h} ${cx-w},${cy-elev}`;
+  const R=`${cx+w},${cy-e} ${cx},${cy-e+h} ${cx},${cy-elev+h} ${cx+w},${cy-elev}`;
+  let s=modPoly(L,color)+modPoly(L,'#0d2b22',.3)+modPoly(R,color)+modPoly(R,'#0d2b22',.12);
+  s+=modPoly(top,color)+modPoly(top,'#fff',.5,'rgba(13,43,34,.25)');
+  if(ic) s+=`<text x="${cx}" y="${cy-e+5}" text-anchor="middle" font-size="${icSize||13}" fill="#0d2b22" font-weight="800">${ic}</text>`;
+  return s;
+}
+/* Plateforme 2×2 d'un espace + ses solutions en blocs */
+function modSpaceHTML(sp,p){
+  let s='';
+  const cells=[[0,0],[1,0],[0,1],[1,1]];
+  cells.forEach(([dx,dy])=>{
+    const cx=modCx(p.x+dx,p.y+dy), cy=modCy(p.x+dx,p.y+dy), e=7;
+    const top=modDia(cx,cy-e,MOD_W,MOD_H);
+    const L=`${cx-MOD_W},${cy-e} ${cx},${cy-e+MOD_H} ${cx},${cy+MOD_H} ${cx-MOD_W},${cy}`;
+    const R=`${cx+MOD_W},${cy-e} ${cx},${cy-e+MOD_H} ${cx},${cy+MOD_H} ${cx+MOD_W},${cy}`;
+    s+=modPoly(L,'#efe9da')+modPoly(L,'#0d2b22',.24)+modPoly(R,'#efe9da')+modPoly(R,'#0d2b22',.1);
+    s+=modPoly(top,'#fbfaf5')+modPoly(top,sp.bg,null,'rgba(13,43,34,.2)');
+  });
+  const sols=(sp.sols||[]);
+  sols.slice(0,4).forEach((inst,i)=>{
+    const sol=SOL[inst.id]; if(!sol) return;
+    const [dx,dy]=cells[i];
+    const more=(i===3 && sols.length>4);
+    s+=modCube(p.x+dx,p.y+dy,7,12,.62,more?'#eef4ef':(CATS[sol.cat]?CATS[sol.cat].color:'#4aab8f'),more?('+'+(sols.length-3)):sol.ic,more?11:12);
+  });
+  return s;
+}
+function renderModele(){
+  const el=document.getElementById('view-modele'); if(!el) return;
+  if(S.profile!=='pilote'){ el.innerHTML=''; return; }
+  const m=modelState();
+  const spaces=(S.spaces||[]).filter(sp=>!sp.existant);
+  Object.keys(m.placed).forEach(id=>{ if(!spaces.find(sp=>sp.id===id)) delete m.placed[id]; }); // espaces disparus
+  const owner=(x,y)=>{ for(const id in m.placed){ const p=m.placed[id]; if(x>=p.x&&x<=p.x+1&&y>=p.y&&y<=p.y+1) return id; } return null; };
+
+  /* ---- terrain ---- */
+  let g='';
+  const GREENS=['#cde7c8','#c6e2c1','#d3ebce'];
+  for(let y=0;y<MOD_N;y++) for(let x=0;x<MOD_N;x++)
+    g+=modPoly(modDia(modCx(x,y),modCy(x,y),MOD_W,MOD_H),GREENS[(x*7+y*11)%3]);
+  // tranche de terre sous l'île, pour le côté « bloc » du terrain
+  const Wp=[modCx(0,MOD_N-1)-MOD_W,modCy(0,MOD_N-1)], Sp=[modCx(MOD_N-1,MOD_N-1),modCy(MOD_N-1,MOD_N-1)+MOD_H], Ep=[modCx(MOD_N-1,0)+MOD_W,modCy(MOD_N-1,0)];
+  g+=modPoly(`${Wp[0]},${Wp[1]} ${Sp[0]},${Sp[1]} ${Sp[0]},${Sp[1]+13} ${Wp[0]},${Wp[1]+13}`,'#8d6c40');
+  g+=modPoly(`${Sp[0]},${Sp[1]} ${Ep[0]},${Ep[1]} ${Ep[0]},${Ep[1]+13} ${Sp[0]},${Sp[1]+13}`,'#a5814f');
+  /* ---- décor plat (chemins, mares) ---- */
+  m.deco.filter(d=>MODEL_DECO[d.t]&&MODEL_DECO[d.t].flat).sort((a,b)=>(a.x+a.y)-(b.x+b.y)).forEach(d=>{
+    const D=MODEL_DECO[d.t];
+    g+=modPoly(modDia(modCx(d.x,d.y),modCy(d.x,d.y),30,15),D.flat,.95,D.stroke);
+  });
+  /* ---- espaces et décor en volume, triés par profondeur ---- */
+  const items=[];
+  for(const id in m.placed){ const sp=spaces.find(s=>s.id===id); if(sp) items.push({d:m.placed[id].x+m.placed[id].y, html:modSpaceHTML(sp,m.placed[id])}); }
+  m.deco.filter(d=>MODEL_DECO[d.t]&&!MODEL_DECO[d.t].flat).forEach(d=>{
+    const cx=modCx(d.x,d.y), cy=modCy(d.x,d.y), big=d.t==='arbre';
+    items.push({d:d.x+d.y, html:`<ellipse cx="${cx}" cy="${cy+5}" rx="10" ry="4" fill="rgba(13,43,34,.16)"/><text x="${cx}" y="${cy+2-(big?8:2)}" text-anchor="middle" font-size="${big?24:17}">${MODEL_DECO[d.t].ic}</text>`});
+  });
+  items.sort((a,b)=>a.d-b.d).forEach(it=>{ g+=it.html; });
+  /* ---- tuiles cliquables (par-dessus tout) ---- */
+  for(let y=0;y<MOD_N;y++) for(let x=0;x<MOD_N;x++)
+    g+=`<polygon class="mtile" points="${modDia(modCx(x,y),modCy(x,y),MOD_W,MOD_H)}" onclick="modelTileClick(${x},${y})"/>`;
+  /* ---- étiquettes des espaces (non cliquables) ---- */
+  let labels='';
+  for(const id in m.placed){
+    const sp=spaces.find(s=>s.id===id); if(!sp) continue;
+    const p=m.placed[id], nm=sp.name.length>16?sp.name.slice(0,15)+'…':sp.name;
+    const bx=modCx(p.x+0.5,p.y+0.5), by=modCy(p.x,p.y)-MOD_H-24;
+    const w=nm.length*6.2+34;
+    labels+=`<g pointer-events="none"><rect x="${bx-w/2}" y="${by-13}" width="${w}" height="19" rx="9.5" fill="#fff" opacity=".92" stroke="rgba(13,43,34,.15)"/><text x="${bx}" y="${by+1}" text-anchor="middle" font-size="10.5" font-weight="800" fill="#0d2b22">${sp.ic} ${escapeHtml(nm)}</text></g>`;
+  }
+  const svg=`<svg viewBox="0 0 ${MOD_VW} ${MOD_OY+MOD_N*MOD_H*2+34}" xmlns="http://www.w3.org/2000/svg">${g}${labels}</svg>`;
+
+  /* ---- panneau ---- */
+  const hint = m.sel ? `👆 Clique le terrain pour poser « <b>${escapeHtml((spaces.find(s=>s.id===m.sel)||{}).name||'')}</b> »`
+    : m.mode==='erase' ? '🧽 Clique un élément du terrain pour le retirer'
+    : m.mode ? `👆 Clique le terrain pour poser ${MODEL_DECO[m.mode].ic} ${MODEL_DECO[m.mode].n}`
+    : 'Choisis un espace ou un élément de décor 👇 puis pose-le sur le terrain. Clique un espace posé pour le déplacer.';
+  const placedN=Object.keys(m.placed).length;
+  const solsN=spaces.reduce((a,sp)=>a+(m.placed[sp.id]?(sp.sols||[]).length:0),0);
+  let panel=`<div class="model-panel">
+    <div class="cp-title">🧱 Construis ton hub</div>
+    <div class="mp-hint">${hint}</div>
+    <div class="mp-sect mp-espaces">🏡 Tes espaces</div>`;
+  if(!spaces.length) panel+=`<div class="hint">Aménage d'abord des espaces dans 🏡 Mon lieu : ils apparaîtront ici, prêts à poser.</div>`;
+  else panel+=spaces.map(sp=>{
+    const on=m.sel===sp.id, placed=!!m.placed[sp.id];
+    return `<button class="mp-item ${on?'on':''}" onclick="modelSelectSpace('${sp.id}')">
+      <span class="mpi-ic" style="background:${sp.bg}">${sp.ic}</span>
+      <span class="mpi-tx"><span class="mpi-nm">${escapeHtml(sp.name)}</span><span class="mpi-sub">🌱 ${(sp.sols||[]).length} solution(s)</span></span>
+      <span class="mpi-st ${placed?'ok':''}">${on?'👆 en main':(placed?'✅ posé':'à poser')}</span></button>`;
+  }).join('');
+  panel+=`<div class="mp-sect mp-deco-sect">🌿 Décor</div>
+    <div class="mp-deco">${Object.entries(MODEL_DECO).map(([k,d])=>`<button class="mp-deco-btn ${m.mode===k?'on':''}" onclick="modelSelectDeco('${k}')" title="${d.n}"><span>${d.ic}</span><small>${d.n}</small></button>`).join('')}</div>
+    <div class="mp-tools">
+      <button class="${m.mode==='erase'?'on':''}" onclick="modelEraseMode()">🧽 Gommer</button>
+      <button onclick="modelClear()">🗑️ Tout retirer</button>
+    </div>
+    <div class="mp-counts">🏡 ${placedN}/${spaces.length} espace(s) posé(s) · 🌱 ${solsN} solution(s) sur le terrain</div>
+  </div>`;
+  el.innerHTML=`<div class="model-wrap"><div class="model-map">${svg}</div>${panel}</div>`;
+}
+function modelTileClick(x,y){
+  const m=modelState();
+  const spaces=(S.spaces||[]).filter(sp=>!sp.existant);
+  const owner=(cx,cy)=>{ for(const id in m.placed){ const p=m.placed[id]; if(cx>=p.x&&cx<=p.x+1&&cy>=p.y&&cy<=p.y+1) return id; } return null; };
+  if(m.sel){
+    const px=Math.min(x,MOD_N-2), py=Math.min(y,MOD_N-2);
+    for(let dx=0;dx<2;dx++) for(let dy=0;dy<2;dy++){
+      const o=owner(px+dx,py+dy);
+      if(o && o!==m.sel){ toast('Cet emplacement chevauche un autre espace','warn'); return; }
+    }
+    m.deco=m.deco.filter(d=>!(d.x>=px&&d.x<=px+1&&d.y>=py&&d.y<=py+1));   // le décor laisse la place
+    const sp=spaces.find(s=>s.id===m.sel);
+    m.placed[m.sel]={x:px,y:py}; m.sel=null;
+    toast(`🏡 « ${sp?sp.name:'Espace'} » posé sur le terrain`,'win'); render(); return;
+  }
+  if(m.mode==='erase'){
+    const di=m.deco.findIndex(d=>d.x===x&&d.y===y);
+    if(di>=0){ m.deco.splice(di,1); render(); return; }
+    const o=owner(x,y);
+    if(o){ delete m.placed[o]; m.sel=o; m.mode=null; toast('↩ Espace repris, repose-le où tu veux'); render(); }
+    return;
+  }
+  if(m.mode && MODEL_DECO[m.mode]){
+    if(owner(x,y)){ toast('Pose le décor sur l\'herbe, pas sur un espace 🌱','warn'); return; }
+    if(m.deco.find(d=>d.x===x&&d.y===y)){ toast('Il y a déjà quelque chose ici','warn'); return; }
+    m.deco.push({t:m.mode,x,y}); render(); return;
+  }
+  const o=owner(x,y);
+  if(o){ m.sel=o; delete m.placed[o]; render(); }   // reprendre un espace posé pour le déplacer
+}
+function modelSelectSpace(id){
+  const m=modelState(); m.mode=null;
+  if(m.sel===id){ m.sel=null; }
+  else { m.sel=id; if(m.placed[id]) delete m.placed[id]; }
+  render();
+}
+function modelSelectDeco(t){ const m=modelState(); m.sel=null; m.mode=(m.mode===t?null:t); render(); }
+function modelEraseMode(){ const m=modelState(); m.sel=null; m.mode=(m.mode==='erase'?null:'erase'); render(); }
+function modelClear(){ const m=modelState(); m.placed={}; m.deco=[]; m.sel=null; m.mode=null; toast('Terrain vidé'); render(); }
+
 
 /* ═══════════════ PLACE DE MARCHÉ (échange de Graines) ═══════════════ */
 const MKT_CATS={
@@ -3761,6 +3961,8 @@ function markFirstAct(act){ S.firstActs.add(act);
   // Pilote : les onglets se deverrouillent un par un, quand ils deviennent utiles.
   if(S.profile==='pilote' && S.navUnlocked){
     if(act==='installed'){
+      // La Modélisation s'ouvre dès la première solution installée
+      revealNav('modele', '🧱 La Modélisation s\'ouvre', 'Ta première solution est en place 🌱 Donne corps à ton lieu : pose tes espaces sur un terrain en blocs et regarde tes solutions y pousser. <b>🎯 Objectif : modélise ton hub régénératif.</b>');
       // La Carte s'ouvre quand chaque espace accueille au moins une solution
       if(allSpacesEquipped()) revealNav('carte', '🗺️ Mets ton lieu sur la Carte', 'Chacun de tes espaces accueille une solution 🌿 Ton lieu mérite d\'être visible dans l\'écosystème. <b>🎯 Objectif : valide ta fiche publique</b> sur la Carte, pour attirer la communauté.', false,
         {sel:'#stats', side:'bottom', title:`✨ Ta Vadance : ${round1(curVadance())} ${pts(curVadance())} !`,
@@ -4289,6 +4491,28 @@ function carteTour(){
   document.getElementById('tour-overlay').classList.add('on');
   showTourStep(0);
 }
+/* Visite guidée de la Modélisation : construire son hub en blocs */
+function modelTourSteps(withNav){
+  const steps=[];
+  if(withNav) steps.push({sel:'.nav-item[data-tab="modele"]', side:'right', onEnter:()=>{ if(S.tab!=='modele'){ S.tab='modele'; render(); } },
+     title:'🧱 La Modélisation', text:'Ici, ton lieu prend forme : un terrain en blocs, façon jeu de construction, où tu bâtis ton <b>hub régénératif</b>. Voyons comment 👇'});
+  steps.push(
+    {sel:'.model-map', side:'right', scroll:true, title:'🌍 Ton terrain',
+     text:'Une parcelle vierge, à toi. Chaque <b>espace</b> que tu poses occupe un carré de terrain, et les <b>solutions</b> que tu y as installées apparaissent dessus en blocs colorés.'},
+    {sel:'.mp-espaces', side:'left', scroll:true, title:'🏡 Tes espaces',
+     text:'Ce sont les espaces de ton lieu, ceux que tu as aménagés dans 🏡 Mon lieu. Clique-en un pour le prendre <b>en main</b>, puis clique le terrain pour le poser. Reclique un espace posé pour le déplacer.'},
+    {sel:'.mp-deco-sect', side:'left', scroll:true, title:'🌿 Le décor',
+     text:'Arbres, fleurs, chemins, mare… donne vie à ton hub. Le décor n\'a pas d\'effet sur la partie : c\'est <b>ta</b> vision du lieu, celle que tu montrerais aux visiteurs 🌱'});
+  return steps;
+}
+function modelTour(){
+  if(S.modelTourDone) return;
+  S.modelTourDone=true;
+  if(S.tab!=='modele'){ S.tab='modele'; } render();
+  S.tour={ steps:modelTourSteps(true), i:0 };
+  document.getElementById('tour-overlay').classList.add('on');
+  showTourStep(0);
+}
 /* Visite guidée de l'onglet Réseau : le fil où les trois profils se rencontrent */
 function reseauTourSteps(withNav){
   const steps=[];
@@ -4458,6 +4682,7 @@ function devaAnswer(qraw){
   if(has('badge')) return `Les <b>badges</b> 🏅 récompensent tes hauts faits : Gardien de la fraîcheur, Écosystème vivant, Forêt nourricière, Brigades du climat, Pari d'innovation gagné, Triple défi… Retrouve-les au Tableau de bord.`;
   if(has('spirale','vade')) return `La <b>spirale VADE</b> structure la partie : <b>V</b>aloriser (reconnaître l'existant) → <b>A</b>ctiver (mesurer) → <b>D</b>évelopper (faire système) → <b>E</b>ssaimer (passer au réel & inspirer). Puis elle recommence, un cran plus haut.`;
   if(has('carte','réseau','reseau','communauté','communaute')) return `La <b>Carte de l'écosystème</b> 🗺️ montre les lieux, bâtisseurs et semeurs du réseau EVAD près de toi. Clique un marqueur pour ses infos, et filtre par type ou par quêtes ouvertes.`;
+  if(has('modélis','modelis','maquette','bloc','construire','luanti','minetest')) return `La <b>Modélisation</b> 🧱 te laisse construire ton hub en blocs : pose tes <b>espaces</b> sur le terrain, les <b>solutions</b> installées y apparaissent, et tu ajoutes arbres, chemins et mare. Un lieu, ça se dessine aussi 🌱`;
   if(has('ferme','nommer',' nom','créer','creer','fiche','appeler')) return `Pour bien nommer un lieu, sois précis et inspirant, et ajoute un mot-clé d'impact : « <i>Ferme des Lucioles, maraîchage régénératif</i> » ou « <i>Les Racines, permaculture & biodiversité</i> ». Le nom doit dire ce que le lieu <b>prouve</b>.`;
   if(has('objectif','gagner',' but','comment jouer','finir','réussir','reussir')) return `Ton objectif : <b>${goalLabel()}</b>.<br><br>${devaTip()}`;
   if(has('empreinte','frugal','énergie','energie','co2','conso','écolo','ecolo')) return `Je suis une IA <b>frugale</b> : réponses courtes, modèle léger. La jauge en haut montre l'empreinte de notre conversation (électricité, eau, CO₂). L'IA la plus verte, c'est celle qu'on n'appelle que quand c'est utile 🌱.`;
