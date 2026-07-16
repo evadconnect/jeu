@@ -2099,7 +2099,7 @@ function setupNav(){
   document.getElementById('espace-text').textContent=(S.playerName ? P.label+' · ' : '')+ESPACE_TXT[S.profile];
   // Deverrouillage progressif : le Pilote demarre avec le seul Tableau de bord (Mon lieu),
   // les autres onglets apparaissent quand il en a besoin. Les autres profils ont tout d'emblee.
-  if(!S.navUnlocked){ S.navUnlocked = S.profile==='pilote' ? new Set(['a']) : new Set(NAV[S.profile].map(n=>n.k)); }
+  if(!S.navUnlocked){ S.navUnlocked = (S.profile==='pilote'||S.profile==='batisseur') ? new Set(['a']) : new Set(NAV[S.profile].map(n=>n.k)); }
   if(!S.tabsSeen){ S.tabsSeen = new Set(); }
   document.getElementById('nav-menu').innerHTML = NAV[S.profile].filter(n=>S.navUnlocked.has(n.k)).map(n=>{
     // Pastille de notif orange sur l'onglet Bibliotheque tant qu'il n'a pas ete ouvert (facilite le parcours)
@@ -3738,6 +3738,13 @@ function markFirstAct(act){ S.firstActs.add(act);
       if(curVadance()>=70) revealNav('reseau', '🌐 Publie une annonce sur le Réseau', 'Ton lieu atteint déjà <b>'+round1(curVadance())+' de Vadance</b> 🌿 Pour la transformer en <b>Vadité</b> prouvée, il te faut de l\'aide. <b>🎯 Objectif : trouve un Bâtisseur (preuve terrain) et un Semeur (financement)</b> en publiant une annonce sur le Réseau.');
     }
   }
+  // Bâtisseur : même mécanique, les onglets s'ouvrent au fil des premières actions.
+  if(S.profile==='batisseur' && S.navUnlocked){
+    // Compétences s'ouvre dès le premier chantier accepté
+    if(act==='mission-accept') revealNav('b', '🎓 Tes compétences s\'ouvrent', 'Te voilà engagé·e sur ton premier chantier 🌿 Chaque <b>compétence</b> débloque un nouveau type de mission. <b>🎯 Objectif : apprends-en une</b> (4🌰) pour accéder à des chantiers à plus fort impact.');
+    // Le Réseau s'ouvre une fois une compétence apprise
+    if(act==='learned') revealNav('reseau', '🌐 Le Réseau s\'ouvre', 'Nouvelle compétence en poche 🎓 Le <b>Réseau</b> est le fil où Pilotes, Bâtisseurs et Semeurs se rencontrent. <b>🎯 Objectif : repère les lieux qui cherchent tes mains</b> et relie-toi à eux.');
+  }
 }
 function progressValue(){ return S.profile==='pilote'?curVadite() : (S.profile==='batisseur'?S.missionsDone : S.vaditeFin); }
 
@@ -3958,6 +3965,15 @@ function advanceSeason(){
   // 6.5) Pilote : premiere saison productive → la Place de marché s'ouvre (apres le récap)
   if(S.profile==='pilote' && S.navUnlocked && !S.navUnlocked.has('marche') && gains>0){
     revealNav('marche', '🛒 Ouvre la Place de marché', 'Tes espaces ont produit 🌰 Il est temps de valoriser ce que ton lieu fait vivre. <b>🎯 Objectif : propose une formation sur ton lieu</b> et vends tes produits et services sur la Place de marché.', true);
+  }
+  // 6.6) Bâtisseur : la Carte s'ouvre à la 1re mission accomplie, puis la Place de marché une saison plus tard
+  // (une seule annonce différée à la fois : PENDING_REVEAL n'a qu'un créneau)
+  if(S.profile==='batisseur' && S.navUnlocked){
+    if(!S.navUnlocked.has('carte') && S.missionsDone>0){
+      revealNav('carte', '🗺️ La Carte s\'ouvre', 'Première mission accomplie ✅ La <b>Carte</b> te montre les lieux du réseau près de chez toi et leurs quêtes ouvertes. <b>🎯 Objectif : repère ton prochain chantier</b> sur ton territoire.', true);
+    } else if(S.navUnlocked.has('carte') && !S.navUnlocked.has('marche') && gains>0){
+      revealNav('marche', '🛒 Ouvre la Place de marché', 'Tes missions t\'ont rapporté des 🌰 <b>Graines</b>. La <b>Place de marché</b> les transforme en avantages locaux proposés par les lieux du réseau. <b>🎯 Objectif : échange tes Graines</b> contre un coup de pouce.', true);
+    }
   }
 
   render();
