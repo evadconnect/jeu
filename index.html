@@ -3010,7 +3010,7 @@ const CAPS_META=[
 function etatLieuHTML(){
   const vad=curVadance(), vadite=curVadite(), taux=tauxTenue();
   const proven=countProven();
-  const cap=pilotCapitals(), sin=capitalSinistre(), w=PONDERATIONS[pondMode()].w;
+  const cap=pilotCapitals(), w=PONDERATIONS[pondMode()].w;
   let bars='';
   CAPS_META.forEach(c=>{ const d=cap[c.k];
     const bas=d.prom<PLANCHER_CAPITAL;
@@ -3028,7 +3028,6 @@ function etatLieuHTML(){
     <span class="el-pond-lab">Qui décide de l'importance ?</span>
     ${Object.entries(PONDERATIONS).map(([k,p])=>`<button class="el-pond-btn ${pondMode()===k?'on':''}" title="${p.sub}" onclick="S.pondMode='${k}';render()">${p.label}</button>`).join('')}
   </div>`;
-  const alerte = sin ? `<div class="el-floor">🚧 <b>Ton lieu est bloqué à ${PLANCHER_CAPITAL}/100</b> tant que <b>${CAPS_META.find(c=>c.k===sin).label}</b> reste au tapis. Ici, on n'achète pas le droit de saccager une colonne en excellant dans une autre. Trois piliers, ou rien.<button class="btn btn-primary" style="margin-top:.5rem;width:100%" onclick="openBiblioForCapital('${sin}')">🔧 Voir les solutions ${CAPS_META.find(c=>c.k===sin).label} →</button></div>` : '';
   return `<div class="card el-card">
     <div class="el-head"><span class="el-eyebrow">🌱 État du lieu</span><span class="el-badge">${proven>0?'🌿 Impact prouvé':'✨ Impact déclaré'}</span></div>
     <div class="el-top">
@@ -3040,7 +3039,6 @@ function etatLieuHTML(){
       <div class="el-trip-t">Le triptyque <span>· la moyenne de chacun, jamais l'addition des trois</span></div>
       ${bars}
       ${pond}
-      ${alerte}
       <div class="el-method">
         <div class="el-method-t">🌱 Pourquoi c'est différent de tout ce que tu as vu</div>
         <div class="el-method-g">
