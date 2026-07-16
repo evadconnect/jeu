@@ -1253,6 +1253,226 @@ const SOLUTIONS = [
    desc:'Le lieu et ses voisins commandent ensemble, en gros et en direct : les prix baissent, les producteurs sont mieux payés.',
    vadance:9, graines:4, ici:'local', flux:{in:[],out:[]}, cout:3,
    regen:'Remplace la marge d\'un intermédiaire par de la coopération entre voisins : le surplus retourne à ceux qui produisent et à ceux qui consomment.'},
+
+  /* ══════════════════════════════════════════════════════════════════
+     SOLUTIONS DE COMBLEMENT DES TROUS ESPACE × CAPITAL
+     ══════════════════════════════════════════════════════════════════ */
+
+  /* ── Sans Écologie : 11 espaces qui n'avaient aucune solution eco ── */
+
+  // Café / Bar × Écologie
+  {id:'cafe-zero-dechet', name:'Café zéro déchet', ic:'🌿', cat:'alimentaire', cap:['cafe_bar','cantine'],
+   desc:'Menu du jour local et de saison, zéro emballage, boissons locales en vrac.',
+   vadance:8, graines:2, ici:'repas', flux:{in:['legumes'],out:['biodechets']}, cout:2,
+   regen:'Chaque tasse et chaque assiette racontent une chaîne courte : le café est issu d\'une coopérative, le repas vient de la parcelle voisine, et le marc repart au compost.'},
+  {id:'biere-locale', name:'Brasserie artisanale locale', ic:'🍺', cat:'alimentaire', cap:['cafe_bar'],
+   desc:'Bière brassée sur place avec céréales du territoire, drèche compostée.',
+   vadance:9, graines:3, ici:'repas', flux:{in:['legumes'],out:['biodechets']}, cout:4,
+   regen:'Une bière locale, c\'est une filière céréalière vivante : les grains locaux remplacent les imports, la drèche nourrit le compost ou les animaux du lieu.'},
+
+  // Coworking × Écologie
+  {id:'cowork-energie', name:'Coworking basse consommation', ic:'🔆', cat:'energie', cap:['coworking'],
+   desc:'Équipements reconditionnés, éclairage LED piloté et suivi de la consommation en temps réel.',
+   vadance:8, graines:2, ici:'energie', flux:{in:[],out:['energie']}, cout:2,
+   regen:'Un ordinateur reconditionné consomme 4× moins de ressources qu\'un neuf : mutualiser les postes et les régler en mode basse conso réduit l\'empreinte numérique sans sacrifier la productivité.'},
+  {id:'cowork-plantes', name:'Mur végétalisé coworking', ic:'🌿', cat:'biodiversite', cap:['coworking','salle_reunion'],
+   desc:'Plantes dépolluantes pour l\'air intérieur et le bien-être des travailleurs.',
+   vadance:8, graines:2, ici:'biodiv', flux:{in:['eau'],out:[]}, cout:3,
+   regen:'Moins de COV, moins de CO₂ et une biodiversité microscopique qui revient dans les murs : les plantes partagées dépollent l\'air et réduisent le stress des usagers.'},
+
+  // Salle de réunion × Écologie
+  {id:'reunion-ecocon', name:'Salle de réunion éco-conçue', ic:'🏗️', cat:'construction', cap:['salle_reunion','coworking'],
+   desc:'Mobilier en bois local réemployé, isolation ouate de cellulose, aucun produit synthétique.',
+   vadance:8, graines:3, ici:'objets', flux:{in:[],out:[]}, cout:4,
+   regen:'La pièce elle-même devient un acte régénératif : chaque matériau en réemploi ou en filière locale évite extraction et transport, et les surfaces bio-sourcées respirent.'},
+  {id:'fresque-climat', name:'Fresque du Climat & ateliers systémiques', ic:'🌍', cat:'biodiversite', cap:['salle_reunion','formation'],
+   desc:'Atelier participatif pour comprendre les liens entre activités humaines et dérèglement climatique.',
+   vadance:8, graines:2, ici:'accueil', flux:{in:[],out:[]}, cout:2,
+   regen:'La fresque relie les cerveaux autant qu\'elle réduit les émissions : les participants repartent avec une vision systémique qui change leurs décisions ici et ailleurs.'},
+
+  // Scène / Événements × Écologie
+  {id:'scene-solaire', name:'Scène alimentée au solaire', ic:'⚡', cat:'energie', cap:['scene','cafe_bar'],
+   desc:'Sono et éclairage scéniques branchés sur une installation photovoltaïque locale.',
+   vadance:9, graines:3, ici:'energie', flux:{in:[],out:['energie']}, cout:4,
+   regen:'Un concert sans centrale à charbon : la scène produit son propre courant et démontre en direct que la culture vivante peut être alimentée par le soleil.'},
+  {id:'materiau-scene', name:'Scène en matériaux réemployés', ic:'🪵', cat:'construction', cap:['scene'],
+   desc:'Décors, podium et gradins fabriqués à partir de bois de chantier récupéré.',
+   vadance:8, graines:2, ici:'objets', flux:{in:[],out:[]}, cout:3,
+   regen:'La scène elle-même raconte la sobriété : des palettes et chutes de bois transformées en espace de spectacle vivant, sans extraction nouvelle ni gaspillage.'},
+
+  // Espace expo × Écologie
+  {id:'expo-ecocon', name:'Exposition éco-conçue', ic:'🖼️', cat:'construction', cap:['expo','bibliotheque'],
+   desc:'Cimaises en carton recyclé, impression végétale, zéro polystyrène, tout réemployable.',
+   vadance:8, graines:2, ici:'objets', flux:{in:[],out:[]}, cout:2,
+   regen:'Un accrochage qui laisse trace sans laisser de déchet : le dispositif est réutilisable d\'expo en expo, et les matériaux retournent au stock de la matériauthèque.'},
+  {id:'expo-nature', name:'Expo biodiversité locale', ic:'🌸', cat:'biodiversite', cap:['expo','bibliotheque'],
+   desc:'Exposition pédagogique sur les espèces locales, les sols vivants et la nature en ville.',
+   vadance:8, graines:2, ici:'accueil', flux:{in:[],out:[]}, cout:2,
+   regen:'Nommer les vivants du territoire, c\'est commencer à les protéger : une expo qui relie les habitants aux espèces locales crée des gardiens du vivant.'},
+
+  // Boutique × Écologie
+  {id:'vrac-boutique', name:'Vrac et produits locaux en boutique', ic:'🧃', cat:'alimentaire', cap:['boutique','stockage'],
+   desc:'Produits alimentaires locaux en vrac : farines, légumineuses, huiles, sans emballage plastique.',
+   vadance:9, graines:3, ici:'repas', flux:{in:['legumes'],out:['biodechets']}, cout:3,
+   regen:'Vendre en vrac, c\'est supprimer l\'emballage et raccourcir la chaîne : les producteurs du rayon conservent une marge correcte et les habitants accèdent au local sans suremballage.'},
+  {id:'cosmetique-local', name:'Cosmétiques & soins du territoire', ic:'🌿', cat:'biodiversite', cap:['boutique'],
+   desc:'Savons artisanaux, hydrolats et soins fabriqués avec des plantes du territoire.',
+   vadance:8, graines:2, ici:'biodiv', flux:{in:[],out:[]}, cout:3,
+   regen:'Des actifs cultivés et transformés localement : les plantes médicinales du territoire remplacent la chimie importée, et chaque achat soutient un cueilleur ou herboriste du coin.'},
+
+  // Salle de formation × Écologie
+  {id:'permaculture-formation', name:'Formation permaculture & design', ic:'🌱', cat:'biodiversite', cap:['formation','jardin'],
+   desc:'Initiation aux principes de permaculture et conception de systèmes résilients.',
+   vadance:9, graines:3, ici:'biodiv', flux:{in:[],out:[]}, cout:3,
+   regen:'Observer avant d\'agir, copier la nature : chaque diplômé(e) repart avec les clés pour régénérer un sol et penser son lieu comme un écosystème plutôt qu\'une usine.'},
+  {id:'construction-eco', name:'Formation construction écologique', ic:'🏗️', cat:'construction', cap:['formation','atelier'],
+   desc:'Techniques de construction en matériaux naturels (paille, terre, bois), chantiers école.',
+   vadance:8, graines:3, ici:'objets', flux:{in:[],out:[]}, cout:4,
+   regen:'Apprendre à bâtir avec la matière locale transforme les futurs projets de rénovation : moins de béton, plus de paille et de terre, des murs qui respirent et stockent du carbone.'},
+
+  // Hébergement × Écologie
+  {id:'hebergement-solaire', name:'Hébergement solaire autonome', ic:'🔆', cat:'energie', cap:['hebergement'],
+   desc:'Chauffe-eau solaire thermique et photovoltaïque pour l\'autonomie énergétique des chambres.',
+   vadance:10, graines:3, ici:'energie', flux:{in:[],out:['energie']}, cout:5,
+   regen:'Les chambres produisent leur propre chaleur et courant : l\'hébergement devient une vitrine de l\'énergie renouvelable, et chaque nuit passée ici est une nuit décarbonée.'},
+  {id:'hebergement-eau', name:'Gestion économe de l\'eau en hébergement', ic:'💧', cat:'eau', cap:['hebergement'],
+   desc:'Récupérateurs de pluie, mousseurs et récupération des eaux grises pour les sanitaires.',
+   vadance:8, graines:2, ici:'eau', flux:{in:[],out:['eau']}, cout:3,
+   regen:'Un hébergement qui ferme la boucle de l\'eau : la pluie du toit lave, les eaux grises arrosent, et la consommation par nuitée chute d\'un tiers.'},
+
+  // Sport / Bien-être × Écologie
+  {id:'velo-generateur', name:'Vélos générateurs', ic:'🚲', cat:'energie', cap:['sport'],
+   desc:'Vélos fixes reliés à des générateurs : l\'énergie de l\'entraînement alimente l\'éclairage de la salle.',
+   vadance:8, graines:3, ici:'energie', flux:{in:[],out:['energie']}, cout:4,
+   regen:'Pédaler, c\'est produire : 30 min de vélo fournissent assez d\'énergie pour alimenter des ampoules LED pendant plusieurs heures. La dépense physique devient ressource énergétique.'},
+  {id:'sport-plein-air', name:'Parcours sportif végétalisé', ic:'🌳', cat:'biodiversite', cap:['sport','jardin'],
+   desc:'Agrès en bois local intégrés dans un espace planté, sol perméable et ombragé.',
+   vadance:8, graines:2, ici:'biodiv', flux:{in:[],out:[]}, cout:3,
+   regen:'Faire du sport dehors : les agrès en bois local s\'intègrent dans un espace planté, et le sol perméable laisse la pluie s\'infiltrer au lieu de ruisseler vers les égouts.'},
+
+  // Méditation / Yoga × Écologie
+  {id:'jardin-aromatique', name:'Jardin médicinal & aromatique', ic:'🌿', cat:'biodiversite', cap:['meditation','jardin'],
+   desc:'Plates-bandes d\'herbes médicinales, lavande et camomille en accès libre.',
+   vadance:9, graines:2, ici:'biodiv', flux:{in:['eau'],out:[]}, cout:2,
+   regen:'Des plantes qui soignent et qui pollinisent : le jardin médicinal attire les insectes utiles, produit des remèdes de base et crée un espace sensoriel qui régénère humains et vivant à la fois.'},
+  {id:'eau-source', name:'Fontaine à eau vive récupérée', ic:'💧', cat:'eau', cap:['meditation'],
+   desc:'Fontaine alimentée par l\'eau de pluie récupérée, pour la contemplation et l\'hydratation.',
+   vadance:7, graines:2, ici:'eau', flux:{in:[],out:['eau']}, cout:3,
+   regen:'Une fontaine alimentée par le ciel : l\'eau de pluie filtrée coule, régénère l\'atmosphère du lieu de méditation et rappelle concrètement le cycle de l\'eau.'},
+
+  // Autre × Écologie
+  {id:'jardin-vertical', name:'Jardin vertical & mur nourricier', ic:'🌿', cat:'biodiversite', cap:['autre'],
+   desc:'Mur couvert de plantes comestibles ou mellifères, en intérieur ou en façade.',
+   vadance:8, graines:2, ici:'biodiv', flux:{in:['eau'],out:[]}, cout:3,
+   regen:'Donner une vocation nourricière à chaque mur disponible : les plantes grimpantes couvrent, protègent, produisent et accueillent la biodiversité dans des espaces inattendus.'},
+  {id:'eau-pluie-autre', name:'Citerne de récupération d\'eau de pluie', ic:'💧', cat:'eau', cap:['autre','stockage'],
+   desc:'Cuve enterrée ou hors-sol pour collecter les eaux pluviales et les redistribuer.',
+   vadance:8, graines:2, ici:'eau', flux:{in:[],out:['eau']}, cout:3,
+   regen:'Chaque mètre cube de pluie retenu sur le lieu, c\'est autant de moins sur les réseaux d\'eau potable : la citerne rend le lieu plus autonome et plus résilient face aux épisodes secs.'},
+
+  /* ── Sans Social : 5 espaces qui n'avaient aucune solution social ── */
+
+  // Atelier × Social
+  {id:'chantier-ecole', name:'Chantier école participatif', ic:'🏗️', cat:'social', cap:['atelier','fablab'],
+   desc:'Chantiers de réparation ou de fabrication ouverts à des jeunes en formation professionnelle.',
+   vadance:9, graines:3, ici:'accueil', flux:{in:[],out:[]}, cout:3,
+   regen:'Le chantier école double la valeur de chaque heure : une compétence transmise à un jeune et un objet réparé ou fabriqué avec moins de ressources neuves. Deux régénérations pour un seul geste.'},
+  {id:'atelier-inclusif', name:'Atelier inclusif & insertion', ic:'🤝', cat:'social', cap:['atelier'],
+   desc:'Ateliers de bricolage accessibles aux personnes en situation de handicap ou d\'insertion.',
+   vadance:8, graines:2, ici:'accueil', flux:{in:[],out:[]}, cout:3,
+   regen:'L\'accès au faire est un droit : adapter l\'atelier pour accueillir tout le monde, c\'est régénérer l\'autonomie de ceux qu\'on en exclut habituellement et enrichir la communauté d\'une diversité de regards.'},
+
+  // FabLab × Social
+  {id:'fablab-ouvert', name:'Open Lab hebdomadaire', ic:'⚙️', cat:'social', cap:['fablab','atelier'],
+   desc:'Portes ouvertes du FabLab : venez fabriquer, échanger et apprendre entre usagers.',
+   vadance:8, graines:2, ici:'accueil', flux:{in:[],out:[]}, cout:2,
+   regen:'Un FabLab fermé à clé, c\'est du matériel qui dort. Un Open Lab hebdomadaire, c\'est une communauté de makers qui se forme, s\'entraide et innove : la valeur vient du partage, pas des machines.'},
+  {id:'formation-fab', name:'Initiation numérique & fabrication', ic:'🖨️', cat:'social', cap:['fablab','formation'],
+   desc:'Ateliers d\'introduction à l\'impression 3D, la découpe laser et l\'électronique pour tous.',
+   vadance:9, graines:3, ici:'accueil', flux:{in:[],out:[]}, cout:3,
+   regen:'Remettre les outils de fabrication entre les mains de tous : apprendre à prototyper, c\'est apprendre à résoudre ses propres problèmes sans attendre qu\'une multinationale le fasse.'},
+
+  // Jardin × Social
+  {id:'atelier-nature', name:'Ateliers nature & jardinage collectif', ic:'🌻', cat:'social', cap:['jardin'],
+   desc:'Ateliers mensuels ouverts à tous : de la graine au plant en passant par le compostage.',
+   vadance:8, graines:2, ici:'accueil', flux:{in:[],out:[]}, cout:2,
+   regen:'Jardiner ensemble, c\'est renouer le lien avec le vivant et avec les voisins : chaque atelier transmet un savoir ancestral tout en cultivant la solidarité entre générations.'},
+  {id:'jardin-therapeutique', name:'Jardinage thérapeutique', ic:'🌿', cat:'social', cap:['jardin','serre'],
+   desc:'Programme de jardinage pour les personnes vulnérables (EHPAD, psychiatrie, insertion).',
+   vadance:9, graines:3, ici:'accueil', flux:{in:['eau','compost'],out:['legumes']}, cout:3,
+   regen:'Le jardin guérit ce que les médicaments ne touchent pas : lien avec le vivant, rythme des saisons, dignité du geste qui fait pousser. Une thérapie à hauteur de sol.'},
+
+  // Serre × Social
+  {id:'botanique-serre', name:'Ateliers botanique & herbier', ic:'🌺', cat:'social', cap:['serre','bibliotheque'],
+   desc:'Découverte des plantes, herboristerie et fabrication d\'herbiers par les habitants.',
+   vadance:8, graines:2, ici:'accueil', flux:{in:['eau'],out:[]}, cout:2,
+   regen:'La serre devient une salle de classe vivante : nommer les plantes et les transformer en remèdes ou en cuisine, c\'est reconstituer un savoir-faire populaire que l\'industrie a capté et privatisé.'},
+  {id:'serre-pedago', name:'Serre pédagogique & scolaire', ic:'🎓', cat:'social', cap:['serre','formation'],
+   desc:'Espace d\'accueil scolaire pour découvrir cycles du vivant, semis et alimentation.',
+   vadance:9, graines:3, ici:'accueil', flux:{in:['eau'],out:['legumes']}, cout:3,
+   regen:'Chaque enfant qui sème une graine et la voit germer change son rapport à l\'alimentation et au vivant : la serre pédagogique sème des citoyens éco-responsables avant de semer des tomates.'},
+
+  // Compost × Social
+  {id:'atelier-compost', name:'Ateliers compostage citoyen', ic:'🪱', cat:'social', cap:['compost','jardin'],
+   desc:'Formations au compostage pour les habitants du quartier et les écoles.',
+   vadance:8, graines:2, ici:'accueil', flux:{in:['biodechets'],out:['compost']}, cout:2,
+   regen:'Un quartier qui composte ensemble est un quartier qui coopère : chaque formation transforme un voisin en ambassadeur du sol vivant, et la matière organique cesse de partir en camion.'},
+  {id:'compost-solidaire', name:'Réseau de compostage solidaire', ic:'🤲', cat:'social', cap:['compost'],
+   desc:'Réseau de bacs partagés entre habitants, avec référents de quartier formés.',
+   vadance:9, graines:3, ici:'accueil', flux:{in:['biodechets'],out:['compost']}, cout:3,
+   regen:'La solidarité se tisse autour d\'un bac à compost : les référents forment leurs voisins, les biodéchets circulent de cuisine en jardin, et une nouvelle forme d\'entraide hyperlocale émerge.'},
+
+  /* ── Sans Économie : 5 espaces qui n'avaient aucune solution econo ── */
+
+  // Salle de formation × Économie
+  {id:'repair-formation', name:'Repair café pédagogique', ic:'🔧', cat:'dechets', cap:['formation','atelier'],
+   desc:'Apprendre à réparer soi-même : ateliers pratiques de maintenance, couture et électronique.',
+   vadance:8, graines:2, ici:'objets', flux:{in:[],out:[]}, cout:2,
+   regen:'Réparer, c\'est aussi apprendre à ne plus jeter : chaque formation crée un réparateur en puissance qui prolonge la vie des objets au-delà de la séance, et réduit la demande en ressources neuves.'},
+  {id:'troc-competences', name:'Banque du temps & troc de savoirs', ic:'🔄', cat:'economie', cap:['formation','coworking'],
+   desc:'Échange de compétences et de services sans argent, sur la base d\'heures de temps.',
+   vadance:8, graines:3, ici:'local', flux:{in:[],out:[]}, cout:2,
+   regen:'Une monnaie que personne ne peut accumuler : une heure de comptabilité vaut une heure de bricolage. Le temps égalise et fait circuler des compétences qui resteraient enfouies dans une économie monétaire.'},
+
+  // Hébergement × Économie
+  {id:'auberge-solidaire', name:'Auberge solidaire à prix libre', ic:'🛏️', cat:'economie', cap:['hebergement'],
+   desc:'Nuitées à prix libre ou solidaire pour voyageurs sobres, bénévoles et gens de passage.',
+   vadance:9, graines:3, ici:'local', flux:{in:[],out:[]}, cout:3,
+   regen:'Un hébergement à prix libre sort la nuitée du marché spéculatif : la valeur décidée par l\'hôte et le voyageur reste dans le lieu et finance directement les projets communautaires.'},
+  {id:'textiles-hebergement', name:'Recyclerie linge & literie', ic:'♻️', cat:'dechets', cap:['hebergement','stockage'],
+   desc:'Collecte et redistribution de draps, serviettes et literie usagés issus du territoire.',
+   vadance:8, graines:2, ici:'objets', flux:{in:[],out:[]}, cout:2,
+   regen:'Rien ne se jette, tout se transmet : le linge réformé d\'un hôtel finit en serviettes de l\'auberge solidaire, et la boucle textile se referme sans passer par l\'incinérateur.'},
+
+  // Sport / Bien-être × Économie
+  {id:'materiel-sport', name:'Prêt et location de matériel sportif', ic:'🏋️', cat:'economie', cap:['sport','stockage'],
+   desc:'Matériel sportif mutualisé en libre-service ou en prêt solidaire pour les habitants.',
+   vadance:8, graines:3, ici:'local', flux:{in:[],out:[]}, cout:3,
+   regen:'Mutualiser les vélos et les raquettes, c\'est rendre le sport accessible sans que chacun achète et stocke : une économie de partage qui réduit la production et l\'empreinte de la pratique sportive.'},
+  {id:'buvette-locale', name:'Buvette et encas locaux', ic:'🥤', cat:'economie', cap:['sport','cafe_bar'],
+   desc:'Boissons et encas de producteurs locaux, sans plastique, consommés après l\'effort.',
+   vadance:8, graines:3, ici:'local', flux:{in:['legumes'],out:[]}, cout:3,
+   regen:'Le ravitaillement sportif devient un acte économique local : chaque boisson achetée ici soutient un producteur du coin plutôt qu\'une marque industrielle distribuée à l\'autre bout du monde.'},
+
+  // Méditation / Yoga × Économie
+  {id:'plantes-medicinales', name:'Vente de plantes médicinales', ic:'🌿', cat:'economie', cap:['meditation','boutique'],
+   desc:'Tisanes, huiles essentielles et remèdes issus du jardin du lieu, en vente directe.',
+   vadance:8, graines:3, ici:'local', flux:{in:['legumes'],out:[]}, cout:2,
+   regen:'Des plantes qui soignent et qui font vivre : valoriser la production médicinale du lieu crée un revenu localisé, sort les soins des circuits industriels et réancre le bien-être dans le territoire.'},
+  {id:'troc-bien-etre', name:'Troc bien-être & échange de soins', ic:'🔄', cat:'economie', cap:['meditation','sport'],
+   desc:'Système d\'échange de soins et de pratiques bien-être sans argent entre praticiens et bénéficiaires.',
+   vadance:8, graines:2, ici:'local', flux:{in:[],out:[]}, cout:2,
+   regen:'Un massage contre un cours de yoga contre une consultation diététique : la valeur circule sans être prélevée par un intermédiaire financier. L\'économie du soin redevient une économie du lien.'},
+
+  // Autre × Économie
+  {id:'ressourcerie-autre', name:'Ressourcerie & redistribution d\'objets', ic:'🔄', cat:'dechets', cap:['autre','stockage'],
+   desc:'Point de collecte et redistribution gratuite d\'objets en bon état, sans intermédiaire commercial.',
+   vadance:8, graines:2, ici:'objets', flux:{in:[],out:[]}, cout:2,
+   regen:'Un objet donné plutôt que jeté, c\'est une ressource qui reste dans le territoire : la ressourcerie recharge les maisons sans extraction ni commerce, et tisse des liens entre donateurs et bénéficiaires.'},
+  {id:'commerce-local', name:'Stand de producteurs locaux', ic:'🛒', cat:'economie', cap:['autre','boutique'],
+   desc:'Stand tournant de producteurs locaux et d\'artisans du territoire, sans intermédiaire.',
+   vadance:9, graines:3, ici:'local', flux:{in:['legumes'],out:[]}, cout:2,
+   regen:'Un espace polyvalent qui devient vitrine de l\'économie locale : chaque stand soutient un producteur voisin, et chaque achat renforce une filière qui fait vivre le territoire.'},
 ];
 const SOL = Object.fromEntries(SOLUTIONS.map(s=>[s.id,s]));
 
@@ -1373,7 +1593,7 @@ const PCOMP={
 };
 
 /* ---------- Types d'espaces (personnalisation du lieu) ---------- */
-const MEASURE_COST=2, ADD_SPACE_COST=3, MAX_PER_SPACE=2, VADITE_CAP=3; // rééquilibrage : sinks de Graines & contrainte d'espace
+const MEASURE_COST=2, ADD_SPACE_COST=3, MAX_PER_SPACE=4, VADITE_CAP=3; // rééquilibrage : sinks de Graines & contrainte d'espace
 /* Les 20 espaces qui composent un lieu (taxonomie officielle EVAD) */
 const TYPE_META={
   cuisine:      {ic:'🍳', name:'Cuisine',            bg:'#f6efe8'},
@@ -4313,14 +4533,14 @@ function capLegendHTML(){
   return `<div class="cap-legend">${Object.values(CAP_META).map(c=>
     `<span><i style="background:${c.color}"></i>${c.ic} ${c.name}</span>`).join('')}</div>`;
 }
-function pilotCapitals(){ // moyenne des sous-scores normalisés, jamais une somme
+function pilotCapitals(){ // somme des sous-scores normalisés, plafonnée à 100 (plus de solutions = plus de capital)
   const cap={eco:{prom:0,proof:0,n:0}, social:{prom:0,proof:0,n:0}, econo:{prom:0,proof:0,n:0}};
   (S.spaces||[]).forEach(sp=>(sp.sols||[]).forEach(inst=>{
     const s=SOL[inst.id]; if(!s) return;
     const k=CAP_DE_CAT[s.cat]||'eco';
     cap[k].prom+=solProm(inst); cap[k].proof+=solProof(inst); cap[k].n++;
   }));
-  Object.values(cap).forEach(c=>{ if(c.n){ c.prom/=c.n; c.proof/=c.n; } });
+  Object.values(cap).forEach(c=>{ if(c.n){ c.prom=Math.min(100,c.prom); c.proof=Math.min(100,c.proof); } });
   return cap;
 }
 function pondMode(){ return PONDERATIONS[S.pondMode]?S.pondMode:'egalite'; }
