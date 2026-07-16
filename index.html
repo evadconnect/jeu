@@ -89,6 +89,28 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .vd-op{font-size:1.25rem;font-weight:800;color:var(--sage);flex-shrink:0}
 .vd-eq{text-align:center;margin-top:.7rem;padding-top:.7rem;border-top:1px solid rgba(130,184,148,.14);font-size:.82rem;color:var(--mist)}
 .vd-eq b{color:var(--cream)}
+/* Schéma Vadance vs Vadité (onboarding) */
+.vd-chart{background:rgba(255,255,255,.04);border:1px solid rgba(130,184,148,.16);border-radius:16px;padding:1rem .9rem .85rem}
+.vdc-top{text-align:center;font-size:.9rem;color:var(--cream);background:rgba(126,201,176,.1);border:1px solid rgba(126,201,176,.2);border-radius:100px;padding:.4rem .8rem;width:fit-content;margin:0 auto .9rem}
+.vdc-top b{color:#a8e6cf}
+.vdc-plot{position:relative;height:158px;padding-left:30px}
+.vdc-axis{position:absolute;left:0;top:0;bottom:0;width:26px;display:flex;flex-direction:column;justify-content:space-between;font-size:.6rem;color:var(--sage);opacity:.6;text-align:right}
+.vdc-grid{position:absolute;left:30px;right:6px;top:0;bottom:0;background:linear-gradient(rgba(130,184,148,.18),rgba(130,184,148,.18)) top/100% 1px no-repeat,linear-gradient(rgba(130,184,148,.14),rgba(130,184,148,.14)) center/100% 1px no-repeat,linear-gradient(rgba(130,184,148,.14),rgba(130,184,148,.14)) bottom/100% 1px no-repeat}
+.vdc-cols{position:absolute;left:38px;right:14px;top:0;bottom:0;display:flex;justify-content:space-around;align-items:flex-end}
+.vdc-col{position:relative;width:44%;max-width:110px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+.vdc-bar{width:100%;border-radius:12px 12px 3px 3px}
+.vdc-bar.promise{border:2px dashed rgba(168,230,207,.5);background:rgba(168,230,207,.06)}
+.vdc-bar.proof{background:linear-gradient(180deg,#8ce0b0,#4aab8f);box-shadow:0 0 22px rgba(126,201,176,.45)}
+.vdc-val{font-size:1.4rem;font-weight:900;color:var(--cream);line-height:1;margin-bottom:3px}
+.vdc-col:first-child .vdc-val{color:#a8e6cf}
+.vdc-flag{position:absolute;right:-8px;top:6%;transform:translateX(100%);font-size:.62rem;color:var(--sage);line-height:1.15;text-align:left;white-space:nowrap}
+.vdc-flag b{display:block;font-size:1.05rem;color:#a8e6cf}
+.vdc-legend{display:flex;justify-content:space-around;margin-top:.5rem;padding-left:30px}
+.vdc-legend>div{display:flex;flex-direction:column;align-items:center;text-align:center}
+.vdc-nm{font-weight:800;font-size:.86rem;color:var(--cream)}
+.vdc-legend>div:last-child .vdc-nm{color:#a8e6cf}
+.vdc-sub{font-size:.6rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--sage);opacity:.8;margin-top:.1rem}
+.vdc-cta{text-align:center;margin-top:.75rem;padding-top:.7rem;border-top:1px solid rgba(130,184,148,.14);font-size:.84rem;font-weight:700;color:var(--cream)}
 /* Fil de conversation facon SMS (onboarding intro) */
 .ob-thread{display:flex;flex-direction:column;gap:.55rem}
 .ob-thread .ob-bubble{margin-bottom:0;align-self:flex-start;max-width:92%;border-bottom-left-radius:5px}
@@ -1529,7 +1551,7 @@ function introStep(n){
     `Enchantée, <b>${nm}</b> 🌱 Tu as vu le décor : des lieux qui font pousser leur territoire, reliés par un réseau. Ici, une seule règle d'or : <b>on ne se paie pas de mots, la confiance se cultive par la preuve</b>. Voyons comment tu vas y prendre part.`,
     `Trois profils font vivre EVAD. Ils jouent le même monde avec les mêmes règles de preuve, chacun à sa façon 🌱`,
     `Chaque projet suit la <b>spirale VADE</b> : quatre phases qui s'enchaînent, puis <b>recommencent un cran plus haut</b>. C'est le cœur d'EVAD.`,
-    `À chaque tour de la boucle, un lieu transforme ses <b>promesses</b> en <b>preuves</b>. Deux mots pour ça : la <b>Vadance</b> 💭, l'impact <b>promis</b> (installé, pas encore mesuré), et la <b>Vadité</b> 🌿, l'impact <b>prouvé</b>, vérifié.<br><br>Leur rapport, le <b>taux de tenue</b> (Vadité ÷ Vadance), mesure la capacité d'un lieu à tenir ses promesses : notre garde-fou anti-greenwashing.`,
+    `À chaque tour de la boucle, un lieu transforme ses <b>promesses</b> en <b>preuves</b>. Deux mots pour ça : la <b>Vadance</b> 💭, l'impact <b>promis</b> (installé, pas encore mesuré), et la <b>Vadité</b> 🌿, l'impact <b>prouvé</b>, vérifié.<br><br>Leur rapport, l'<b>Indice de Confiance</b> (Vadité ÷ Vadance), mesure à quel point un lieu tient ses promesses : notre garde-fou anti-greenwashing.`,
     `Tu es prêt·e ✨ Le mieux pour tout comprendre : incarner les <b>trois profils</b> l'un après l'autre (session de ~30 min). Mais si tu préfères, va directement sur celui qui t'attire :`
   ];
   // Widgets attaches a certaines etapes
@@ -1540,13 +1562,28 @@ function introStep(n){
         <div class="intro-prof static"><span class="ip-ic">🌾</span><div class="ip-txt"><div class="ip-tag">Financeurs</div><div class="ip-name">Semeur d'impact</div><div class="ip-desc">Financeur, fondation, collectivité. Tu finances des projets contre des preuves d'impact vérifiées.</div></div></div>
       </div>`;
   const wSpirale=c=>`<div class="vade-schema-box${c?' ob-pop':''}">${VADE_SCHEMA}</div><div id="vade-hover" class="vade-hover">Survole une phase pour la découvrir 🌀</div>`;
-  const wVade=c=>`<div class="vade-def${c?' ob-pop':''}">
-        <div class="vd-row">
-          <div class="vd-item"><div class="vd-ic">🌿</div><div class="vd-name vadite">Vadité</div><div class="vd-sub">prouvé</div></div>
-          <div class="vd-op">÷</div>
-          <div class="vd-item"><div class="vd-ic">💭</div><div class="vd-name">Vadance</div><div class="vd-sub">promis</div></div>
+  const wVade=c=>`<div class="vd-chart${c?' ob-pop':''}">
+        <div class="vdc-top">📈 <b>Indice de Confiance · 65%</b></div>
+        <div class="vdc-plot">
+          <div class="vdc-axis"><span>100</span><span>50</span><span>0</span></div>
+          <div class="vdc-grid"></div>
+          <div class="vdc-cols">
+            <div class="vdc-col">
+              <div class="vdc-val">85</div>
+              <div class="vdc-bar promise" style="height:85%"></div>
+            </div>
+            <div class="vdc-col">
+              <div class="vdc-val">55</div>
+              <div class="vdc-bar proof" style="height:55%"></div>
+              <div class="vdc-flag">🚩<b>+30</b><span>à prouver</span></div>
+            </div>
+          </div>
         </div>
-        <div class="vd-eq">= <b>Taux de tenue</b> · l'anti-greenwashing d'EVAD</div>
+        <div class="vdc-legend">
+          <div><span class="vdc-nm">Vadance</span><span class="vdc-sub">ce que tu promets</span></div>
+          <div><span class="vdc-nm">Vadité</span><span class="vdc-sub">déjà prouvé ✓</span></div>
+        </div>
+        <div class="vdc-cta">Transforme tes promesses en preuves 🌱</div>
       </div>`;
   const wChoix=c=>`<div class="intro-profiles${c?' ob-pop':''}">
         <button class="intro-prof" onclick="startProfileDirect('pilote')"><span class="ip-ic">🏡</span><div class="ip-txt"><div class="ip-name">Pilote d'impact</div><div class="ip-role">Opérer un lieu</div></div><span class="ip-goal">🎯 30 Vadité</span></button>
@@ -2995,7 +3032,7 @@ function etatLieuHTML(){
     <div class="el-head"><span class="el-eyebrow">🌱 État du lieu</span><span class="el-badge">${proven>0?'🌿 Impact prouvé':'✨ Impact déclaré'}</span></div>
     <div class="el-top">
       <div class="el-side"><div class="el-side-lab" style="color:var(--forest)">Vadance · la promesse</div><div class="el-big">${round1(vad)}<span class="el-sur">/100</span></div><div class="el-side-sub">Ce que ton lieu <i>promet</i> de changer</div></div>
-      <div class="el-mid"><div class="el-taux">${taux}%</div><div class="el-taux-lab">Tenue de tes promesses →</div></div>
+      <div class="el-mid"><div class="el-taux">${taux}%</div><div class="el-taux-lab">Indice de Confiance →</div></div>
       <div class="el-side el-side-r"><div class="el-side-lab" style="color:var(--ink)">Vadité · la preuve</div><div class="el-big">${round1(vadite)}<span class="el-sur">/100</span></div><div class="el-side-sub">Ce qu'il a <i>prouvé</i> avoir changé</div></div>
     </div>
     <div class="el-trip">
@@ -3009,7 +3046,7 @@ function etatLieuHTML(){
           <div class="el-m"><b>On compte ce qui bouge.</b> Pas ta surface, pas ton budget, pas tes intentions : l'écart entre avant et après. Un lieu qui part de loin et avance vaut mieux qu'un lieu déjà riche qui ne bouge pas.</div>
           <div class="el-m"><b>La barre est fixée dehors.</b> Le « très bon » est défini par la méthode et par ton type de lieu, jamais par toi. Personne ne note sa propre copie.</div>
           <div class="el-m"><b>Trois piliers, aucun rachat.</b> Écologie, Social, Économie locale sont moyennés séparément. Aucun ne peut compenser l'effondrement d'un autre : c'est la fin des chèques verts.</div>
-          <div class="el-m"><b>Dire, puis prouver.</b> Le même calcul tourne deux fois : sur ce que tu promets (<b>Vadance</b>), puis sur ce que tu prouves (<b>Vadité</b>). Le rapport des deux, ton <b>taux de tenue</b>, c'est le détecteur de greenwashing : il ne se raconte pas, il se constate.</div>
+          <div class="el-m"><b>Dire, puis prouver.</b> Le même calcul tourne deux fois : sur ce que tu promets (<b>Vadance</b>), puis sur ce que tu prouves (<b>Vadité</b>). Le rapport des deux, ton <b>Indice de Confiance</b>, c'est le détecteur de greenwashing : il ne se raconte pas, il se constate.</div>
         </div>
       </div>
     </div>
@@ -3032,7 +3069,7 @@ function dashHTML(opts){
     <div style="font-size:.8rem;font-weight:800;color:${P.color}">${goalNum} / ${goalMax} ${goalUnit}</div>
     ${capActif?`<div class="el-floor" style="margin-top:.6rem">🔒 <b>Ta Vadité plafonne à ${VADITE_SELF_CAP}/100</b> tant que tu te certifies toi-même. Pour aller plus haut, fais <b>vérifier</b> une mesure par un Bâtisseur 🤝 ou un Semeur 🛡️ sur le Réseau. <button class="btn btn-primary" style="margin-top:.5rem;width:100%" onclick="gotoReseauPreuve()">🌐 Trouver une preuve sur le Réseau →</button></div>`:''}
   </div>`;
-  // Etat du lieu : promesse (Vadance) → taux de tenue → preuve (Vadité) + triptyque des 3 capitaux
+  // Etat du lieu : promesse (Vadance) → Indice de Confiance → preuve (Vadité) + triptyque des 3 capitaux
   if(S.profile==='pilote') h+=etatLieuHTML();
   // stats (masquées pour le Pilote : déjà couvertes par le panneau « État du lieu » et la barre du haut)
   if(S.profile!=='pilote'){
