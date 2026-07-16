@@ -378,7 +378,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .scard .sc-tag.fr{background:#e6f2f8;color:var(--sky)}
 .scard .sc-tag.cost{background:#f3ede2;color:var(--amber)}
 
-/* Missions / Financements */
+/* Quêtes / Financements */
 .list{display:flex;flex-direction:column;gap:.75rem}
 .lieu-block{margin-bottom:1.1rem}
 .lieu-title{display:flex;align-items:center;gap:.55rem;font-size:.92rem;font-weight:800;margin-bottom:.55rem}
@@ -999,7 +999,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 /* ---------- Données : profils, VADE, saisons ---------- */
 const PROFILS = {
   pilote:    {label:'Pilote d\'impact',    ic:'🏡', color:'#2e6b47', bg:'rgba(46,107,71,.14)', goal:60, goalLabel:'Vadité'},
-  batisseur: {label:'Bâtisseur d\'impact', ic:'🌿', color:'#a06c00', bg:'rgba(240,176,50,.20)', goal:5,  goalLabel:'missions'},
+  batisseur: {label:'Bâtisseur d\'impact', ic:'🌿', color:'#a06c00', bg:'rgba(240,176,50,.20)', goal:5,  goalLabel:'quêtes'},
   semeur:    {label:'Semeur d\'impact',    ic:'🌾', color:'#2563a8', bg:'rgba(37,99,168,.14)', goal:25, goalLabel:'Vadité financée'},
 };
 const VADE = [
@@ -1008,7 +1008,7 @@ const VADE = [
   {k:'D', label:'Développer', color:'#c8732a', desc:'attirer Bâtisseurs & Semeurs sur le réseau'},
   {k:'E', label:'Essaimer',   color:'#6b5b95', desc:'valider les preuves d\'impact'},
 ];
-/* Mission en cours (par profil, par phase VADE) pour passer à l'étape suivante */
+/* Quête en cours (par profil, par phase VADE) pour passer à l'étape suivante */
 const VADE_MISSIONS = {
   pilote: [
     'Choisis au moins une activité pour chacun de tes espaces',
@@ -1017,9 +1017,9 @@ const VADE_MISSIONS = {
     'Fais valider tes preuves d\'impact pour faire monter ta Vadité',
   ],
   batisseur: [
-    'Accepte et accomplis une première mission',
-    'Enchaîne les missions et monte en compétence',
-    'Vise des missions à fort impact',
+    'Accepte et accomplis une première quête',
+    'Enchaîne les quêtes et monte en compétence',
+    'Vise des quêtes à fort impact',
     'Confirme ton expertise et boucle le cycle',
   ],
   semeur: [
@@ -1415,14 +1415,14 @@ const BADGES = {
   fraicheur:  {ic:'🌊', name:'Gardien de la fraîcheur', how:'Installe une solution 🌊 Fraîcheur (récupérateur d’eau, mur végétal, ombrière, phytoépuration), puis traverse une canicule : ton lieu devient un îlot de fraîcheur.'},
   eco:        {ic:'🌳', name:'Écosystème vivant', how:'Tisse 4 boucles circulaires : installe des solutions dont l’une produit ce qu’une autre consomme (biodéchets, eau, compost…).'},
   foret:      {ic:'🌲', name:'Forêt nourricière', how:'Pousse jusqu’à 7 boucles circulaires entre tes solutions. Ta Vadité est alors multipliée par 2.'},
-  brigade:    {ic:'🚒', name:'Brigades du climat', how:'Bâtisseur : accomplis une mission sur une solution 🌊 Fraîcheur pendant une saison de canicule (elle paie double).'},
+  brigade:    {ic:'🚒', name:'Brigades du climat', how:'Bâtisseur : accomplis une quête sur une solution 🌊 Fraîcheur pendant une saison de canicule (elle paie double).'},
   pari:       {ic:'🎲', name:'Pari d\'innovation gagné', how:'Semeur : finance un besoin marqué « pari » et gagne le rendement bonus (60 % de chances).'},
   triple:     {ic:'🏅', name:'Triple défi', how:'Réussis 3 défis de saison d’affilée, sans en manquer un seul entre-temps.'},
-  premiere:   {ic:'🌰', name:'Premier acte posé', how:'Pose ton premier acte dans le jeu : installe une solution, accepte une mission ou finance un besoin.'},
+  premiere:   {ic:'🌰', name:'Premier acte posé', how:'Pose ton premier acte dans le jeu : installe une solution, accepte une quête ou finance un besoin.'},
   vade_v:     {ic:'🌱', name:'Valoriser validé', how:'Passe la phase 🌱 Valoriser de la spirale : donne une vocation (une activité) à chacun de tes espaces.'},
   vade_a:     {ic:'⚡', name:'Activer validé', how:'Passe la phase ⚡ Activer : installe des solutions de la Bibliothèque dans tes espaces.'},
   vade_d:     {ic:'🌐', name:'Développer validé', how:'Passe la phase 🌐 Développer : rejoins le Réseau, publie ta fiche et relie-toi à un Bâtisseur ou un Semeur.'},
-  essaime:    {ic:'✨', name:'Essaimer validé', how:'Boucle la spirale sur ✨ Essaimer : atteins l’objectif de ton profil (60/100 de Vadité pour le Pilote, 5 missions pour le Bâtisseur, 25 points financés pour le Semeur).'},
+  essaime:    {ic:'✨', name:'Essaimer validé', how:'Boucle la spirale sur ✨ Essaimer : atteins l’objectif de ton profil (60/100 de Vadité pour le Pilote, 5 quêtes pour le Bâtisseur, 25 points financés pour le Semeur).'},
   reseau:     {ic:'🔗', name:'Réseau tissé', how:'Publie une annonce sur le Réseau et relie-toi à un Bâtisseur ou à un Semeur.'},
   marche:     {ic:'🛒', name:'Marché animé', how:'Échange tes Graines contre un avantage local sur la Place de marché.'},
   quetes:     {ic:'📣', name:'Réalisations partagées', how:'Publie tes quêtes de terrain sur le Réseau : le réseau voit ce que ton lieu a vraiment mis en place.'},
@@ -1540,7 +1540,7 @@ function introStep(n){
       </div>`;
   const wChoix=c=>`<div class="intro-profiles${c?' ob-pop':''}">
         <button class="intro-prof" onclick="startProfileDirect('pilote')"><span class="ip-ic">🏡</span><div class="ip-txt"><div class="ip-name">Pilote d'impact</div><div class="ip-role">Opérer un lieu</div></div><span class="ip-goal">🎯 30 Vadité</span></button>
-        <button class="intro-prof" onclick="startProfileDirect('batisseur')"><span class="ip-ic">🌿</span><div class="ip-txt"><div class="ip-name">Bâtisseur d'impact</div><div class="ip-role">Contribuer et prouver</div></div><span class="ip-goal">🎯 5 missions</span></button>
+        <button class="intro-prof" onclick="startProfileDirect('batisseur')"><span class="ip-ic">🌿</span><div class="ip-txt"><div class="ip-name">Bâtisseur d'impact</div><div class="ip-role">Contribuer et prouver</div></div><span class="ip-goal">🎯 5 quêtes</span></button>
         <button class="intro-prof" onclick="startProfileDirect('semeur')"><span class="ip-ic">🌾</span><div class="ip-txt"><div class="ip-name">Semeur d'impact</div><div class="ip-role">Financer le vérifié</div></div><span class="ip-goal">🎯 25 Vadité</span></button>
       </div>`;
   // Construit le fil : tous les messages de 0 a l'etape courante
@@ -1681,7 +1681,7 @@ function chooseProfile(p){
 function showOnboarding(){
   const goalTxt = {
     pilote:'Ton lieu part de zéro : aménage un espace, installe une première solution, puis mesure-la avec un ICI.',
-    batisseur:'Acceptez votre première mission dans l\'onglet Missions.',
+    batisseur:'Acceptez votre première quête dans l\'onglet Quêtes.',
     semeur:'Financez votre premier besoin dans l\'onglet Financer.',
   }[S.profile];
   openModal(`
@@ -1708,7 +1708,7 @@ function buildTourSteps(){
   const navBy=k=>nav.find(n=>n.k===k)||{ic:'',label:''};
   const AB={
     pilote:{a:'Compose tes espaces, installe des solutions et mesure-les avec des ICI pour prouver ton impact.', b:'Le catalogue complet : Solutions à installer, ICI pour mesurer, Compétences pour débloquer et booster.'},
-    batisseur:{a:'Les chantiers ouverts sur les trois lieux du réseau. Accepte une mission, réalise-la, gagne des Graines.', b:'Apprends de nouvelles compétences pour débloquer davantage de missions.'},
+    batisseur:{a:'Les quêtes ouvertes sur les trois lieux du réseau. Accepte une quête, réalise-la, gagne des Graines.', b:'Apprends de nouvelles compétences pour débloquer davantage de quêtes.'},
     semeur:{a:'Finance des besoins en euros : la solution ET son ICI sont posés, ta Vadité arrive déjà vérifiée.', b:'Une seule saisie de terrain couvre tous les langages : ODD, ESRS, PCAET, RSE.'},
   }[S.profile];
   const nm=S.playerName&&S.playerName!=='toi'?(' '+escapeHtml(S.playerName)):'';
@@ -1902,12 +1902,12 @@ const HOWTO = {
     ],
   },
   batisseur: {
-    goal:`Accomplir <b>5 missions</b> pour devenir Bâtisseur·se confirmé·e.`,
+    goal:`Accomplir <b>5 quêtes</b> pour devenir Bâtisseur·se confirmé·e.`,
     steps:[
-      ['🔧',`Accepte des <b>missions</b> sur les lieux du réseau et réalise-les.`],
+      ['🔧',`Accepte des <b>quêtes</b> sur les lieux du réseau et réalise-les.`],
       ['📷',`Fournis une <b>preuve</b> : ta Vadance (promesse) se transforme en <b>Vadité</b> (prouvée).`],
       ['🌰',`Gagne des <b>Graines</b> et dépense-les à la <b>Place de marché</b>.`],
-      ['🎓',`Monte en <b>compétence</b> pour débloquer des missions à plus fort impact.`],
+      ['🎓',`Monte en <b>compétence</b> pour débloquer des quêtes à plus fort impact.`],
     ],
   },
   semeur: {
@@ -2071,8 +2071,8 @@ const NAV = {
     MARCHE_NAV,
   ],
   batisseur:[
-    {k:'a',ic:'🛠️',label:'Missions',title:'Missions du réseau',sub:'Tes chantiers et ta progression, réunis : accepte une mission, installe, mesure, anime.'},
-    {k:'b',ic:'🎓',label:'Compétences',title:'Tes compétences',sub:'Apprends de nouvelles compétences pour débloquer plus de missions.'},
+    {k:'a',ic:'🛠️',label:'Quêtes',title:'Quêtes du réseau',sub:'Les quêtes des solutions de la Bibliothèque, ouvertes sur les lieux du réseau : accepte-en une, installe, mesure, anime.'},
+    {k:'b',ic:'🎓',label:'Compétences',title:'Tes compétences',sub:'Apprends de nouvelles compétences pour débloquer plus de quêtes.'},
     RESEAU_NAV,
     CARTE_NAV,
     MARCHE_NAV,
@@ -2217,7 +2217,7 @@ function renderTabA(){
   }
   else if(S.profile==='batisseur'){
     const sub=S.batSub||'missions';
-    const tabs=[['missions','🛠️ Missions'],['dash','📊 Tableau de bord']];
+    const tabs=[['missions','🛠️ Quêtes'],['dash','📊 Tableau de bord']];
     let h=`<div class="biblio-tabs">${tabs.map(t=>`<button class="biblio-tab ${sub===t[0]?'active':''}" onclick="S.batSub='${t[0]}';render()">${t[1]}</button>`).join('')}</div>`;
     h+= sub==='dash' ? dashHTML() : batisseurMissions();
     el.innerHTML=h;
@@ -2729,7 +2729,7 @@ const RESEAU_LIEUX = [
   {id:'ferme', name:'La Ferme du Coteau', ic:'🚜', bg:'#f3ede2', ville:'Bègles'},
 ];
 function missionPool(){
-  // missions générées : {id, lieu, type, sol, comp, graines}
+  // quêtes générées depuis les solutions de la Bibliothèque : {id, lieu, type, sol, comp, graines}
   return [
     {id:'m1', lieu:'darwin', type:'installer', sol:'solaire', graines:6},
     {id:'m2', lieu:'darwin', type:'mesurer',  sol:'potager', graines:5},
@@ -2810,10 +2810,10 @@ function submitProof(id){
 function batisseurMissions(){
   let h=defiBanner();
   h+=`
-    <div class="sect-sub">Trois lieux ont besoin de vos compétences. Chaque mission exige une compétence (les manquantes s'apprennent pour <b>4🌰</b>), se résout à la fin de la saison, et modifie durablement le lieu. <b>Max 2 missions en parallèle.</b></div>`;
-  h+=`<div class="hint">🌡️ En <b>canicule</b>, les missions sur des solutions de fraîcheur (🌊) paient <b>double</b>, les Brigades du climat, c'est vous.</div>`;
+    <div class="sect-sub">Chaque <b>quête</b> vient d'une <b>solution de la Bibliothèque</b>, à installer, mesurer ou animer sur un lieu du réseau. Elle exige une compétence (les manquantes s'apprennent pour <b>4🌰</b>), se résout à la fin de la saison, et modifie durablement le lieu. <b>Max 2 quêtes en parallèle.</b></div>`;
+  h+=`<div class="hint">🌡️ En <b>canicule</b>, les quêtes sur des solutions de fraîcheur (🌊) paient <b>double</b>, les Brigades du climat, c'est vous.</div>`;
   h+=ecoSection();
-  // missions actives
+  // quêtes actives
   if(S.missions.length){
     h+=`<div class="lieu-title" style="margin-top:1rem">⏳ En cours (${S.missions.length}/2), se résolvent à la prochaine saison</div><div class="list" style="margin-bottom:1rem">`;
     S.missions.forEach(m=>{ h+=missionRow(m, true); });
@@ -2860,11 +2860,11 @@ function missionDesc(m){
   }[m.type];
 }
 function acceptMission(id){
-  if(S.missions.length>=2){ toast('Maximum 2 missions en parallèle','warn'); return; }
+  if(S.missions.length>=2){ toast('Maximum 2 quêtes en parallèle','warn'); return; }
   const m=missionPool().find(x=>x.id===id);
   S.missions.push(m);
   markFirstAct('mission-accept');
-  toast(`✋ Mission acceptée, elle se résout à la prochaine saison`,'win');
+  toast(`✋ Quête acceptée, elle se résout à la prochaine saison`,'win');
   render();
 }
 function learnComp(k){
@@ -2876,7 +2876,7 @@ function learnComp(k){
 }
 function batisseurComps(){
   let h=`
-    <div class="sect-sub">Vous démarrez avec 2 compétences. Chaque compétence débloque un type de mission. Apprendre coûte <b>4🌰</b> et fait avancer votre spirale (A · Activer).</div>`;
+    <div class="sect-sub">Vous démarrez avec 2 compétences. Chaque compétence débloque un type de quête. Apprendre coûte <b>4🌰</b> et fait avancer votre spirale (A · Activer).</div>`;
   h+=`<div class="comp-grid">`;
   Object.entries(COMPETENCES).forEach(([k,c])=>{
     const owned=S.comps.has(k);
@@ -3040,7 +3040,7 @@ function dashHTML(opts){
   // objectif principal
   const goalNum = S.profile==='batisseur'?S.missionsDone:round1(vad);
   const goalMax = P.goal;
-  const goalUnit = S.profile==='batisseur'?'missions':(S.profile==='pilote'?'de Vadité':'points de '+P.goalLabel);
+  const goalUnit = S.profile==='batisseur'?'quêtes':(S.profile==='pilote'?'de Vadité':'points de '+P.goalLabel);
   const capActif = S.profile==='pilote' && !hasExternalProof() && pilotScore('proof')>=VADITE_SELF_CAP-0.5;
   h+=`<div class="card" style="padding:1.1rem;margin-bottom:1rem">
     <div style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:${P.color}">🎯 Quête finale · Essaimer</div>
@@ -3058,7 +3058,7 @@ function dashHTML(opts){
     if(S.profile==='semeur') h+=dashStat('💶',S.euros,'Budget €');
     h+=dashStat('✨',round1(curVadance())+' '+pts(curVadance()),'Vadance (promise)');
     h+=dashStat('🌿',round1(vad)+' '+pts(vad),'Vadité (prouvée)');
-    if(S.profile==='batisseur'){ h+=dashStat('✅',S.missionsDone,'Missions faites'); h+=dashStat('🎓',S.comps.size,'Compétences'); }
+    if(S.profile==='batisseur'){ h+=dashStat('✅',S.missionsDone,'Quêtes faites'); h+=dashStat('🎓',S.comps.size,'Compétences'); }
     if(S.profile==='semeur'){ h+=dashStat('🏷️',S.refs.size,'Référentiels'); h+=dashStat('📑',S.financed.filter(f=>!f.pending).length,'Financements'); }
     h+=`</div>`;
   }
@@ -3126,7 +3126,7 @@ function countProven(){ let n=0; S.spaces.forEach(sp=>{ if(sp.existant&&sp.ici&&
 function goalLabel(){
   return {
     pilote:`Atteindre 60/100 de Vadité pour que « ${escapeHtml(S.lieuName||'ton lieu')} » rejoigne les hubs régénératifs reconnus`,
-    batisseur:`Accomplir 5 missions pour devenir Bâtisseur·se confirmé·e`,
+    batisseur:`Accomplir 5 quêtes pour devenir Bâtisseur·se confirmé·e`,
     semeur:`Atteindre 25 points de Vadité financée et produire votre rapport d'impact`,
   }[S.profile];
 }
@@ -3205,7 +3205,7 @@ function cityDot(x,y,name){ return `<g><circle cx="${x}" cy="${y}" r="2.4" fill=
 function cpItem(type,o){
   const cfg={lieu:{ic:o.ic||'🏡',bg:'rgba(46,107,71,.14)'},bat:{ic:'🌿',bg:'rgba(240,176,50,.22)'},sem:{ic:'🌾',bg:'rgba(37,99,168,.14)'}}[type];
   let meta;
-  if(type==='lieu') meta=(o.you?('Ton lieu · '+escapeHtml(S.lieuVille||'Bordeaux')+(S.lieuPublished?' · 🌐 publiée':' · 📝 brouillon')):(o.ville||'Bordeaux')+(o.fin?' · 🌿 '+o.fin+' financé(s)':(o.done?' · ✅ '+o.done+' mission(s)':((o.openM||o.openF)?' · ⚡ '+((o.openM||0)+(o.openF||0))+' quête(s)':''))));
+  if(type==='lieu') meta=(o.you?('Ton lieu · '+escapeHtml(S.lieuVille||'Bordeaux')+(S.lieuPublished?' · 🌐 publiée':' · 📝 brouillon')):(o.ville||'Bordeaux')+(o.fin?' · 🌿 '+o.fin+' financé(s)':(o.done?' · ✅ '+o.done+' quête(s)':((o.openM||o.openF)?' · ⚡ '+((o.openM||0)+(o.openF||0))+' quête(s)':''))));
   else if(type==='bat') meta=o.metier+' · '+o.ville;
   else meta=o.meta||'';
   return `<div class="cp-item" onclick="carteClick('${type}','${o.id}')">
@@ -3247,9 +3247,9 @@ function openFicheLieu(id){
     {v:'⚡ '+quetes, l:'Quêtes ouvertes', c:'var(--amber)'},
   ];
   if(S.profile==='semeur' && l.fin) stats.push({v:'💶 '+lieuVadite(id), l:'Vadité que tu as financée', c:'var(--lavender)'});
-  else if(S.profile==='batisseur' && l.done) stats.push({v:'✅ '+l.done, l:'Missions accomplies ici', c:'var(--lavender)'});
+  else if(S.profile==='batisseur' && l.done) stats.push({v:'✅ '+l.done, l:'Quêtes accomplies ici', c:'var(--lavender)'});
   let cta='';
-  if(S.profile==='batisseur' && l.openM) cta=`<button class="btn btn-primary det-action" onclick="closeModal();switchTab('a')">🛠️ Voir les ${l.openM} mission(s) de ce lieu →</button>`;
+  if(S.profile==='batisseur' && l.openM) cta=`<button class="btn btn-primary det-action" onclick="closeModal();switchTab('a')">🛠️ Voir les ${l.openM} quête(s) de ce lieu →</button>`;
   else if(S.profile==='semeur' && l.openF) cta=`<button class="btn btn-primary det-action" onclick="closeModal();switchTab('a')">💶 Financer ce lieu →</button>`;
   else cta=`<button class="btn btn-ghost det-action" onclick="closeModal();toast('✉️ Message envoyé à ${l.name}, le lieu te répondra sous 48h')">✉️ Contacter ce lieu</button>`;
   openDetailModal(`
@@ -3366,14 +3366,14 @@ function openFicheBat(id){
     openDetailModal(`
       ${ficheHero('linear-gradient(135deg,#3d2a08,#c8732a)','🌿',['🌿 Bâtisseur d’impact','📍 Bordeaux'],'Toi','Ta fiche publique dans le réseau')}
       <div class="det-body">
-        <p class="det-desc">Voilà ce que les Pilotes voient de toi quand ils cherchent quelqu’un pour une quête. Chaque mission accomplie et chaque compétence apprise enrichit cette fiche.</p>
+        <p class="det-desc">Voilà ce que les Pilotes voient de toi quand ils cherchent quelqu’un pour une quête. Chaque quête accomplie et chaque compétence apprise enrichit cette fiche.</p>
         ${ficheStats([
           {v:'🌰 '+S.graines, l:'Graines', c:'var(--amber)'},
-          {v:'✅ '+(S.missionsDone||0), l:'Missions accomplies', c:'var(--forest)'},
-          {v:'🛠️ '+((S.missions||[]).length), l:'Missions en cours', c:'var(--sky)'},
+          {v:'✅ '+(S.missionsDone||0), l:'Quêtes accomplies', c:'var(--forest)'},
+          {v:'🛠️ '+((S.missions||[]).length), l:'Quêtes en cours', c:'var(--sky)'},
         ])}
         ${S.pcomps&&S.pcomps.size?`<div class="det-sec"><div class="det-sec-t">🔧 Compétences</div>${ficheTags([...S.pcomps].map(c=>PCOMP[c]?PCOMP[c].ic+' '+PCOMP[c].name:c),'am')}</div>`:'<div class="det-flux">Aucune compétence encore : va en apprendre une dans l’onglet Compétences.</div>'}
-        <button class="btn btn-primary det-action" onclick="closeModal();switchTab('a')">🛠️ Voir mes missions →</button>
+        <button class="btn btn-primary det-action" onclick="closeModal();switchTab('a')">🛠️ Voir mes quêtes →</button>
       </div>`);
     return;
   }
@@ -3710,7 +3710,7 @@ function reseauActions(){
   if(S.profile==='pilote'){
     if(S.reseauBat&&S.reseauSem) h+=`<div class="hint">✅ Tu as tissé des liens avec un Bâtisseur et un Semeur. Le réseau, c'est ta force : chaque impact prouvé attire de nouveaux soutiens.</div>`;
   } else if(S.profile==='batisseur'){
-    h+=`<div class="rz-offer"><div class="rz-offer-t" style="color:var(--pilote)">🏡 Des Pilotes cherchent tes compétences</div><div class="rz-offer-d">Trois lieux du réseau ont des chantiers ouverts. Rejoins-en un pour gagner des Graines et faire grandir un lieu.</div><button class="btn btn-primary" onclick="reseauGoto('a','🌿 Direction les missions ! Choisis un chantier.')">Voir les missions →</button></div>`;
+    h+=`<div class="rz-offer"><div class="rz-offer-t" style="color:var(--pilote)">🏡 Des Pilotes cherchent tes compétences</div><div class="rz-offer-d">Trois lieux du réseau ont des chantiers ouverts. Rejoins-en un pour gagner des Graines et faire grandir un lieu.</div><button class="btn btn-primary" onclick="reseauGoto('a','🌿 Direction les quêtes ! Choisis une quête.')">Voir les quêtes →</button></div>`;
   } else {
     h+=`<div class="rz-offer"><div class="rz-offer-t" style="color:var(--pilote)">🏡 Des lieux ont besoin de financement</div><div class="rz-offer-d">Les Pilotes du réseau publient leurs besoins. Finance-les : la solution ET son ICI sont posés, ta Vadité arrive vérifiée.</div><button class="btn btn-primary" onclick="reseauGoto('a','🌾 Direction les financements !')">Voir les besoins à financer →</button></div>`;
   }
@@ -3739,7 +3739,7 @@ function markFirstAct(act){ S.firstActs.add(act);
   // Bâtisseur : même mécanique, les onglets s'ouvrent au fil des premières actions.
   if(S.profile==='batisseur' && S.navUnlocked){
     // Compétences s'ouvre dès le premier chantier accepté
-    if(act==='mission-accept') revealNav('b', '🎓 Tes compétences s\'ouvrent', 'Te voilà engagé·e sur ton premier chantier 🌿 Chaque <b>compétence</b> débloque un nouveau type de mission. <b>🎯 Objectif : apprends-en une</b> (4🌰) pour accéder à des chantiers à plus fort impact.');
+    if(act==='mission-accept') revealNav('b', '🎓 Tes compétences s\'ouvrent', 'Te voilà engagé·e sur ton premier chantier 🌿 Chaque <b>compétence</b> débloque un nouveau type de quête. <b>🎯 Objectif : apprends-en une</b> (4🌰) pour accéder à des chantiers à plus fort impact.');
     // Le Réseau s'ouvre une fois une compétence apprise
     if(act==='learned') revealNav('reseau', '🌐 Le Réseau s\'ouvre', 'Nouvelle compétence en poche 🎓 Le <b>Réseau</b> est le fil où Pilotes, Bâtisseurs et Semeurs se rencontrent. <b>🎯 Objectif : repère les lieux qui cherchent tes mains</b> et relie-toi à eux.');
   }
@@ -3836,7 +3836,7 @@ function vadeNextMission(){
   let rem=targetProg-prog; if(rem<0) rem=0;
   const isMissions=S.profile==='batisseur';
   const remDisp=isMissions?Math.max(0,Math.ceil(rem)):round1(rem);
-  const unit=isMissions?(remDisp>=2?'missions':'mission'):(remDisp>=2?'pts Vadité':'pt Vadité');
+  const unit=isMissions?(remDisp>=2?'quêtes':'quête'):(remDisp>=2?'pts Vadité':'pt Vadité');
   const nextV=VADE[nextIdx];
   let tail;
   if(rem>0.05){
@@ -3924,14 +3924,14 @@ function advanceSeason(){
     if(loops) msgs.push(`🔄 ${loops} boucle(s)${mult>1?' ×'+mult:''} · +${loopGain}🌰`);
   }
   if(S.profile==='batisseur'){
-    // résoudre missions
+    // résoudre les quêtes
     const resolved=[...S.missions];
     S.doneMissions=S.doneMissions||new Set();
     resolved.forEach(m=>{
       const s=SOL[m.sol]; const isFraich=s.clim==='fraicheur'; const reward=m.graines*(S.hazard==='canicule'&&isFraich?2:1);
       gains+=reward; S.missionsDone++; S.doneMissions.add(m.id);
       if(S.hazard==='canicule'&&isFraich){ S.badges.add('brigade'); }
-      msgs.push(`✅ Mission « ${MISSION_TYPE[m.type].v} ${s.name} » accomplie · +${reward}🌰`);
+      msgs.push(`✅ Quête « ${MISSION_TYPE[m.type].v} ${s.name} » accomplie · +${reward}🌰`);
     });
     S.missions=[];
     if(S.missionsDone>=3 && !S.badges.has('eco')) {}
@@ -3964,13 +3964,13 @@ function advanceSeason(){
   if(S.profile==='pilote' && S.navUnlocked && !S.navUnlocked.has('marche') && gains>0){
     revealNav('marche', '🛒 Ouvre la Place de marché', 'Tes espaces ont produit 🌰 Il est temps de valoriser ce que ton lieu fait vivre. <b>🎯 Objectif : propose une formation sur ton lieu</b> et vends tes produits et services sur la Place de marché.', true);
   }
-  // 6.6) Bâtisseur : la Carte s'ouvre à la 1re mission accomplie, puis la Place de marché une saison plus tard
+  // 6.6) Bâtisseur : la Carte s'ouvre à la 1re quête accomplie, puis la Place de marché une saison plus tard
   // (une seule annonce différée à la fois : PENDING_REVEAL n'a qu'un créneau)
   if(S.profile==='batisseur' && S.navUnlocked){
     if(!S.navUnlocked.has('carte') && S.missionsDone>0){
-      revealNav('carte', '🗺️ La Carte s\'ouvre', 'Première mission accomplie ✅ La <b>Carte</b> te montre les lieux du réseau près de chez toi et leurs quêtes ouvertes. <b>🎯 Objectif : repère ton prochain chantier</b> sur ton territoire.', true);
+      revealNav('carte', '🗺️ La Carte s\'ouvre', 'Première quête accomplie ✅ La <b>Carte</b> te montre les lieux du réseau près de chez toi et leurs quêtes ouvertes. <b>🎯 Objectif : repère ton prochain chantier</b> sur ton territoire.', true);
     } else if(S.navUnlocked.has('carte') && !S.navUnlocked.has('marche') && gains>0){
-      revealNav('marche', '🛒 Ouvre la Place de marché', 'Tes missions t\'ont rapporté des 🌰 <b>Graines</b>. La <b>Place de marché</b> les transforme en avantages locaux proposés par les lieux du réseau. <b>🎯 Objectif : échange tes Graines</b> contre un coup de pouce.', true);
+      revealNav('marche', '🛒 Ouvre la Place de marché', 'Tes quêtes t\'ont rapporté des 🌰 <b>Graines</b>. La <b>Place de marché</b> les transforme en avantages locaux proposés par les lieux du réseau. <b>🎯 Objectif : échange tes Graines</b> contre un coup de pouce.', true);
     }
   }
 
@@ -3996,7 +3996,7 @@ function rollHazard(sz, yr, msgs){
       if(pilotHasFresh()){ addVadance(3); S.badges.add('fraicheur'); msgs.push('🌊 Îlot de fraîcheur : le quartier se retrouve chez vous · +3 points de Vadance ✨'); }
       else { addVadance(-3); msgs.push('🌡️ Sans solution de fraîcheur, votre lieu perd 3 points de Vadance'); }
     }
-    return {haz, ic:'🌡️', title:'Canicule', txt:'Un lieu équipé de solutions 🌊 Fraîcheur (eau de pluie, mur végétal, ombrière, phytoépuration) devient un îlot de fraîcheur où le quartier se retrouve, et il gagne. Les autres perdent de la Vadance. Chez les Bâtisseurs, les missions de fraîcheur paient double !'};
+    return {haz, ic:'🌡️', title:'Canicule', txt:'Un lieu équipé de solutions 🌊 Fraîcheur (eau de pluie, mur végétal, ombrière, phytoépuration) devient un îlot de fraîcheur où le quartier se retrouve, et il gagne. Les autres perdent de la Vadance. Chez les Bâtisseurs, les quêtes de fraîcheur paient double !'};
   }
   if(haz==='gel'){
     if(S.profile==='pilote'){
@@ -4032,7 +4032,7 @@ const DEFIS = [
   {id:'boucle', txt:'Crée une boucle circulaire ce trimestre', reward:5, profiles:['pilote'], check:()=>fluxLoops(installedIds()).length>=1},
   {id:'ici2', txt:'Attache 2 ICI ce trimestre', reward:5, profiles:['pilote'], check:()=>countProven()>=2},
   {id:'install3', txt:'Installe 3 solutions au total', reward:6, profiles:['pilote'], check:()=>installedIds().length>=3},
-  {id:'m2', txt:'Accomplis 2 missions ce trimestre', reward:6, profiles:['batisseur'], check:()=>{return (S.missionsDone-(S.defi._base||0))>=2;}, base:()=>S.missionsDone},
+  {id:'m2', txt:'Accomplis 2 quêtes ce trimestre', reward:6, profiles:['batisseur'], check:()=>{return (S.missionsDone-(S.defi._base||0))>=2;}, base:()=>S.missionsDone},
   {id:'learn', txt:'Apprends une nouvelle compétence', reward:5, profiles:['batisseur'], check:()=>S.comps.size>(S.defi._base||2), base:()=>S.comps.size},
   {id:'fin2', txt:'Finance sur 2 lieux différents', reward:6, profiles:['semeur'], check:()=>new Set(S.financed.map(f=>f.lieu)).size>=2},
   {id:'fin1k', txt:'Investis 200 € ce trimestre', reward:6, profiles:['semeur'], check:()=>{return ((S.defi._eurosBase||S.euros)-S.euros)>=200;}, base:()=>S.euros, key:'_eurosBase'},
@@ -4120,8 +4120,8 @@ function seasonModal(sz, yr, gains, vaditeGain, msgs, hazMsg, won){
 function winModal(){
   const cfg={
     pilote:{ic:'🌳',t:'Lieu durable reconnu !',p:(S.lieuName||'La Friche des Possibles')+' atteint <b>60/100 de Vadité prouvée</b>. Votre lieu rejoint les lieux d\'impact reconnus du réseau EVAD. La spirale VADE peut maintenant recommencer un cran plus haut : de nouveaux espaces à valoriser, de nouvelles boucles à tisser… et d\'autres lieux à inspirer.'},
-    batisseur:{ic:'🌿',t:'Bâtisseur·se confirmé·e !',p:'Vous avez accompli <b>5 missions</b> sur le réseau. Vos compétences ont transformé trois lieux durablement. On vous réclame déjà pour de nouveaux chantiers, et pour transmettre à votre tour.'},
-    semeur:{ic:'🌾',t:'Impact vérifié, mission accomplie !',p:'Vous avez atteint <b>25 points de Vadité financée</b>, entièrement vérifiée. Vos référentiels sont couverts, vos financements ont fait pousser des preuves, pas des promesses. Place au rapport d\'impact.'},
+    batisseur:{ic:'🌿',t:'Bâtisseur·se confirmé·e !',p:'Vous avez accompli <b>5 quêtes</b> sur le réseau. Vos compétences ont transformé trois lieux durablement. On vous réclame déjà pour de nouveaux chantiers, et pour transmettre à votre tour.'},
+    semeur:{ic:'🌾',t:'Impact vérifié, objectif atteint !',p:'Vous avez atteint <b>25 points de Vadité financée</b>, entièrement vérifiée. Vos référentiels sont couverts, vos financements ont fait pousser des preuves, pas des promesses. Place au rapport d\'impact.'},
   }[S.profile];
   let h=`<div class="season-anim">${cfg.ic}</div><h2>${cfg.t}</h2><p>${cfg.p}</p>`;
   h+=`<div class="mb-detail" style="text-align:center">
@@ -4286,22 +4286,22 @@ function reseauTour(){
   showTourStep(0);
 }
 /* ══ BÂTISSEUR : visites guidées d'onglet, chacune finit sur une action ══ */
-/* Onglet Missions : découvrir un chantier, puis en accepter un (ou apprendre la compétence requise) */
+/* Onglet Quêtes : découvrir une quête, puis en accepter une (ou apprendre la compétence requise) */
 function batMissionsTourSteps(withNav){
   const nm=S.playerName&&S.playerName!=='toi'?(' '+escapeHtml(S.playerName)):'';
   const steps=[];
   if(withNav) steps.push({sel:'.nav-item[data-tab="a"]', side:'right', onEnter:()=>{ S.tab='a'; S.batSub='missions'; render(); },
-     title:'🛠️ Les missions du réseau', text:`Voici tes <b>chantiers</b>${nm} : trois lieux du réseau ont besoin de tes mains. Accepte une mission, réalise-la, gagne des Graines. Regardons de plus près 👇`});
-  steps.push({sel:'.mission', side:'left', scroll:true, title:'🧩 Une mission, c\'est quoi ?',
-     text:'Chaque mission demande une <b>compétence</b>, rapporte des <b>🌰 Graines</b>, et se résout à la <b>fin de la saison</b> en modifiant durablement le lieu. Tu peux en mener <b>2 en parallèle</b>.'});
+     title:'🛠️ Les quêtes du réseau', text:`Voici les <b>quêtes</b> du réseau${nm} : chacune vient d'une <b>solution de la Bibliothèque</b>, à installer, mesurer ou animer sur un lieu. Accepte-en une, réalise-la, gagne des Graines. Regardons de plus près 👇`});
+  steps.push({sel:'.mission', side:'left', scroll:true, title:'🧩 Une quête, c\'est quoi ?',
+     text:'Chaque quête vient d\'une <b>solution de la Bibliothèque</b> posée sur un lieu. Elle demande une <b>compétence</b>, rapporte des <b>🌰 Graines</b>, et se résout à la <b>fin de la saison</b> en modifiant durablement le lieu. Tu peux en mener <b>2 en parallèle</b>.'});
   const acceptSel='.mission .m-cta.btn-primary:not([disabled])';
   const learnSel='.mission .m-cta.btn-ghost:not([disabled])';
   if(document.querySelector(acceptSel)){
-    steps.push({sel:acceptSel, side:'left', scroll:true, title:'✋ Accepte ta première mission',
+    steps.push({sel:acceptSel, side:'left', scroll:true, title:'✋ Accepte ta première quête',
       text:'Celle-ci correspond à une compétence que tu as <b>déjà</b>. Clique <b>« Accepter »</b> quand tu es prêt·e : tu t\'engages sur le chantier, il se résoudra à la prochaine saison et te rapportera des Graines 🌱'});
   } else if(document.querySelector(learnSel)){
     steps.push({sel:learnSel, side:'left', scroll:true, title:'🎓 Apprends la compétence requise',
-      text:'Ces missions demandent une compétence que tu n\'as pas encore. Clique <b>« Apprendre · 4🌰 »</b> pour la débloquer : tu pourras enchaîner sur la mission juste après 🌱'});
+      text:'Ces quêtes demandent une compétence que tu n\'as pas encore. Clique <b>« Apprendre · 4🌰 »</b> pour la débloquer : tu pourras enchaîner sur la quête juste après 🌱'});
   } else {
     steps.push({sel:'.sect-sub', side:'bottom', scroll:true, title:'🛠️ À toi de jouer',
       text:'Reviens ici dès que tu as des Graines ou une place libre pour accepter un nouveau chantier 🌿'});
@@ -4320,16 +4320,16 @@ function batMissionsTour(){
 function batCompTourSteps(withNav){
   const steps=[];
   if(withNav) steps.push({sel:'.nav-item[data-tab="b"]', side:'right', onEnter:()=>{ if(S.tab!=='b'){ S.tab='b'; render(); } },
-     title:'🎓 Tes compétences', text:'Chaque <b>compétence</b> débloque un nouveau type de mission et fait avancer ta spirale (A · Activer). Voyons comment en gagner 👇'});
+     title:'🎓 Tes compétences', text:'Chaque <b>compétence</b> débloque un nouveau type de quête et fait avancer ta spirale (A · Activer). Voyons comment en gagner 👇'});
   steps.push({sel:'.comp', side:'right', scroll:true, title:'🧩 Une compétence',
-     text:'Tu démarres avec deux compétences. Les autres s\'apprennent pour <b>4🌰</b> et t\'ouvrent des missions à plus fort impact.'});
+     text:'Tu démarres avec deux compétences. Les autres s\'apprennent pour <b>4🌰</b> et t\'ouvrent des quêtes à plus fort impact.'});
   const learnSel='.comp:not(.owned) .mini-btn:not([disabled])';
   if(document.querySelector(learnSel)){
     steps.push({sel:learnSel, side:'top', scroll:true, title:'🎓 Apprends-en une',
-      text:'Clique <b>« Apprendre »</b> pour débloquer une compétence (<b>4🌰</b>) : tu pourras aussitôt accepter les missions qu\'elle ouvre, et ta spirale avance 🌱'});
+      text:'Clique <b>« Apprendre »</b> pour débloquer une compétence (<b>4🌰</b>) : tu pourras aussitôt accepter les quêtes qu\'elle ouvre, et ta spirale avance 🌱'});
   } else {
     steps.push({sel:'.comp-grid', side:'top', scroll:true, title:'🎓 Monte en compétence',
-      text:'Il te faut <b>4🌰</b> pour apprendre une compétence. Gagne des Graines en accomplissant des missions, puis reviens en débloquer 🌿'});
+      text:'Il te faut <b>4🌰</b> pour apprendre une compétence. Gagne des Graines en accomplissant des quêtes, puis reviens en débloquer 🌿'});
   }
   return steps;
 }
@@ -4418,19 +4418,19 @@ function devaAnswer(qraw){
   if(has('vadité','vadite')) return `La <b>Vadité</b> 🌿 c'est l'impact <i>prouvé</i> : dès qu'un ICI mesure une solution, sa Vadance devient Vadité. C'est la devise du réseau.<br><br>${devaTip()}`;
   if(has('boucle','circulaire','flux')) return `Une <b>boucle circulaire</b> 🔄 s'active quand deux solutions dont les flux se répondent sont sur le même lieu (ex. <i>Cuisine → Composteur → Potager</i>). Elle rapporte des Graines chaque saison : 3 boucles = Écosystème vivant (×1,5), 5 = Forêt nourricière (×2).`;
   if(has('canicule','climat','aléa','alea','tempête','tempete','gel','sécheresse','secheresse','météo','meteo','saison')) return `Le climat se corse chaque année, mais chaque aléa a sa parade : 🌊 <b>Fraîcheur</b> (eau de pluie, mur végétal, ombrière, phytoépuration) contre la canicule, 🏡 serre contre le gel, 🔧 atelier contre la tempête, 💧 réserves d'eau contre la sécheresse. Bien équipé, un coup dur devient une heure de gloire.`;
-  if(has('graine')) return `Les <b>Graines</b> 🌰 récompensent l'action (missions, défis, boucles) et servent à agir : piocher, apprendre, installer. Elles ne sont <b>pas convertibles</b> en euros, ni l'inverse : les deux circuits sont strictement séparés.`;
+  if(has('graine')) return `Les <b>Graines</b> 🌰 récompensent l'action (quêtes, défis, boucles) et servent à agir : piocher, apprendre, installer. Elles ne sont <b>pas convertibles</b> en euros, ni l'inverse : les deux circuits sont strictement séparés.`;
   if(has('euro','argent','financ','budget')) return `Les <b>euros</b> 💶 sont la monnaie des financements (profil Semeur). Un financement installe la solution <b>et</b> son ICI : la Vadité arrive déjà vérifiée. Ta Vadité financée renouvelle ton budget chaque saison, la preuve fidélise.`;
-  if(has('mission')) return `Les <b>missions</b> 🛠️ (profil Bâtisseur) exigent une compétence, se résolvent en fin de saison et transforment durablement le lieu. Max 2 en parallèle. En <b>canicule</b>, les missions de fraîcheur paient double !`;
-  if(has('compétence','competence','apprendre')) return `Tu démarres avec 2 compétences ; les autres s'apprennent pour <b>4 🌰</b>. « Mesurer » débloque toutes les missions de mesure. Chaque compétence apprise fait avancer ta spirale VADE (A · Activer).`;
+  if(has('quête','quete','mission')) return `Les <b>quêtes</b> 🛠️ (profil Bâtisseur) viennent des <b>solutions de la Bibliothèque</b> : elles exigent une compétence, se résolvent en fin de saison et transforment durablement le lieu. Max 2 en parallèle. En <b>canicule</b>, les quêtes de fraîcheur paient double !`;
+  if(has('compétence','competence','apprendre')) return `Tu démarres avec 2 compétences ; les autres s'apprennent pour <b>4 🌰</b>. « Mesurer » débloque toutes les quêtes de mesure. Chaque compétence apprise fait avancer ta spirale VADE (A · Activer).`;
   if(has('badge')) return `Les <b>badges</b> 🏅 récompensent tes hauts faits : Gardien de la fraîcheur, Écosystème vivant, Forêt nourricière, Brigades du climat, Pari d'innovation gagné, Triple défi… Retrouve-les au Tableau de bord.`;
   if(has('spirale','vade')) return `La <b>spirale VADE</b> structure la partie : <b>V</b>aloriser (reconnaître l'existant) → <b>A</b>ctiver (mesurer) → <b>D</b>évelopper (faire système) → <b>E</b>ssaimer (passer au réel & inspirer). Puis elle recommence, un cran plus haut.`;
   if(has('carte','réseau','reseau','communauté','communaute')) return `La <b>Carte de l'écosystème</b> 🗺️ montre les lieux, bâtisseurs et semeurs du réseau EVAD près de toi. Clique un marqueur pour ses infos, et filtre par type ou par quêtes ouvertes.`;
   if(has('ferme','nommer',' nom','créer','creer','fiche','appeler')) return `Pour bien nommer un lieu, sois précis et inspirant, et ajoute un mot-clé d'impact : « <i>Ferme des Lucioles, maraîchage régénératif</i> » ou « <i>Les Racines, permaculture & biodiversité</i> ». Le nom doit dire ce que le lieu <b>prouve</b>.`;
-  if(has('objectif','gagner',' but','quête','quete','comment jouer','finir','réussir','reussir')) return `Ton objectif : <b>${goalLabel()}</b>.<br><br>${devaTip()}`;
+  if(has('objectif','gagner',' but','comment jouer','finir','réussir','reussir')) return `Ton objectif : <b>${goalLabel()}</b>.<br><br>${devaTip()}`;
   if(has('empreinte','frugal','énergie','energie','co2','conso','écolo','ecolo')) return `Je suis une IA <b>frugale</b> : réponses courtes, modèle léger. La jauge en haut montre l'empreinte de notre conversation (électricité, eau, CO₂). L'IA la plus verte, c'est celle qu'on n'appelle que quand c'est utile 🌱.`;
   if(has('deva','qui es','ton nom','ton avatar')) return `Je suis <b>Deva</b> 🌱, l'assistante frugale d'EVAD. Je te guide quand tu en as besoin, jamais plus, et je t'affiche l'empreinte de mes conseils.`;
   if(has('merci','super','génial','genial','cool','parfait')) return `Avec plaisir 🌿<br><br>${devaTip()}`;
-  return `Je te guide surtout sur EVAD : ICI, Vadance/Vadité, boucles, missions, financements, climat, badges. Voici où tu en es :<br><br>${devaTip()}`;
+  return `Je te guide surtout sur EVAD : ICI, Vadance/Vadité, boucles, quêtes, financements, climat, badges. Voici où tu en es :<br><br>${devaTip()}`;
 }
 function devaTip(){
   const vad=S.profile==='semeur'?S.vaditeFin:curVadite();
@@ -4442,9 +4442,9 @@ function devaTip(){
     return `Vous êtes à ${round1(vad)}/60 de Vadité 🌿. Continuez à <b>mesurer</b> ce que vous installez (chaque ICI convertit la Vadance) et à densifier vos boucles : 5 boucles = Forêt nourricière ×2.`;
   }
   if(S.profile==='batisseur'){
-    if(S.missionsDone===0 && S.missions.length===0) return `Pour démarrer, <b>acceptez une mission</b> qui correspond à vos 2 compétences de départ (🌱 Jardiner, 🔧 Réparer). Elle se résoudra à la prochaine saison.`;
-    if(S.comps.size<3) return `Élargissez vos possibilités : <b>apprenez une compétence</b> (🎓 Compétences, 4🌰). « Mesurer » débloque toutes les missions de mesure, très demandées.`;
-    return `Astuce climat : en <b>canicule</b>, les missions sur des solutions 🌊 Fraîcheur paient <b>double</b>. Gardez-en sous le coude pour l'été, les Brigades du climat, c'est vous. ${S.missionsDone}/5 missions.`;
+    if(S.missionsDone===0 && S.missions.length===0) return `Pour démarrer, <b>acceptez une quête</b> qui correspond à vos 2 compétences de départ (🌱 Jardiner, 🔧 Réparer). Elle se résoudra à la prochaine saison.`;
+    if(S.comps.size<3) return `Élargissez vos possibilités : <b>apprenez une compétence</b> (🎓 Compétences, 4🌰). « Mesurer » débloque toutes les quêtes de mesure, très demandées.`;
+    return `Astuce climat : en <b>canicule</b>, les quêtes sur des solutions 🌊 Fraîcheur paient <b>double</b>. Gardez-en sous le coude pour l'été, les Brigades du climat, c'est vous. ${S.missionsDone}/5 quêtes.`;
   }
   // semeur
   if(S.financed.length===0) return `Financez un premier besoin 💶. Contrairement à une subvention classique, <b>l'ICI est installé en même temps</b> : votre Vadité arrive déjà vérifiée.`;
