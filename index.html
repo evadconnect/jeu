@@ -1472,6 +1472,7 @@ const BADGES = {
   essaime:    {ic:'✨', name:'Essaimer validé', how:'Boucle la spirale sur ✨ Essaimer : atteins l’objectif de ton profil (60/100 de Vadité pour le Pilote, 5 missions pour le Bâtisseur, 25 points financés pour le Semeur).'},
   reseau:     {ic:'🔗', name:'Réseau tissé', how:'Publie une annonce sur le Réseau et relie-toi à un Bâtisseur ou à un Semeur.'},
   marche:     {ic:'🛒', name:'Marché animé', how:'Échange tes Graines contre un avantage local sur la Place de marché.'},
+  quetes:     {ic:'📣', name:'Réalisations partagées', how:'Publie tes quêtes de terrain sur le Réseau : le réseau voit ce que ton lieu a vraiment mis en place.'},
   ecocitoyen: {ic:'🌍', name:'Éco-citoyen·ne', how:'Valide 3 preuves d’éco-gestes : mesure-les et fais-les vérifier pour qu’elles deviennent de la Vadité.'},
 };
 
@@ -1552,7 +1553,7 @@ function introStep(n){
     `Enchantée, <b>${nm}</b> 🌱 Tu as vu le décor : des lieux qui font pousser leur territoire, reliés par un réseau. Ici, une seule règle d'or : <b>on ne se paie pas de mots, la confiance se cultive par la preuve</b>. Voyons comment tu vas y prendre part.`,
     `Trois profils font vivre EVAD. Ils jouent le même monde avec les mêmes règles de preuve, chacun à sa façon 🌱`,
     `Chaque projet suit la <b>spirale VADE</b> : quatre phases qui s'enchaînent, puis <b>recommencent un cran plus haut</b>. C'est le cœur d'EVAD.`,
-    `À chaque tour de la boucle, un lieu transforme ses <b>promesses</b> en <b>preuves</b>. Deux mots pour ça : la <b>Vadance</b> 💭, l'impact <b>promis</b> (installé, pas encore mesuré), et la <b>Vadité</b> 🌿, l'impact <b>prouvé</b>, vérifié.<br><br>Leur rapport, l'<b>Indice de Confiance</b> (Vadité ÷ Vadance), mesure à quel point un lieu tient ses promesses : notre garde-fou anti-greenwashing.`,
+    `À chaque tour, un lieu transforme ses <b>promesses</b> en <b>preuves</b>. Deux mots pour ça : la <b>Vadance</b> 💭, l'impact <b>promis</b> (installé, pas encore mesuré), et la <b>Vadité</b> 🌿, l'impact <b>prouvé</b>, vérifié.<br><br>Leur rapport, l'<b>Indice de Confiance</b> (Vadité ÷ Vadance), mesure à quel point un lieu tient ses promesses : notre garde-fou anti-greenwashing.`,
     `Tu es prêt·e ✨ Le mieux pour tout comprendre : incarner les <b>trois profils</b> l'un après l'autre (session de ~30 min). Mais si tu préfères, va directement sur celui qui t'attire :`
   ];
   // Widgets attaches a certaines etapes
@@ -1919,7 +1920,6 @@ const HOWTO = {
       ['📊',`Mesure-les avec un <b>ICI</b>, puis fais valider la preuve par le réseau, un <b>Bâtisseur</b> (terrain) ou un <b>Semeur</b> (financement) : ta Vadance devient <b>Vadité</b>, un impact vérifié sur le terrain, pas seulement annoncé.`],
       ['🔄',`Relie tes espaces en <b>boucles</b> circulaires pour récolter des <b>Graines</b> 🌰 chaque saison.`],
       ['⏳',`Clique <b>« Saison ▸ »</b> en haut pour faire avancer le temps : ça produit, ça rapporte, des aléas surviennent.`],
-      ['🎯',`Suis la <b>mission en cours</b> sous la spirale VADE : elle t'indique quoi faire pour passer à l'étape suivante.`],
     ],
   },
   batisseur: {
@@ -1929,7 +1929,6 @@ const HOWTO = {
       ['📷',`Fournis une <b>preuve</b> : ta Vadance (promesse) se transforme en <b>Vadité</b> (prouvée).`],
       ['🌰',`Gagne des <b>Graines</b> et dépense-les à la <b>Place de marché</b>.`],
       ['🎓',`Monte en <b>compétence</b> pour débloquer des missions à plus fort impact.`],
-      ['🎯',`Suis la <b>mission en cours</b> sous la spirale VADE pour avancer d'étape en étape.`],
     ],
   },
   semeur: {
@@ -1939,7 +1938,6 @@ const HOWTO = {
       ['🌿',`Ta <b>Vadité arrive déjà vérifiée</b> : mesure ton <b>ROEr</b> (Return on Earth), pas juste ton ROI.`],
       ['🏷️',`Une seule saisie couvre tous les langages : <b>ODD, ESRS, PCAET, RSE</b>.`],
       ['⏳',`Fais avancer les <b>saisons</b>, puis produis ton <b>rapport d'impact</b>.`],
-      ['🎯',`Suis la <b>mission en cours</b> sous la spirale VADE pour savoir quoi faire ensuite.`],
     ],
   },
 };
@@ -3675,6 +3673,7 @@ function publishQuests(){
   S.questesPubliees=true; S.questesPublieesSnap=questsSnapshot();
   S.myPosts=qs.map(questToPost); // les posts correspondants apparaissent dans le fil
   S.badges.add('reseau'); markFirstAct('reseau');
+  if(!S.badges.has('quetes')){ S.badges.add('quetes'); setTimeout(()=>toastBadge('quetes'),450); }
   const finies=qs.filter(q=>q.fini).length;
   toast(maj?`🔄 Réalisations mises à jour · ${finies} quête${finies>1?'s':''} accomplie${finies>1?'s':''} 🌿`
            :`🌐 Réalisations publiées ! ${qs.length} post${qs.length>1?'s':''} dans le fil du Réseau 🌿`,'win');
