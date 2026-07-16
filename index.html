@@ -1489,7 +1489,7 @@ function newState(profile){
     tab:'a', devaOpen:false,
     // pilote
     hand:[], spaces:null, sel:null, pcomps:new Set(), lieuName:'La Friche des Possibles', lieuType:'jardin', ob:null, playerName:'', loopsActive:0, loopBadgeShown:false, vadanceBonus:0,
-    lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{}, questesPubliees:false, questesPublieesSnap:'', myPosts:[], biblioTourDone:false, carteTourDone:false, tourDemo:false,
+    lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{}, questesPubliees:false, questesPublieesSnap:'', myPosts:[], biblioTourDone:false, carteTourDone:false, reseauTourDone:false, tourDemo:false,
     pondMode:'egalite', measureCtx:null,
     mktFilter:'all', purchases:[], ecoMissions:{},
     // batisseur
@@ -1665,6 +1665,11 @@ function replayTour(){
   if(S.profile==='pilote' && S.tab==='carte'){
     S.carteTourDone=false;
     carteTour();
+    return;
+  }
+  if(S.tab==='reseau'){
+    S.reseauTourDone=false;
+    reseauTour();
     return;
   }
   S.tourDone=false;
@@ -2136,6 +2141,7 @@ function setupNav(){
 function switchTab(k){ if(!S.tabsSeen) S.tabsSeen=new Set(); S.tabsSeen.add(k); S.tab=k; setupNav(); render();
   if(k==='b' && S.profile==='pilote' && !S.biblioTourDone && !S.tour) setTimeout(()=>biblioTour(), 380);
   if(k==='carte' && S.profile==='pilote' && !S.carteTourDone && !S.lieuPublished && !S.tour) setTimeout(()=>carteTour(), 380);
+  if(k==='reseau' && !S.reseauTourDone && !S.tour) setTimeout(()=>reseauTour(), 380);
 }
 /* Deverrouille un onglet, l'ouvre et laisse Deva l'expliquer (mini visite guidee) */
 const REVEAL_INFO={
@@ -4265,6 +4271,35 @@ function carteTour(){
   S.carteTourDone=true;
   S.carteFilter='tous'; if(S.tab!=='carte'){ S.tab='carte'; } render();
   S.tour={ steps:carteTourSteps(true), i:0 };
+  document.getElementById('tour-overlay').classList.add('on');
+  showTourStep(0);
+}
+/* Visite guidée de l'onglet Réseau : le fil où les trois profils se rencontrent */
+function reseauTourSteps(withNav){
+  const steps=[];
+  if(withNav) steps.push({sel:'.nav-item[data-tab="reseau"]', side:'right', onEnter:()=>{ if(S.tab!=='reseau'){ S.tab='reseau'; render(); } },
+     title:'🌐 Le Réseau EVAD', text:'Voici le <b>Réseau</b> : le fil vivant où les trois profils se rencontrent. Un lieu propose une quête, un Bâtisseur donne un coup de main, un Semeur avance des fonds. Découvrons-le 👇'});
+  if(S.profile==='pilote' && document.querySelector('.mq-card')){
+    steps.push({sel:'.mq-card', side:'bottom', scroll:true, title:'⚔️ Publier mes réalisations',
+      text:'Tes quêtes de terrain, telles que le réseau les verra. En les <b>publiant</b>, tu montres ce que ton lieu met vraiment en place : la preuve concrète qui attire Bâtisseurs et Semeurs 🌿'});
+  } else if(document.querySelector('.rz-offer')){
+    steps.push({sel:'.rz-offer', side:'bottom', scroll:true, title:'🎯 Ta prochaine action',
+      text:S.profile==='batisseur'
+        ? 'Des Pilotes ont ouvert des chantiers près de toi. Rejoins-en un pour agir sur le terrain et gagner des <b>Graines</b> 🌿'
+        : 'Des lieux cherchent un financement. Finance-les : la solution <b>et</b> son indicateur sont déjà posés, ta Vadité arrive vérifiée 🌾'});
+  }
+  steps.push(
+    {sel:'.reseau-filters', side:'bottom', scroll:true, title:'🔎 Filtrer le fil',
+     text:'Affiche tout le monde, ou seulement les <b>🏡 Pilotes</b>, les <b>🌿 Bâtisseurs</b> ou les <b>🌾 Semeurs</b>, selon qui tu cherches.'},
+    {sel:'.reseau-feed .rz-post', side:'left', scroll:true, title:'📣 Le fil d\'activité',
+     text:'Chaque carte est une annonce du réseau, avec le <b>rôle</b> de son auteur et sa <b>phase</b> de spirale. Le bouton en bas te permet de répondre : rejoindre une quête, proposer un créneau, voir un lieu 🌱'});
+  return steps;
+}
+function reseauTour(){
+  if(S.reseauTourDone) return;
+  S.reseauTourDone=true;
+  S.reseauFilter='tous'; if(S.tab!=='reseau'){ S.tab='reseau'; } render();
+  S.tour={ steps:reseauTourSteps(true), i:0 };
   document.getElementById('tour-overlay').classList.add('on');
   showTourStep(0);
 }
