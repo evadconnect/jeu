@@ -1447,7 +1447,10 @@ const BADGES = {
   pari:       {ic:'🎲', name:'Pari d\'innovation gagné', how:'Semeur : finance un besoin marqué « pari » et gagne le rendement bonus (60 % de chances).'},
   triple:     {ic:'🏅', name:'Triple défi', how:'Réussis 3 défis de saison d’affilée, sans en manquer un seul entre-temps.'},
   premiere:   {ic:'🌰', name:'Premier acte posé', how:'Pose ton premier acte dans le jeu : installe une solution, accepte une mission ou finance un besoin.'},
-  essaime:    {ic:'✨', name:'Lieu essaimé', how:'Atteins l’objectif de ton profil (30 points de Vadité pour le Pilote, 5 missions pour le Bâtisseur, 25 points financés pour le Semeur).'},
+  vade_v:     {ic:'🌱', name:'Valoriser validé', how:'Passe la phase 🌱 Valoriser de la spirale : donne une vocation (une activité) à chacun de tes espaces.'},
+  vade_a:     {ic:'⚡', name:'Activer validé', how:'Passe la phase ⚡ Activer : installe des solutions de la Bibliothèque dans tes espaces.'},
+  vade_d:     {ic:'🌐', name:'Développer validé', how:'Passe la phase 🌐 Développer : rejoins le Réseau, publie ta fiche et relie-toi à un Bâtisseur ou un Semeur.'},
+  essaime:    {ic:'✨', name:'Essaimer validé', how:'Boucle la spirale sur ✨ Essaimer : atteins l’objectif de ton profil (30 points de Vadité pour le Pilote, 5 missions pour le Bâtisseur, 25 points financés pour le Semeur).'},
   reseau:     {ic:'🔗', name:'Réseau tissé', how:'Publie une annonce sur le Réseau et relie-toi à un Bâtisseur ou à un Semeur.'},
   marche:     {ic:'🛒', name:'Marché animé', how:'Échange tes Graines contre un avantage local sur la Place de marché.'},
   ecocitoyen: {ic:'🌍', name:'Éco-citoyen·ne', how:'Valide 3 preuves d’éco-gestes : mesure-les et fais-les vérifier pour qu’elles deviennent de la Vadité.'},
@@ -3943,6 +3946,9 @@ function checkVade(){
   if(prog>=goal) phase=3;
   const before=S.vade, beforeCyc=S.vadeCycle||1;
   S.vade=phase; S.vadeCycle=cyc;
+  // Un badge à chaque étape de la spirale validée : atteindre la phase A/D/E prouve que V/A/D est passé.
+  const VADE_BADGE={1:'vade_v', 2:'vade_a', 3:'vade_d'};
+  if(phase>before){ for(let ph=Math.max(1,before+1); ph<=phase; ph++){ const bk=VADE_BADGE[ph]; if(bk && !S.badges.has(bk)){ S.badges.add(bk); (k=>setTimeout(()=>toastBadge(k),450))(bk); } } }
   if(!S.won && cyc>beforeCyc){ setTimeout(()=>toast(`🌀 Spirale bouclée ! On repart de V · Valoriser, un cran plus haut (cycle ${cyc}/3).`,'gold'),200); }
   else if(phase>before){
     if(S.profile==='pilote' && before===0){ setTimeout(()=>devaCoachActiver(),250); }
