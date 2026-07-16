@@ -2224,6 +2224,25 @@ function revealNav(k, title, text, forceDefer, pre){
   if(forceDefer || document.getElementById('modal').classList.contains('open')) PENDING_REVEAL=fire;
   else fire();
 }
+/* Quand chaque espace a une solution : Modélisation + Carte s'ouvrent ensemble, en une seule visite Deva */
+function revealModeleCarte(){
+  if(!S.navUnlocked) return;
+  const newModele=!S.navUnlocked.has('modele'), newCarte=!S.navUnlocked.has('carte');
+  if(!newModele && !newCarte) return;
+  S.navUnlocked.add('modele'); S.navUnlocked.add('carte');
+  setupNav();
+  const steps=[
+    {sel:'#stats', side:'bottom', title:`✨ Ta Vadance : ${round1(curVadance())} ${pts(curVadance())} !`,
+     text:`Chacun de tes espaces accueille une solution 🌿 Ton lieu rayonne avec <b>${round1(curVadance())} ${pts(curVadance())} de Vadance</b> ✨ C'est ton impact <i>promis</i>. Deux nouveaux onglets s'ouvrent 👇`},
+    ...(newModele?[{sel:'.nav-item[data-tab="modele"]', side:'top', title:'🧱 La Modélisation s\'ouvre',
+     text:'Donne corps à ton lieu : pose tes espaces sur un terrain en blocs et regarde tes solutions y pousser. <b>🎯 Objectif : modélise ton hub régénératif.</b>'}]:[]),
+    ...(newCarte?[{sel:'.nav-item[data-tab="carte"]', side:'top', title:'🗺️ Mets ton lieu sur la Carte',
+     text:'Ton lieu mérite d\'être visible dans l\'écosystème. <b>🎯 Objectif : valide ta fiche publique</b> sur la Carte, pour attirer la communauté.'}]:[]),
+  ];
+  const fire=()=>setTimeout(()=>{ S.tour={steps, i:0}; document.getElementById('tour-overlay').classList.add('on'); showTourStep(0); }, 420);
+  if(document.getElementById('modal').classList.contains('open')) PENDING_REVEAL=fire;
+  else fire();
+}
 
 /* ═══════════════ RENDER MASTER ═══════════════ */
 function render(){
@@ -3984,12 +4003,8 @@ function markFirstAct(act){ S.firstActs.add(act);
   // Pilote : les onglets se deverrouillent un par un, quand ils deviennent utiles.
   if(S.profile==='pilote' && S.navUnlocked){
     if(act==='installed'){
-      // La Modélisation s'ouvre dès la première solution installée
-      revealNav('modele', '🧱 La Modélisation s\'ouvre', 'Ta première solution est en place 🌱 Donne corps à ton lieu : pose tes espaces sur un terrain en blocs et regarde tes solutions y pousser. <b>🎯 Objectif : modélise ton hub régénératif.</b>');
-      // La Carte s'ouvre quand chaque espace accueille au moins une solution
-      if(allSpacesEquipped()) revealNav('carte', '🗺️ Mets ton lieu sur la Carte', 'Chacun de tes espaces accueille une solution 🌿 Ton lieu mérite d\'être visible dans l\'écosystème. <b>🎯 Objectif : valide ta fiche publique</b> sur la Carte, pour attirer la communauté.', false,
-        {sel:'#stats', side:'bottom', title:`✨ Ta Vadance : ${round1(curVadance())} ${pts(curVadance())} !`,
-         text:`Ton lieu rayonne déjà avec <b>${round1(curVadance())} ${pts(curVadance())} de Vadance</b> ✨ C'est ton impact <i>promis</i>. Continue d'activer des solutions pour le faire grandir, puis mesure-les pour le transformer en <b>Vadité</b> prouvée.`});
+      // La Modélisation et la Carte s'ouvrent quand chaque espace accueille au moins une solution
+      if(allSpacesEquipped()) revealModeleCarte();
       // Le Réseau s'ouvre quand la Vadance du lieu atteint 70
       if(curVadance()>=70) revealNav('reseau', '🌐 Publie une annonce sur le Réseau', 'Ton lieu atteint déjà <b>'+round1(curVadance())+' de Vadance</b> 🌿 Pour la transformer en <b>Vadité</b> prouvée, il te faut de l\'aide. <b>🎯 Objectif : trouve un Bâtisseur (preuve terrain) et un Semeur (financement)</b> en publiant une annonce sur le Réseau.');
     }
