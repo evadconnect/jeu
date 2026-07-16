@@ -620,6 +620,21 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .rz-offer-t{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem}
 .rz-offer-d{font-size:.88rem;font-weight:700;color:var(--ink);line-height:1.4;margin-bottom:.75rem}
 
+/* ══════════════════ CODE COULEUR PAR CAPITAL ══════════════════ */
+/* La barre dit quel capital la solution alimente vraiment (source : CAP_DE_CAT, le mapping
+   qu'utilise le moteur pour agréger les ICI). Une barre en ::before et non un border-left :
+   .sol-chip.vadance et .vadite surchargent border-color, ils effaceraient la couleur. */
+.cap-eco{--capc:#2d7a4f}
+.cap-social{--capc:#4a6fa5}
+.cap-econo{--capc:#c2714f}
+.cap-eco,.cap-social,.cap-econo{position:relative}
+.cap-eco::before,.cap-social::before,.cap-econo::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:5px;z-index:3;
+  background:var(--capc);border-radius:12px 0 0 12px}
+.cap-legend{display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:.65rem;font-size:.66rem;font-weight:700;color:var(--moss)}
+.cap-legend span{display:inline-flex;align-items:center;gap:.3rem}
+.cap-legend i{width:10px;height:10px;border-radius:3px;display:inline-block;font-style:normal}
+
 /* ══════════════════ CARTES RICHES + DÉTAIL ══════════════════ */
 .card2{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform .16s,box-shadow .16s,border-color .16s;display:flex;flex-direction:column}
 .card2:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:rgba(74,140,92,.4)}
@@ -2430,7 +2445,7 @@ function spaceCard(sp){
       ? `${pr.ic} ${pr.name} (×${pr.coef}) · Δ ${fmtDelta(inst.mesureVal!=null?inst.mesureVal:solDeltaProj(inst))} ${ici.unit} → ${round1(solProof(inst))}/100 de Vadité`
       : `✨ Δ projeté ${fmtDelta(solDeltaProj(inst))} ${ici.unit} · ${round1(solProm(inst))}/100 · ${ici.ic} à mesurer`;
     const stateCol = proven ? 'var(--forest)' : (meas ? 'var(--sky)' : 'var(--amber)');
-    h+=`<div class="sol-chip ${proven?'vadite':'vadance'}">
+    h+=`<div class="sol-chip ${capClass(s.cat)} ${proven?'vadite':'vadance'}">
       ${proven?'<span class="seal">🌿</span>':''}
       <span class="sic">${s.ic}</span>
       <div class="sinfo"><div class="sname">${s.name}${s.quete?`<span class="q-badge ${questComplete(inst.id)?'done':''}" title="Quête : ${escapeHtml(s.quete.titre)}" onclick="event.stopPropagation();openSolutionDetail('${inst.id}')">${questComplete(inst.id)?'✅ Quête accomplie':'⚔️ '+questDone(inst.id)+'/'+questSteps(inst.id).length+' étapes'}</span>`:''}</div>
@@ -2446,6 +2461,8 @@ function spaceCard(sp){
 function pilotBiblio(){
   let h=`<div class="sect-sub">La Bibliothèque complète d'EVAD. Sélectionne une carte, puis place-la dans ton lieu.</div>`;
   h+=`<div style="font-size:.72rem;color:var(--moss);opacity:.8;margin-bottom:.65rem">Installer une solution ne coûte rien : ce sont les <b>Semeurs</b> qui financent la facture, et les <b>Bâtisseurs</b> qui apportent les compétences.</div>`;
+  h+=`<div style="font-size:.72rem;color:var(--moss);opacity:.8;margin-bottom:.35rem">La barre de couleur d'une carte indique le <b>capital</b> qu'elle alimente :</div>`;
+  h+=capLegendHTML();
   {
     h+=`<div class="biblio-row-desc">Installe une solution dans un espace compatible : son <b>indicateur</b> arrive avec elle, et elle produit de la <b>Vadance</b>.</div>`;
     // Filtre par catégorie
@@ -2532,7 +2549,7 @@ function solutionCard(id){
   const s=SOL[id], c=CATS[s.cat];
   const sel=S.sel&&S.sel.type==='solution'&&S.sel.id===id;
   const locked=s.lock&&!S.pcomps.has(s.lock);
-  return `<div class="card2 ${sel?'sel':''} ${locked?'locked':''}" onclick="openSolutionDetail('${id}')">
+  return `<div class="card2 ${capClass(s.cat)} ${sel?'sel':''} ${locked?'locked':''}" onclick="openSolutionDetail('${id}')">
     <div class="c2-media">
       ${svgScene(s.cat, SOL_MOTIF[id])}
       ${s.clim==='fraicheur'?'<span class="c2-flag">🌊 Fraîcheur</span>':''}
@@ -4285,6 +4302,17 @@ function solProof(inst){ // la preuve, décotée selon l'échelle de preuve
   return iciNorm(obs, inst.ici||s.ici) * preuveCoef(inst);
 }
 const CAP_DE_CAT={eau:'eco',energie:'eco',alimentaire:'eco',biodiversite:'eco',construction:'eco',social:'social',dechets:'econo',economie:'econo'};
+const CAP_META={
+  eco:   {ic:'🌿', name:'Écologie',        color:'#2d7a4f'},
+  social:{ic:'🤝', name:'Social',          color:'#4a6fa5'},
+  econo: {ic:'🪙', name:'Économie locale', color:'#c2714f'},
+};
+function capOf(cat){ return CAP_DE_CAT[cat]||'eco'; }
+function capClass(cat){ return 'cap-'+capOf(cat); }
+function capLegendHTML(){
+  return `<div class="cap-legend">${Object.values(CAP_META).map(c=>
+    `<span><i style="background:${c.color}"></i>${c.ic} ${c.name}</span>`).join('')}</div>`;
+}
 function pilotCapitals(){ // moyenne des sous-scores normalisés, jamais une somme
   const cap={eco:{prom:0,proof:0,n:0}, social:{prom:0,proof:0,n:0}, econo:{prom:0,proof:0,n:0}};
   (S.spaces||[]).forEach(sp=>(sp.sols||[]).forEach(inst=>{
