@@ -3438,12 +3438,6 @@ function dashHTML(opts){
       <div style="font-size:.72rem;color:var(--moss);opacity:.88;line-height:1.5"><b>${vf} points de Vadité vérifiée</b> pour ${invest} € investis, soit <b>${roer} points pour 100 €</b>. La preuve fidélise : ta Vadité financée renouvelle ton budget chaque saison. Investir dans le prouvé, c'est un actif, pas une charge.</div>
     </div>`;
   }
-  // saison / VADE
-  const sz=SEASONS[S.seasonIdx%4], yr=2030+Math.floor(S.seasonIdx/4);
-  h+=`<div class="card" style="padding:1rem;margin-bottom:1rem">
-    <div style="font-size:.82rem;font-weight:800;margin-bottom:.4rem">${sz.ic} ${sz.name} ${yr} · Phase VADE : <span style="color:${VADE[S.vade].color}">${VADE[S.vade].k} · ${VADE[S.vade].label}</span></div>
-    <div style="font-size:.74rem;color:var(--moss);opacity:.85;line-height:1.5">${VADE[S.vade].desc.charAt(0).toUpperCase()+VADE[S.vade].desc.slice(1)}. Cliquez « Saison ▸ » en haut pour faire avancer le temps : vos espaces produisent, les revenus tombent, les aléas arrivent.</div>
-  </div>`;
   // badges
   if(!(opts&&opts.noBadges)) h+=badgesHTML();
   // rapport semeur
