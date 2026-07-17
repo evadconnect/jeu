@@ -2459,27 +2459,6 @@ function revealNav(k, title, text, forceDefer, pre){
   if(forceDefer || document.getElementById('modal').classList.contains('open')) PENDING_REVEAL=fire;
   else fire();
 }
-/* Plusieurs onglets ouverts d'un coup : une seule visite enchaînée.
-   (S.tour est unique : deux devaReveal simultanés s'écraseraient, et une bulle serait perdue.) */
-function revealNavs(list){
-  if(!S.navUnlocked) return;
-  const news=(list||[]).filter(x=>x && !S.navUnlocked.has(x.k));
-  if(!news.length) return;
-  news.forEach(x=>S.navUnlocked.add(x.k));
-  setupNav();
-  const steps=[];
-  news.forEach(x=>{
-    if(x.pre) steps.push(x.pre);
-    steps.push({sel:`.nav-item[data-tab="${x.k}"]`, side:'top', title:x.title, text:x.text});
-  });
-  const fire=()=>setTimeout(()=>{
-    S.tour={steps, i:0};
-    document.getElementById('tour-overlay').classList.add('on');
-    showTourStep(0);
-  }, 420);
-  if(document.getElementById('modal').classList.contains('open')) PENDING_REVEAL=fire;
-  else fire();
-}
 
 /* ═══════════════ RENDER MASTER ═══════════════ */
 function render(){
@@ -3687,9 +3666,13 @@ function devaCoachDevelopper(){
   showTourStep(0);
 }
 function devaCoachPublie(){
-  S.tour={ steps:[
+  const steps=[
     {sel:'#deva-pill', side:'top', title:'🎉 Ta fiche est publiée !', text:`« <b>${escapeHtml(S.lieuName||'Ton lieu')}</b> » est désormais visible par tout le réseau 🌿 Je t'ouvre le <b>Réseau</b> : c'est là que Bâtisseurs et Semeurs vont te trouver.`},
-  ], i:0 };
+  ];
+  // Publier ouvre le Réseau : on enchaîne sa visite ici, sinon elle écraserait la bulle ci-dessus
+  // (switchTab la programme avant que ce tour n'existe). Le drapeau bloque son propre déclenchement.
+  if(!S.reseauTourDone){ S.reseauTourDone=true; steps.push(...reseauTourSteps(false)); }
+  S.tour={ steps, i:0 };
   document.getElementById('tour-overlay').classList.add('on');
   showTourStep(0);
 }
@@ -4342,49 +4325,45 @@ function allSpacesEquipped(){
   const mine=(S.spaces||[]).filter(sp=>!sp.existant);
   return mine.length>0 && mine.every(sp=>Array.isArray(sp.sols) && sp.sols.length>0);
 }
-/* Les impacts encore sous le plancher de Vadance (non-compensation) : [{k,label,val}] */
+/* Vadance à couvrir sur chacun des 3 impacts pour que la Modélisation s'ouvre */
+const CAP_MODELE=80;
 const CAP_LABEL={eco:'🌿 Écologie', social:'🤝 Social', econo:'🪙 Économie locale'};
-function capitauxFaibles(){
-  const c=pilotCapitals();
+/* Les impacts encore sous un seuil de Vadance : [{k,label,val}] */
+function capitauxFaibles(seuil){
+  const s=(seuil==null?CAP_MODELE:seuil), c=pilotCapitals();
   return [['eco',c.eco.prom],['social',c.social.prom],['econo',c.econo.prom]]
-    .filter(x=>x[1]<PLANCHER_CAPITAL)
+    .filter(x=>x[1]<s)
     .map(x=>({k:x[0], label:CAP_LABEL[x[0]], val:round1(x[1])}));
 }
-/* Deva : viser PLANCHER_CAPITAL de Vadance sur chacun des 3 impacts (condition d'ouverture de la Modélisation) */
+/* Deva : viser CAP_MODELE de Vadance sur chacun des 3 impacts (condition d'ouverture de la Modélisation) */
 function devaCoachCapitaux(){
   S.capCoachShown=true;
   const faibles=capitauxFaibles();
   if(!faibles.length) return;
-  const liste=faibles.map(f=>`<b>${f.label}</b> (${f.val}/${PLANCHER_CAPITAL})`).join(' et ');
+  const liste=faibles.map(f=>`<b>${f.label}</b> (${f.val}/${CAP_MODELE})`).join(faibles.length>2?', ':' et ');
   const plur=faibles.length>1;
+  // Le plancher de non-compensation est une règle à part : on ne la rappelle que si elle mord vraiment
+  const plafond=capitauxFaibles(PLANCHER_CAPITAL).length
+    ? ` Tant qu'un impact reste sous <b>${PLANCHER_CAPITAL}</b>, ta Vadance plafonne : aucun impact n'en compense un autre.`
+    : '';
   devaReveal('#stats', `✨ Ta Vadance : ${round1(curVadance())} ${pts(curVadance())} !`,
-    `Tes solutions font surtout grandir un seul impact 🌿 Or ton lieu tient sur <b>trois jambes</b> : 🌿 Écologie, 🤝 Social et 🪙 Économie locale. Tant qu'un impact reste sous <b>${PLANCHER_CAPITAL}</b>, ta Vadance plafonne : aucun impact n'en compense un autre.<br><br>Il te manque ${liste}. <b>🎯 Objectif : atteins ${PLANCHER_CAPITAL} de Vadance sur chacun des 3 impacts</b> en installant des solutions de ce${plur?'s':''} type${plur?'s':''}. La <b>🧱 Modélisation</b> s'ouvrira alors.`);
+    `Ton lieu tient sur <b>trois jambes</b> : 🌿 Écologie, 🤝 Social et 🪙 Économie locale.${plafond}<br><br>Il te manque ${liste}. <b>🎯 Objectif : couvre ${CAP_MODELE} de Vadance sur chacun des 3 impacts</b> en installant des solutions de ce${plur?'s':''} type${plur?'s':''}. La <b>🧱 Modélisation</b> s'ouvrira alors.`);
 }
 function markFirstAct(act){ S.firstActs.add(act);
   if(!S.badges.has('premiere')){ S.badges.add('premiere'); setTimeout(()=>toastBadge('premiere'),400); }
   // Pilote : les onglets se deverrouillent un par un, quand ils deviennent utiles.
   if(S.profile==='pilote' && S.navUnlocked){
     if(act==='installed'){
-      const ouvertures=[];
-      // La Modélisation s'ouvre quand les 3 impacts atteignent le plancher de Vadance
-      // (la Carte suivra, une fois tous les espaces posés sur le terrain de la Modélisation)
+      // La Modélisation s'ouvre quand la Vadance couvre CAP_MODELE sur chacun des 3 impacts.
+      // Elle s'ouvre seule : la Carte suivra une fois le lieu modélisé, puis le Réseau à la publication de la fiche.
       if(capitauxFaibles().length===0){
-        ouvertures.push({k:'modele',
-          title:'🧱 La Modélisation s\'ouvre',
-          text:'Donne corps à ton lieu : pose tes espaces sur un terrain en blocs et regarde tes solutions y pousser. <b>🎯 Objectif : modélise ton lieu d’impact</b>, la Carte s\'ouvrira ensuite.',
-          pre:{sel:'#stats', side:'bottom', title:`✨ Ta Vadance : ${round1(curVadance())} ${pts(curVadance())} !`,
-            text:`Tes 3 impacts dépassent ${PLANCHER_CAPITAL} 🌿 Ton lieu rayonne avec <b>${round1(curVadance())} ${pts(curVadance())} de Vadance</b> ✨ C'est ton impact <i>promis</i>, et il tient debout sur ses trois jambes.`}});
+        revealNav('modele', '🧱 La Modélisation s\'ouvre',
+          'Donne corps à ton lieu : pose tes espaces sur un terrain en blocs et regarde tes solutions y pousser. <b>🎯 Objectif : modélise ton lieu d’impact</b>, la Carte s\'ouvrira ensuite.', false,
+          {sel:'#stats', side:'bottom', title:`✨ Ta Vadance : ${round1(curVadance())} ${pts(curVadance())} !`,
+           text:`Tes 3 impacts couvrent chacun plus de ${CAP_MODELE} 🌿 Ton lieu rayonne avec <b>${round1(curVadance())} ${pts(curVadance())} de Vadance</b> ✨ C'est ton impact <i>promis</i>, et il tient debout sur ses trois jambes.`});
       }
-      // Sinon, Deva explique l'objectif : le plancher de Vadance sur chacun des 3 impacts
+      // Sinon, Deva explique l'objectif : CAP_MODELE de Vadance sur chacun des 3 impacts
       else if(!S.capCoachShown && allSpacesEquipped()) devaCoachCapitaux();
-      // Le Réseau s'ouvre quand la Vadance du lieu atteint 70. Il peut tomber en même temps que la
-      // Modélisation : lever le plafond de non-compensation fait bondir la Vadance d'un coup.
-      if(curVadance()>=70){
-        ouvertures.push({k:'reseau',
-          title:'🌐 Publie une annonce sur le Réseau',
-          text:'Ton lieu atteint déjà <b>'+round1(curVadance())+' de Vadance</b> 🌿 Pour la transformer en <b>Vadité</b> prouvée, il te faut de l\'aide. <b>🎯 Objectif : trouve un Bâtisseur (preuve terrain) et un Semeur (financement)</b> en publiant une annonce sur le Réseau.'});
-      }
-      revealNavs(ouvertures);
     }
   }
   // Bâtisseur : même mécanique, les onglets s'ouvrent au fil des premières actions.
