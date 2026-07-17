@@ -765,22 +765,40 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .mtile{fill:transparent;cursor:pointer}
 .mtile:hover{fill:rgba(240,200,74,.42)}
 /* ── Plan du terrain : grille plate 12×10, peinte au clic/glissé ── */
-/* Terrain 3D : la grille est inclinée en perspective (table de jeu), les cases peintes
-   deviennent des blocs surélevés, et les icônes se redressent face à la caméra. */
-.ter-wrap{background:linear-gradient(180deg,#dcedf7 0%,#e7f5ec 58%);border:1px solid var(--line);border-radius:var(--r-lg);padding:1.5rem .7rem 1.2rem;box-shadow:var(--shadow);perspective:780px;perspective-origin:50% 40%;overflow:hidden}
-.ter-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:2px;max-width:352px;margin:0 auto;
-  transform:rotateX(52deg);transform-style:preserve-3d;transform-origin:50% 60%;
+/* Terrain 3D façon Luanti : une île-voxel en perspective. Chaque case peinte est un vrai bloc
+   avec ses faces (dessus éclairé, parois avant et droite plus sombres), l'île a un socle et une
+   falaise de terre, le sol est un damier d'herbe, chemins et mares se posent au sol. */
+.ter-wrap{background:linear-gradient(180deg,#cfe6f4 0%,#e7f5ec 62%);border:1px solid var(--line);border-radius:var(--r-lg);padding:1.6rem .8rem 1.7rem;box-shadow:var(--shadow);perspective:820px;perspective-origin:50% 34%;overflow:hidden}
+.ter-grid{position:relative;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:2px;max-width:352px;margin:0 auto 16px;
+  transform:rotateX(54deg);transform-style:preserve-3d;transform-origin:50% 62%;
   touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
-.ter-cell{aspect-ratio:1;border-radius:3px;background:#d7ead0;--h:0px;
+/* socle de l'île, puis falaise de terre sous le bord avant */
+.ter-grid::before{content:'';position:absolute;inset:-8px;transform:translateZ(-14px);border-radius:12px;
+  background:linear-gradient(180deg,#b9d5ab,#9dbf90);box-shadow:0 28px 36px -14px rgba(13,43,34,.5)}
+.ter-grid::after{content:'';position:absolute;left:-8px;right:-8px;top:calc(100% + 8px);height:15px;
+  transform-origin:top;transform:rotateX(-90deg);border-radius:0 0 12px 12px;
+  background:linear-gradient(180deg,#a5814f 0%,#7c5f38 80%)}
+.ter-cell{position:relative;aspect-ratio:1;border-radius:2px;--h:0px;--c:#d8ebd1;background:var(--c);
   transform:translateZ(var(--h));transform-style:preserve-3d;
-  box-shadow:inset 0 0 0 1px rgba(13,43,34,.06);
+  box-shadow:inset 0 0 0 1px rgba(13,43,34,.05);
   display:flex;align-items:center;justify-content:center;font-size:.72rem;line-height:1;
   transition:transform .14s,background .12s,box-shadow .12s}
-.ter-cell.fill{--h:15px;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 0 0 1px rgba(13,43,34,.14),0 12px 13px -5px rgba(13,43,34,.5)}
-.ter-cell.tall{--h:32px}
-.tc-ic{display:inline-block;transform:rotateX(-52deg) scale(1.22);transform-origin:50% 88%;pointer-events:none;filter:drop-shadow(0 1.5px 1px rgba(0,0,0,.28))}
+.ter-cell.alt{--c:#cfe4c6}
+/* bloc-voxel : dessus éclairé + parois avant et droite taillées dans la couleur de l'espace */
+.ter-cell.fill{--h:16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 1px 0 0 rgba(255,255,255,.28),inset 0 0 0 1px rgba(13,43,34,.14)}
+.ter-cell.tall{--h:30px}
+.ter-cell.fill::before{content:'';position:absolute;left:0;right:0;top:100%;height:var(--h);
+  transform-origin:top;transform:rotateX(-90deg);pointer-events:none;
+  background:linear-gradient(0deg,var(--cd2,#86a87a),var(--cd,#9dbf90) 70%)}
+.ter-cell.fill::after{content:'';position:absolute;top:0;bottom:0;left:100%;width:var(--h);
+  transform-origin:left;transform:rotateY(90deg);pointer-events:none;
+  background:var(--cd2,#86a87a)}
+/* décor au sol : chemin de sable, mare en creux */
+.ter-cell.deco-chemin{--c:#e8d7ab;box-shadow:inset 0 0 0 1px rgba(13,43,34,.1),inset 0 -1px 0 rgba(255,255,255,.4)}
+.ter-cell.deco-eau{--c:#8fc9e6;--h:-4px;box-shadow:inset 0 2px 4px rgba(13,43,34,.28)}
+.tc-ic{display:inline-block;transform:rotateX(-54deg) scale(1.25);transform-origin:50% 90%;pointer-events:none;filter:drop-shadow(0 2px 1.5px rgba(0,0,0,.3))}
 .ter-grid.live .ter-cell{cursor:pointer}
-.ter-grid.live .ter-cell:hover{transform:translateZ(calc(var(--h) + 9px));box-shadow:inset 0 0 0 1px rgba(13,43,34,.34),0 15px 16px -5px rgba(13,43,34,.5)}
+.ter-grid.live .ter-cell:hover{transform:translateZ(calc(var(--h) + 8px));box-shadow:inset 0 0 0 1px rgba(13,43,34,.34)}
 .ter-grid.ro{pointer-events:none}
 .ter-legend{margin-top:.7rem;display:flex;flex-direction:column;gap:.22rem}
 .ter-leg{display:flex;align-items:center;gap:.4rem;font-size:.66rem;color:var(--moss)}
@@ -4049,9 +4067,14 @@ function terrainGridHTML(live){
   for(let i=0;i<TER_CELLS;i++){
     const v=g[i], sp=v>=0?S.spaces[v]:null;
     const d=deco.get(i);
-    const ic = sp ? (first.get(v)===i?sp.ic:'') : (d&&MODEL_DECO[d]?MODEL_DECO[d].ic:'');
-    const cls = 'ter-cell'+(sp?' fill'+((sp.sols||[]).length?' tall':''):'');
-    h+=`<div class="${cls}" data-i="${i}"${sp?` style="background:${spaceColor(v)}"`:''}>${ic?`<span class="tc-ic">${ic}</span>`:''}</div>`;
+    // chemin et mare se dessinent au sol (couleur de case), les autres décors restent des icônes debout
+    const ic = sp ? (first.get(v)===i?sp.ic:'') : ((d&&MODEL_DECO[d]&&d!=='chemin'&&d!=='eau')?MODEL_DECO[d].ic:'');
+    let cls='ter-cell'+((((i%TER_COLS)+((i/TER_COLS)|0))%2)?' alt':'');
+    if(sp) cls+=' fill'+((sp.sols||[]).length?' tall':'');
+    else if(d==='chemin') cls+=' deco-chemin';
+    else if(d==='eau') cls+=' deco-eau';
+    const style = sp?` style="--c:${spaceColor(v)};--cd:${spaceColor(v,62)};--cd2:${spaceColor(v,48)}"`:'';
+    h+=`<div class="${cls}" data-i="${i}"${style}>${ic?`<span class="tc-ic">${ic}</span>`:''}</div>`;
   }
   return `<div class="ter-grid ${live?'live':'ro'}">${h}</div>`;
 }
@@ -4083,7 +4106,10 @@ function terrainPaint(i){
   if(cell){ const sp=v>=0?S.spaces[v]:null;
     cell.classList.toggle('fill', !!sp);
     cell.classList.toggle('tall', !!(sp && (sp.sols||[]).length));
-    cell.style.background=sp?spaceColor(v):''; cell.textContent=''; }
+    cell.classList.remove('deco-chemin','deco-eau');
+    if(sp){ cell.style.setProperty('--c',spaceColor(v)); cell.style.setProperty('--cd',spaceColor(v,62)); cell.style.setProperty('--cd2',spaceColor(v,48)); }
+    else { cell.style.removeProperty('--c'); cell.style.removeProperty('--cd'); cell.style.removeProperty('--cd2'); }
+    cell.textContent=''; }
 }
 /* Fin du geste : c'est là qu'on recalcule les boucles et qu'on rend la main au rendu complet. */
 function terrainStrokeEnd(){
