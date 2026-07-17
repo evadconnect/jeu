@@ -227,9 +227,12 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .vade-step.done .vade-dot{opacity:.85}
 .vade-arrow{color:#c3d6cd;font-size:.7rem;flex-shrink:0}
 .vade-cycle{font-size:.62rem;font-weight:800;color:var(--lavender);background:rgba(122,110,168,.14);border-radius:100px;padding:.22rem .55rem;margin-right:.3rem;flex-shrink:0;white-space:nowrap}
-.vade-sep{width:1px;height:22px;background:var(--line);flex-shrink:0;margin:0 .35rem}
 .vade-mission{font-size:.66rem;font-weight:700;color:var(--moss);background:rgba(1,130,98,.07);border:1px solid rgba(1,130,98,.16);border-radius:100px;padding:.3rem .75rem;flex-shrink:0;white-space:nowrap;line-height:1.2}
 .vade-mission b{color:var(--forest)}
+/* L'action en cours passe à la ligne : elle se lit sous la spirale, pas à côté */
+.vade-mission-row{flex-basis:100%;display:flex;margin-top:.1rem}
+.vade-go{margin-left:.5rem;border:none;background:var(--forest);color:#fff;border-radius:100px;padding:.16rem .5rem;font-size:.6rem;font-weight:800;cursor:pointer;font-family:var(--font);flex-shrink:0}
+.vade-go:hover{background:var(--moss)}
 
 /* ─── Responsive : sidebar → rail d'icônes ─── */
 @media(max-width:820px){
@@ -2533,7 +2536,7 @@ function renderTopbar(){
       <div class="vade-dot" style="background:${bg}">${v.k}</div>
       <div class="vt">${v.label}</div>
     </div>${i<3?'<span class="vade-arrow">➜</span>':''}`;
-  }).join('');
+  }).join('') + vadeNextMission();
 }
 
 /* ═══════════════ PILOTE, Mon lieu ═══════════════ */
@@ -4495,16 +4498,35 @@ function addVadance(delta){
 }
 /* Spirale VADE cyclique : chaque cycle enchaîne V→A→D→E ; en atteignant le palier du cycle,
    on repart de V « un cran plus haut » (cycle N+1). 3 cycles jusqu'à l'objectif. */
+/* Pilote : l'action concrète du moment, dans l'ordre où la partie se déroule.
+   Les 4 phases VADE sont trop larges pour ça (publier sa fiche tombe au milieu d'Activer),
+   alors on lit l'état réel. Renvoie {txt, tab} — tab = l'onglet où faire le geste. */
+function pilotNextAction(){
+  const mine=(S.spaces||[]).filter(sp=>!sp.existant);
+  if(!mine.length) return {txt:`Aménage un premier <b>espace</b> dans ton lieu`, tab:'a'};
+  if(mine.some(sp=>!(sp.activities||[]).length)) return {txt:`Choisis une <b>activité</b> pour chacun de tes espaces`, tab:'a'};
+  const faibles=capitauxFaibles();
+  if(faibles.length) return {txt:`Installe des <b>solutions</b> : couvre ${CAP_MODELE} de Vadance sur ${faibles.length>1?'les 3 impacts':`<b>${faibles[0].label}</b>`}`, tab:'b'};
+  const m=S.model;
+  if(!m || mine.some(sp=>!m.placed[sp.id])) return {txt:`<b>Pose tes espaces</b> sur le terrain de la Modélisation`, tab:'modele'};
+  // Les boucles restées ouvertes ne bloquent pas la chaîne : toutes ne peuvent pas se toucher.
+  // On les signale seulement une fois le fil principal déroulé (« Mon lieu » les détaille déjà).
+  if(!S.lieuPublished) return {txt:`<b>Publie ta fiche</b> sur la Carte pour rejoindre l'écosystème`, tab:'carte'};
+  if(!S.questesPubliees) return {txt:`<b>Publie tes quêtes</b> sur le Réseau : montre ce que ton lieu met en place`, tab:'reseau'};
+  if(!hasExternalProof()) return {txt:`<b>Fais vérifier une mesure</b> par un Bâtisseur ou un Semeur`, tab:'reseau'};
+  return {txt:`<b>Mesure et fais prouver</b> tes solutions : ${round1(curVadite())}/${PROFILS.pilote.goal} de Vadité`, tab:'a'};
+}
 function vadeNextMission(){
   if(!S) return '';
   const phase=S.vade;
-  if(S.won) return `<span class="vade-sep"></span><span class="vade-mission" style="border-color:rgba(1,130,98,.32)">🌳 <b>Spirale accomplie</b> · un cran plus haut</span>`;
+  if(S.won) return `<div class="vade-mission-row"><span class="vade-mission" style="border-color:rgba(1,130,98,.32)">🌳 <b>Spirale accomplie</b> · un cran plus haut</span></div>`;
   const mission=(VADE_MISSIONS[S.profile]||VADE_MISSIONS.pilote)[phase]||'';
-  // Pilote : progression par action (pas par paliers de Vadité)
+  // Pilote : l'action en cours plutôt que la phase, et un raccourci vers le bon onglet
   if(S.profile==='pilote'){
-    const next = phase<3 ? VADE[phase+1] : VADE[0];
-    const tail = phase<3 ? `puis <b>${next.k} · ${next.label}</b>` : `la spirale relance <b>un cran plus haut</b> 🌀`;
-    return `<span class="vade-sep"></span><span class="vade-mission">🎯 ${mission} · ${tail}</span>`;
+    const a=pilotNextAction();
+    const go = (S.navUnlocked && S.navUnlocked.has(a.tab) && S.tab!==a.tab)
+      ? `<button class="vade-go" onclick="switchTab('${a.tab}')">y aller →</button>` : '';
+    return `<div class="vade-mission-row"><span class="vade-mission">🎯 ${a.txt}${go}</span></div>`;
   }
   const goal=PROFILS[S.profile].goal, seg=goal/3, prog=progressValue();
   const cyc=S.vadeCycle||1, base=(cyc-1)*seg;
@@ -4524,7 +4546,7 @@ function vadeNextMission(){
   } else {
     tail = loop?`<b>prêt à reboucler vers V ✨</b>`:`<b>presque à ${nextV.k} · ${nextV.label} ✨</b>`;
   }
-  return `<span class="vade-sep"></span><span class="vade-mission">🎯 ${mission} · ${tail}</span>`;
+  return `<div class="vade-mission-row"><span class="vade-mission">🎯 ${mission} · ${tail}</span></div>`;
 }
 /* Pilote : la phase reflète l'action en cours dans la boucle
    V personnaliser les espaces → A installer des solutions → D attirer Bâtisseur/Semeur → E valider les preuves */
