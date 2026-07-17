@@ -1720,23 +1720,28 @@ function fluxLoops(ids){
 }
 
 /* ---------- Badges ---------- */
+/* Classés par ordre d'obtention : la grille des Récompenses suit cet ordre et se lit comme une feuille de route. */
 const BADGES = {
-  fraicheur:  {ic:'🌊', name:'Gardien de la fraîcheur', how:'Installe une solution 🌊 Fraîcheur (récupérateur d’eau, mur végétal, ombrière, phytoépuration), puis traverse une canicule : ton lieu devient un îlot de fraîcheur.'},
-  eco:        {ic:'🌳', name:'Écosystème vivant', how:'Tisse 4 boucles circulaires : installe des solutions dont l’une produit ce qu’une autre consomme (biodéchets, eau, compost…).'},
-  foret:      {ic:'🌲', name:'Forêt nourricière', how:'Pousse jusqu’à 7 boucles circulaires entre tes solutions. Ta Vadité est alors multipliée par 2.'},
-  brigade:    {ic:'🚒', name:'Brigades du climat', how:'Bâtisseur : accomplis une quête sur une solution 🌊 Fraîcheur pendant une saison de canicule (elle paie double).'},
-  pari:       {ic:'🎲', name:'Pari d\'innovation gagné', how:'Semeur : finance un besoin marqué « pari » et gagne le rendement bonus (60 % de chances).'},
-  triple:     {ic:'🏅', name:'Triple défi', how:'Réussis 3 défis de saison d’affilée, sans en manquer un seul entre-temps.'},
+  // Le fil de la partie, dans l'ordre où on le déroule
   premiere:   {ic:'🌰', name:'Premier acte posé', how:'Pose ton premier acte dans le jeu : installe une solution, accepte une quête ou finance un besoin.'},
   vade_v:     {ic:'🌱', name:'Valoriser validé', how:'Passe la phase 🌱 Valoriser de la spirale : donne une vocation (une activité) à chacun de tes espaces.'},
   vade_a:     {ic:'⚡', name:'Activer validé', how:'Passe la phase ⚡ Activer : installe des solutions de la Bibliothèque dans tes espaces.'},
-  vade_d:     {ic:'🌐', name:'Développer validé', how:'Passe la phase 🌐 Développer : rejoins le Réseau, publie ta fiche et relie-toi à un Bâtisseur ou un Semeur.'},
-  essaime:    {ic:'✨', name:'Essaimer validé', how:'Boucle la spirale sur ✨ Essaimer : atteins l’objectif de ton profil (60/100 de Vadité pour le Pilote, 5 quêtes pour le Bâtisseur, 25 points financés pour le Semeur).'},
-  reseau:     {ic:'🔗', name:'Réseau tissé', how:'Publie une annonce sur le Réseau et relie-toi à un Bâtisseur ou à un Semeur.'},
-  marche:     {ic:'🛒', name:'Marché animé', how:'Échange tes Graines contre un avantage local sur la Place de marché.'},
-  quetes:     {ic:'📣', name:'Réalisations partagées', how:'Publie tes quêtes de terrain sur le Réseau : le réseau voit ce que ton lieu a vraiment mis en place.'},
+  eco:        {ic:'🌳', name:'Écosystème vivant', how:'Tisse 4 boucles circulaires : installe des solutions dont l’une produit ce qu’une autre consomme (biodéchets, eau, compost…).'},
+  foret:      {ic:'🌲', name:'Forêt nourricière', how:'Pousse jusqu’à 7 boucles circulaires entre tes solutions. Ta Vadité est alors multipliée par 2.'},
   modele:     {ic:'🧱', name:'Lieu modélisé', how:'Donne corps à ton lieu : pose chacun de tes espaces sur le terrain de la 🧱 Modélisation.'},
+  vade_d:     {ic:'🌐', name:'Développer validé', how:'Passe la phase 🌐 Développer : rejoins le Réseau, publie ta fiche et relie-toi à un Bâtisseur ou un Semeur.'},
+  reseau:     {ic:'🔗', name:'Réseau tissé', how:'Publie une annonce sur le Réseau et relie-toi à un Bâtisseur ou à un Semeur.'},
+  quetes:     {ic:'📣', name:'Réalisations partagées', how:'Publie tes quêtes de terrain sur le Réseau : le réseau voit ce que ton lieu a vraiment mis en place.'},
+  marche:     {ic:'🛒', name:'Marché animé', how:'Fais vivre la Place de marché : dépose une annonce avec ce que tes espaces produisent, ou échange tes Graines contre un avantage local.'},
+  // Au fil des saisons, quand l'occasion se présente
+  fraicheur:  {ic:'🌊', name:'Gardien de la fraîcheur', how:'Installe une solution 🌊 Fraîcheur (récupérateur d’eau, mur végétal, ombrière, phytoépuration), puis traverse une canicule : ton lieu devient un îlot de fraîcheur.'},
+  triple:     {ic:'🏅', name:'Triple défi', how:'Réussis 3 défis de saison d’affilée, sans en manquer un seul entre-temps.'},
   ecocitoyen: {ic:'🌍', name:'Éco-citoyen·ne', how:'Valide 3 preuves d’éco-gestes : mesure-les et fais-les vérifier pour qu’elles deviennent de la Vadité.'},
+  // Propres à un profil
+  brigade:    {ic:'🚒', name:'Brigades du climat', how:'Bâtisseur : accomplis une quête sur une solution 🌊 Fraîcheur pendant une saison de canicule (elle paie double).'},
+  pari:       {ic:'🎲', name:'Pari d\'innovation gagné', how:'Semeur : finance un besoin marqué « pari » et gagne le rendement bonus (60 % de chances).'},
+  // La ligne d'arrivée
+  essaime:    {ic:'✨', name:'Essaimer validé', how:'Boucle la spirale sur ✨ Essaimer : atteins l’objectif de ton profil (60/100 de Vadité pour le Pilote, 5 quêtes pour le Bâtisseur, 25 points financés pour le Semeur).'},
 };
 
 /* ═══════════════ ÉTAT ═══════════════ */
@@ -3408,10 +3413,8 @@ function badgeTip(k){
 function badgesHTML(){
   let h=`<div class="sect-title" style="font-size:1rem">🏅 Badges · ${S.badges.size}/${Object.keys(BADGES).length}</div>
     <div class="badges-grid">`;
-  // Ordre d'obtention : les badges déjà gagnés d'abord (dans l'ordre où ils l'ont été), puis les verrouillés.
-  const gained=[...S.badges].filter(k=>BADGES[k]);
-  const locked=Object.keys(BADGES).filter(k=>!S.badges.has(k));
-  [...gained, ...locked].forEach(k=>{
+  // Ordre d'obtention (celui de BADGES) : gagnés et verrouillés mêlés, la grille se lit comme une feuille de route.
+  Object.keys(BADGES).forEach(k=>{
     const b=BADGES[k]; const got=S.badges.has(k);
     const tip=got?'✅ Débloqué ! '+b.how:'🔒 Comment l’obtenir : '+b.how;
     h+=`<div class="badge ${got?'got':''}" tabindex="0" onclick="badgeTip('${k}')">
