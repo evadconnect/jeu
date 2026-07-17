@@ -629,7 +629,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .cap-legend i{width:10px;height:10px;border-radius:3px;display:inline-block;font-style:normal}
 
 /* Résumé des trois capitaux d'un espace : une ligne par capital, discret. */
-.sp-caps{margin-top:.55rem;padding-top:.5rem;border-top:1px dashed rgba(1,130,98,.14);display:flex;flex-direction:column;gap:.28rem}
+.sp-caps{margin:.55rem 0;padding:.5rem 0;border-top:1px dashed rgba(1,130,98,.14);border-bottom:1px dashed rgba(1,130,98,.14);display:flex;flex-direction:column;gap:.28rem}
 .sp-cap-row{display:flex;align-items:center;gap:.42rem;font-size:.62rem;line-height:1.3}
 .sp-cap-ic{font-size:.72rem;flex-shrink:0}
 .sp-cap-bar{flex:0 0 58px;height:4px;border-radius:100px;background:rgba(1,130,98,.1);overflow:hidden}
@@ -2636,6 +2636,7 @@ function spaceCard(sp){
       ${!sp.existant?`<button class="sp-edit" title="Renommer" onclick="event.stopPropagation();renameSpace('${sp.id}')">✏️</button>`:''}
       ${(!sp.existant&&sp.sols.length===0)?`<button class="sp-edit" title="Retirer cet espace" onclick="event.stopPropagation();removeSpace('${sp.id}')">✕</button>`:''}
     </div>`;
+  if(!sp.existant) h+=spaceCapSummary(sp);
   if(!sp.existant){
     h+= chosen
       ? `<div class="sp-acts">${sp.activities.map(a=>`<span class="sp-act-chip">${escapeHtml(a)}</span>`).join('')}<button class="sp-act-edit" title="Modifier les activités" onclick="event.stopPropagation();openActivitiesModal('${sp.id}')">✏️</button></div>`
@@ -2671,7 +2672,6 @@ function spaceCard(sp){
       ${!meas?measureBtn(sp.id,inst.id,inst.ici||s.ici):(!proven?`<div class="prove-btns"><button class="mini-btn gold" onclick="event.stopPropagation();proveByBatisseur('${sp.id}','${inst.id}')">🌿 Preuve · Bâtisseur</button><button class="mini-btn sem" onclick="event.stopPropagation();proveBySemeur('${sp.id}','${inst.id}')">🌾 Financer · Semeur</button></div>`:'')}
     </div>`;
   });
-  if(!sp.existant) h+=spaceCapSummary(sp);
   h+=`</div>`;
   return h;
 }
