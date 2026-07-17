@@ -1761,7 +1761,7 @@ function newState(profile){
     // pilote
     hand:[], spaces:null, sel:null, pcomps:new Set(), lieuName:'La Friche des Possibles', lieuType:'jardin', ob:null, playerName:'', loopsActive:0, loopBadgeShown:false, vadanceBonus:0,
     lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{}, questesPubliees:false, questesPublieesSnap:'', myPosts:[], biblioTourDone:false, carteTourDone:false, reseauTourDone:false, batMissionsTourDone:false, batCompTourDone:false, pendingBatTour:false, tourDemo:false, model:null, modelTourDone:false, relaisShown:false,
-    pondMode:'egalite', measureCtx:null, modelOpen:false, projN:3, simBudget:600, scenarioIds:[],
+    pondMode:'egalite', measureCtx:null,
     mktFilter:'all', purchases:[], myOffers:[], ecoMissions:{},
     // batisseur
     comps:new Set(['jardiner','bricoler']), missions:[], // missions actives
@@ -2069,7 +2069,6 @@ function buildTourSteps(){
       {sel:'.season-btn', side:'bottom', title:'⏳ Le temps qui passe', text:'Ce bouton fait avancer la saison : tes espaces produisent, les revenus tombent, et les aléas climatiques arrivent.'},
       {sel:'#vade-bar', side:'bottom', title:'🌀 La spirale VADE', text:'Valoriser → Activer → Développer → Essaimer : le fil rouge de ta partie, phase après phase.'},
       {sel:'.biblio-tab[data-sub="dash"]', side:'bottom', onEnter:()=>{ S.tab='a'; S.lieuSub='dash'; render(); }, title:'📊 Tableau de bord', text:'L\'état de ton lieu en un coup d\'œil : ta Vadance promise, ta Vadité prouvée, et le triptyque de tes <b>3 capitaux</b> (🌿 Écologie, 🤝 Social, 🪙 Économie locale).'},
-      {sel:'.mo-head', side:'bottom', scroll:true, onEnter:()=>{ S.tab='a'; S.lieuSub='dash'; S.modelOpen=true; render(); }, title:'📈 Modélisation', text:'Décider <b>avant</b> d\'agir. La <b>🔮 projection</b> rejoue le vrai calcul sur ton lieu enrichi et montre où ta Vadance sera dans 1, 3 ou 6 mois. Le <b>🧪 simulateur de scénarios</b> te propose, pour un budget donné, les combos qui maximisent chaque capital — et « Adopter ce scénario » pré-sélectionne les solutions dans la Bibliothèque.'},
       {sel:'.biblio-tab[data-sub="recompenses"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏅 Récompenses', text:`Ta <b>ligne d'arrivée</b>. Tu y suis tes badges et ta quête finale : atteindre <b>60/100 de Vadité</b> pour que « ${escapeHtml(S.lieuName||'ton lieu')} » rejoigne les hubs régénératifs reconnus. C'est ça, finir le jeu.`},
       {sel:'.biblio-tab[data-sub="espaces"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏡 Espaces', text:`C'est ici que tout démarre 🌱 <b>Ta première action</b> : choisis une activité pour chacun de tes espaces, puis installe des solutions de la Bibliothèque — jusqu'à <b>${MAX_PER_SPACE} par espace</b>. La spirale se met en route.`},
     ] : []),
@@ -2706,13 +2705,6 @@ function pilotBiblio(){
     }
     h+=`<div style="height:.7rem"></div>`;
     let sols=SOLUTIONS;
-    const scen=(S.scenarioIds||[]).filter(id=>SOL[id]);
-    if(scen.length){
-      h+=`<div class="mo-scen-banner">🧪 <b>Scénario adopté</b> · ${scen.length} solution${scen.length>1?'s':''} à poser dans tes espaces.<button class="mo-quit" onclick="S.scenarioIds=[];S.sel=null;render()">Voir tout le catalogue ✕</button></div>`;
-      sols=sols.filter(s=>scen.indexOf(s.id)>=0);
-      h+= `<div class="cards-grid">${sols.map(s=>solutionCard(s.id)).join('')}</div>`;
-      return h;
-    }
     if(S.catFilter && S.catFilter!=='all') sols=sols.filter(s=>s.cat===S.catFilter);
     if(capF!=='all') sols=sols.filter(s=>s.cap.includes(capF));
     h+= sols.length
@@ -3399,93 +3391,6 @@ function etatLieuHTML(){
     </div>
   </div>`;
 }
-/* Section repliable « Modélisation » : projections + scénarios */
-function projRowHTML(label, ids){
-  const v=simVadance(ids), cur=curVadance(), gain=v-cur;
-  return `<div class="mo-row">
-    <div class="mo-lab">${label}</div>
-    <div class="mo-bar">
-      <span class="mo-fill" style="width:${Math.round(v)}%"></span>
-      <span class="mo-mark" style="left:70%" title="70 = le Réseau s'ouvre"></span>
-    </div>
-    <div class="mo-val">${round1(v)}<span class="mo-sur">/100</span>${gain>0.05?`<span class="mo-gain">+${round1(gain)}</span>`:''}</div>
-  </div>`;
-}
-function projectionsHTML(){
-  const n=S.projN||3;
-  const plan=bestNextSolutions(Math.max(6,n));
-  const noms=plan.slice(0,n).map(id=>SOL[id].ic+' '+SOL[id].name);
-  let h=`<div class="mo-block">
-    <div class="mo-t">🔮 Projection · si tu continues à ce rythme</div>
-    <div class="mo-sub">On rejoue le vrai calcul (Δ normalisés, moyenne par capital, plancher) sur ton lieu enrichi. Rythme estimé : <b>1 solution par mois</b>.</div>`;
-  h+=projRowHTML('Aujourd\'hui', []);
-  h+=projRowHTML('Dans 1 mois', plan.slice(0,1));
-  h+=projRowHTML('Dans 3 mois', plan.slice(0,3));
-  h+=projRowHTML('Dans 6 mois', plan.slice(0,6));
-  h+=`<div class="mo-legend">▏ Le repère à 70 : c'est là que le <b>Réseau</b> s'ouvre.</div>`;
-  h+=`<div class="mo-ask">
-    <div class="mo-ask-t">Et si j'installais <b>${n}</b> solution${n>1?'s':''} de plus ?</div>
-    <div class="mo-chips">${[1,3,6].map(k=>`<button class="mo-chip ${n===k?'on':''}" onclick="S.projN=${k};render()">+${k}</button>`).join('')}</div>
-    ${noms.length?`<div class="mo-plan">Deva te suggère : ${noms.map(x=>`<span class="mo-pill">${escapeHtml(x)}</span>`).join('')}</div>`:'<div class="hint">Toutes les solutions sont déjà installées 🌿</div>'}
-    <div class="mo-res">Vadance projetée : <b>${round1(simVadance(plan.slice(0,n)))}/100</b> (aujourd'hui ${round1(curVadance())}/100)</div>
-  </div>`;
-  h+=`</div>`;
-  return h;
-}
-function scenariosHTML(){
-  const budget=S.simBudget||600;
-  const FOCUS=[
-    {k:'eco', ic:'🌿', t:'Max Impact Écologique'},
-    {k:'social', ic:'🤝', t:'Max Impact Social'},
-    {k:'econo', ic:'🪙', t:'Max Impact Économique'},
-  ];
-  let h=`<div class="mo-block">
-    <div class="mo-t">🧪 Simulateur de scénario</div>
-    <div class="mo-sub">Installer ne coûte rien au Pilote : c'est un <b>Semeur</b> qui finance la facture. Choisis le budget à financer, et regarde quels combos maximisent chaque capital.</div>
-    <div class="mo-budget"><span class="mo-blab">Budget à financer</span>
-      ${[300,600,1000,1500].map(b=>`<button class="mo-chip ${budget===b?'on':''}" onclick="S.simBudget=${b};render()">${b} €</button>`).join('')}
-    </div>
-    <div class="mo-scen">`;
-  FOCUS.forEach(f=>{
-    const sc=scenarioFor(f.k, budget);
-    const sols=sc.ids.map(id=>SOL[id]);
-    h+=`<div class="mo-card">
-      <div class="mo-card-t">${f.ic} ${f.t}</div>
-      ${sols.length?`<div class="mo-sols">${sols.map(x=>`<div class="mo-sol"><span>${x.ic} ${escapeHtml(x.name)}</span><b>${x.euros} €</b></div>`).join('')}</div>`
-        :`<div class="hint">Aucune solution de ce capital dans ce budget.</div>`}
-      <div class="mo-kpi"><span>${f.ic} Capital ${f.k==='eco'?'Écologie':(f.k==='social'?'Social':'Économie')}</span><b>${round1(sc.cap)}/100</b></div>
-      <div class="mo-kpi"><span>✨ Vadance du lieu</span><b>${round1(sc.vadance)}/100</b></div>
-      <div class="mo-kpi"><span>🌾 À financer</span><b>${sc.euros} €</b></div>
-      ${sols.length?`<button class="btn btn-primary mo-adopt" onclick="adoptScenario('${sc.ids.join(',')}')">Adopter ce scénario →</button>`:''}
-    </div>`;
-  });
-  h+=`</div>
-    <div class="mo-legend">🚧 Un capital seul ne suffit pas : tant qu'un des trois reste sous ${PLANCHER_CAPITAL}/100, la Vadance du lieu plafonne. C'est la non-compensation.</div>
-  </div>`;
-  return h;
-}
-function modelisationHTML(){
-  const open=!!S.modelOpen;
-  return `<div class="card mo-card-main">
-    <button class="mo-head" onclick="S.modelOpen=${open?'false':'true'};render()">
-      <span class="mo-head-t">📈 Modélisation</span>
-      <span class="mo-head-s">Projections et scénarios pour décider avant d'agir</span>
-      <span class="mo-caret">${open?'▾':'▸'}</span>
-    </button>
-    ${open?`<div class="mo-body">${projectionsHTML()}${scenariosHTML()}</div>`:''}
-  </div>`;
-}
-function adoptScenario(csv){
-  const ids=csv.split(',').filter(Boolean);
-  if(!ids.length) return;
-  S.scenarioIds=ids;
-  S.biblioTourDone=true;
-  if(S.navUnlocked && !S.navUnlocked.has('b')) S.navUnlocked.add('b');
-  switchTab('b');
-  S.sel={type:'solution', id:ids[0]};
-  render();
-  toast(`🧪 Scénario adopté · ${ids.length} solution${ids.length>1?'s':''} pré-sélectionnée${ids.length>1?'s':''} dans la Bibliothèque. Pose-les dans tes espaces 🌿`,'win');
-}
 function dashHTML(opts){
   const P=PROFILS[S.profile];
   const vad = S.profile==='semeur'?S.vaditeFin:curVadite();
@@ -3505,7 +3410,6 @@ function dashHTML(opts){
   </div>`;
   // Etat du lieu : promesse (Vadance) → Indice de Confiance → preuve (Vadité) + triptyque des 3 capitaux
   if(S.profile==='pilote') h+=etatLieuHTML();
-  if(S.profile==='pilote') h+=modelisationHTML();
   // stats (masquées pour le Pilote : déjà couvertes par le panneau « État du lieu » et la barre du haut)
   if(S.profile!=='pilote'){
     h+=`<div class="dash-grid">`;
@@ -4553,62 +4457,6 @@ function pilotScore(kind){ // pondération des trois capitaux, plafonnée si un 
   if(mini<PLANCHER_CAPITAL) sc=Math.min(sc, PLANCHER_CAPITAL); // non-compensation
   return Math.max(0, Math.min(100, sc));
 }
-/* ═══════════════ MODÉLISATION : projections & scénarios (Pilote) ═══════════════ */
-/* On ne devine pas la Vadance avec une moyenne par solution : on rejoue le vrai calcul
-   (Δ normalisés, moyenne par capital, pondération, plancher) sur un lieu hypothétique. */
-function installedIdsSet(){ const set=new Set(); (S.spaces||[]).forEach(sp=>(sp.sols||[]).forEach(i=>set.add(i.id))); return set; }
-function availableSolutions(){ const inst=installedIdsSet(); return SOLUTIONS.filter(s=>!inst.has(s.id)); }
-function simCapitals(extraIds){
-  const cap={eco:{prom:0,n:0}, social:{prom:0,n:0}, econo:{prom:0,n:0}};
-  const add=(sol,delta)=>{ const k=CAP_DE_CAT[sol.cat]||'eco'; cap[k].prom+=iciNorm(delta, sol.ici); cap[k].n++; };
-  (S.spaces||[]).forEach(sp=>(sp.sols||[]).forEach(inst=>{ const sol=SOL[inst.id]; if(sol) add(sol, solDeltaProj(inst)); }));
-  (extraIds||[]).forEach(id=>{ const sol=SOL[id]; if(sol) add(sol, sol.delta); });
-  Object.values(cap).forEach(c=>{ if(c.n) c.prom/=c.n; });
-  return cap;
-}
-function simVadance(extraIds){
-  const cap=simCapitals(extraIds), w=PONDERATIONS[pondMode()].w;
-  let sc = cap.eco.prom*w.eco + cap.social.prom*w.social + cap.econo.prom*w.econo;
-  const mini=Math.min(cap.eco.prom, cap.social.prom, cap.econo.prom);
-  if(mini<PLANCHER_CAPITAL) sc=Math.min(sc, PLANCHER_CAPITAL);
-  return Math.max(0, Math.min(100, sc + (S.vadanceBonus||0)));
-}
-/* Classement d'un lieu hypothétique : la Vadance d'abord, puis le capital le plus faible
-   (sinon, tant que le plancher écrase le score, toutes les pistes se valent et le conseil devient aveugle). */
-function simRank(ids){
-  const cap=simCapitals(ids), w=PONDERATIONS[pondMode()].w;
-  const raw=cap.eco.prom*w.eco + cap.social.prom*w.social + cap.econo.prom*w.econo;
-  const mini=Math.min(cap.eco.prom, cap.social.prom, cap.econo.prom);
-  return simVadance(ids)*1000 + mini*10 + raw;
-}
-/* Les n prochaines solutions qui font le plus monter la Vadance (elles équilibrent naturellement les capitaux) */
-function bestNextSolutions(n){
-  const pool=availableSolutions().map(x=>x.id), chosen=[];
-  for(let k=0;k<n;k++){
-    let best=null, bestV=-1;
-    pool.forEach(id=>{ if(chosen.indexOf(id)>=0) return; const v=simRank(chosen.concat(id)); if(v>bestV){ bestV=v; best=id; } });
-    if(best===null) break;
-    chosen.push(best);
-  }
-  return chosen;
-}
-/* Meilleur combo pour un capital, dans un budget donné (en euros : ce qu'un Semeur finance) */
-function scenarioFor(capK, budget){
-  const cands=availableSolutions().filter(x=>(CAP_DE_CAT[x.cat]||'eco')===capK)
-    .sort((a,b)=>iciNorm(b.delta,b.ici)-iciNorm(a.delta,a.ici));
-  const chosen=[]; let spent=0, cur=simCapitals([])[capK].prom;
-  cands.forEach(x=>{
-    if(spent+x.euros>budget) return;
-    const next=simCapitals(chosen.concat(x.id))[capK].prom;
-    if(chosen.length===0 || next>=cur-0.01){ chosen.push(x.id); spent+=x.euros; cur=next; }
-  });
-  return {ids:chosen, euros:spent, cap:simCapitals(chosen)[capK].prom, vadance:simVadance(chosen)};
-}
-function capitalSinistre(){ // le capital qui plafonne le score, s'il y en a un
-  const cap=pilotCapitals();
-  const arr=[['eco',cap.eco.prom],['social',cap.social.prom],['econo',cap.econo.prom]].sort((a,b)=>a[1]-b[1]);
-  return arr[0][1]<PLANCHER_CAPITAL?arr[0][0]:null;
-}
 function pilotVadance(){ return Math.max(0, Math.min(100, pilotScore('prom') + (S.vadanceBonus||0))); }
 const VADITE_SELF_CAP=50; // sans preuve externe, on ne se certifie pas soi-même : la Vadité plafonne
 function hasExternalProof(){ return (S.spaces||[]).some(sp=>(sp.sols||[]).some(i=>i.proven && (i.preuve==='pairs'||i.preuve==='tiers'))); }
@@ -5257,7 +5105,6 @@ function devaAnswer(qraw){
   if(has('badge')) return `Les <b>badges</b> 🏅 récompensent tes hauts faits : Gardien de la fraîcheur, Écosystème vivant, Forêt nourricière, Brigades du climat, Pari d'innovation gagné, Triple défi… Retrouve-les au Tableau de bord.`;
   if(has('spirale','vade')) return `La <b>spirale VADE</b> structure la partie : <b>V</b>aloriser (reconnaître l'existant) → <b>A</b>ctiver (mesurer) → <b>D</b>évelopper (faire système) → <b>E</b>ssaimer (passer au réel & inspirer). Puis elle recommence, un cran plus haut.`;
   if(has('carte','réseau','reseau','communauté','communaute')) return `La <b>Carte de l'écosystème</b> 🗺️ montre les lieux, bâtisseurs et semeurs du réseau EVAD près de toi. Clique un marqueur pour ses infos, et filtre par type ou par quêtes ouvertes.`;
-  if(has('projection','scénario','scenario','simulat','projeter','avant d\'agir')) return `Au <b>Tableau de bord</b>, la section <b>📈 Modélisation</b> te fait décider avant d'agir : la <b>🔮 projection</b> montre où sera ta Vadance dans 1, 3 ou 6 mois au rythme d'une solution par mois, et le <b>🧪 simulateur de scénarios</b> compare, pour un budget donné, les combos qui maximisent chaque capital. « Adopter ce scénario » te pré-sélectionne les solutions dans la Bibliothèque 🌱`;
   if(has('modélis','modelis','maquette','bloc','construire','luanti','minetest')) return `La <b>Modélisation</b> 🧱 te laisse construire ton hub en blocs : pose tes <b>espaces</b> sur le terrain, les <b>solutions</b> installées y apparaissent, et tu ajoutes arbres, chemins et mare. Un lieu, ça se dessine aussi 🌱`;
   if(has('ferme','nommer',' nom','créer','creer','fiche','appeler')) return `Pour bien nommer un lieu, sois précis et inspirant, et ajoute un mot-clé d'impact : « <i>Ferme des Lucioles, maraîchage régénératif</i> » ou « <i>Les Racines, permaculture & biodiversité</i> ». Le nom doit dire ce que le lieu <b>prouve</b>.`;
   if(has('objectif','gagner',' but','comment jouer','finir','réussir','reussir')) return `Ton objectif : <b>${goalLabel()}</b>.<br><br>${devaTip()}`;
