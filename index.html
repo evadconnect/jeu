@@ -4311,11 +4311,13 @@ function publishQuests(){
   toast(maj?`🔄 Réalisations mises à jour · ${finies} quête${finies>1?'s':''} accomplie${finies>1?'s':''} 🌿`
            :`🌐 Réalisations publiées ! ${qs.length} post${qs.length>1?'s':''} dans le fil du Réseau 🌿`,'win');
   render();
-  if(!maj) setTimeout(seedQuestCands, 900);   // le réseau répond : un Bâtisseur et un Semeur se positionnent
+  // Le réseau répond : un Bâtisseur et un Semeur se positionnent, le temps qu'ils voient l'annonce
+  if(!maj) setTimeout(seedQuestCands, 4500);
 }
 /* ── Le réseau répond aux quêtes publiées : un Bâtisseur et un Semeur se positionnent ── */
 function questSpaceOf(solId){ return (S.spaces||[]).find(sp=>(sp.sols||[]).some(x=>x.id===solId)); }
 function seedQuestCands(){
+  if(!S || S.profile!=='pilote' || !S.questesPubliees) return;  // le joueur a pu changer de profil pendant l'attente
   if((S.questCands||[]).length) return;                  // ils ne se positionnent qu'une fois
   const qs=installedQuests().filter(q=>!q.fini);         // on se positionne sur une quête encore ouverte
   if(!qs.length) return;
