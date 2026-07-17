@@ -74,7 +74,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .intro-prof .ip-txt{flex:1;min-width:0}
 .intro-prof .ip-name{font-weight:800;font-size:.86rem;color:var(--cream)}
 .intro-prof .ip-role{font-size:.68rem;color:var(--sage);opacity:.9}
-.intro-prof .ip-goal{font-size:.66rem;font-weight:800;color:#a8e6cf;background:rgba(122,201,176,.16);border-radius:100px;padding:.3rem .6rem;flex-shrink:0;white-space:nowrap}
 .intro-prof.static{cursor:default;align-items:flex-start}
 .intro-prof.static:hover{background:rgba(255,255,255,.05);border-color:rgba(130,184,148,.2)}
 .intro-prof .ip-tag{font-size:.58rem;font-weight:800;letter-spacing:.03em;color:var(--sage);text-transform:uppercase;opacity:.85}
@@ -1854,9 +1853,9 @@ function introStep(n){
         <div class="vdc-cta">Transforme tes promesses en preuves 🌱</div>
       </div>`;
   const wChoix=c=>`<div class="intro-profiles${c?' ob-pop':''}">
-        <button class="intro-prof" onclick="startProfileDirect('pilote')"><span class="ip-ic">🏡</span><div class="ip-txt"><div class="ip-name">Pilote d'impact</div><div class="ip-role">Opérer un lieu</div></div><span class="ip-goal">🎯 30 Vadité</span></button>
-        <button class="intro-prof" onclick="startProfileDirect('batisseur')"><span class="ip-ic">🌿</span><div class="ip-txt"><div class="ip-name">Bâtisseur d'impact</div><div class="ip-role">Contribuer et prouver</div></div><span class="ip-goal">🎯 5 quêtes</span></button>
-        <button class="intro-prof" onclick="startProfileDirect('semeur')"><span class="ip-ic">🌾</span><div class="ip-txt"><div class="ip-name">Semeur d'impact</div><div class="ip-role">Financer le vérifié</div></div><span class="ip-goal">🎯 25 Vadité</span></button>
+        <button class="intro-prof" onclick="startProfileDirect('pilote')"><span class="ip-ic">🏡</span><div class="ip-txt"><div class="ip-name">Pilote d'impact</div><div class="ip-role">Opérer un lieu</div></div></button>
+        <button class="intro-prof" onclick="startProfileDirect('batisseur')"><span class="ip-ic">🌿</span><div class="ip-txt"><div class="ip-name">Bâtisseur d'impact</div><div class="ip-role">Contribuer et prouver</div></div></button>
+        <button class="intro-prof" onclick="startProfileDirect('semeur')"><span class="ip-ic">🌾</span><div class="ip-txt"><div class="ip-name">Semeur d'impact</div><div class="ip-role">Financer le vérifié</div></div></button>
       </div>`;
   // Construit le fil : tous les messages de 0 a l'etape courante
   let thread='';
