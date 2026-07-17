@@ -787,6 +787,10 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .mp-tools button:hover{border-color:var(--fern)}
 .mp-tools button.on{border-color:var(--amber);background:#fff7e6;color:var(--amber)}
 .mp-counts{font-size:.66rem;color:var(--moss);margin-top:.7rem;text-align:center}
+.mp-loops{background:var(--cream);border:1px solid rgba(1,130,98,.16);border-radius:12px;padding:.55rem .7rem;margin-bottom:.8rem}
+.mp-loops .mpl-t{font-size:.76rem;font-weight:800;color:var(--forest);margin-bottom:.2rem}
+.mp-loops .mpl-d{font-size:.66rem;color:var(--moss);line-height:1.45}
+.mp-loops .mpl-d b{color:var(--amber)}
 .marker{cursor:pointer;transition:transform .15s;transform-box:fill-box;transform-origin:center}
 .marker:hover{transform:scale(1.14)}
 .mkt-media{display:flex;align-items:center;justify-content:center}
@@ -886,7 +890,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .reveal-cta b{color:var(--forest)}
 .empty-state{text-align:center;padding:2.5rem 1rem;color:var(--moss);opacity:.7}
 .empty-state .es-ic{font-size:2.5rem;margin-bottom:.5rem}
-.hint{font-size:.72rem;color:var(--moss);opacity:.8;background:rgba(1,130,98,.06);border-radius:10px;padding:.55rem .75rem;line-height:1.45;margin:.6rem 0;display:flex;gap:.45rem;align-items:flex-start}
+.hint{font-size:.72rem;color:var(--moss);opacity:.8;background:rgba(1,130,98,.06);border-radius:10px;padding:.55rem .75rem;line-height:1.45;margin:.6rem 0;display:block}
 .dorm{opacity:.5;filter:grayscale(.6)}
 
 /* ══════════════════ MOBILE : sidebar → barre d'onglets en bas ══════════════════ */
@@ -1704,19 +1708,38 @@ const COMPETENCES = {
 // Chaque compétence liste les solutions qu'elle permet de monter (déduit des solutions elles-mêmes)
 Object.entries(COMPETENCES).forEach(([k,c])=>{ if(k!=='mesurer') c.for=SOLUTIONS.filter(s=>s.comps.includes(k)).map(s=>s.id); });
 
-/* ---------- Boucles circulaires possibles ---------- */
-function fluxLoops(ids){
-  // renvoie liste de paires [a,b] où out(a) rencontre in(b)
-  const loops=[]; const set=new Set(ids);
-  for(const a of ids){ for(const b of ids){ if(a===b) continue;
-    const outA=SOL[a].flux.out, inB=SOL[b].flux.in;
-    if(outA.some(f=>inB.includes(f))){ loops.push([a,b]); }
-  }}
-  // dédupliquer les paires symétriques en gardant chaque flux distinct → on compte les paires dirigées uniques
-  const seen=new Set(); const uniq=[];
-  loops.forEach(([a,b])=>{ const k=a+'>'+b; if(!seen.has(k)){seen.add(k);uniq.push([a,b]);} });
-  return uniq;
+/* ---------- Boucles circulaires ----------
+   La circularité est physique : une boucle ne se ferme que si les deux solutions se touchent
+   vraiment, c'est-à-dire dans le même espace, ou dans deux espaces voisins sur le terrain de la
+   🧱 Modélisation. Les flux qui se répondent sans se toucher restent des boucles « en attente ». */
+function rectsAdjacent(a,na,b,nb){ // deux empreintes carrées se touchent-elles par un côté ?
+  const ax2=a.x+na-1, ay2=a.y+na-1, bx2=b.x+nb-1, by2=b.y+nb-1;
+  const chevX = a.x<=bx2 && b.x<=ax2, chevY = a.y<=by2 && b.y<=ay2;
+  return ((ax2+1===b.x || bx2+1===a.x) && chevY) || ((ay2+1===b.y || by2+1===a.y) && chevX);
 }
+function spacesAdjacent(idA,idB){
+  const m=S.model; if(!m || !m.placed) return false;
+  const pa=m.placed[idA], pb=m.placed[idB];
+  if(!pa || !pb) return false;                       // un espace non posé ne touche rien
+  return rectsAdjacent(pa, modSize(m,idA), pb, modSize(m,idB));
+}
+/* Toutes les paires dont les flux se répondent : {a,b,near} — near = la boucle est réellement fermée */
+function loopPairs(){
+  const units=[];
+  (S.spaces||[]).forEach(sp=>(sp.sols||[]).forEach(inst=>{ if(SOL[inst.id]) units.push({id:inst.id, sp:sp.id}); }));
+  const map=new Map();
+  for(const A of units) for(const B of units){
+    if(A.id===B.id) continue;
+    if(!SOL[A.id].flux.out.some(f=>SOL[B.id].flux.in.includes(f))) continue;
+    const near = A.sp===B.sp || spacesAdjacent(A.sp,B.sp);
+    const k=A.id+'>'+B.id, cur=map.get(k);           // même paire via deux espaces : proche l'emporte
+    if(!cur) map.set(k,{a:A.id, b:B.id, near});
+    else if(near) cur.near=true;
+  }
+  return [...map.values()];
+}
+function activeLoops(){ return loopPairs().filter(p=>p.near); }
+function pendingLoops(){ return loopPairs().filter(p=>!p.near); }
 
 /* ---------- Badges ---------- */
 /* Classés par ordre d'obtention : la grille des Récompenses suit cet ordre et se lit comme une feuille de route. */
@@ -2564,17 +2587,22 @@ function pilotLieu(){
   h+=`<div class="spaces-grid">`;
   S.spaces.forEach(sp=>{ h+=spaceCard(sp); });
   h+=`</div>`;
-  // boucles
-  const ids = installedIds();
-  const loops = fluxLoops(ids);
+  // boucles : fermées sur le terrain, ou en attente d'être rapprochées dans la Modélisation
+  const loops = activeLoops(), pending = pendingLoops();
+  const pill=(p,ok)=>`<span class="pill" style="background:${ok?'var(--cream)':'#fff5da'};color:${ok?'var(--moss)':'var(--amber)'};font-size:.68rem;padding:.35rem .7rem">${SOL[p.a].ic} ${SOL[p.a].name.split(' ')[0]} ➜ ${SOL[p.b].ic} ${SOL[p.b].name.split(' ')[0]}</span>`;
   if(loops.length){
     h+=`<div class="sect-title" style="font-size:1rem">🔄 Boucles circulaires actives · ${loops.length}</div>
         <div class="sect-sub" style="margin-bottom:.6rem">${loopMultLabel(loops.length)} Chaque boucle rapporte des Graines à chaque saison.</div>
-        <div style="display:flex;flex-wrap:wrap;gap:.5rem">`;
-    loops.forEach(([a,b])=>{ h+=`<span class="pill" style="background:var(--cream);color:var(--moss);font-size:.68rem;padding:.35rem .7rem">${SOL[a].ic} ${SOL[a].name.split(' ')[0]} ➜ ${SOL[b].ic} ${SOL[b].name.split(' ')[0]}</span>`; });
-    h+=`</div>`;
+        <div style="display:flex;flex-wrap:wrap;gap:.5rem">${loops.map(p=>pill(p,true)).join('')}</div>`;
   } else {
-    h+=`<div class="hint">🔄 <b>Astuce boucles :</b> installe deux solutions dont les flux se répondent (ex. <b>Cuisine ➜ Composteur</b>, puis <b>Composteur ➜ Potager</b>) pour activer une boucle qui rapporte des Graines chaque saison.</div>`;
+    h+=`<div class="hint">🔄 <b>Astuce boucles :</b> installe deux solutions dont les flux se répondent (ex. <b>Cuisine ➜ Composteur</b>, puis <b>Composteur ➜ Potager</b>), puis <b>rapproche leurs espaces</b> sur le terrain de la 🧱 Modélisation : une boucle qui se ferme rapporte des Graines chaque saison.</div>`;
+  }
+  if(pending.length){
+    h+=`<div style="height:.8rem"></div>
+        <div class="sect-title" style="font-size:1rem">⏳ Boucles en attente · ${pending.length}</div>
+        <div class="sect-sub" style="margin-bottom:.6rem">Leurs flux se répondent, mais leurs espaces ne se touchent pas encore. <b>Colle-les sur le terrain</b> de la 🧱 Modélisation pour fermer la boucle : la circularité, c'est physique.</div>
+        <div style="display:flex;flex-wrap:wrap;gap:.5rem">${pending.map(p=>pill(p,false)).join('')}</div>
+        ${(S.navUnlocked&&S.navUnlocked.has('modele'))?`<button class="btn btn-ghost" style="width:100%;margin-top:.7rem" onclick="switchTab('modele')">🧱 Rapprocher mes espaces →</button>`:''}`;
   }
   return h;
 }
@@ -3924,16 +3952,26 @@ function renderModele(){
     : 'Choisis un espace ou un élément de décor 👇 puis pose-le sur le terrain. Clique un espace posé pour le déplacer.';
   const placedN=Object.keys(m.placed).length;
   const solsN=spaces.reduce((a,sp)=>a+(m.placed[sp.id]?(sp.sols||[]).length:0),0);
+  const loops=activeLoops(), pending=pendingLoops();
   let panel=`<div class="model-panel">
     <div class="cp-title">🧱 Construis ton lieu d’impact</div>
     <div class="mp-hint">${hint}</div>
+    <div class="mp-loops">
+      <div class="mpl-t">🔄 Boucles circulaires · ${loops.length}</div>
+      <div class="mpl-d">${pending.length
+        ? `<b>${pending.length} boucle${pending.length>1?'s':''} en attente</b> : ${pending.map(p=>`${SOL[p.a].ic}➜${SOL[p.b].ic}`).join(' ')} — colle ces espaces l'un contre l'autre pour ${pending.length>1?'les':'la'} fermer 🌱`
+        : (loops.length ? `${loopMultLabel(loops.length,true)||'Tes boucles sont fermées'} 🌿 Chaque boucle rapporte des Graines à chaque saison.`
+                        : `Une boucle se ferme quand deux solutions dont les flux se répondent se touchent : même espace, ou espaces voisins sur le terrain.`)}</div>
+    </div>
     <div class="mp-sect mp-espaces">🏡 Tes espaces</div>`;
   if(!spaces.length) panel+=`<div class="hint">Aménage d'abord des espaces dans 🏡 Mon lieu : ils apparaîtront ici, prêts à poser.</div>`;
   else panel+=spaces.map(sp=>{
     const on=m.sel===sp.id, placed=!!m.placed[sp.id], n=modSize(m,sp.id);
+    const solIds=new Set((sp.sols||[]).map(x=>x.id));
+    const nLoop=loops.filter(p=>solIds.has(p.a)||solIds.has(p.b)).length;
     let h=`<button class="mp-item ${on?'on':''}" onclick="modelSelectSpace('${sp.id}')">
       <span class="mpi-ic" style="background:${sp.bg}">${sp.ic}</span>
-      <span class="mpi-tx"><span class="mpi-nm">${escapeHtml(sp.name)}</span><span class="mpi-sub">📐 ${n}×${n} · 🌱 ${(sp.sols||[]).length} solution(s)</span></span>
+      <span class="mpi-tx"><span class="mpi-nm">${escapeHtml(sp.name)}</span><span class="mpi-sub">📐 ${n}×${n} · 🌱 ${(sp.sols||[]).length} solution(s)${nLoop?` · 🔄 ${nLoop}`:''}</span></span>
       <span class="mpi-st ${placed?'ok':''}">${on?'👆 en main':(placed?'✅ posé':'à poser')}</span></button>`;
     if(on) h+=`<div class="mp-size"><span class="mps-lab">📐 Taille</span>${[1,2,3,4].map(k=>`<button class="${n===k?'on':''}" onclick="modelSetSize('${sp.id}',${k})">${k}×${k}</button>`).join('')}</div>`;
     return h;
@@ -3944,7 +3982,7 @@ function renderModele(){
       <button class="${m.mode==='erase'?'on':''}" onclick="modelEraseMode()">🧽 Gommer</button>
       <button onclick="modelClear()">🗑️ Tout retirer</button>
     </div>
-    <div class="mp-counts">🏡 ${placedN}/${spaces.length} espace(s) posé(s) · 🌱 ${solsN} solution(s) sur le terrain</div>
+    <div class="mp-counts">🏡 ${placedN}/${spaces.length} espace(s) posé(s) · 🌱 ${solsN} solution(s) · 🔄 ${loops.length} boucle(s)</div>
   </div>`;
   el.innerHTML=`<div class="model-wrap"><div class="model-map">${svg}</div>${panel}</div>`;
 }
@@ -3960,7 +3998,10 @@ function modelTileClick(x,y){
     m.deco=m.deco.filter(d=>!(d.x>=px&&d.x<px+n&&d.y>=py&&d.y<py+n));   // le décor laisse la place
     const sp=spaces.find(s=>s.id===m.sel);
     m.placed[m.sel]={x:px,y:py}; m.sel=null;
-    toast(`🏡 « ${sp?sp.name:'Espace'} » posé sur le terrain`,'win'); render();
+    toast(`🏡 « ${sp?sp.name:'Espace'} » posé sur le terrain`,'win');
+    checkLoops(true);        // rapprocher deux espaces peut fermer une boucle : on le dit
+    checkBadges();           // 4 boucles = Écosystème vivant, 7 = Forêt nourricière
+    render();
     // Modélisation terminée (tous les espaces posés) → badge + la Carte s'ouvre
     if(spaces.length && spaces.every(s=>m.placed[s.id])){
       if(!S.badges.has('modele')){ S.badges.add('modele'); setTimeout(()=>toastBadge('modele'),900); }
@@ -4555,7 +4596,7 @@ function advanceSeason(){
     if(S.pcomps.has('animation')) cb+=nOccup;
     if(cb){ gains+=cb; msgs.push(`🎓 Bonus compétences · +${cb}🌰`); }
     // boucles
-    const loops=fluxLoops(installedIds()).length;
+    const loops=activeLoops().length;
     let mult=1; if(loops>=7)mult=2; else if(loops>=4)mult=1.5;
     const loopGain=Math.round(loops*mult*0.4);
     gains+=loopGain;
@@ -4667,7 +4708,7 @@ function pilotHasFresh(){ return S.profile==='pilote' && S.spaces.some(sp=>sp.so
 
 /* ---- défis de saison ---- */
 const DEFIS = [
-  {id:'boucle', txt:'Crée une boucle circulaire ce trimestre', reward:5, profiles:['pilote'], check:()=>fluxLoops(installedIds()).length>=1},
+  {id:'boucle', txt:'Crée une boucle circulaire ce trimestre', reward:5, profiles:['pilote'], check:()=>activeLoops().length>=1},
   {id:'ici2', txt:'Fais prouver 2 mesures ce trimestre', reward:5, profiles:['pilote'], check:()=>countProven()>=2},
   {id:'install3', txt:'Installe 3 solutions au total', reward:6, profiles:['pilote'], check:()=>installedIds().length>=3},
   {id:'m2', txt:'Accomplis 2 quêtes ce trimestre', reward:6, profiles:['batisseur'], check:()=>{return (S.missionsDone-(S.defi._base||0))>=2;}, base:()=>S.missionsDone},
@@ -4704,7 +4745,7 @@ function defiBanner(){
 function checkBadges(){
   const before=S.badges.size;
   if(S.profile==='pilote'){
-    const loops=fluxLoops(installedIds()).length;
+    const loops=activeLoops().length;
     if(loops>=4) S.badges.add('eco');
     if(loops>=7) S.badges.add('foret');
   }
@@ -4713,7 +4754,7 @@ function checkBadges(){
   }
 }
 function checkLoops(notify){
-  const loops=fluxLoops(installedIds()).length;
+  const loops=activeLoops().length;
   if(notify && loops>S.loopsActive){ toast(`🔄 Boucle circulaire activée ! ${loopMultLabel(loops,true)}`,'win'); }
   S.loopsActive=loops;
 }
@@ -5098,7 +5139,7 @@ function devaTip(){
   if(S.profile==='pilote'){
     if(countProven()===0) return `Bienvenue 🌱 Commencez par <b>reconnaître l'existant</b> : votre lieu produit déjà de la Vadance, mais rien n'est prouvé. Cliquez « 📊 Mesurer » dessus pour la transformer en Vadité.`;
     if(installedIds().length<2) return `Ouvre la 📚 <b>Bibliothèque</b> et installe une solution dans un espace compatible : ça ne te coûte rien, ce sont les <b>Semeurs</b> qui financent la facture. Pense aux flux : Cuisine, Composteur et Potager forment une belle boucle.`;
-    if(fluxLoops(installedIds()).length===0) return `Vous avez des solutions, mais pas encore de <b>boucle</b> 🔄. Cherchez deux cartes dont les flux se répondent (une qui produit ce qu'une autre consomme) : la boucle rapporte des Graines chaque saison.`;
+    if(activeLoops().length===0) return `Vous avez des solutions, mais pas encore de <b>boucle</b> 🔄. Cherchez deux cartes dont les flux se répondent (une qui produit ce qu'une autre consomme) : la boucle rapporte des Graines chaque saison.`;
     if(!pilotHasFresh()) return `Un conseil pour l'été : installez une solution 🌊 <b>Fraîcheur</b> (eau de pluie, mur végétal, ombrière). En canicule, votre lieu deviendra un îlot de fraîcheur au lieu de perdre de la Vadance.`;
     return `Vous êtes à ${round1(vad)}/60 de Vadité 🌿. Continuez à <b>mesurer</b> ce que vous installez (chaque ICI convertit la Vadance) et à densifier vos boucles : 5 boucles = Forêt nourricière ×2.`;
   }
