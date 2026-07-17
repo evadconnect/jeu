@@ -4270,22 +4270,63 @@ function buyOffer(id){
   render();
 }
 /* ── Pilote : déposer une annonce avec ce que produisent ses espaces ── */
-function prodCat(label){
-  if(/repas|cuisine|conserv|buffet|cantine|panier|traiteur|épicerie|vrac|marché|potager|légume|maraîch|plant|semis|récolte|amap|pain|fruit/i.test(label)) return 'alim';
-  if(/formation|atelier|cours|sensibilisation|initiation|accompagnement|alphabét|permaculture|écriture|conte/i.test(label)) return 'formation';
-  if(/menuiserie|couture|textile|créateur|fablab|impression|prototyp|artisan|bois|savon|électronique|gravure/i.test(label)) return 'artisanat';
-  if(/concert|spectacle|théâtre|projection|soirée|expo|vernissage|événement|tournoi|fête|scène/i.test(label)) return 'evenement';
-  return 'service';
+/* Ce qu'une activité d'espace produit concrètement : un produit ou un service vendable au marché.
+   Première règle qui matche l'emporte ; fallback = un service générique. */
+const ACTIVITY_OFFERS=[
+  // — produits alimentaires —
+  {re:/panier|potager partagé|marché (de producteurs|local)|récolte|maraîch/i, ic:'🥦', name:'Panier de légumes', cat:'alim', unit:'le panier hebdo'},
+  {re:/semis|plants?|pépinière/i, ic:'🌱', name:'Plants & semis', cat:'alim', unit:'le godet'},
+  {re:/culture toute saison|légume/i, ic:'🥕', name:'Légumes de saison', cat:'alim', unit:'le cageot'},
+  {re:/ruche|miel/i, ic:'🍯', name:'Miel du lieu', cat:'alim', unit:'le pot'},
+  {re:/conserv|bocaux/i, ic:'🫙', name:'Bocaux maison', cat:'alim', unit:'le bocal'},
+  {re:/traiteur/i, ic:'🍱', name:'Plateau traiteur', cat:'alim', unit:'le plateau'},
+  {re:/repas|restaurant|cantine|buffet|prix libre/i, ic:'🍲', name:'Repas solidaire', cat:'alim', unit:"l'assiette"},
+  {re:/épicerie|vrac/i, ic:'🛒', name:'Produits en vrac', cat:'alim', unit:'au kilo'},
+  {re:/grainothèque|graines?/i, ic:'🌾', name:'Sachet de graines', cat:'alim', unit:'le sachet'},
+  {re:/compost|biodéchets|lombric|valorisation matière/i, ic:'🪱', name:'Compost du quartier', cat:'alim', unit:'le sac'},
+  {re:/café associatif/i, ic:'☕', name:'Boisson au comptoir', cat:'alim', unit:'la conso'},
+  // — artisanat & réemploi —
+  {re:/repair|réparation|électronique/i, ic:'🔧', name:"Réparation d'objets", cat:'service', unit:"l'objet"},
+  {re:/fablab|impression 3d|découpe|gravure|prototyp|makers/i, ic:'⚙️', name:'Fabrication numérique', cat:'artisanat', unit:"l'heure machine"},
+  {re:/menuiserie|couture|textile|savon|bois/i, ic:'🪡', name:'Création artisanale', cat:'artisanat', unit:'la pièce'},
+  {re:/créateur|dépôt-vente/i, ic:'🎨', name:'Objet de créateur', cat:'artisanat', unit:'la pièce'},
+  {re:/ressourcerie|réemploi|matériauthèque|prêt de matériel/i, ic:'♻️', name:'Objet de réemploi', cat:'artisanat', unit:'la pièce'},
+  // — culture & événements —
+  {re:/concert|spectacle|théâtre|projection|soirée|conférence|scène/i, ic:'🎶', name:'Billet spectacle', cat:'evenement', unit:'la place'},
+  {re:/expo|vernissage|galerie/i, ic:'🖼️', name:'Entrée expo', cat:'evenement', unit:"l'entrée"},
+  {re:/résidence/i, ic:'🎭', name:"Résidence d'artiste", cat:'evenement', unit:'la semaine'},
+  {re:/bar à jeux|jeux/i, ic:'🎲', name:'Soirée jeux', cat:'evenement', unit:'la soirée'},
+  {re:/heure du conte|conte/i, ic:'📖', name:'Heure du conte', cat:'evenement', unit:'la séance'},
+  // — formation & ateliers —
+  {re:/formation|cours du soir|alphabét/i, ic:'🎓', name:'Formation', cat:'formation', unit:'la session'},
+  {re:/accompagnement|incubateur|ateliers pro|projet/i, ic:'🚀', name:'Accompagnement de projet', cat:'formation', unit:'le rendez-vous'},
+  {re:/cuisine (pédago|durable)|pédagog/i, ic:'🍳', name:'Atelier cuisine', cat:'formation', unit:'la séance'},
+  {re:/atelier|sensibilisation|bricolage|éducation|permaculture/i, ic:'🧑‍🏫', name:'Atelier', cat:'formation', unit:'la séance'},
+  // — bien-être & sport —
+  {re:/yoga|méditation|sophrologie|bien-être|relaxation|respiration/i, ic:'🧘', name:'Séance bien-être', cat:'service', unit:'la séance'},
+  {re:/sport|gym|tournoi|cours collectif/i, ic:'🤸', name:'Séance sport', cat:'service', unit:'la séance'},
+  {re:/cercles? de parole/i, ic:'💬', name:'Cercle de parole', cat:'service', unit:'la séance'},
+  {re:/proximité|permanences solidaires/i, ic:'🤝', name:'Service de proximité', cat:'service', unit:'la prestation'},
+  // — espaces, hébergement, prêt —
+  {re:/coworking/i, ic:'💻', name:'Place de coworking', cat:'service', unit:'la journée'},
+  {re:/chambre|gîte|hébergement|accueil de bénévoles|nuit/i, ic:'🛏️', name:'Nuitée solidaire', cat:'service', unit:'la nuit'},
+  {re:/réunion|permanence|salle/i, ic:'🚪', name:'Location de salle', cat:'service', unit:'la demi-journée'},
+  {re:/prêt de livres|médiathèque|bibliothèque/i, ic:'📚', name:'Prêt de livres', cat:'service', unit:"l'emprunt"},
+  {re:/événement/i, ic:'🎪', name:'Événement du lieu', cat:'evenement', unit:"l'entrée"},
+];
+function activityOffer(a){
+  for(const r of ACTIVITY_OFFERS) if(r.re.test(a)) return r;
+  return {ic:'🤝', name:'Service du lieu', cat:'service', unit:'la prestation'};
 }
-function prodEmoji(cat){ return {alim:'🥕',formation:'🎓',artisanat:'🛠️',evenement:'🎪',service:'🤝'}[cat]||'🌿'; }
-/* Tout ce que les espaces produisent : leurs activités (Valoriser) et leurs solutions installées */
+/* Les produits/services proposables : dérivés des activités choisies pour chaque espace (phase Valoriser) */
 function marcheProduits(){
   const out=[], seen=new Set();
   (S.spaces||[]).forEach(sp=>{
-    (sp.activities||[]).forEach(a=>{ const k=a+'|'+sp.name; if(seen.has(k)) return; seen.add(k);
-      const cat=prodCat(a); out.push({ic:prodEmoji(cat), label:a, espace:sp.name, cat}); });
-    (sp.sols||[]).forEach(inst=>{ const s=SOL[inst.id]; if(!s) return; const k=s.name+'|'+sp.name; if(seen.has(k)) return; seen.add(k);
-      out.push({ic:s.ic, label:s.name, espace:sp.name, cat:prodCat(s.name)}); });
+    (sp.activities||[]).forEach(a=>{
+      const o=activityOffer(a);
+      const k=o.name+'|'+sp.name; if(seen.has(k)) return; seen.add(k);   // même produit, même espace : une fois
+      out.push({ic:o.ic, label:o.name, from:a, espace:sp.name, cat:o.cat, unit:o.unit});
+    });
   });
   return out;
 }
@@ -4293,16 +4334,16 @@ function openDeposeAnnonce(){
   const prods=marcheProduits();
   if(!prods.length){
     openModal(`<div class="mb-ic">📣</div><h2>Rien à proposer pour l'instant</h2>
-      <p>Ton annonce se construit avec ce que <b>tes espaces produisent</b>. Donne une activité à tes espaces (phase 🌱 Valoriser) ou installe une solution, puis reviens.</p>
+      <p>Ton annonce se construit à partir des <b>activités de tes espaces</b> : chaque activité donne un produit ou un service à proposer. Choisis une activité pour un espace (phase 🌱 Valoriser), puis reviens.</p>
       <button class="btn btn-primary" style="width:100%" onclick="closeModal();switchTab('a')">🏡 Aller à mes espaces →</button>`);
     return;
   }
   openModal(`
     <div class="mb-ic">📣</div>
     <h2>Déposer une annonce</h2>
-    <p style="margin-bottom:.8rem">Choisis ce que ton lieu propose au réseau : la production vient de tes espaces, les Graines reviennent à ton lieu.</p>
+    <p style="margin-bottom:.8rem">Choisis ce que ton lieu propose au réseau : chaque produit ou service vient d'une <b>activité de tes espaces</b>, les Graines reviennent à ton lieu.</p>
     <div class="f-field"><label class="f-lab" for="ma-src">Ce que ton lieu propose</label>
-      <select id="ma-src" class="f-inp">${prods.map((p,i)=>`<option value="${i}">${p.ic} ${escapeHtml(p.label)} · ${escapeHtml(p.espace)}</option>`).join('')}</select></div>
+      <select id="ma-src" class="f-inp">${prods.map((p,i)=>`<option value="${i}">${p.ic} ${escapeHtml(p.label)} · issu de ${escapeHtml(p.from)}</option>`).join('')}</select></div>
     <div class="f-field"><label class="f-lab" for="ma-prix">Prix en Graines (0 = gratuit)</label>
       <input id="ma-prix" class="f-inp" type="number" min="0" max="200" value="5"></div>
     <button class="btn btn-primary" style="width:100%" onclick="publishAnnonce()">📣 Publier l'annonce</button>
@@ -4315,7 +4356,7 @@ function publishAnnonce(){
   const prix=Math.max(0,Math.min(200,parseInt(document.getElementById('ma-prix').value,10)||0));
   S.myOffers=S.myOffers||[];
   S.myOfferSeq=(S.myOfferSeq||0)+1;
-  S.myOffers.unshift({id:'my'+S.myOfferSeq, cat:p.cat, t:p.label, lieu:S.lieuName||'Mon lieu', prix, unite:`depuis « ${p.espace} »`, ic:p.ic, impact:'Production de ton lieu : les Graines reviennent au lieu.', mine:true});
+  S.myOffers.unshift({id:'my'+S.myOfferSeq, cat:p.cat, t:p.label, lieu:S.lieuName||'Mon lieu', prix, unite:p.unit||`depuis « ${p.espace} »`, ic:p.ic, impact:`${escapeHtml(p.from)} · « ${escapeHtml(p.espace)} » — les Graines reviennent au lieu.`, mine:true});
   S.badges.add('marche'); markFirstAct('marche');
   closeModal();
   toast(`📣 Annonce publiée : ${p.ic} « ${p.label} » ${prix>0?'· '+prix+'🌰':'· gratuit'} 🌿`,'win');
