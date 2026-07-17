@@ -2070,7 +2070,7 @@ function buildTourSteps(){
       {sel:'#vade-bar', side:'bottom', title:'🌀 La spirale VADE', text:'Valoriser → Activer → Développer → Essaimer : le fil rouge de ta partie, phase après phase.'},
       {sel:'.biblio-tab[data-sub="dash"]', side:'bottom', onEnter:()=>{ S.tab='a'; S.lieuSub='dash'; render(); }, title:'📊 Tableau de bord', text:'L\'état de ton lieu en un coup d\'œil : ta Vadance promise, ta Vadité prouvée, et le triptyque de tes <b>3 capitaux</b> (🌿 Écologie, 🤝 Social, 🪙 Économie locale).'},
       {sel:'.biblio-tab[data-sub="recompenses"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏅 Récompenses', text:`Ta <b>ligne d'arrivée</b>. Tu y suis tes badges et ta quête finale : atteindre <b>60/100 de Vadité</b> pour que « ${escapeHtml(S.lieuName||'ton lieu')} » rejoigne les hubs régénératifs reconnus. C'est ça, finir le jeu.`},
-      {sel:'.biblio-tab[data-sub="espaces"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏡 Espaces', text:`C'est ici que tout démarre 🌱 <b>Ta première action</b> : choisis une activité pour chacun de tes espaces, puis installe des solutions de la Bibliothèque — jusqu'à <b>${MAX_PER_SPACE} par espace</b>. La spirale se met en route.`},
+      {sel:'.biblio-tab[data-sub="espaces"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏡 Espaces', text:`C'est ici que tout démarre 🌱 <b>Ta première action</b> : choisis une activité pour chacun de tes espaces, puis installe des solutions de la Bibliothèque, jusqu'à <b>${MAX_PER_SPACE} par espace</b>. La spirale se met en route.`},
     ] : []),
     {sel:navSel('b'), side:'right', title:navBy('b').ic+' '+navBy('b').label, text:AB.b},
     {sel:navSel('carte'), side:'right', title:'🗺️ Carte de l\'écosystème', text:'Tu y retrouves tous les lieux de la communauté et leurs quêtes, près de chez toi.'},
@@ -4870,13 +4870,13 @@ function biblioTourSteps(withNav){
      text:'Chaque fiche dit <b>ce que la solution répare</b>, pas seulement ce qu\'elle évite. C\'est la différence entre « moins nuire » et faire revenir le vivant.'},
     {sel:'.det-grid', side:'top', over:true, scroll:true,
      title:'✨ Ce que ça change',
-     text:`<b>Où l'installer</b> : les types d'espace qui l'accueillent — un espace en tient jusqu'à <b>${MAX_PER_SPACE}</b>. Et <b>ce que ça change</b> : l'écart avant → après, noté sur 100 selon une barre que tu ne choisis pas. C'est l'impact <i>promis</i>, ta <b>Vadance</b>.`},
+     text:`<b>Où l'installer</b> : les types d'espace qui l'accueillent (un espace en tient jusqu'à <b>${MAX_PER_SPACE}</b>). Et <b>ce que ça change</b> : l'écart avant → après, noté sur 100 selon une barre que tu ne choisis pas. C'est l'impact <i>promis</i>, ta <b>Vadance</b>.`},
     {sel:'.det-ici', side:'top', over:true, scroll:true,
      title:'📊 Son indicateur',
      text:`Son <b>ICI</b> (${ICI[d.ici].ic} ${ICI[d.ici].name}) est lié <b>d'office</b> : rien à choisir, il arrive avec la solution dès que tu l'installes. C'est lui qui transformera la promesse en <b>Vadité</b> prouvée, une fois la mesure relevée sur le terrain avec « 📊 Mesurer ».`},
     {sel:'.quest-box', side:'top', over:true, scroll:true,
      title:'⚔️ Sa quête de terrain',
-     text:'Et dans la vraie vie ? Chaque solution porte sa <b>quête</b> : les étapes concrètes à accomplir pour l\'installer pour de bon. Elle démarre dès que tu poses la solution dans un espace ; <b>coche une étape quand tu l\'as vraiment faite</b>, dehors. Quand tout est coché, la quête est accomplie — et sur le <b>🌐 Réseau</b>, « Publier mes quêtes » montre tes réalisations à toute la communauté.'});
+     text:'Et dans la vraie vie ? Chaque solution porte sa <b>quête</b> : les étapes concrètes à accomplir pour l\'installer pour de bon. Elle démarre dès que tu poses la solution dans un espace ; <b>coche une étape quand tu l\'as vraiment faite</b>, dehors. Quand tout est coché, la quête est accomplie, et sur le <b>🌐 Réseau</b>, « Publier mes quêtes » montre tes réalisations à toute la communauté.'});
   return steps;
 }
 function biblioTour(){
