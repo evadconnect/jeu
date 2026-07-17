@@ -1756,7 +1756,7 @@ function spacesAdjacent(idA,idB){
   }
   return false;
 }
-/* Toutes les paires dont les flux se répondent : {a,b,near} — near = la boucle est réellement fermée */
+/* Toutes les paires dont les flux se répondent : {a,b,near} : near = la boucle est réellement fermée */
 function loopPairs(){
   const units=[];
   (S.spaces||[]).forEach(sp=>(sp.sols||[]).forEach(inst=>{ if(SOL[inst.id]) units.push({id:inst.id, sp:sp.id}); }));
@@ -4000,7 +4000,7 @@ function renderModele(){
   const selSp = m.sel!=null ? S.spaces[m.sel] : null;
 
   /* ---- panneau ---- */
-  const hint = selSp ? `🎨 Clique — ou <b>glisse</b> — sur le terrain pour peindre « <b>${escapeHtml(selSp.name)}</b> », puis re-clique son bouton pour confirmer ✅`
+  const hint = selSp ? `🎨 Clique (ou <b>glisse</b>) sur le terrain pour peindre « <b>${escapeHtml(selSp.name)}</b> », puis re-clique son bouton pour confirmer ✅`
     : m.mode==='erase' ? '🧽 Clique ou glisse sur le terrain pour effacer, puis re-clique 🧽 Gomme pour terminer'
     : m.mode ? `👆 Clique le terrain pour poser ${MODEL_DECO[m.mode].ic} ${MODEL_DECO[m.mode].n}`
     : 'Choisis un espace 👇 puis peins ses blocs sur le terrain : il occupe autant de blocs que tu veux.';
@@ -4012,7 +4012,7 @@ function renderModele(){
     <div class="mp-loops">
       <div class="mpl-t">🔄 Boucles circulaires · ${loops.length}</div>
       <div class="mpl-d">${pending.length
-        ? `<b>${pending.length} boucle${pending.length>1?'s':''} en attente</b> : ${pending.map(p=>`${SOL[p.a].ic}➜${SOL[p.b].ic}`).join(' ')} — peins ces espaces l'un contre l'autre pour ${pending.length>1?'les':'la'} fermer 🌱`
+        ? `<b>${pending.length} boucle${pending.length>1?'s':''} en attente</b> : ${pending.map(p=>`${SOL[p.a].ic}➜${SOL[p.b].ic}`).join(' ')} : peins ces espaces l'un contre l'autre pour ${pending.length>1?'les':'la'} fermer 🌱`
         : (loops.length ? `${loopMultLabel(loops.length,true)||'Tes boucles sont fermées'} 🌿 Chaque boucle rapporte des Graines à chaque saison.`
                         : `Une boucle se ferme quand deux solutions dont les flux se répondent se touchent : même espace, ou deux blocs voisins sur le terrain.`)}</div>
     </div>
@@ -4099,7 +4099,7 @@ function terrainStrokeEnd(){
     revealNav('carte', '🗺️ Mets ton lieu sur la Carte', 'Ton lieu d’impact est modélisé 🧱 Chaque espace a trouvé sa place ✨ Il mérite maintenant d\'être visible dans l\'écosystème. <b>🎯 Objectif : valide ta fiche publique</b> sur la Carte, pour attirer la communauté.');
   }
 }
-/* Le décor se pose au clic, bloc par bloc — on ne le peint pas au glissé. */
+/* Le décor se pose au clic, bloc par bloc, on ne le peint pas au glissé. */
 function terrainDecoClick(i){
   const m=modelState();
   if(!m.mode || m.mode==='erase' || !MODEL_DECO[m.mode]) return false;
@@ -4265,7 +4265,7 @@ function buyOffer(id){
 /* Ce qu'une activité d'espace produit concrètement : un produit ou un service vendable au marché.
    Première règle qui matche l'emporte ; fallback = un service générique. */
 const ACTIVITY_OFFERS=[
-  // — produits alimentaires —
+  // produits alimentaires
   {re:/panier|potager partagé|marché (de producteurs|local)|récolte|maraîch/i, ic:'🥦', name:'Panier de légumes', cat:'alim', unit:'le panier hebdo'},
   {re:/semis|plants?|pépinière/i, ic:'🌱', name:'Plants & semis', cat:'alim', unit:'le godet'},
   {re:/culture toute saison|légume/i, ic:'🥕', name:'Légumes de saison', cat:'alim', unit:'le cageot'},
@@ -4277,29 +4277,29 @@ const ACTIVITY_OFFERS=[
   {re:/grainothèque|graines?/i, ic:'🌾', name:'Sachet de graines', cat:'alim', unit:'le sachet'},
   {re:/compost|biodéchets|lombric|valorisation matière/i, ic:'🪱', name:'Compost du quartier', cat:'alim', unit:'le sac'},
   {re:/café associatif/i, ic:'☕', name:'Boisson au comptoir', cat:'alim', unit:'la conso'},
-  // — artisanat & réemploi —
+  // artisanat & réemploi
   {re:/repair|réparation|électronique/i, ic:'🔧', name:"Réparation d'objets", cat:'service', unit:"l'objet"},
   {re:/fablab|impression 3d|découpe|gravure|prototyp|makers/i, ic:'⚙️', name:'Fabrication numérique', cat:'artisanat', unit:"l'heure machine"},
   {re:/menuiserie|couture|textile|savon|bois/i, ic:'🪡', name:'Création artisanale', cat:'artisanat', unit:'la pièce'},
   {re:/créateur|dépôt-vente/i, ic:'🎨', name:'Objet de créateur', cat:'artisanat', unit:'la pièce'},
   {re:/ressourcerie|réemploi|matériauthèque|prêt de matériel/i, ic:'♻️', name:'Objet de réemploi', cat:'artisanat', unit:'la pièce'},
-  // — culture & événements —
+  // culture & événements
   {re:/concert|spectacle|théâtre|projection|soirée|conférence|scène/i, ic:'🎶', name:'Billet spectacle', cat:'evenement', unit:'la place'},
   {re:/expo|vernissage|galerie/i, ic:'🖼️', name:'Entrée expo', cat:'evenement', unit:"l'entrée"},
   {re:/résidence/i, ic:'🎭', name:"Résidence d'artiste", cat:'evenement', unit:'la semaine'},
   {re:/bar à jeux|jeux/i, ic:'🎲', name:'Soirée jeux', cat:'evenement', unit:'la soirée'},
   {re:/heure du conte|conte/i, ic:'📖', name:'Heure du conte', cat:'evenement', unit:'la séance'},
-  // — formation & ateliers —
+  // formation & ateliers
   {re:/formation|cours du soir|alphabét/i, ic:'🎓', name:'Formation', cat:'formation', unit:'la session'},
   {re:/accompagnement|incubateur|ateliers pro|projet/i, ic:'🚀', name:'Accompagnement de projet', cat:'formation', unit:'le rendez-vous'},
   {re:/cuisine (pédago|durable)|pédagog/i, ic:'🍳', name:'Atelier cuisine', cat:'formation', unit:'la séance'},
   {re:/atelier|sensibilisation|bricolage|éducation|permaculture/i, ic:'🧑‍🏫', name:'Atelier', cat:'formation', unit:'la séance'},
-  // — bien-être & sport —
+  // bien-être & sport
   {re:/yoga|méditation|sophrologie|bien-être|relaxation|respiration/i, ic:'🧘', name:'Séance bien-être', cat:'service', unit:'la séance'},
   {re:/sport|gym|tournoi|cours collectif/i, ic:'🤸', name:'Séance sport', cat:'service', unit:'la séance'},
   {re:/cercles? de parole/i, ic:'💬', name:'Cercle de parole', cat:'service', unit:'la séance'},
   {re:/proximité|permanences solidaires/i, ic:'🤝', name:'Service de proximité', cat:'service', unit:'la prestation'},
-  // — espaces, hébergement, prêt —
+  // espaces, hébergement, prêt
   {re:/coworking/i, ic:'💻', name:'Place de coworking', cat:'service', unit:'la journée'},
   {re:/chambre|gîte|hébergement|accueil de bénévoles|nuit/i, ic:'🛏️', name:'Nuitée solidaire', cat:'service', unit:'la nuit'},
   {re:/réunion|permanence|salle/i, ic:'🚪', name:'Location de salle', cat:'service', unit:'la demi-journée'},
@@ -4348,7 +4348,7 @@ function publishAnnonce(){
   const prix=Math.max(0,Math.min(200,parseInt(document.getElementById('ma-prix').value,10)||0));
   S.myOffers=S.myOffers||[];
   S.myOfferSeq=(S.myOfferSeq||0)+1;
-  S.myOffers.unshift({id:'my'+S.myOfferSeq, cat:p.cat, t:p.label, lieu:S.lieuName||'Mon lieu', prix, unite:p.unit||`depuis « ${p.espace} »`, ic:p.ic, impact:`${escapeHtml(p.from)} · « ${escapeHtml(p.espace)} » — les Graines reviennent au lieu.`, mine:true});
+  S.myOffers.unshift({id:'my'+S.myOfferSeq, cat:p.cat, t:p.label, lieu:S.lieuName||'Mon lieu', prix, unite:p.unit||`depuis « ${p.espace} »`, ic:p.ic, impact:`${escapeHtml(p.from)} · « ${escapeHtml(p.espace)} » les Graines reviennent au lieu.`, mine:true});
   S.badges.add('marche'); markFirstAct('marche');
   closeModal();
   toast(`📣 Annonce publiée : ${p.ic} « ${p.label} » ${prix>0?'· '+prix+'🌰':'· gratuit'} 🌿`,'win');
@@ -4700,7 +4700,7 @@ function addVadance(delta){
    on repart de V « un cran plus haut » (cycle N+1). 3 cycles jusqu'à l'objectif. */
 /* Pilote : l'action concrète du moment, dans l'ordre où la partie se déroule.
    Les 4 phases VADE sont trop larges pour ça (publier sa fiche tombe au milieu d'Activer),
-   alors on lit l'état réel. Renvoie {txt, tab} — tab = l'onglet où faire le geste. */
+   alors on lit l'état réel. Renvoie {txt, tab} : tab = l'onglet où faire le geste. */
 function pilotNextAction(){
   const mine=(S.spaces||[]).filter(sp=>!sp.existant);
   if(!mine.length) return {txt:`Aménage un premier <b>espace</b> dans ton lieu`, tab:'a'};
@@ -5165,11 +5165,11 @@ function modelTourSteps(withNav){
      title:'🧱 La Modélisation', text:'Ici, ton <b>lieu d’impact</b> prend forme : un terrain en blocs, façon jeu de construction, où tu le bâtis espace après espace. Voyons comment 👇'});
   steps.push(
     {sel:'.ter-grid.live', side:'right', scroll:true, title:'🎨 Peins ton terrain',
-     text:'Une grille de <b>120 blocs</b>, à toi. Choisis un <b>espace</b> dans la liste, puis <b>clique — ou glisse le doigt — sur la grille</b> pour peindre ses blocs : il occupe autant de cases que tu veux. Reclique son bouton pour <b>confirmer</b>. La <b>Gomme</b> 🧽 efface de la même façon.'},
+     text:'Une grille de <b>120 blocs</b>, à toi. Choisis un <b>espace</b> dans la liste, puis <b>clique (ou glisse le doigt) sur la grille</b> pour peindre ses blocs : il occupe autant de cases que tu veux. Reclique son bouton pour <b>confirmer</b>. La <b>Gomme</b> 🧽 efface de la même façon.'},
     {sel:'.mp-espaces', side:'left', scroll:true, title:'🏡 Tes espaces',
      text:'Ce sont les espaces de ton lieu, ceux que tu as aménagés dans 🏡 Mon lieu. Chacun a sa <b>couleur</b> ; le compteur t\'indique combien de blocs il occupe. Sélectionne-en un pour commencer à le peindre 👆'},
     {sel:'.mp-loops', side:'left', scroll:true, title:'🔄 Les boucles régénératives',
-     text:'La <b>disposition</b> compte : quand deux espaces dont les solutions se répondent sont <b>voisins</b> — au moins un de leurs blocs se touche — une <b>boucle</b> se ferme et te rapporte des Graines à chaque saison. Colle les bons espaces côte à côte 🌿'},
+     text:'La <b>disposition</b> compte : quand deux espaces dont les solutions se répondent sont <b>voisins</b> (au moins un de leurs blocs se touche), une <b>boucle</b> se ferme et te rapporte des Graines à chaque saison. Colle les bons espaces côte à côte 🌿'},
     {sel:'.mp-deco-sect', side:'left', scroll:true, title:'🌿 Le décor',
      text:'Arbres, fleurs, chemins, mare… donne vie à ton lieu. Le décor n\'a pas d\'effet sur la partie : c\'est <b>ta</b> vision du lieu, celle que tu montrerais aux visiteurs 🌱'});
   return steps;
