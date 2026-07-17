@@ -629,13 +629,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .cap-legend i{width:10px;height:10px;border-radius:3px;display:inline-block;font-style:normal}
 
 /* Résumé des trois capitaux d'un espace : une ligne par capital, discret. */
-.sp-caps{margin:.55rem 0;padding:.5rem 0;border-top:1px dashed rgba(1,130,98,.14);border-bottom:1px dashed rgba(1,130,98,.14);display:flex;flex-direction:column;gap:.28rem}
-.sp-cap-row{display:flex;align-items:center;gap:.42rem;font-size:.62rem;line-height:1.3}
-.sp-cap-ic{font-size:.72rem;flex-shrink:0}
-.sp-cap-bar{flex:0 0 58px;height:4px;border-radius:100px;background:rgba(1,130,98,.1);overflow:hidden}
-.sp-cap-bar i{display:block;height:100%;border-radius:100px;transition:width .3s}
-.sp-cap-val{font-weight:800;flex-shrink:0}
-.sp-cap-none{color:var(--moss);opacity:.6;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* ══════════════════ CARTES RICHES + DÉTAIL ══════════════════ */
 .card2{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform .16s,box-shadow .16s,border-color .16s;display:flex;flex-direction:column}
@@ -2666,7 +2659,6 @@ function spaceCard(sp){
       ${!sp.existant?`<button class="sp-edit" title="Renommer" onclick="event.stopPropagation();renameSpace('${sp.id}')">✏️</button>`:''}
       ${(!sp.existant&&sp.sols.length===0)?`<button class="sp-edit" title="Retirer cet espace" onclick="event.stopPropagation();removeSpace('${sp.id}')">✕</button>`:''}
     </div>`;
-  if(!sp.existant) h+=spaceCapSummary(sp);
   if(!sp.existant){
     h+= chosen
       ? `<div class="sp-acts">${sp.activities.map(a=>`<span class="sp-act-chip">${escapeHtml(a)}</span>`).join('')}<button class="sp-act-edit" title="Modifier les activités" onclick="event.stopPropagation();openActivitiesModal('${sp.id}')">✏️</button></div>`
@@ -4669,32 +4661,6 @@ function capClass(cat){ return 'cap-'+capOf(cat); }
 function capLegendHTML(){
   return `<div class="cap-legend">${Object.values(CAP_META).map(c=>
     `<span><i style="background:${c.color}"></i>${c.ic} ${c.name}</span>`).join('')}</div>`;
-}
-function spaceCapitals(sp){ // Vadance d'un seul espace, ventilée par capital et plafonnée à 100
-  const cap={eco:0, social:0, econo:0};
-  (sp.sols||[]).forEach(inst=>{
-    const s=SOL[inst.id]; if(!s) return;
-    cap[capOf(s.cat)] += (inst.vad||s.vadance);
-  });
-  Object.keys(cap).forEach(k=>{ cap[k]=Math.min(100, cap[k]); });
-  return cap;
-}
-function capSuggestion(sp, k){ // les catégories de ce capital qui acceptent ce type d'espace
-  const cats=[...new Set(SOLUTIONS.filter(s=>capOf(s.cat)===k && s.cap.includes(sp.type)).map(s=>s.cat))];
-  return cats.length ? 'ajoute '+cats.slice(0,2).map(c=>CATS[c].label).join(' ou ') : 'rien de compatible ici';
-}
-function spaceCapSummary(sp){
-  const cap=spaceCapitals(sp);
-  return `<div class="sp-caps">${Object.keys(CAP_META).map(k=>{
-    const m=CAP_META[k], v=Math.round(cap[k]);
-    return `<div class="sp-cap-row">
-      <span class="sp-cap-ic" title="${m.name}">${m.ic}</span>
-      <span class="sp-cap-bar"><i style="width:${v}%;background:${m.color}"></i></span>
-      ${v>0
-        ? `<span class="sp-cap-val" style="color:${m.color}">${v}</span>`
-        : `<span class="sp-cap-none">Aucune solution · ${capSuggestion(sp,k)}</span>`}
-    </div>`;
-  }).join('')}</div>`;
 }
 function pilotCapitals(){ // somme des sous-scores normalisés, plafonnée à 100 (plus de solutions = plus de capital)
   const cap={eco:{prom:0,proof:0,n:0}, social:{prom:0,proof:0,n:0}, econo:{prom:0,proof:0,n:0}};
