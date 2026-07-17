@@ -2069,7 +2069,7 @@ function buildTourSteps(){
       {sel:'.season-btn', side:'bottom', title:'⏳ Le temps qui passe', text:'Ce bouton fait avancer la saison : tes espaces produisent, les revenus tombent, et les aléas climatiques arrivent.'},
       {sel:'#vade-bar', side:'bottom', title:'🌀 La spirale VADE', text:'Valoriser → Activer → Développer → Essaimer : le fil rouge de ta partie, phase après phase.'},
       {sel:'.biblio-tab[data-sub="dash"]', side:'bottom', onEnter:()=>{ S.tab='a'; S.lieuSub='dash'; render(); }, title:'📊 Tableau de bord', text:'L\'état de ton lieu en un coup d\'œil : ta Vadance promise, ta Vadité prouvée, et le triptyque de tes <b>3 capitaux</b> (🌿 Écologie, 🤝 Social, 🪙 Économie locale).'},
-      {sel:'.biblio-tab[data-sub="recompenses"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏅 Récompenses', text:`Ta <b>ligne d'arrivée</b>. Tu y suis tes badges et ta quête finale : atteindre <b>60/100 de Vadité</b> pour que « ${escapeHtml(S.lieuName||'ton lieu')} » rejoigne les hubs régénératifs reconnus. C'est ça, finir le jeu.`},
+      {sel:'.biblio-tab[data-sub="recompenses"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏅 Récompenses', text:`Ta <b>ligne d'arrivée</b>. Tu y suis tes badges et ta quête finale : atteindre <b>60/100 de Vadité</b> pour que « ${escapeHtml(S.lieuName||'ton lieu')} » rejoigne le réseau EVAD. C'est ça, finir le jeu.`},
       {sel:'.biblio-tab[data-sub="espaces"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏡 Espaces', text:`C'est ici que tout démarre 🌱 <b>Ta première action</b> : choisis une activité pour chacun de tes espaces, puis installe des solutions de la Bibliothèque, jusqu'à <b>${MAX_PER_SPACE} par espace</b>. La spirale se met en route.`},
     ] : []),
     {sel:navSel('b'), side:'right', title:navBy('b').ic+' '+navBy('b').label, text:AB.b},
@@ -2237,7 +2237,7 @@ function obEspacePicker(ob){
 }
 const HOWTO = {
   pilote: {
-    goal:`Atteindre <b>60/100 de Vadité</b> (impact prouvé) pour que ton lieu devienne un hub régénératif reconnu du réseau.`,
+    goal:`Atteindre <b>60/100 de Vadité</b> (impact prouvé) pour que ton lieu rejoigne le réseau EVAD.`,
     steps:[
       ['🧩',`Installe des <b>solutions</b> de la Bibliothèque dans tes espaces : elles créent de la <b>Vadance</b> (impact promis).`],
       ['📊',`Mesure-les avec un <b>ICI</b>, puis fais valider la preuve par le réseau, un <b>Bâtisseur</b> (terrain) ou un <b>Semeur</b> (financement) : ta Vadance devient <b>Vadité</b>, un impact vérifié sur le terrain, pas seulement annoncé.`],
@@ -3478,7 +3478,7 @@ function dashStat(ic,num,lab){ return `<div class="dash-stat"><div class="ds-num
 function countProven(){ let n=0; S.spaces.forEach(sp=>{ if(sp.existant&&sp.ici&&sp.proven)n++; sp.sols.forEach(x=>{if(x.ici&&x.proven)n++;}); }); return n; }
 function goalLabel(){
   return {
-    pilote:`Atteindre 60/100 de Vadité pour que « ${escapeHtml(S.lieuName||'ton lieu')} » rejoigne les hubs régénératifs reconnus`,
+    pilote:`Atteindre 60/100 de Vadité pour que « ${escapeHtml(S.lieuName||'ton lieu')} » rejoigne le réseau EVAD`,
     batisseur:`Accomplir 5 quêtes pour devenir Bâtisseur·se confirmé·e`,
     semeur:`Atteindre 25 points de Vadité financée et produire votre rapport d'impact`,
   }[S.profile];
