@@ -1110,7 +1110,7 @@ const VADE = [
 const VADE_MISSIONS = {
   pilote: [
     'Choisis au moins une activité pour chacun de tes espaces',
-    'Installe des solutions de la Bibliothèque dans tes espaces',
+    'Installe des solutions de la Bibliothèque : vise de la Vadance sur les 3 impacts',
     'Publie une annonce sur le Réseau pour attirer un Bâtisseur et un Semeur',
     'Fais valider tes preuves d\'impact pour faire monter ta Vadité',
   ],
@@ -4375,9 +4375,15 @@ function markFirstAct(act){ S.firstActs.add(act);
     if(act==='installed'){
       // La Modélisation s'ouvre quand chaque espace accueille au moins une solution
       // (la Carte suivra, une fois tous les espaces posés sur le terrain de la Modélisation)
-      if(allSpacesEquipped()) revealNav('modele', '🧱 La Modélisation s\'ouvre', 'Donne corps à ton lieu : pose tes espaces sur un terrain en blocs et regarde tes solutions y pousser. <b>🎯 Objectif : modélise ton hub régénératif</b>, la Carte s\'ouvrira ensuite.', false,
+      if(allSpacesEquipped()){
+        // Objectif : de la Vadance sur les 3 impacts (la non-compensation plafonne sinon)
+        const capx=pilotCapitals(), CL={eco:'🌿 Écologie',social:'🤝 Social',econo:'🪙 Économie locale'};
+        const faibles=[['eco',capx.eco.prom],['social',capx.social.prom],['econo',capx.econo.prom]].filter(x=>x[1]<PLANCHER_CAPITAL).map(x=>CL[x[0]]);
+        const obj=`<b>🎯 Objectif : de la Vadance sur les 3 impacts</b> (🌿 Écologie, 🤝 Social, 🪙 Économie locale)${faibles.length?`. Tant que ${faibles.join(' et ')} reste${faibles.length>1?'nt':''} sous ${PLANCHER_CAPITAL}, ta Vadance plafonne : installe aussi des solutions de ce${faibles.length>1?'s':''} capital${faibles.length>1?'aux':''}`:''}.`;
+        revealNav('modele', '🧱 La Modélisation s\'ouvre', 'Donne corps à ton lieu : pose tes espaces sur un terrain en blocs et regarde tes solutions y pousser. <b>🎯 Objectif : modélise ton hub régénératif</b>, la Carte s\'ouvrira ensuite.', false,
         {sel:'#stats', side:'bottom', title:`✨ Ta Vadance : ${round1(curVadance())} ${pts(curVadance())} !`,
-         text:`Chacun de tes espaces accueille une solution 🌿 Ton lieu rayonne avec <b>${round1(curVadance())} ${pts(curVadance())} de Vadance</b> ✨ C'est ton impact <i>promis</i>. Un nouvel onglet s'ouvre 👇`});
+         text:`Chacun de tes espaces accueille une solution 🌿 Ton lieu rayonne avec <b>${round1(curVadance())} ${pts(curVadance())} de Vadance</b> ✨ C'est ton impact <i>promis</i>. ${obj} Un nouvel onglet s'ouvre 👇`});
+      }
       // Le Réseau s'ouvre quand la Vadance du lieu atteint 70
       if(curVadance()>=70) revealNav('reseau', '🌐 Publie une annonce sur le Réseau', 'Ton lieu atteint déjà <b>'+round1(curVadance())+' de Vadance</b> 🌿 Pour la transformer en <b>Vadité</b> prouvée, il te faut de l\'aide. <b>🎯 Objectif : trouve un Bâtisseur (preuve terrain) et un Semeur (financement)</b> en publiant une annonce sur le Réseau.');
     }
