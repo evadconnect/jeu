@@ -575,15 +575,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .ob-esp-chip:hover{background:rgba(255,255,255,.1)}
 .ob-esp-chip.on{background:var(--fern);color:#06231a;border-color:var(--fern)}
 .add-space-select{border-radius:100px;border:1.5px solid rgba(1,130,98,.22);background:var(--cream);color:var(--forest);font-weight:700;font-size:.78rem;padding:.4rem .7rem;font-family:var(--font);cursor:pointer;max-width:220px}
-.ob-goal{background:rgba(74,171,143,.14);border:1px solid rgba(74,171,143,.32);border-radius:12px;padding:.65rem .8rem;font-size:.86rem;line-height:1.45;color:var(--mist);margin-bottom:.65rem}
-.ob-goal b{color:var(--cream)}
-.ob-howto{display:flex;flex-direction:column;gap:.5rem}
-.ohw{display:flex;gap:.6rem;align-items:flex-start;background:rgba(255,255,255,.05);border:1px solid rgba(130,184,148,.14);border-radius:12px;padding:.55rem .7rem}
-.ohw-ic{font-size:1.05rem;flex-shrink:0;line-height:1.5}
-.ohw-t{font-size:.8rem;color:var(--mist);line-height:1.45}
-.ohw-t b{color:var(--cream)}
-.ob-howfoot{font-size:.74rem;color:var(--sage);opacity:.9;line-height:1.45;margin-top:.6rem}
-.ob-howfoot b{color:var(--mist)}
 .ob-list{display:flex;flex-direction:column;gap:.4rem}
 .ob-opt{display:flex;align-items:center;gap:.6rem;text-align:left;width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(130,184,148,.2);border-radius:12px;padding:.65rem .8rem;cursor:pointer;color:var(--mist);font-weight:600;font-size:.84rem;font-family:var(--font);transition:all .15s}
 .ob-opt:hover{background:rgba(255,255,255,.09)}
@@ -1744,7 +1735,7 @@ const BADGES = {
   reseau:     {ic:'🔗', name:'Réseau tissé', how:'Publie une annonce sur le Réseau et relie-toi à un Bâtisseur ou à un Semeur.'},
   marche:     {ic:'🛒', name:'Marché animé', how:'Échange tes Graines contre un avantage local sur la Place de marché.'},
   quetes:     {ic:'📣', name:'Réalisations partagées', how:'Publie tes quêtes de terrain sur le Réseau : le réseau voit ce que ton lieu a vraiment mis en place.'},
-  modele:     {ic:'🧱', name:'Hub modélisé', how:'Donne corps à ton lieu : pose chacun de tes espaces sur le terrain de la 🧱 Modélisation.'},
+  modele:     {ic:'🧱', name:'Lieu modélisé', how:'Donne corps à ton lieu : pose chacun de tes espaces sur le terrain de la 🧱 Modélisation.'},
   ecocitoyen: {ic:'🌍', name:'Éco-citoyen·ne', how:'Valide 3 preuves d’éco-gestes : mesure-les et fais-les vérifier pour qu’elles deviennent de la Vadité.'},
 };
 
@@ -2235,42 +2226,6 @@ function obEspacePicker(ob){
     return `<button class="ob-esp-chip ${on?'on':''}" onclick="obToggleSpace('${c}')">${m.ic} ${m.name}${on?' ✓':''}</button>`;
   }).join('')}</div>`;
 }
-const HOWTO = {
-  pilote: {
-    goal:`Atteindre <b>60/100 de Vadité</b> (impact prouvé) pour que ton lieu rejoigne le réseau EVAD.`,
-    steps:[
-      ['🧩',`Installe des <b>solutions</b> de la Bibliothèque dans tes espaces : elles créent de la <b>Vadance</b> (impact promis).`],
-      ['📊',`Mesure-les avec un <b>ICI</b>, puis fais valider la preuve par le réseau, un <b>Bâtisseur</b> (terrain) ou un <b>Semeur</b> (financement) : ta Vadance devient <b>Vadité</b>, un impact vérifié sur le terrain, pas seulement annoncé.`],
-      ['🔄',`Relie tes espaces en <b>boucles</b> circulaires pour récolter des <b>Graines</b> 🌰 chaque saison.`],
-      ['⏳',`Clique <b>« Saison ▸ »</b> en haut pour faire avancer le temps : ça produit, ça rapporte, des aléas surviennent.`],
-    ],
-  },
-  batisseur: {
-    goal:`Accomplir <b>5 quêtes</b> pour devenir Bâtisseur·se confirmé·e.`,
-    steps:[
-      ['🔧',`Accepte des <b>quêtes</b> sur les lieux du réseau et réalise-les.`],
-      ['📷',`Fournis une <b>preuve</b> : ta Vadance (promesse) se transforme en <b>Vadité</b> (prouvée).`],
-      ['🌰',`Gagne des <b>Graines</b> et dépense-les à la <b>Place de marché</b>.`],
-      ['🎓',`Monte en <b>compétence</b> pour débloquer des quêtes à plus fort impact.`],
-    ],
-  },
-  semeur: {
-    goal:`Atteindre <b>25 points de Vadité financée</b> et produire ton rapport d'impact.`,
-    steps:[
-      ['💶',`Finance des <b>besoins</b> en euros : la solution <b>et</b> son ICI sont posés d'un coup.`],
-      ['🌿',`Ta <b>Vadité arrive déjà vérifiée</b> : mesure ton <b>ROEr</b> (Return on Earth), pas juste ton ROI.`],
-      ['🏷️',`Une seule saisie couvre tous les langages : <b>ODD, ESRS, PCAET, RSE</b>.`],
-      ['⏳',`Fais avancer les <b>saisons</b>, puis produis ton <b>rapport d'impact</b>.`],
-    ],
-  },
-};
-function obHowtoBody(){
-  const h=HOWTO[S.profile]||HOWTO.pilote;
-  let out=`<div class="ob-goal">🎯 <b>But du jeu :</b> ${h.goal}</div><div class="ob-howto">`;
-  h.steps.forEach(s=>{ out+=`<div class="ohw"><span class="ohw-ic">${s[0]}</span><span class="ohw-t">${s[1]}</span></div>`; });
-  out+=`</div><div class="ob-howfoot">🌱 Un doute à tout moment ? <b>Deva</b> (en bas à gauche) répond, et « Revoir la visite guidée » relance le tour de l'onglet.</div>`;
-  return out;
-}
 function devaOnboarding(){
   if(S.onboarded) return;
   if(!S.ob) S.ob={step:0, name:(SESSION&&SESSION.playerName)||PLAYER_NAME||'', lieuName:'La Friche des Possibles', type:(S.profile==='semeur'?'fondation':'jardin'), spaces:new Set(), comp:'jardiner', motivation:null, freeText:''};
@@ -2285,7 +2240,6 @@ function obStepMsg(key,ob,nm){
   if(key==='spaces'){ const n=ob.spaces.size; return `On compose <b>${escapeHtml(ob.lieuName)}</b> 🌿 Ton lieu part de zéro : <b>choisis les espaces</b> qui le composent, ils apparaissent autour de ton lieu.${n?` <b>${n} espace${n>1?'s':''}</b> pour l'instant.`:''} Rien n'est figé, tu en ajouteras d'autres plus tard.`; }
   if(key==='comp') return `Chaque Bâtisseur a sa spécialité 🌿 <b>Quelle compétence</b> veux-tu maîtriser en arrivant ? Tu démarreras avec.`;
   if(key==='motivation') return `Dis-m'en un peu plus : <b>${q}</b> Ça nous aide à améliorer EVAD 🌱`;
-  if(key==='howto') return `On y est presque 🌿 Voici <b>comment jouer</b>, en un clin d'œil :`;
   return '';
 }
 /* Widget interactif de l'etape courante */
@@ -2296,7 +2250,6 @@ function obStepWidget(key,ob,nm){
   if(key==='spaces') return `<div class="ob-pop">${obLieuMindMap(ob)}${obEspacePicker(ob)}</div>`;
   if(key==='comp') return `<div class="ob-types ob-pop">${Object.entries(COMPETENCES).map(([k,c])=>`<div class="ob-type ${ob.comp===k?'sel':''}" onclick="obSelectComp('${k}')"><div class="ot-ic">${c.ic}</div><div class="ot-name">${c.name}</div></div>`).join('')}</div>`;
   if(key==='motivation'){ const opts=MOTIVATIONS_BY_PROFILE[S.profile]||MOTIVATIONS_BY_PROFILE.batisseur; return `<div class="ob-list ob-pop">${opts.map(m=>`<button class="ob-opt ${ob.motivation===m.id?'on':''}" onclick="obSelectMotiv('${m.id}')"><span class="oo-ic">${m.ic}</span><span>${m.label}</span></button>`).join('')}</div><textarea class="ob-input ob-textarea" id="ob-free" placeholder="Une attente, une idée, une remarque ? (optionnel)" maxlength="500">${escapeHtml(ob.freeText||'')}</textarea>`; }
-  if(key==='howto') return `<div class="ob-pop">${obHowtoBody()}</div>`;
   return '';
 }
 /* Reponse du joueur (bulle envoyee) pour une etape passee */
@@ -2410,7 +2363,7 @@ const NAV = {
   pilote:[
     {k:'a',ic:'🏡',label:'Mon lieu',title:'Mon lieu · La Friche des Possibles',sub:'Ton tableau de bord et ton lieu réunis : suis ta progression, compose, installe et mesure.'},
     {k:'b',ic:'📚',label:'Bibliothèque',title:'Bibliothèque complète',sub:'Le catalogue des solutions. Sélectionne une carte, puis place-la dans ton lieu.'},
-    {k:'modele',ic:'🧱',label:'Modélisation',title:'Modélisation du hub',sub:'Construis ton hub régénératif en blocs : pose tes espaces sur le terrain, tes solutions y prennent forme.'},
+    {k:'modele',ic:'🧱',label:'Modélisation',title:'Modélisation du lieu',sub:'Construis ton lieu d’impact en blocs : pose tes espaces sur le terrain, tes solutions y prennent forme.'},
     CARTE_NAV,
     RESEAU_NAV,
     MARCHE_NAV,
@@ -3645,7 +3598,7 @@ function openFicheMonLieu(l){
       ${(S.navUnlocked&&S.navUnlocked.has('modele'))?`<div class="det-sec"><div class="det-sec-t">🧱 Modélisation du lieu</div>${
         Object.keys((S.model&&S.model.placed)||{}).length
           ? `<div class="model-map">${modelSceneSvg(mine, modelState(), false)}</div>`
-          : `<div class="det-flux">Ton hub n'est pas encore modélisé : pose tes espaces sur le terrain pour donner corps à ton lieu 🧱</div>`
+          : `<div class="det-flux">Ton lieu n'est pas encore modélisé : pose tes espaces sur le terrain pour lui donner corps 🧱</div>`
       }<button class="btn btn-ghost det-action" onclick="closeModal();switchTab('modele')">🧱 Ouvrir la Modélisation →</button></div>`:''}
       ${qpub.length?`<div class="det-sec"><div class="det-sec-t">⚔️ Réalisations publiées</div>
         ${qpub.map(q=>`<div class="mq-item mini"><span class="mq-ic">${q.sol.ic}</span>
@@ -3966,7 +3919,7 @@ function renderModele(){
   const placedN=Object.keys(m.placed).length;
   const solsN=spaces.reduce((a,sp)=>a+(m.placed[sp.id]?(sp.sols||[]).length:0),0);
   let panel=`<div class="model-panel">
-    <div class="cp-title">🧱 Construis ton hub</div>
+    <div class="cp-title">🧱 Construis ton lieu d’impact</div>
     <div class="mp-hint">${hint}</div>
     <div class="mp-sect mp-espaces">🏡 Tes espaces</div>`;
   if(!spaces.length) panel+=`<div class="hint">Aménage d'abord des espaces dans 🏡 Mon lieu : ils apparaîtront ici, prêts à poser.</div>`;
@@ -4005,7 +3958,7 @@ function modelTileClick(x,y){
     // Modélisation terminée (tous les espaces posés) → badge + la Carte s'ouvre
     if(spaces.length && spaces.every(s=>m.placed[s.id])){
       if(!S.badges.has('modele')){ S.badges.add('modele'); setTimeout(()=>toastBadge('modele'),900); }
-      revealNav('carte', '🗺️ Mets ton lieu sur la Carte', 'Ton hub est modélisé 🧱 Chaque espace a trouvé sa place ✨ Ton lieu mérite maintenant d\'être visible dans l\'écosystème. <b>🎯 Objectif : valide ta fiche publique</b> sur la Carte, pour attirer la communauté.');
+      revealNav('carte', '🗺️ Mets ton lieu sur la Carte', 'Ton lieu d’impact est modélisé 🧱 Chaque espace a trouvé sa place ✨ Il mérite maintenant d\'être visible dans l\'écosystème. <b>🎯 Objectif : valide ta fiche publique</b> sur la Carte, pour attirer la communauté.');
     }
     return;
   }
@@ -4380,7 +4333,7 @@ function markFirstAct(act){ S.firstActs.add(act);
         const capx=pilotCapitals(), CL={eco:'🌿 Écologie',social:'🤝 Social',econo:'🪙 Économie locale'};
         const faibles=[['eco',capx.eco.prom],['social',capx.social.prom],['econo',capx.econo.prom]].filter(x=>x[1]<PLANCHER_CAPITAL).map(x=>CL[x[0]]);
         const obj=`<b>🎯 Objectif : de la Vadance sur les 3 impacts</b> (🌿 Écologie, 🤝 Social, 🪙 Économie locale)${faibles.length?`. Tant que ${faibles.join(' et ')} reste${faibles.length>1?'nt':''} sous ${PLANCHER_CAPITAL}, ta Vadance plafonne : installe aussi des solutions de ce${faibles.length>1?'s':''} capital${faibles.length>1?'aux':''}`:''}.`;
-        revealNav('modele', '🧱 La Modélisation s\'ouvre', 'Donne corps à ton lieu : pose tes espaces sur un terrain en blocs et regarde tes solutions y pousser. <b>🎯 Objectif : modélise ton hub régénératif</b>, la Carte s\'ouvrira ensuite.', false,
+        revealNav('modele', '🧱 La Modélisation s\'ouvre', 'Donne corps à ton lieu : pose tes espaces sur un terrain en blocs et regarde tes solutions y pousser. <b>🎯 Objectif : modélise ton lieu d’impact</b>, la Carte s\'ouvrira ensuite.', false,
         {sel:'#stats', side:'bottom', title:`✨ Ta Vadance : ${round1(curVadance())} ${pts(curVadance())} !`,
          text:`Chacun de tes espaces accueille une solution 🌿 Ton lieu rayonne avec <b>${round1(curVadance())} ${pts(curVadance())} de Vadance</b> ✨ C'est ton impact <i>promis</i>. ${obj} Un nouvel onglet s'ouvre 👇`});
       }
@@ -4916,18 +4869,18 @@ function carteTour(){
   document.getElementById('tour-overlay').classList.add('on');
   showTourStep(0);
 }
-/* Visite guidée de la Modélisation : construire son hub en blocs */
+/* Visite guidée de la Modélisation : construire son lieu d’impact en blocs */
 function modelTourSteps(withNav){
   const steps=[];
   if(withNav) steps.push({sel:'.nav-item[data-tab="modele"]', side:'right', onEnter:()=>{ if(S.tab!=='modele'){ S.tab='modele'; render(); } },
-     title:'🧱 La Modélisation', text:'Ici, ton lieu prend forme : un terrain en blocs, façon jeu de construction, où tu bâtis ton <b>hub régénératif</b>. Voyons comment 👇'});
+     title:'🧱 La Modélisation', text:'Ici, ton <b>lieu d’impact</b> prend forme : un terrain en blocs, façon jeu de construction, où tu le bâtis espace après espace. Voyons comment 👇'});
   steps.push(
     {sel:'.model-map', side:'right', scroll:true, title:'🌍 Ton terrain',
      text:'Une parcelle vierge, à toi. Chaque <b>espace</b> que tu poses occupe un carré de terrain, et les <b>solutions</b> que tu y as installées apparaissent dessus en blocs colorés.'},
     {sel:'.mp-espaces', side:'left', scroll:true, title:'🏡 Tes espaces',
      text:'Ce sont les espaces de ton lieu, ceux que tu as aménagés dans 🏡 Mon lieu. Clique-en un pour le prendre <b>en main</b>, choisis sa <b>taille</b> (📐 de 1×1 à 4×4 carrés), puis clique le terrain pour le poser. Reclique un espace posé pour le déplacer.'},
     {sel:'.mp-deco-sect', side:'left', scroll:true, title:'🌿 Le décor',
-     text:'Arbres, fleurs, chemins, mare… donne vie à ton hub. Le décor n\'a pas d\'effet sur la partie : c\'est <b>ta</b> vision du lieu, celle que tu montrerais aux visiteurs 🌱'});
+     text:'Arbres, fleurs, chemins, mare… donne vie à ton lieu. Le décor n\'a pas d\'effet sur la partie : c\'est <b>ta</b> vision du lieu, celle que tu montrerais aux visiteurs 🌱'});
   return steps;
 }
 function modelTour(){
@@ -5105,7 +5058,7 @@ function devaAnswer(qraw){
   if(has('badge')) return `Les <b>badges</b> 🏅 récompensent tes hauts faits : Gardien de la fraîcheur, Écosystème vivant, Forêt nourricière, Brigades du climat, Pari d'innovation gagné, Triple défi… Retrouve-les au Tableau de bord.`;
   if(has('spirale','vade')) return `La <b>spirale VADE</b> structure la partie : <b>V</b>aloriser (reconnaître l'existant) → <b>A</b>ctiver (mesurer) → <b>D</b>évelopper (faire système) → <b>E</b>ssaimer (passer au réel & inspirer). Puis elle recommence, un cran plus haut.`;
   if(has('carte','réseau','reseau','communauté','communaute')) return `La <b>Carte de l'écosystème</b> 🗺️ montre les lieux, bâtisseurs et semeurs du réseau EVAD près de toi. Clique un marqueur pour ses infos, et filtre par type ou par quêtes ouvertes.`;
-  if(has('modélis','modelis','maquette','bloc','construire','luanti','minetest')) return `La <b>Modélisation</b> 🧱 te laisse construire ton hub en blocs : pose tes <b>espaces</b> sur le terrain, les <b>solutions</b> installées y apparaissent, et tu ajoutes arbres, chemins et mare. Un lieu, ça se dessine aussi 🌱`;
+  if(has('modélis','modelis','maquette','bloc','construire','luanti','minetest')) return `La <b>Modélisation</b> 🧱 te laisse construire ton lieu d’impact en blocs : pose tes <b>espaces</b> sur le terrain, les <b>solutions</b> installées y apparaissent, et tu ajoutes arbres, chemins et mare. Un lieu, ça se dessine aussi 🌱`;
   if(has('ferme','nommer',' nom','créer','creer','fiche','appeler')) return `Pour bien nommer un lieu, sois précis et inspirant, et ajoute un mot-clé d'impact : « <i>Ferme des Lucioles, maraîchage régénératif</i> » ou « <i>Les Racines, permaculture & biodiversité</i> ». Le nom doit dire ce que le lieu <b>prouve</b>.`;
   if(has('objectif','gagner',' but','comment jouer','finir','réussir','reussir')) return `Ton objectif : <b>${goalLabel()}</b>.<br><br>${devaTip()}`;
   if(has('empreinte','frugal','énergie','energie','co2','conso','écolo','ecolo')) return `Je suis une IA <b>frugale</b> : réponses courtes, modèle léger. La jauge en haut montre l'empreinte de notre conversation (électricité, eau, CO₂). L'IA la plus verte, c'est celle qu'on n'appelle que quand c'est utile 🌱.`;
