@@ -772,13 +772,22 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .mtile{fill:transparent;cursor:pointer}
 .mtile:hover{fill:rgba(240,200,74,.42)}
 /* ── Plan du terrain : grille plate 12×10, peinte au clic/glissé ── */
-.ter-wrap{background:linear-gradient(180deg,#dceff7,#e7f5ec 60%);border:1px solid var(--line);border-radius:var(--r-lg);padding:.7rem;box-shadow:var(--shadow)}
-.ter-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:2px;max-width:400px;margin:0 auto;
+/* Terrain 3D : la grille est inclinée en perspective (table de jeu), les cases peintes
+   deviennent des blocs surélevés, et les icônes se redressent face à la caméra. */
+.ter-wrap{background:linear-gradient(180deg,#dcedf7 0%,#e7f5ec 58%);border:1px solid var(--line);border-radius:var(--r-lg);padding:1.5rem .7rem 1.2rem;box-shadow:var(--shadow);perspective:780px;perspective-origin:50% 40%;overflow:hidden}
+.ter-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:2px;max-width:352px;margin:0 auto;
+  transform:rotateX(52deg);transform-style:preserve-3d;transform-origin:50% 60%;
   touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
-.ter-cell{aspect-ratio:1;border-radius:4px;background:#d7ead0;box-shadow:inset 0 0 0 1px rgba(13,43,34,.06);
-  display:flex;align-items:center;justify-content:center;font-size:.72rem;line-height:1;transition:background .12s,transform .12s}
+.ter-cell{aspect-ratio:1;border-radius:3px;background:#d7ead0;--h:0px;
+  transform:translateZ(var(--h));transform-style:preserve-3d;
+  box-shadow:inset 0 0 0 1px rgba(13,43,34,.06);
+  display:flex;align-items:center;justify-content:center;font-size:.72rem;line-height:1;
+  transition:transform .14s,background .12s,box-shadow .12s}
+.ter-cell.fill{--h:15px;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 0 0 1px rgba(13,43,34,.14),0 12px 13px -5px rgba(13,43,34,.5)}
+.ter-cell.tall{--h:32px}
+.tc-ic{display:inline-block;transform:rotateX(-52deg) scale(1.22);transform-origin:50% 88%;pointer-events:none;filter:drop-shadow(0 1.5px 1px rgba(0,0,0,.28))}
 .ter-grid.live .ter-cell{cursor:pointer}
-.ter-grid.live .ter-cell:hover{transform:scale(1.14);box-shadow:inset 0 0 0 1px rgba(13,43,34,.28)}
+.ter-grid.live .ter-cell:hover{transform:translateZ(calc(var(--h) + 9px));box-shadow:inset 0 0 0 1px rgba(13,43,34,.34),0 15px 16px -5px rgba(13,43,34,.5)}
 .ter-grid.ro{pointer-events:none}
 .ter-legend{margin-top:.7rem;display:flex;flex-direction:column;gap:.22rem}
 .ter-leg{display:flex;align-items:center;gap:.4rem;font-size:.66rem;color:var(--moss)}
@@ -4049,7 +4058,8 @@ function terrainGridHTML(live){
     const v=g[i], sp=v>=0?S.spaces[v]:null;
     const d=deco.get(i);
     const ic = sp ? (first.get(v)===i?sp.ic:'') : (d&&MODEL_DECO[d]?MODEL_DECO[d].ic:'');
-    h+=`<div class="ter-cell" data-i="${i}"${sp?` style="background:${spaceColor(v)}"`:''}>${ic}</div>`;
+    const cls = 'ter-cell'+(sp?' fill'+((sp.sols||[]).length?' tall':''):'');
+    h+=`<div class="${cls}" data-i="${i}"${sp?` style="background:${spaceColor(v)}"`:''}>${ic?`<span class="tc-ic">${ic}</span>`:''}</div>`;
   }
   return `<div class="ter-grid ${live?'live':'ro'}">${h}</div>`;
 }
@@ -4078,7 +4088,10 @@ function terrainPaint(i){
   if(!changed) return;
   TER_DIRTY=true;
   const cell=document.querySelector(`.ter-grid.live .ter-cell[data-i="${i}"]`);
-  if(cell){ const sp=v>=0?S.spaces[v]:null; cell.style.background=sp?spaceColor(v):''; cell.textContent=''; }
+  if(cell){ const sp=v>=0?S.spaces[v]:null;
+    cell.classList.toggle('fill', !!sp);
+    cell.classList.toggle('tall', !!(sp && (sp.sols||[]).length));
+    cell.style.background=sp?spaceColor(v):''; cell.textContent=''; }
 }
 /* Fin du geste : c'est là qu'on recalcule les boucles et qu'on rend la main au rendu complet. */
 function terrainStrokeEnd(){
