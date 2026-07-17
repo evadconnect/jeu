@@ -771,6 +771,21 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .model-map svg{display:block;width:100%;height:auto}
 .mtile{fill:transparent;cursor:pointer}
 .mtile:hover{fill:rgba(240,200,74,.42)}
+/* ── Plan du terrain : grille plate 12×10, peinte au clic/glissé ── */
+.ter-wrap{background:linear-gradient(180deg,#dceff7,#e7f5ec 60%);border:1px solid var(--line);border-radius:var(--r-lg);padding:.7rem;box-shadow:var(--shadow)}
+.ter-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:2px;max-width:400px;margin:0 auto;
+  touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.ter-cell{aspect-ratio:1;border-radius:4px;background:#d7ead0;box-shadow:inset 0 0 0 1px rgba(13,43,34,.06);
+  display:flex;align-items:center;justify-content:center;font-size:.72rem;line-height:1;transition:background .12s,transform .12s}
+.ter-grid.live .ter-cell{cursor:pointer}
+.ter-grid.live .ter-cell:hover{transform:scale(1.14);box-shadow:inset 0 0 0 1px rgba(13,43,34,.28)}
+.ter-grid.ro{pointer-events:none}
+.ter-legend{margin-top:.7rem;display:flex;flex-direction:column;gap:.22rem}
+.ter-leg{display:flex;align-items:center;gap:.4rem;font-size:.66rem;color:var(--moss)}
+.ter-leg .tl-sw{width:12px;height:12px;border-radius:3px;flex-shrink:0;box-shadow:inset 0 0 0 1px rgba(13,43,34,.18)}
+.ter-leg .tl-nm{font-weight:800;color:var(--ink)}
+.ter-leg .tl-n{margin-left:auto;font-variant-numeric:tabular-nums}
+.ter-leg.none .tl-n{opacity:.55}
 .model-panel{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:1rem 1.05rem;box-shadow:var(--shadow)}
 .mp-hint{font-size:.72rem;color:var(--moss);background:var(--cream);border-radius:10px;padding:.5rem .65rem;margin:.5rem 0 .8rem;line-height:1.45}
 .mp-sect{font-size:.68rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--moss);margin:.9rem 0 .45rem}
@@ -1724,16 +1739,20 @@ Object.entries(COMPETENCES).forEach(([k,c])=>{ if(k!=='mesurer') c.for=SOLUTIONS
    La circularité est physique : une boucle ne se ferme que si les deux solutions se touchent
    vraiment, c'est-à-dire dans le même espace, ou dans deux espaces voisins sur le terrain de la
    🧱 Modélisation. Les flux qui se répondent sans se toucher restent des boucles « en attente ». */
-function rectsAdjacent(a,na,b,nb){ // deux empreintes carrées se touchent-elles par un côté ?
-  const ax2=a.x+na-1, ay2=a.y+na-1, bx2=b.x+nb-1, by2=b.y+nb-1;
-  const chevX = a.x<=bx2 && b.x<=ax2, chevY = a.y<=by2 && b.y<=ay2;
-  return ((ax2+1===b.x || bx2+1===a.x) && chevY) || ((ay2+1===b.y || by2+1===a.y) && chevX);
-}
+/* Deux espaces se touchent si au moins une cellule peinte de l'un jouxte (par un côté) une cellule de l'autre. */
 function spacesAdjacent(idA,idB){
-  const m=S.model; if(!m || !m.placed) return false;
-  const pa=m.placed[idA], pb=m.placed[idB];
-  if(!pa || !pb) return false;                       // un espace non posé ne touche rien
-  return rectsAdjacent(pa, modSize(m,idA), pb, modSize(m,idB));
+  const g=S.terrainGrid; if(!g) return false;
+  const a=spaceIdx(idA), b=spaceIdx(idB);
+  if(a<0 || b<0) return false;
+  for(let i=0;i<TER_CELLS;i++){
+    if(g[i]!==a) continue;                           // un espace sans cellule ne touche rien
+    const x=i%TER_COLS, y=(i/TER_COLS)|0;
+    if(x>0            && g[i-1]===b) return true;
+    if(x<TER_COLS-1   && g[i+1]===b) return true;
+    if(y>0            && g[i-TER_COLS]===b) return true;
+    if(y<TER_ROWS-1   && g[i+TER_COLS]===b) return true;
+  }
+  return false;
 }
 /* Toutes les paires dont les flux se répondent : {a,b,near} — near = la boucle est réellement fermée */
 function loopPairs(){
@@ -1790,7 +1809,7 @@ function newState(profile){
     tab:'a', devaOpen:false,
     // pilote
     hand:[], spaces:null, sel:null, pcomps:new Set(), lieuName:'La Friche des Possibles', lieuType:'jardin', ob:null, playerName:'', loopsActive:0, loopBadgeShown:false, vadanceBonus:0,
-    lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{}, questesPubliees:false, questesPublieesSnap:'', myPosts:[], questCands:[], biblioTourDone:false, carteTourDone:false, reseauTourDone:false, batMissionsTourDone:false, batCompTourDone:false, pendingBatTour:false, tourDemo:false, model:null, modelTourDone:false, relaisShown:false, capCoachShown:false,
+    lieuVille:'Bordeaux', lieuDesc:'', lieuPublished:false, questProgress:{}, questesPubliees:false, questesPublieesSnap:'', myPosts:[], questCands:[], biblioTourDone:false, carteTourDone:false, reseauTourDone:false, batMissionsTourDone:false, batCompTourDone:false, pendingBatTour:false, tourDemo:false, model:null, terrainGrid:null, modelTourDone:false, relaisShown:false, capCoachShown:false,
     pondMode:'egalite', measureCtx:null,
     mktFilter:'all', purchases:[], myOffers:[], ecoMissions:{},
     // batisseur
@@ -2363,6 +2382,8 @@ function buildLieu(ob){
   let idx=0;
   [...ob.spaces].forEach(tp=>{ const m=TYPE_META[tp]; if(!m) return; spaces.push({id:tp+'-ob'+(idx++), name:m.name, ic:m.ic, bg:m.bg, type:tp, existant:false, sols:[]}); });
   S.spaces=spaces;
+  S.terrainGrid=new Array(TER_CELLS).fill(-1);   // nouveau lieu, terrain vierge
+  S.model={deco:[], sel:null, mode:null};
 }
 function obFinish(){
   const ob=S.ob;
@@ -3009,7 +3030,11 @@ function addSpace(type){
 function removeSpace(id){
   const sp=S.spaces.find(x=>x.id===id);
   if(!sp||sp.existant||sp.sols.length) return;
+  const idx=spaceIdx(id);
   S.spaces=S.spaces.filter(x=>x.id!==id);
+  terrainDropSpace(idx);        // le terrain indexe S.spaces : ses index glissent avec la suppression
+  const m=S.model;
+  if(m){ if(m.sel===idx) m.sel=null; else if(m.sel!=null && m.sel>idx) m.sel--; }
   render();
 }
 let RENAME_CB=null;
@@ -3639,9 +3664,9 @@ function openFicheMonLieu(l){
       ${acts.length?`<div class="det-sec"><div class="det-sec-t">🧩 Activités de tes espaces</div>${ficheTags(acts)}</div>`:''}
       ${names.length?`<div class="det-sec"><div class="det-sec-t">🌱 Solutions installées</div>${ficheTags(names,'gr')}</div>`:'<div class="det-flux">Aucune solution installée pour l’instant : ouvre la Bibliothèque et pose ta première carte.</div>'}
       ${(S.navUnlocked&&S.navUnlocked.has('modele'))?`<div class="det-sec"><div class="det-sec-t">🧱 Modélisation du lieu</div>${
-        Object.keys((S.model&&S.model.placed)||{}).length
-          ? `<div class="model-map">${modelSceneSvg(mine, modelState(), false)}</div>`
-          : `<div class="det-flux">Ton lieu n'est pas encore modélisé : pose tes espaces sur le terrain pour lui donner corps 🧱</div>`
+        terrainUsed()
+          ? `<div class="ter-wrap">${terrainGridHTML(false)}${terrainLegendHTML(mine)}</div>`
+          : `<div class="det-flux">Ton lieu n'est pas encore modélisé : peins tes espaces sur le terrain pour lui donner corps 🧱</div>`
       }<button class="btn btn-ghost det-action" onclick="closeModal();switchTab('modele')">🧱 Ouvrir la Modélisation →</button></div>`:''}
       ${qpub.length?`<div class="det-sec"><div class="det-sec-t">⚔️ Réalisations publiées</div>
         ${qpub.map(q=>`<div class="mq-item mini"><span class="mq-ic">${q.sol.ic}</span>
@@ -3870,9 +3895,27 @@ const MODEL_DECO={
 };
 const MOD_N=10, MOD_W=32, MOD_H=16;                 // grille N×N, demi-largeur/hauteur d'une tuile
 const MOD_VW=MOD_N*MOD_W*2+92, MOD_OX=MOD_VW/2, MOD_OY=52;
-function modelState(){ if(!S.model) S.model={placed:{}, deco:[], sizes:{}, sel:null, mode:null}; if(!S.model.sizes) S.model.sizes={}; return S.model; }
+/* ── Plan du terrain du joueur : 12×10 cellules peintes ──
+   S.terrainGrid[i] = -1 (vide) sinon l'index de l'espace dans S.spaces.
+   Les index glissent quand un espace est supprimé : terrainDropSpace() les remappe. */
+const TER_COLS=12, TER_ROWS=10, TER_CELLS=TER_COLS*TER_ROWS;
+function terrainGrid(){
+  if(!Array.isArray(S.terrainGrid) || S.terrainGrid.length!==TER_CELLS) S.terrainGrid=new Array(TER_CELLS).fill(-1);
+  return S.terrainGrid;
+}
+function spaceIdx(id){ return (S.spaces||[]).findIndex(s=>s.id===id); }
+/* Une teinte pastel distincte par espace : l'angle d'or écarte au maximum les couleurs voisines. */
+function spaceColor(idx,l){ return `hsl(${Math.round(idx*137.508)%360} 58% ${l||80}%)`; }
+function terrainCount(idx){ const g=terrainGrid(); let n=0; for(let i=0;i<TER_CELLS;i++) if(g[i]===idx) n++; return n; }
+function terrainUsed(){ const g=terrainGrid(); let n=0; for(let i=0;i<TER_CELLS;i++) if(g[i]>=0) n++; return n; }
+/* Espace supprimé : ses cellules se vident, les index au-dessus se décalent avec S.spaces. */
+function terrainDropSpace(idx){
+  const g=terrainGrid();
+  for(let i=0;i<TER_CELLS;i++){ if(g[i]===idx) g[i]=-1; else if(g[i]>idx) g[i]--; }
+}
+/* sel = index de l'espace en cours de peinture dans S.spaces (null = aucun) ; mode = 'erase' ou une clé de MODEL_DECO */
+function modelState(){ if(!S.model) S.model={deco:[], sel:null, mode:null}; if(!Array.isArray(S.model.deco)) S.model.deco=[]; return S.model; }
 function modSize(m,id){ return m.sizes[id]||2; }               // côté du carré occupé par l'espace (2×2 par défaut)
-function modOwner(m,x,y,skip){ for(const id in m.placed){ if(id===skip) continue; const p=m.placed[id], n=modSize(m,id); if(x>=p.x&&x<p.x+n&&y>=p.y&&y<p.y+n) return id; } return null; }
 function modCx(x,y){ return MOD_OX+(x-y)*MOD_W; }
 function modCy(x,y){ return MOD_OY+(x+y)*MOD_H+MOD_H; }
 function modDia(cx,cy,w,h){ return `${cx},${cy-h} ${cx+w},${cy} ${cx},${cy+h} ${cx-w},${cy}`; }
@@ -3912,8 +3955,8 @@ function modSpaceHTML(sp,p,n){
   }
   return s;
 }
-/* Construit la scène isométrique complète ; interactive=false pour un aperçu en lecture seule (fiches) */
-function modelSceneSvg(spaces, m, interactive){
+/* Scène isométrique en lecture seule : ne sert plus qu'aux aperçus des lieux du réseau (données rect x/y/size). */
+function modelSceneSvg(spaces, m){
   /* ---- terrain ---- */
   let g='';
   const GREENS=['#cde7c8','#c6e2c1','#d3ebce'];
@@ -3936,9 +3979,6 @@ function modelSceneSvg(spaces, m, interactive){
     items.push({d:d.x+d.y, html:`<ellipse cx="${cx}" cy="${cy+5}" rx="10" ry="4" fill="rgba(13,43,34,.16)"/><text x="${cx}" y="${cy+2-(big?8:2)}" text-anchor="middle" font-size="${big?24:17}">${MODEL_DECO[d.t].ic}</text>`});
   });
   items.sort((a,b)=>a.d-b.d).forEach(it=>{ g+=it.html; });
-  /* ---- tuiles cliquables (mode interactif seulement) ---- */
-  if(interactive) for(let y=0;y<MOD_N;y++) for(let x=0;x<MOD_N;x++)
-    g+=`<polygon class="mtile" points="${modDia(modCx(x,y),modCy(x,y),MOD_W,MOD_H)}" onclick="modelTileClick(${x},${y})"/>`;
   /* ---- étiquettes des espaces (non cliquables) ---- */
   let labels='';
   for(const id in m.placed){
@@ -3953,112 +3993,168 @@ function modelSceneSvg(spaces, m, interactive){
 function renderModele(){
   const el=document.getElementById('view-modele'); if(!el) return;
   if(S.profile!=='pilote'){ el.innerHTML=''; return; }
-  const m=modelState();
+  const m=modelState(); terrainGrid();
   const spaces=(S.spaces||[]).filter(sp=>!sp.existant);
-  Object.keys(m.placed).forEach(id=>{ if(!spaces.find(sp=>sp.id===id)) delete m.placed[id]; }); // espaces disparus
-  const svg=modelSceneSvg(spaces, m, true);
+  if(m.sel!=null && !(S.spaces[m.sel] && !S.spaces[m.sel].existant)) m.sel=null;   // espace supprimé entre-temps
+  const selSp = m.sel!=null ? S.spaces[m.sel] : null;
 
   /* ---- panneau ---- */
-  const hint = m.sel ? `📐 Choisis la taille ci-dessous, puis 👆 clique le terrain pour poser « <b>${escapeHtml((spaces.find(s=>s.id===m.sel)||{}).name||'')}</b> » (${modSize(m,m.sel)}×${modSize(m,m.sel)})`
-    : m.mode==='erase' ? '🧽 Clique un élément du terrain pour le retirer'
+  const hint = selSp ? `🎨 Clique — ou <b>glisse</b> — sur le terrain pour peindre « <b>${escapeHtml(selSp.name)}</b> », puis re-clique son bouton pour confirmer ✅`
+    : m.mode==='erase' ? '🧽 Clique ou glisse sur le terrain pour effacer, puis re-clique 🧽 Gomme pour terminer'
     : m.mode ? `👆 Clique le terrain pour poser ${MODEL_DECO[m.mode].ic} ${MODEL_DECO[m.mode].n}`
-    : 'Choisis un espace ou un élément de décor 👇 puis pose-le sur le terrain. Clique un espace posé pour le déplacer.';
-  const placedN=Object.keys(m.placed).length;
-  const solsN=spaces.reduce((a,sp)=>a+(m.placed[sp.id]?(sp.sols||[]).length:0),0);
+    : 'Choisis un espace 👇 puis peins ses blocs sur le terrain : il occupe autant de blocs que tu veux.';
   const loops=activeLoops(), pending=pendingLoops();
+  const paintedN=spaces.filter(sp=>terrainCount(spaceIdx(sp.id))>0).length;
   let panel=`<div class="model-panel">
     <div class="cp-title">🧱 Construis ton lieu d’impact</div>
     <div class="mp-hint">${hint}</div>
     <div class="mp-loops">
       <div class="mpl-t">🔄 Boucles circulaires · ${loops.length}</div>
       <div class="mpl-d">${pending.length
-        ? `<b>${pending.length} boucle${pending.length>1?'s':''} en attente</b> : ${pending.map(p=>`${SOL[p.a].ic}➜${SOL[p.b].ic}`).join(' ')} — colle ces espaces l'un contre l'autre pour ${pending.length>1?'les':'la'} fermer 🌱`
+        ? `<b>${pending.length} boucle${pending.length>1?'s':''} en attente</b> : ${pending.map(p=>`${SOL[p.a].ic}➜${SOL[p.b].ic}`).join(' ')} — peins ces espaces l'un contre l'autre pour ${pending.length>1?'les':'la'} fermer 🌱`
         : (loops.length ? `${loopMultLabel(loops.length,true)||'Tes boucles sont fermées'} 🌿 Chaque boucle rapporte des Graines à chaque saison.`
-                        : `Une boucle se ferme quand deux solutions dont les flux se répondent se touchent : même espace, ou espaces voisins sur le terrain.`)}</div>
+                        : `Une boucle se ferme quand deux solutions dont les flux se répondent se touchent : même espace, ou deux blocs voisins sur le terrain.`)}</div>
     </div>
     <div class="mp-sect mp-espaces">🏡 Tes espaces</div>`;
-  if(!spaces.length) panel+=`<div class="hint">Aménage d'abord des espaces dans 🏡 Mon lieu : ils apparaîtront ici, prêts à poser.</div>`;
+  if(!spaces.length) panel+=`<div class="hint">Aménage d'abord des espaces dans 🏡 Mon lieu : ils apparaîtront ici, prêts à peindre.</div>`;
   else panel+=spaces.map(sp=>{
-    const on=m.sel===sp.id, placed=!!m.placed[sp.id], n=modSize(m,sp.id);
+    const idx=spaceIdx(sp.id), on=m.sel===idx, n=terrainCount(idx);
     const solIds=new Set((sp.sols||[]).map(x=>x.id));
     const nLoop=loops.filter(p=>solIds.has(p.a)||solIds.has(p.b)).length;
-    let h=`<button class="mp-item ${on?'on':''}" onclick="modelSelectSpace('${sp.id}')">
-      <span class="mpi-ic" style="background:${sp.bg}">${sp.ic}</span>
-      <span class="mpi-tx"><span class="mpi-nm">${escapeHtml(sp.name)}</span><span class="mpi-sub">📐 ${n}×${n} · 🌱 ${(sp.sols||[]).length} solution(s)${nLoop?` · 🔄 ${nLoop}`:''}</span></span>
-      <span class="mpi-st ${placed?'ok':''}">${on?'👆 en main':(placed?'✅ posé':'à poser')}</span></button>`;
-    if(on) h+=`<div class="mp-size"><span class="mps-lab">📐 Taille</span>${[1,2,3,4].map(k=>`<button class="${n===k?'on':''}" onclick="modelSetSize('${sp.id}',${k})">${k}×${k}</button>`).join('')}</div>`;
-    return h;
+    return `<button class="mp-item ${on?'on':''}" onclick="terrainSelectSpace(${idx})">
+      <span class="mpi-ic" style="background:${spaceColor(idx)}">${sp.ic}</span>
+      <span class="mpi-tx"><span class="mpi-nm">${escapeHtml(sp.name)}</span><span class="mpi-sub">🧱 ${n} bloc${n>1?'s':''} · 🌱 ${(sp.sols||[]).length} solution(s)${nLoop?` · 🔄 ${nLoop}`:''}</span></span>
+      <span class="mpi-st ${n?'ok':''}">${on?'🎨 en cours':(n?'✅ peint':'à peindre')}</span></button>`;
   }).join('');
   panel+=`<div class="mp-sect mp-deco-sect">🌿 Décor</div>
     <div class="mp-deco">${Object.entries(MODEL_DECO).map(([k,d])=>`<button class="mp-deco-btn ${m.mode===k?'on':''}" onclick="modelSelectDeco('${k}')" title="${d.n}"><span>${d.ic}</span><small>${d.n}</small></button>`).join('')}</div>
     <div class="mp-tools">
-      <button class="${m.mode==='erase'?'on':''}" onclick="modelEraseMode()">🧽 Gommer</button>
-      <button onclick="modelClear()">🗑️ Tout retirer</button>
+      <button class="${m.mode==='erase'?'on':''}" onclick="terrainEraseMode()">🧽 Gomme</button>
+      <button onclick="terrainClear()">🗑️ Tout effacer</button>
     </div>
-    <div class="mp-counts">🏡 ${placedN}/${spaces.length} espace(s) posé(s) · 🌱 ${solsN} solution(s) · 🔄 ${loops.length} boucle(s)</div>
+    <div class="mp-counts">🏡 ${paintedN}/${spaces.length} espace(s) peint(s) · 🧱 ${terrainUsed()}/${TER_CELLS} blocs · 🔄 ${loops.length} boucle(s)</div>
   </div>`;
-  el.innerHTML=`<div class="model-wrap"><div class="model-map">${svg}</div>${panel}</div>`;
+
+  el.innerHTML=`<div class="model-wrap"><div><div class="ter-wrap">${terrainGridHTML(true)}${terrainLegendHTML(spaces)}</div></div>${panel}</div>`;
+  terrainBind(el.querySelector('.ter-grid'));
 }
-function modelTileClick(x,y){
-  const m=modelState();
+/* La grille : une cellule = un <div>, l'icône de l'espace ne s'affiche que sur son premier bloc. */
+function terrainGridHTML(live){
+  const g=terrainGrid(), m=modelState();
+  const deco=new Map(m.deco.map(d=>[d.i,d.t]));
+  const first=new Map();
+  for(let i=0;i<TER_CELLS;i++){ const v=g[i]; if(v>=0 && !first.has(v)) first.set(v,i); }
+  let h='';
+  for(let i=0;i<TER_CELLS;i++){
+    const v=g[i], sp=v>=0?S.spaces[v]:null;
+    const d=deco.get(i);
+    const ic = sp ? (first.get(v)===i?sp.ic:'') : (d&&MODEL_DECO[d]?MODEL_DECO[d].ic:'');
+    h+=`<div class="ter-cell" data-i="${i}"${sp?` style="background:${spaceColor(v)}"`:''}>${ic}</div>`;
+  }
+  return `<div class="ter-grid ${live?'live':'ro'}">${h}</div>`;
+}
+/* « 🍳 Cuisine : 18 blocs / 120 » */
+function terrainLegendHTML(spaces){
+  if(!spaces.length) return '';
+  return `<div class="ter-legend">${spaces.map(sp=>{
+    const idx=spaceIdx(sp.id), n=terrainCount(idx);
+    return `<div class="ter-leg ${n?'':'none'}"><span class="tl-sw" style="background:${spaceColor(idx)}"></span>
+      <span class="tl-nm">${sp.ic} ${escapeHtml(sp.name)}</span>
+      <span class="tl-n">${n} bloc${n>1?'s':''} / ${TER_CELLS}</span></div>`;
+  }).join('')}</div>`;
+}
+/* ── Peinture ──
+   Pendant le geste on ne re-render pas (ça détruirait la grille et couperait le drag) :
+   on repeint la cellule en place, et le bilan (boucles, badges, compteurs) attend le relâchement. */
+let TER_PAINTING=false, TER_DIRTY=false, TER_GLOBAL=false;
+function terrainPaint(i){
+  if(i<0 || i>=TER_CELLS) return;
+  const m=modelState(), g=terrainGrid();
+  if(m.sel==null && m.mode!=='erase') return;
+  const v = m.sel!=null ? m.sel : -1;
+  let changed=false;
+  if(v===-1){ const di=m.deco.findIndex(d=>d.i===i); if(di>=0){ m.deco.splice(di,1); changed=true; } }
+  if(g[i]!==v){ g[i]=v; changed=true; }
+  if(!changed) return;
+  TER_DIRTY=true;
+  const cell=document.querySelector(`.ter-grid.live .ter-cell[data-i="${i}"]`);
+  if(cell){ const sp=v>=0?S.spaces[v]:null; cell.style.background=sp?spaceColor(v):''; cell.textContent=''; }
+}
+/* Fin du geste : c'est là qu'on recalcule les boucles et qu'on rend la main au rendu complet. */
+function terrainStrokeEnd(){
+  if(!TER_DIRTY) return;
+  TER_DIRTY=false;
   const spaces=(S.spaces||[]).filter(sp=>!sp.existant);
-  if(m.sel){
-    const n=modSize(m,m.sel);
-    const px=Math.min(x,MOD_N-n), py=Math.min(y,MOD_N-n);
-    for(let dx=0;dx<n;dx++) for(let dy=0;dy<n;dy++){
-      if(modOwner(m,px+dx,py+dy,m.sel)){ toast('Cet emplacement chevauche un autre espace','warn'); return; }
-    }
-    m.deco=m.deco.filter(d=>!(d.x>=px&&d.x<px+n&&d.y>=py&&d.y<py+n));   // le décor laisse la place
-    const sp=spaces.find(s=>s.id===m.sel);
-    m.placed[m.sel]={x:px,y:py}; m.sel=null;
-    toast(`🏡 « ${sp?sp.name:'Espace'} » posé sur le terrain`,'win');
-    checkLoops(true);        // rapprocher deux espaces peut fermer une boucle : on le dit
-    checkBadges();           // 4 boucles = Écosystème vivant, 7 = Forêt nourricière
-    render();
-    // Modélisation terminée (tous les espaces posés) → badge + la Carte s'ouvre
-    if(spaces.length && spaces.every(s=>m.placed[s.id])){
-      if(!S.badges.has('modele')){ S.badges.add('modele'); setTimeout(()=>toastBadge('modele'),900); }
-      revealNav('carte', '🗺️ Mets ton lieu sur la Carte', 'Ton lieu d’impact est modélisé 🧱 Chaque espace a trouvé sa place ✨ Il mérite maintenant d\'être visible dans l\'écosystème. <b>🎯 Objectif : valide ta fiche publique</b> sur la Carte, pour attirer la communauté.');
-    }
-    return;
-  }
-  if(m.mode==='erase'){
-    const di=m.deco.findIndex(d=>d.x===x&&d.y===y);
-    if(di>=0){ m.deco.splice(di,1); render(); return; }
-    const o=modOwner(m,x,y);
-    if(o){ delete m.placed[o]; m.sel=o; m.mode=null; toast('↩ Espace repris, repose-le où tu veux'); render(); }
-    return;
-  }
-  if(m.mode && MODEL_DECO[m.mode]){
-    if(modOwner(m,x,y)){ toast('Pose le décor sur l\'herbe, pas sur un espace 🌱','warn'); return; }
-    if(m.deco.find(d=>d.x===x&&d.y===y)){ toast('Il y a déjà quelque chose ici','warn'); return; }
-    m.deco.push({t:m.mode,x,y}); render(); return;
-  }
-  const o=modOwner(m,x,y);
-  if(o){ m.sel=o; delete m.placed[o]; render(); }   // reprendre un espace posé pour le déplacer
-}
-/* Choisir le nombre de carrés (côté n×n) d'un espace ; re-valide un éventuel placement */
-function modelSetSize(id,n){
-  const m=modelState(); m.sizes[id]=n;
-  const p=m.placed[id];
-  if(p){
-    const px=Math.min(p.x,MOD_N-n), py=Math.min(p.y,MOD_N-n);
-    let ok=true;
-    for(let dx=0;dx<n&&ok;dx++) for(let dy=0;dy<n;dy++){ if(modOwner(m,px+dx,py+dy,id)){ ok=false; break; } }
-    if(ok){ p.x=px; p.y=py; m.deco=m.deco.filter(d=>!(d.x>=px&&d.x<px+n&&d.y>=py&&d.y<py+n)); }
-    else { delete m.placed[id]; m.sel=id; toast('Plus assez de place ici : repose l\'espace 👆','warn'); }
-  }
+  checkLoops(true);        // rapprocher deux espaces peut fermer une boucle : on le dit
+  checkBadges();           // 4 boucles = Écosystème vivant, 7 = Forêt nourricière
   render();
+  // Terrain complet (chaque espace a au moins un bloc) → badge + la Carte s'ouvre
+  if(spaces.length && spaces.every(sp=>terrainCount(spaceIdx(sp.id))>0)){
+    if(!S.badges.has('modele')){ S.badges.add('modele'); setTimeout(()=>toastBadge('modele'),900); }
+    revealNav('carte', '🗺️ Mets ton lieu sur la Carte', 'Ton lieu d’impact est modélisé 🧱 Chaque espace a trouvé sa place ✨ Il mérite maintenant d\'être visible dans l\'écosystème. <b>🎯 Objectif : valide ta fiche publique</b> sur la Carte, pour attirer la communauté.');
+  }
 }
-function modelSelectSpace(id){
+/* Le décor se pose au clic, bloc par bloc — on ne le peint pas au glissé. */
+function terrainDecoClick(i){
+  const m=modelState();
+  if(!m.mode || m.mode==='erase' || !MODEL_DECO[m.mode]) return false;
+  if(terrainGrid()[i]>=0){ toast('Pose le décor sur l\'herbe, pas sur un espace 🌱','warn'); return true; }
+  if(m.deco.find(d=>d.i===i)){ toast('Il y a déjà quelque chose ici','warn'); return true; }
+  m.deco.push({t:m.mode, i}); render(); return true;
+}
+function terrainBind(el){
+  if(!el) return;
+  if(!TER_GLOBAL){        // une seule fois : la grille est recréée à chaque render, pas la fenêtre
+    TER_GLOBAL=true;
+    const end=()=>{ if(TER_PAINTING){ TER_PAINTING=false; terrainStrokeEnd(); } };
+    window.addEventListener('mouseup', end);
+    window.addEventListener('touchend', end);
+    window.addEventListener('touchcancel', end);
+  }
+  const cellAt=t=>{ const c=(t&&t.closest)?t.closest('.ter-cell'):null; return c?+c.dataset.i:-1; };
+  el.addEventListener('mousedown', e=>{
+    if(e.button!==0) return;
+    const i=cellAt(e.target); if(i<0) return;
+    e.preventDefault();
+    if(terrainDecoClick(i)) return;
+    TER_PAINTING=true; terrainPaint(i);
+  });
+  el.addEventListener('mousemove', e=>{
+    if(!TER_PAINTING || !(e.buttons&1)) return;
+    const i=cellAt(e.target); if(i>=0) terrainPaint(i);
+  });
+  el.addEventListener('touchstart', e=>{
+    const i=cellAt(e.target); if(i<0) return;
+    e.preventDefault();                       // pas de scroll, pas de clic fantôme derrière
+    if(terrainDecoClick(i)) return;
+    TER_PAINTING=true; terrainPaint(i);
+  }, {passive:false});
+  /* Le doigt garde la cible du touchstart : pour le glissé il faut retrouver la cellule sous le point. */
+  el.addEventListener('touchmove', e=>{
+    if(!TER_PAINTING) return;
+    const t=e.touches[0]; if(!t) return;
+    e.preventDefault();
+    const i=cellAt(document.elementFromPoint(t.clientX,t.clientY));
+    if(i>=0) terrainPaint(i);
+  }, {passive:false});
+}
+/* Sélectionner un espace, puis re-cliquer le même bouton = confirmer et revenir au neutre. */
+function terrainSelectSpace(idx){
   const m=modelState(); m.mode=null;
-  if(m.sel===id){ m.sel=null; }
-  else { m.sel=id; if(m.placed[id]) delete m.placed[id]; }
+  if(m.sel===idx){
+    const sp=S.spaces[idx], n=terrainCount(idx);
+    m.sel=null;
+    toast(n ? `✅ « ${sp?sp.name:'Espace'} » occupe ${n} bloc${n>1?'s':''} du terrain` : 'Aucun bloc peint pour cet espace', n?'win':'warn');
+  } else m.sel=idx;
   render();
 }
 function modelSelectDeco(t){ const m=modelState(); m.sel=null; m.mode=(m.mode===t?null:t); render(); }
-function modelEraseMode(){ const m=modelState(); m.sel=null; m.mode=(m.mode==='erase'?null:'erase'); render(); }
-function modelClear(){ const m=modelState(); m.placed={}; m.deco=[]; m.sel=null; m.mode=null; toast('Terrain vidé'); render(); }
+function terrainEraseMode(){ const m=modelState(); m.sel=null; m.mode=(m.mode==='erase'?null:'erase'); render(); }
+function terrainClear(){
+  const m=modelState();
+  S.terrainGrid=new Array(TER_CELLS).fill(-1); m.deco=[]; m.sel=null; m.mode=null;
+  toast('Terrain effacé'); checkLoops(false); render();
+}
 /* ── Modélisations des lieux du réseau (aperçus en lecture seule dans les fiches) ── */
 const MODEL_LIEUX={
   darwin:{spaces:[
@@ -4084,7 +4180,7 @@ function modelLieuSvg(id){
   const spec=MODEL_LIEUX[id]; if(!spec) return '';
   const placed={}, sizes={};
   spec.spaces.forEach(sp=>{ placed[sp.id]={x:sp.x,y:sp.y}; sizes[sp.id]=sp.size; });
-  return modelSceneSvg(spec.spaces, {placed, deco:spec.deco||[], sizes}, false);
+  return modelSceneSvg(spec.spaces, {placed, deco:spec.deco||[], sizes});
 }
 
 
@@ -4591,8 +4687,7 @@ function pilotNextAction(){
   if(mine.some(sp=>!(sp.activities||[]).length)) return {txt:`Choisis une <b>activité</b> pour chacun de tes espaces`, tab:'a'};
   const faibles=capitauxFaibles();
   if(faibles.length) return {txt:`Installe des <b>solutions</b> : couvre ${CAP_MODELE} de Vadance sur ${faibles.length>1?'les 3 impacts':`<b>${faibles[0].label}</b>`}`, tab:'b'};
-  const m=S.model;
-  if(!m || mine.some(sp=>!m.placed[sp.id])) return {txt:`<b>Pose tes espaces</b> sur le terrain de la Modélisation`, tab:'modele'};
+  if(mine.some(sp=>!terrainCount(spaceIdx(sp.id)))) return {txt:`<b>Peins tes espaces</b> sur le terrain de la Modélisation`, tab:'modele'};
   // Les boucles restées ouvertes ne bloquent pas la chaîne : toutes ne peuvent pas se toucher.
   // On les signale seulement une fois le fil principal déroulé (« Mon lieu » les détaille déjà).
   if(!S.lieuPublished) return {txt:`<b>Publie ta fiche</b> sur la Carte pour rejoindre l'écosystème`, tab:'carte'};
