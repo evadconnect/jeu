@@ -5144,10 +5144,12 @@ function modelTourSteps(withNav){
   if(withNav) steps.push({sel:'.nav-item[data-tab="modele"]', side:'right', onEnter:()=>{ if(S.tab!=='modele'){ S.tab='modele'; render(); } },
      title:'🧱 La Modélisation', text:'Ici, ton <b>lieu d’impact</b> prend forme : un terrain en blocs, façon jeu de construction, où tu le bâtis espace après espace. Voyons comment 👇'});
   steps.push(
-    {sel:'.model-map', side:'right', scroll:true, title:'🌍 Ton terrain',
-     text:'Une parcelle vierge, à toi. Chaque <b>espace</b> que tu poses occupe un carré de terrain, et les <b>solutions</b> que tu y as installées apparaissent dessus en blocs colorés.'},
+    {sel:'.ter-grid.live', side:'right', scroll:true, title:'🎨 Peins ton terrain',
+     text:'Une grille de <b>120 blocs</b>, à toi. Choisis un <b>espace</b> dans la liste, puis <b>clique — ou glisse le doigt — sur la grille</b> pour peindre ses blocs : il occupe autant de cases que tu veux. Reclique son bouton pour <b>confirmer</b>. La <b>Gomme</b> 🧽 efface de la même façon.'},
     {sel:'.mp-espaces', side:'left', scroll:true, title:'🏡 Tes espaces',
-     text:'Ce sont les espaces de ton lieu, ceux que tu as aménagés dans 🏡 Mon lieu. Clique-en un pour le prendre <b>en main</b>, choisis sa <b>taille</b> (📐 de 1×1 à 4×4 carrés), puis clique le terrain pour le poser. Reclique un espace posé pour le déplacer.'},
+     text:'Ce sont les espaces de ton lieu, ceux que tu as aménagés dans 🏡 Mon lieu. Chacun a sa <b>couleur</b> ; le compteur t\'indique combien de blocs il occupe. Sélectionne-en un pour commencer à le peindre 👆'},
+    {sel:'.mp-loops', side:'left', scroll:true, title:'🔄 Les boucles régénératives',
+     text:'La <b>disposition</b> compte : quand deux espaces dont les solutions se répondent sont <b>voisins</b> — au moins un de leurs blocs se touche — une <b>boucle</b> se ferme et te rapporte des Graines à chaque saison. Colle les bons espaces côte à côte 🌿'},
     {sel:'.mp-deco-sect', side:'left', scroll:true, title:'🌿 Le décor',
      text:'Arbres, fleurs, chemins, mare… donne vie à ton lieu. Le décor n\'a pas d\'effet sur la partie : c\'est <b>ta</b> vision du lieu, celle que tu montrerais aux visiteurs 🌱'});
   return steps;
