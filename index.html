@@ -3923,8 +3923,25 @@ function terrainGrid(){
   return S.terrainGrid;
 }
 function spaceIdx(id){ return (S.spaces||[]).findIndex(s=>s.id===id); }
-/* Une teinte pastel distincte par espace : l'angle d'or écarte au maximum les couleurs voisines. */
-function spaceColor(idx,l){ return `hsl(${Math.round(idx*137.508)%360} 58% ${l||80}%)`; }
+/* Couleur réaliste par type d'espace : [teinte, saturation, décalage de luminosité].
+   Le jardin est vert, la serre grise (verre), la cuisine orange, l'atelier bois, le compost terre…
+   Deux espaces du même type se distinguent par une luminosité légèrement décalée. */
+const TYPE_COLORS={
+  jardin:[115,45,0],  serre:[200,12,0],   compost:[26,35,-8],
+  cuisine:[30,75,0],  cantine:[46,70,0],  cafe_bar:[22,45,0],
+  atelier:[10,45,-4], fablab:[250,40,0],  stockage:[0,0,-4],
+  coworking:[210,55,0], salle_reunion:[225,35,0], formation:[190,45,0], bibliotheque:[38,40,0],
+  scene:[330,55,0],   expo:[280,45,0],    boutique:[345,60,0],
+  hebergement:[260,30,0], sport:[170,50,0], meditation:[300,30,0], autre:[60,25,0],
+};
+function spaceColor(idx,l){
+  const sp=(S.spaces||[])[idx], c=TYPE_COLORS[sp&&sp.type];
+  const base=(l||80);
+  if(!c) return `hsl(${Math.round(idx*137.508)%360} 58% ${base}%)`;   // type inconnu : angle d'or
+  let dup=0; for(let i=0;i<idx;i++){ const o=S.spaces[i]; if(o&&o.type===sp.type) dup++; }
+  const L=Math.max(30,Math.min(92, base+c[2]-dup*7));
+  return `hsl(${c[0]} ${c[1]}% ${L}%)`;
+}
 function terrainCount(idx){ const g=terrainGrid(); let n=0; for(let i=0;i<TER_CELLS;i++) if(g[i]===idx) n++; return n; }
 function terrainUsed(){ const g=terrainGrid(); let n=0; for(let i=0;i<TER_CELLS;i++) if(g[i]>=0) n++; return n; }
 /* Espace supprimé : ses cellules se vident, les index au-dessus se décalent avec S.spaces. */
