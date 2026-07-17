@@ -4369,7 +4369,7 @@ function allSpacesEquipped(){
   return mine.length>0 && mine.every(sp=>Array.isArray(sp.sols) && sp.sols.length>0);
 }
 /* Vadance à couvrir sur chacun des 3 impacts pour que la Modélisation s'ouvre */
-const CAP_MODELE=80;
+const CAP_MODELE=50;
 const CAP_LABEL={eco:'🌿 Écologie', social:'🤝 Social', econo:'🪙 Économie locale'};
 /* Les impacts encore sous un seuil de Vadance : [{k,label,val}] */
 function capitauxFaibles(seuil){
