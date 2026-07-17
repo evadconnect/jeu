@@ -2280,7 +2280,7 @@ function devaOnboarding(){
 function obStepMsg(key,ob,nm){
   const q={pilote:"qu'est-ce qui te donne le plus envie de faire vivre un lieu ?",batisseur:"qu'est-ce qui te donne le plus envie de contribuer ?",semeur:"qu'est-ce qui compte le plus pour toi quand tu finances ?"}[S.profile];
   if(key==='name') return `Bonjour 🌿 Je suis <b>Deva</b>, l'esprit régénératif d'EVAD. Avant de ${S.profile==='pilote'?'composer ton lieu':'te lancer'}, dis-moi : <b>comment t'appelles-tu ?</b>`;
-  if(key==='lieuName') return `On commence par ton lieu 🌱 Quel <b>nom</b> donnes-tu au lieu que tu vas faire grandir ?`;
+  if(key==='lieuName') return `On commence par ton lieu 🏡 Quel <b>nom</b> donnes-tu au lieu que tu vas faire grandir ?`;
   if(key==='type') return S.profile==='semeur'?`Pour mieux te connaître : <b>quel type de financeur es-tu ?</b>`:`Beau projet ! Quel <b>type de lieu</b> « ${escapeHtml(ob.lieuName)} » va-t-il devenir ?`;
   if(key==='spaces'){ const n=ob.spaces.size; return `On compose <b>${escapeHtml(ob.lieuName)}</b> 🌿 Ton lieu part de zéro : <b>choisis les espaces</b> qui le composent, ils apparaissent autour de ton lieu.${n?` <b>${n} espace${n>1?'s':''}</b> pour l'instant.`:''} Rien n'est figé, tu en ajouteras d'autres plus tard.`; }
   if(key==='comp') return `Chaque Bâtisseur a sa spécialité 🌿 <b>Quelle compétence</b> veux-tu maîtriser en arrivant ? Tu démarreras avec.`;
