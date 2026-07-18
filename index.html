@@ -3094,7 +3094,13 @@ function confirmMeasure(){
   S.refs = new Set([...S.refs, ...ICI[c.iciId].refs.map(r=>r.split(' ')[0])]);
   markFirstAct('measured');
   const n=iciNorm(v,c.iciId), coef=PREUVE[c.preuve].coef;
+  // Mesure attendue par un partenaire du réseau ? Il valide la preuve dans la foulée.
+  const pend = c.solId && (S.pendingMeasureAfterSeason||[]).find(p=>p.solId===c.solId && p.spaceId===c.spaceId);
   S.measureCtx=null; closeModal();
+  if(pend){
+    S.pendingMeasureAfterSeason = S.pendingMeasureAfterSeason.filter(p=>p!==pend);
+    setTimeout(()=>{ if(pend.prof==='semeur') proveBySemeur(pend.spaceId, pend.solId); else proveByBatisseur(pend.spaceId, pend.solId); }, 350);
+  }
   toast(`📊 Δ relevé : ${fmtDelta(v)} ${ICI[c.iciId].unit} · ${round1(n)}/100 · preuve ${PREUVE[c.preuve].name.toLowerCase()} (×${coef}) → ${round1(n*coef)}/100 de Vadité 🌿`,'win');
   render();
 }
@@ -4742,10 +4748,17 @@ function acceptCand(i){
     S.questCands.splice(i,1); render(); return;
   }
   if(!inst.mesure){
-    // Pas encore mesuré : le partenaire vient relever la mesure avec toi, puis validera la preuve
-    toast(`📊 ${c.who} vient relever la mesure de « ${SOL[c.solId].name} » avec toi`,'win');
-    if(S.tab!=='a'){ switchTab('a'); S.lieuSub='espaces'; }
-    attachICI(sp.id, c.solId);
+    // Pas encore mesuré : le partenaire s'engage, la mesure se relèvera APRÈS le changement de saison
+    S.pendingMeasureAfterSeason = S.pendingMeasureAfterSeason || [];
+    const exist=S.pendingMeasureAfterSeason.find(p=>p.solId===c.solId);
+    if(exist){ if(c.prof==='semeur') exist.prof='semeur'; }        // le Semeur (×1) prime pour la preuve
+    else S.pendingMeasureAfterSeason.push({spaceId:sp.id, solId:c.solId, prof:c.prof});
+    if(c.prof==='batisseur') S.reseauBat=true; else S.reseauSem=true;
+    S.badges.add('reseau'); markFirstAct('reseau');
+    S.questCands.splice(i,1);
+    toast(`🤝 ${c.who} rejoint la quête « ${SOL[c.solId].name} » : la mesure se relève après la saison`,'win');
+    render();
+    if(S.reseauBat && S.reseauSem && !S.saisonProposed) setTimeout(()=>devaProposeSaison(), 700);
     return;
   }
   S.questCands.splice(i,1);
@@ -4754,7 +4767,7 @@ function acceptCand(i){
   // Un Bâtisseur ET un Semeur ont vérifié tes mesures : Deva propose de laisser le temps faire, cap sur la saison suivante
   if(S.reseauBat && S.reseauSem && !S.saisonProposed) setTimeout(()=>devaProposeSaison(), 700);
 }
-/* Les deux profils du réseau ont prouvé une mesure : Deva invite à avancer d'une saison
+/* Un Bâtisseur et un Semeur ont rejoint la quête : Deva invite à avancer d'une saison
    (format visite guidée : bulle qui pointe le bouton Saison, le joueur clique lui-même) */
 function devaProposeSaison(){
   if(document.getElementById('modal').classList.contains('open')){ setTimeout(devaProposeSaison, 800); return; }
@@ -4762,7 +4775,7 @@ function devaProposeSaison(){
   S.saisonProposed=true;
   const nm=(S.playerName&&S.playerName!=='toi')?(' '+escapeHtml(S.playerName)):'';
   devaReveal('.season-btn', '⏳ Avance d\'une saison',
-    `Bravo${nm} 🌿 Un <b>Bâtisseur</b> et un <b>Semeur</b> ont vérifié tes mesures : ta Vadance devient <b>Vadité prouvée</b> ✅<br>Clique le bouton <b>Saison</b> pour laisser le temps faire son œuvre : tes espaces produisent et ton impact prend racine.`);
+    `Bravo${nm} 🌿 Un <b>Bâtisseur</b> et un <b>Semeur</b> ont rejoint ta quête.<br>Clique le bouton <b>Saison</b> : ils viendront <b>relever la mesure sur le terrain</b>, et ta Vadance deviendra Vadité prouvée.`);
 }
 /* Deva reprend la parole après la première annonce déposée à la Place de marché : le lieu a promis, le réseau va prouver */
 function devaProposeRelais(){
@@ -5313,8 +5326,23 @@ function seasonModal(sz, yr, gains, vaditeGain, msgs, hazMsg, won){
   if(vaditeGain>0) h+=`<div>🌿 +${round1(vaditeGain)} ${pts(vaditeGain)} de Vadité convertie</div>`;
   if(msgs.length) h+=msgs.map(m=>`<div style="margin-top:.25rem">${m}</div>`).join('');
   h+=`</div>`;
-  h+=`<button class="btn btn-primary" style="width:100%" onclick="closeModal()">Continuer →</button>`;
+  const pm=(S.pendingMeasureAfterSeason||[])[0];
+  if(pm && SOL[pm.solId]){
+    h+=`<div class="mb-detail" style="background:#eef7f1;border:1px solid rgba(1,130,98,.2)">
+      <div style="font-weight:800;margin-bottom:.25rem">🤝 Ton partenaire est passé</div>
+      <div style="font-size:.78rem;line-height:1.5">Il a relevé « <b>${escapeHtml(SOL[pm.solId].name)}</b> » sur le terrain. À toi de saisir la mesure constatée pour transformer ta promesse en preuve.</div>
+    </div>`;
+    h+=`<button class="btn btn-primary" style="width:100%" onclick="fireSeasonMeasure()">📊 Relever la mesure avec ton partenaire →</button>`;
+  } else {
+    h+=`<button class="btn btn-primary" style="width:100%" onclick="closeModal()">Continuer →</button>`;
+  }
   openModal(h);
+}
+/* Après le récap de saison : ouvre la mesure que le partenaire vient relever avec le joueur */
+function fireSeasonMeasure(){
+  const pm=(S.pendingMeasureAfterSeason||[])[0];
+  closeModal();
+  if(pm) setTimeout(()=>{ if(S.tab!=='a'){ switchTab('a'); S.lieuSub='espaces'; } attachICI(pm.spaceId, pm.solId); }, 300);
 }
 function winModal(){
   const cfg={
