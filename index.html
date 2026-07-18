@@ -4716,6 +4716,26 @@ function acceptCand(i){
   S.questCands.splice(i,1);
   if(c.prof==='batisseur') proveByBatisseur(sp.id, c.solId);
   else proveBySemeur(sp.id, c.solId);
+  // Un Bâtisseur ET un Semeur ont vérifié tes mesures : Deva propose de laisser le temps faire, cap sur la saison suivante
+  if(S.reseauBat && S.reseauSem && !S.saisonProposed) setTimeout(()=>devaProposeSaison(), 700);
+}
+/* Les deux profils du réseau ont prouvé une mesure : Deva invite à avancer d'une saison */
+function devaProposeSaison(){
+  if(document.getElementById('modal').classList.contains('open')){ setTimeout(devaProposeSaison, 800); return; }
+  if(S.saisonProposed) return;
+  S.saisonProposed=true;
+  const nm=(S.playerName&&S.playerName!=='toi')?(' '+escapeHtml(S.playerName)):'';
+  openOnboarding(`
+    <div class="ob-head"><div class="ob-av deva-av"></div><div class="ob-hmeta"><div class="ob-dname">Deva</div><div class="ob-dsub">⏳ Le temps de pousser</div></div></div>
+    <div class="ob-scroll">
+      <div class="ob-bubble ob-pop">Bravo${nm} 🌿 Un <b>Bâtisseur</b> et un <b>Semeur</b> ont vérifié tes mesures : ta Vadance devient <b>Vadité prouvée</b> ✅</div>
+      <div class="ob-bubble">Maintenant, laisse le temps faire son œuvre 🌱 <b>Avance d'une saison</b> : tes espaces produisent, les revenus tombent et ton impact prend racine.</div>
+    </div>
+    <div class="ob-actions" style="flex-direction:column;align-items:stretch;gap:.55rem">
+      <button class="ob-next" style="margin-left:0" onclick="closeModal();advanceSeason()">⏳ Avancer d'une saison →</button>
+      <button class="ob-next" style="margin-left:0;background:rgba(255,255,255,.08);color:var(--cream);box-shadow:none" onclick="closeModal()">Plus tard</button>
+    </div>
+  `);
 }
 /* Deva reprend la parole après la première annonce déposée à la Place de marché : le lieu a promis, le réseau va prouver */
 function devaProposeRelais(){
