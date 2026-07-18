@@ -780,12 +780,12 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .ter-grid::after{content:'';position:absolute;left:-8px;right:-8px;top:calc(100% + 8px);height:16px;
   transform-origin:top;transform:rotateX(-90deg);border-radius:0 0 12px 12px;
   background:linear-gradient(180deg,#8fae7e 0 3px,#a5814f 3px 55%,#7c5f38 55% 82%,#69543a 82%)}
-.ter-cell{position:relative;aspect-ratio:1;border-radius:2px;--h:0px;--c:#d8ebd1;background:var(--c);
+.ter-cell{position:relative;aspect-ratio:1;border-radius:2px;--h:0px;--c:#bfd6b2;background:var(--c);
   transform:translateZ(var(--h));transform-style:preserve-3d;
   box-shadow:inset 0 0 0 1px rgba(13,43,34,.05);
   display:flex;align-items:center;justify-content:center;font-size:.72rem;line-height:1;
   transition:transform .14s,background .12s,box-shadow .12s}
-.ter-cell.alt{--c:#cfe4c6}
+.ter-cell.alt{--c:#b5cea7}
 .ter-cell.r1{--h:1.5px}
 /* l'herbe suit les saisons */
 .season-ete .ter-cell{--c:#dde7ad}.season-ete .ter-cell.alt{--c:#d2de9f}
@@ -830,7 +830,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .ter-label{position:absolute;left:50%;top:50%;white-space:nowrap;
   transform:translate(-50%,-50%) translateZ(34px) rotateZ(calc(-1*var(--rot,0deg))) rotateX(-54deg);
   transform-origin:50% 50%;background:rgba(255,255,255,.94);color:var(--forest,#173d2f);
-  font-size:.4rem;font-weight:700;letter-spacing:.01em;padding:2px 5px;border-radius:20px;
+  font-size:.62rem;font-weight:700;letter-spacing:.01em;padding:3px 8px;border-radius:20px;
   box-shadow:0 1.5px 3px rgba(13,43,34,.28),inset 0 0 0 1px rgba(13,43,34,.06);pointer-events:none;z-index:4}
 /* luciole au-dessus des espaces prouvés */
 .tc-glow{position:absolute;left:50%;top:-7px;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:#ffe985;box-shadow:0 0 8px 3px rgba(255,225,120,.75);transform:translateZ(14px);animation:terGlow 2.6s ease-in-out infinite;pointer-events:none}
@@ -4199,7 +4199,7 @@ function terrainGridHTML(live){
   }
   h+=lv.conns.join('');
   if(live) h+=walkerHTML(deco);
-  return `<div class="ter-grid ${live?'live':'ro'}" style="--rot:${m.rot==null?24:m.rot}deg;--zoom:${m.zoom==null?0.9:m.zoom}">${h}</div>`;
+  return `<div class="ter-grid ${live?'live':'ro'}" style="--rot:${m.rot==null?24:m.rot}deg;--zoom:${m.zoom==null?1.1:m.zoom}">${h}</div>`;
 }
 /* Ambiance du cadre : crépuscule qui respire, papillon et oiseau, feuilles ou neige selon la saison */
 function terWrapClass(){ return 'ter-wrap season-'+['printemps','ete','automne','hiver'][S.seasonIdx%4]; }
@@ -4212,7 +4212,7 @@ function terrainAmbientHTML(){
 }
 function terrainZoom(d){
   const m=modelState();
-  m.zoom=Math.round(Math.max(.6,Math.min(1.4,(m.zoom==null?0.9:m.zoom)+d*.15))*100)/100;
+  m.zoom=Math.round(Math.max(.6,Math.min(1.4,(m.zoom==null?1.1:m.zoom)+d*.15))*100)/100;
   const gr=document.querySelector('.ter-grid.live'); if(gr) gr.style.setProperty('--zoom',m.zoom);
 }
 /* « 🍳 Cuisine : 18 blocs / 120 » */
