@@ -403,6 +403,21 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .mini-btn.gold{background:#fff5da;color:var(--amber)}
 .mini-btn.sem{background:#e9f2fb;color:var(--sky)}
 .prove-btns{display:flex;flex-direction:column;gap:.28rem;flex-shrink:0}
+/* emplacement « partenaire sur la quête » (à la place du bouton Mesurer) */
+.qp-wrap{display:flex;flex-direction:column;gap:.3rem;flex-shrink:0}
+.qp-slot{display:flex;align-items:center;gap:.4rem;flex-shrink:0;max-width:168px;border-radius:10px;padding:.32rem .42rem;text-align:left;font-family:var(--font)}
+.qp-slot .qp-ic{width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+.qp-slot .qp-tx{display:flex;flex-direction:column;line-height:1.12;min-width:0}
+.qp-slot .qp-tx b{font-size:.64rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qp-slot .qp-tx small{font-size:.54rem;font-weight:700;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qp-slot.filled{cursor:pointer;background:color-mix(in srgb,var(--qc,#2e6b47) 10%,#fff);border:1.5px solid color-mix(in srgb,var(--qc,#2e6b47) 32%,#fff);color:var(--qc,#2e6b47)}
+.qp-slot.filled:hover{background:color-mix(in srgb,var(--qc,#2e6b47) 16%,#fff)}
+.qp-slot.filled .qp-go{margin-left:auto;font-size:.6rem;font-weight:800;white-space:nowrap;padding-left:.25rem}
+.qp-slot.empty{flex-direction:column;align-items:stretch;gap:.34rem;background:#f5f7f5;border:1.5px dashed rgba(1,130,98,.24);color:var(--moss)}
+.qp-slot.empty .qp-head{display:flex;align-items:center;gap:.4rem;min-width:0}
+.qp-slot.empty .qp-ic{background:#eaefe9}
+.qp-slot.empty .qp-tx b{opacity:.9}
+.qp-slot.empty .mini-btn{align-self:stretch;text-align:center}
 
 /* Bibliothèque cards */
 .biblio-head{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.8rem}
@@ -2717,6 +2732,23 @@ function measureBtn(spaceId, solId, iciId){
   const i=ICI[iciId]; if(!i) return '';
   return `<button class="mini-btn gold" onclick="event.stopPropagation();attachICI('${spaceId}',${sid})">📊 ${i.ic} Mesurer · ${MEASURE_COST}🌰</button>`;
 }
+/* Emplacement partenaire d'une quête : montre si un Bâtisseur ou un Semeur s'est positionné dessus.
+   Rempli → on peut accepter son aide ; vide → en attente, avec la mesure en solo en repli. */
+function questPartnerSlot(spaceId, inst){
+  const cands=(S.questCands||[]).map((c,i)=>({c,i})).filter(x=>x.c.solId===inst.id);
+  if(cands.length){
+    return `<div class="qp-wrap">${cands.map(({c,i})=>{ const pr=RESEAU_PROF[c.prof];
+      return `<button class="qp-slot filled" style="--qc:${pr.color}" onclick="event.stopPropagation();acceptCand(${i})" title="Accepter l'aide de ${escapeHtml(c.who)}">
+        <span class="qp-ic" style="background:${pr.bg}">${pr.ic}</span>
+        <span class="qp-tx"><b>${escapeHtml(c.who)}</b><small>${pr.label} sur la quête</small></span>
+        <span class="qp-go">Accepter →</span></button>`; }).join('')}</div>`;
+  }
+  const iciId=inst.ici||SOL[inst.id].ici;
+  return `<div class="qp-slot empty">
+    <span class="qp-head"><span class="qp-ic">🔍</span>
+      <span class="qp-tx"><b>Aucun partenaire</b><small>ni Bâtisseur ni Semeur sur cette quête</small></span></span>
+    ${measureBtn(spaceId, inst.id, iciId)}</div>`;
+}
 function spaceCard(sp){
   const selSol = S.sel&&S.sel.type==='solution';
   const canDrop = selSol && spaceAccepts(sp, S.sel.id);
@@ -2762,7 +2794,7 @@ function spaceCard(sp){
       <span class="sic">${s.ic}</span>
       <div class="sinfo"><div class="sname">${s.name}${s.quete?`<span class="q-badge ${questComplete(inst.id)?'done':''}" title="Quête : ${escapeHtml(s.quete.titre)}" onclick="event.stopPropagation();openSolutionDetail('${inst.id}')">${questComplete(inst.id)?'✅ Quête accomplie':'⚔️ '+questDone(inst.id)+'/'+questSteps(inst.id).length+' étapes'}</span>`:''}</div>
       <div class="sstate" style="color:${stateCol}">${stateTxt}</div></div>
-      ${!meas?measureBtn(sp.id,inst.id,inst.ici||s.ici):(!proven?`<div class="prove-btns"><button class="mini-btn gold" onclick="event.stopPropagation();proveByBatisseur('${sp.id}','${inst.id}')">🌿 Preuve · Bâtisseur</button><button class="mini-btn sem" onclick="event.stopPropagation();proveBySemeur('${sp.id}','${inst.id}')">🌾 Financer · Semeur</button></div>`:'')}
+      ${!meas?questPartnerSlot(sp.id,inst):(!proven?`<div class="prove-btns"><button class="mini-btn gold" onclick="event.stopPropagation();proveByBatisseur('${sp.id}','${inst.id}')">🌿 Preuve · Bâtisseur</button><button class="mini-btn sem" onclick="event.stopPropagation();proveBySemeur('${sp.id}','${inst.id}')">🌾 Financer · Semeur</button></div>`:'')}
     </div>`;
   });
   h+=`</div>`;
@@ -4710,8 +4742,11 @@ function acceptCand(i){
     S.questCands.splice(i,1); render(); return;
   }
   if(!inst.mesure){
-    toast(`📊 ${c.who} attend une mesure : attache un ICI à « ${SOL[c.solId].name} », puis reviens l'accepter`,'warn');
-    switchTab('a'); S.lieuSub='espaces'; render(); return;
+    // Pas encore mesuré : le partenaire vient relever la mesure avec toi, puis validera la preuve
+    toast(`📊 ${c.who} vient relever la mesure de « ${SOL[c.solId].name} » avec toi`,'win');
+    if(S.tab!=='a'){ switchTab('a'); S.lieuSub='espaces'; }
+    attachICI(sp.id, c.solId);
+    return;
   }
   S.questCands.splice(i,1);
   if(c.prof==='batisseur') proveByBatisseur(sp.id, c.solId);
