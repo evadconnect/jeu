@@ -792,8 +792,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .season-automne .ter-cell{--c:#e4daa7}.season-automne .ter-cell.alt{--c:#dacd93}
 .season-hiver .ter-cell{--c:#eef3f6}.season-hiver .ter-cell.alt{--c:#e2eaf0}
 /* bloc-voxel : dessus éclairé + parois avant et droite taillées dans la couleur de l'espace */
-.ter-cell.fill{--h:7px;box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 1px 0 0 rgba(255,255,255,.28),inset 0 0 0 1px rgba(13,43,34,.14)}
-.ter-cell.tall{--h:13px}
+.ter-cell.fill{--h:8px;box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 1px 0 0 rgba(255,255,255,.28),inset 0 0 0 1px rgba(13,43,34,.14)}
+.ter-cell.tall{--h:8px}
+.ter-cell.fill.flat{--h:0px;box-shadow:inset 0 0 0 1px rgba(13,43,34,.13)}   /* jardin : au raz du sol */
 .season-hiver .ter-cell.fill{box-shadow:inset 0 2px 0 rgba(255,255,255,.9),inset 0 1px 0 rgba(255,255,255,.55),inset 0 0 0 1px rgba(13,43,34,.12)}
 .ter-cell.fill::before{content:'';position:absolute;left:0;right:0;top:100%;height:var(--h);
   transform-origin:top;transform:rotateX(-90deg);pointer-events:none;
@@ -815,8 +816,22 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 @keyframes terEau{to{background-position:22px 22px}}
 /* sprites debout : contre-rotation (orbite comprise) pour faire face à la caméra */
 .tc-ic{display:inline-block;transform:rotateZ(calc(-1*var(--rot,0deg))) rotateX(-54deg) scale(1.25);transform-origin:50% 90%;pointer-events:none;filter:drop-shadow(0 2px 1.5px rgba(0,0,0,.3))}
-.tc-sol{position:absolute;left:50%;top:50%;margin:-7px 0 0 -7px;font-size:.6rem;transform:rotateZ(calc(-1*var(--rot,0deg))) rotateX(-54deg) scale(1.15);transform-origin:50% 85%;pointer-events:none;filter:drop-shadow(0 1.5px 1px rgba(0,0,0,.3))}
+/* solution = petit cube coloré (couleur de la catégorie) posé sur la plateforme, réf « cubes » */
+.tc-cube{position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:2px;
+  background:var(--sc,#4aab8f);transform-style:preserve-3d;transform:translateZ(var(--ch,11px));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 0 0 1px rgba(0,0,0,.1);pointer-events:none}
+.tc-cube::before{content:'';position:absolute;left:0;right:0;top:100%;height:var(--ch,11px);
+  transform-origin:top;transform:rotateX(-90deg);background:color-mix(in srgb,var(--sc,#4aab8f) 80%,#000)}
+.tc-cube::after{content:'';position:absolute;top:0;bottom:0;left:100%;width:var(--ch,11px);
+  transform-origin:left;transform:rotateY(90deg);background:color-mix(in srgb,var(--sc,#4aab8f) 66%,#000)}
+.tcc-ic{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotateZ(calc(-1*var(--rot,0deg))) rotateX(-54deg) scale(.85);transform-origin:50% 50%;font-size:.52rem;filter:drop-shadow(0 1px .6px rgba(0,0,0,.35))}
 .tc-veg{font-size:.5rem;opacity:.92}
+/* étiquette flottante du nom de l'espace (réf : pastille au-dessus du lieu) */
+.ter-label{position:absolute;left:50%;top:50%;white-space:nowrap;
+  transform:translate(-50%,-50%) translateZ(34px) rotateZ(calc(-1*var(--rot,0deg))) rotateX(-54deg);
+  transform-origin:50% 50%;background:rgba(255,255,255,.94);color:var(--forest,#173d2f);
+  font-size:.4rem;font-weight:700;letter-spacing:.01em;padding:2px 5px;border-radius:20px;
+  box-shadow:0 1.5px 3px rgba(13,43,34,.28),inset 0 0 0 1px rgba(13,43,34,.06);pointer-events:none;z-index:4}
 /* luciole au-dessus des espaces prouvés */
 .tc-glow{position:absolute;left:50%;top:-7px;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:#ffe985;box-shadow:0 0 8px 3px rgba(255,225,120,.75);transform:translateZ(14px);animation:terGlow 2.6s ease-in-out infinite;pointer-events:none}
 @keyframes terGlow{0%,100%{opacity:.25}50%{opacity:1}}
@@ -3967,6 +3982,13 @@ function spaceColor(idx,l){
   const L=Math.max(30,Math.min(92, base+c[2]-dup*7));
   return `hsl(${c[0]} ${c[1]}% ${L}%)`;
 }
+/* Couleur de plateforme (réf « plateformes claires ») : crème neutre à peine teinté par le type,
+   pour rester lisible tout en laissant les cubes-solutions porter la couleur. */
+function platColor(idx,l){
+  const sp=(S.spaces||[])[idx], c=TYPE_COLORS[sp&&sp.type];
+  const hue = c?c[0]:(Math.round(idx*137.508)%360);
+  return `hsl(${hue} 18% ${l||88}%)`;
+}
 function terrainCount(idx){ const g=terrainGrid(); let n=0; for(let i=0;i<TER_CELLS;i++) if(g[i]===idx) n++; return n; }
 function terrainUsed(){ const g=terrainGrid(); let n=0; for(let i=0;i<TER_CELLS;i++) if(g[i]>=0) n++; return n; }
 /* Espace supprimé : ses cellules se vident, les index au-dessus se décalent avec S.spaces. */
@@ -4139,7 +4161,7 @@ function terrainGridHTML(live){
   // chaque bloc suivant d'un espace porte une de ses solutions installées : le terrain montre le réel
   const solAt=new Map();
   cellsOf.forEach((cells,v)=>{ const sols=(S.spaces[v]&&S.spaces[v].sols)||[];
-    for(let k=0;k<sols.length && k+1<cells.length;k++){ const s=SOL[sols[k].id]; if(s) solAt.set(cells[k+1], s.ic); } });
+    for(let k=0;k<sols.length && k+1<cells.length;k++){ const s=SOL[sols[k].id]; if(s) solAt.set(cells[k+1], s); } });
   // la Vadité fait fleurir les cases libres (semis déterministe, stable d'un rendu à l'autre)
   const vegLevel=(S.profile==='pilote'?curVadite():0)/100;
   const VEGS=['🌸','🌼','🌿','🍀'];
@@ -4153,12 +4175,13 @@ function terrainGridHTML(live){
     if(!sp && !d && hash(i)%7===0) cls+=' r1';                       // micro-relief de l'herbe
     let inner='';
     if(sp){
-      cls+=' fill'+((sp.sols||[]).length?' tall':'');
+      cls+=' fill'+(sp.type==='jardin'?' flat':((sp.sols||[]).length?' tall':''));
       if(first.get(v)===i){
-        inner=`<span class="tc-ic">${sp.ic}</span>`;
+        inner=`<span class="tc-ic">${sp.ic}</span><span class="ter-label">${escapeHtml(sp.name)}</span>`;
         if((sp.sols||[]).some(x=>x.proven)) inner+='<span class="tc-glow"></span>';   // luciole : impact prouvé
         if(lv.rings.has(v)) inner+='<span class="tc-loop"></span>';                    // boucle interne
-      } else if(solAt.has(i)) inner=`<span class="tc-sol">${solAt.get(i)}</span>`;
+      } else if(solAt.has(i)){ const s=solAt.get(i); const col=(CATS[s.cat]&&CATS[s.cat].color)||'#4aab8f';
+        inner=`<span class="tc-cube" style="--sc:${col}"><span class="tcc-ic">${s.ic}</span></span>`; }
     }
     else if(d==='chemin'){
       cls+=' deco-chemin';
@@ -4171,7 +4194,7 @@ function terrainGridHTML(live){
     else if(d==='eolienne') inner='<span class="tc-ic tc-eol"><b></b></span>';
     else if(d && MODEL_DECO[d]) inner=`<span class="tc-ic">${MODEL_DECO[d].ic}</span>`;
     else if(vegLevel>0 && (hash(i)%100)/100 < vegLevel*0.3) inner=`<span class="tc-ic tc-veg">${VEGS[(hash(i)>>3)&3]}</span>`;
-    const style = sp?` style="--c:${spaceColor(v)};--cd:${spaceColor(v,62)};--cd2:${spaceColor(v,48)}"`:'';
+    const style = sp?` style="--c:${platColor(v)};--cd:${platColor(v,80)};--cd2:${platColor(v,72)}"`:'';
     h+=`<div class="${cls}" data-i="${i}"${style}>${inner}</div>`;
   }
   h+=lv.conns.join('');
