@@ -3094,13 +3094,7 @@ function confirmMeasure(){
   S.refs = new Set([...S.refs, ...ICI[c.iciId].refs.map(r=>r.split(' ')[0])]);
   markFirstAct('measured');
   const n=iciNorm(v,c.iciId), coef=PREUVE[c.preuve].coef;
-  // Mesure attendue par un partenaire du réseau ? Il valide la preuve dans la foulée.
-  const pend = c.solId && (S.pendingMeasureAfterSeason||[]).find(p=>p.solId===c.solId && p.spaceId===c.spaceId);
   S.measureCtx=null; closeModal();
-  if(pend){
-    S.pendingMeasureAfterSeason = S.pendingMeasureAfterSeason.filter(p=>p!==pend);
-    setTimeout(()=>{ if(pend.prof==='semeur') proveBySemeur(pend.spaceId, pend.solId); else proveByBatisseur(pend.spaceId, pend.solId); }, 350);
-  }
   toast(`📊 Δ relevé : ${fmtDelta(v)} ${ICI[c.iciId].unit} · ${round1(n)}/100 · preuve ${PREUVE[c.preuve].name.toLowerCase()} (×${coef}) → ${round1(n*coef)}/100 de Vadité 🌿`,'win');
   render();
 }
@@ -4751,7 +4745,7 @@ function acceptCand(i){
     // Pas encore mesuré : le partenaire s'engage, la mesure se relèvera APRÈS le changement de saison
     S.pendingMeasureAfterSeason = S.pendingMeasureAfterSeason || [];
     const exist=S.pendingMeasureAfterSeason.find(p=>p.solId===c.solId);
-    if(exist){ if(c.prof==='semeur') exist.prof='semeur'; }        // le Semeur (×1) prime pour la preuve
+    if(exist){ if(c.prof==='batisseur') exist.prof='batisseur'; }   // le Bâtisseur apporte la preuve du terrain
     else S.pendingMeasureAfterSeason.push({spaceId:sp.id, solId:c.solId, prof:c.prof});
     if(c.prof==='batisseur') S.reseauBat=true; else S.reseauSem=true;
     S.badges.add('reseau'); markFirstAct('reseau');
@@ -5329,20 +5323,55 @@ function seasonModal(sz, yr, gains, vaditeGain, msgs, hazMsg, won){
   const pm=(S.pendingMeasureAfterSeason||[])[0];
   if(pm && SOL[pm.solId]){
     h+=`<div class="mb-detail" style="background:#eef7f1;border:1px solid rgba(1,130,98,.2)">
-      <div style="font-weight:800;margin-bottom:.25rem">🤝 Ton partenaire est passé</div>
-      <div style="font-size:.78rem;line-height:1.5">Il a relevé « <b>${escapeHtml(SOL[pm.solId].name)}</b> » sur le terrain. À toi de saisir la mesure constatée pour transformer ta promesse en preuve.</div>
+      <div style="font-weight:800;margin-bottom:.25rem">🤝 Ton partenaire a apporté une preuve</div>
+      <div style="font-size:.78rem;line-height:1.5">Il a relevé « <b>${escapeHtml(SOL[pm.solId].name)}</b> » sur le terrain. Valide sa preuve pour faire apparaître ta <b>Vadité</b>.</div>
     </div>`;
-    h+=`<button class="btn btn-primary" style="width:100%" onclick="fireSeasonMeasure()">📊 Relever la mesure avec ton partenaire →</button>`;
+    h+=`<button class="btn btn-primary" style="width:100%" onclick="fireSeasonMeasure()">🤝 Voir la preuve du partenaire →</button>`;
   } else {
     h+=`<button class="btn btn-primary" style="width:100%" onclick="closeModal()">Continuer →</button>`;
   }
   openModal(h);
 }
-/* Après le récap de saison : ouvre la mesure que le partenaire vient relever avec le joueur */
+/* Après le récap de saison : le partenaire présente la preuve qu'il a relevée, à valider */
 function fireSeasonMeasure(){
   const pm=(S.pendingMeasureAfterSeason||[])[0];
   closeModal();
-  if(pm) setTimeout(()=>{ if(S.tab!=='a'){ switchTab('a'); S.lieuSub='espaces'; } attachICI(pm.spaceId, pm.solId); }, 300);
+  if(pm) setTimeout(()=>{ if(S.tab!=='a'){ switchTab('a'); S.lieuSub='espaces'; } partnerProofModal(pm); }, 300);
+}
+/* Preuve apportée par le partenaire (relevé déjà fait sur le terrain) : le joueur n'a qu'à la valider */
+function partnerProofModal(pm){
+  const sp=S.spaces.find(x=>x.id===pm.spaceId); const inst=sp&&sp.sols.find(x=>x.id===pm.solId);
+  if(!inst){ (S.pendingMeasureAfterSeason=(S.pendingMeasureAfterSeason||[]).filter(p=>p!==pm)); return; }
+  const s=SOL[pm.solId], iciId=inst.ici||s.ici, i=ICI[iciId];
+  const value=Math.round(solDeltaProj(inst));
+  const preuveKey=pm.prof==='semeur'?'tiers':'pairs', p=PREUVE[preuveKey];
+  const partner=pm.prof==='semeur'?'🌾 Semeur':'🌿 Bâtisseur';
+  const n=iciNorm(value, iciId), vad=round1(n*p.coef);
+  S.partnerProofCtx={spaceId:pm.spaceId, solId:pm.solId, prof:pm.prof, value, iciId};
+  openDetailModal(`
+    ${ficheHero('linear-gradient(135deg,#0e2a1a,#2e6b47)','🤝',['🤝 Preuve du partenaire'], escapeHtml(s.name), i.ic+' '+i.name+' · en '+i.unit)}
+    <div class="det-body">
+      <p class="det-desc">Ton <b>${partner}</b> est venu sur le terrain et a <b>relevé la mesure</b> pour toi. Voici la preuve qu'il rapporte : à toi de la <b>valider</b> pour l'inscrire à ton lieu.</p>
+      <div class="det-flux" style="margin-bottom:.7rem">📏 Constaté sur le terrain : <b>${fmtDelta(value)} ${i.unit}</b><br>🔎 Niveau de preuve : <b>${p.ic} ${p.name}</b> (×${p.coef})${pm.prof==='batisseur'?' — vérifié par les pairs':' — audité par un tiers de confiance'}</div>
+      <div class="det-flux" style="background:#eef7f1;border:1px solid rgba(1,130,98,.22)">🌿 En validant, ton lieu inscrit <b>${vad}/100 de Vadité prouvée</b> sur cet indicateur.</div>
+      <div class="fiche-actions">
+        <button class="btn btn-ghost" onclick="closeModal()">Plus tard</button>
+        <button class="btn btn-primary" onclick="validatePartnerProof()">✅ Valider la preuve</button>
+      </div>
+    </div>`);
+}
+/* Validation de la preuve : la mesure est inscrite et le partenaire prouve → la Vadité apparaît */
+function validatePartnerProof(){
+  const c=S.partnerProofCtx; if(!c) return;
+  const sp=S.spaces.find(x=>x.id===c.spaceId); const inst=sp&&sp.sols.find(x=>x.id===c.solId);
+  S.partnerProofCtx=null;
+  S.pendingMeasureAfterSeason=(S.pendingMeasureAfterSeason||[]).filter(p=>!(p.spaceId===c.spaceId&&p.solId===c.solId));
+  closeModal();
+  if(!inst) return;
+  inst.mesure=true; inst.mesureVal=c.value; inst.proven=false;
+  S.refs=new Set([...S.refs, ...ICI[c.iciId].refs.map(r=>r.split(' ')[0])]);
+  markFirstAct('measured');
+  setTimeout(()=>{ if(c.prof==='semeur') proveBySemeur(c.spaceId, c.solId); else proveByBatisseur(c.spaceId, c.solId); }, 250);
 }
 function winModal(){
   const cfg={
