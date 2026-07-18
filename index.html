@@ -4793,12 +4793,19 @@ function devaProposeRelais(){
   if(document.getElementById('modal').classList.contains('open')) return; // ne pas recouvrir une autre modale (on réessaiera à la prochaine annonce)
   S.relaisShown=true;
   const nm=(S.playerName&&S.playerName!=='toi')?(' '+escapeHtml(S.playerName)):'';
+  const proven = (typeof hasExternalProof==='function' && hasExternalProof()) || countProven()>0;
+  const b2 = proven
+    ? `Et le réseau a déjà répondu 🌿 Une première <b>preuve</b> est venue transformer ta <b>Vadance</b> en <b>Vadité prouvée</b>. Bien joué !`
+    : `Ton lieu a fait sa part : il a <b>promis</b> l'impact, c'est la <b>Vadance</b>. Pour la transformer en <b>Vadité prouvée</b>, place au réseau 🌱`;
+  const b3 = proven
+    ? `Continue sur ta lancée : fais <b>vérifier tes autres mesures</b> par des 🌿 <b>Bâtisseurs</b> et des 🌾 <b>Semeurs</b> pour prouver tout ton impact.<br><br>À toi de choisir la suite 👇`
+    : `🌿 Les <b>Bâtisseurs</b> vont venir <b>réaliser tes quêtes</b> et installer les solutions sur le terrain.<br>🌾 Les <b>Semeurs</b> vont <b>financer</b> ce qu'il faut.<br><br>En attendant qu'ils répondent, à toi de choisir 👇`;
   openOnboarding(`
     <div class="ob-head"><div class="ob-av deva-av"></div><div class="ob-hmeta"><div class="ob-dname">Deva</div><div class="ob-dsub">🌐 Cap sur Développer</div></div></div>
     <div class="ob-scroll">
       <div class="ob-bubble ob-pop">Belle annonce${nm} 📣 Ta <b>Place de marché</b> est lancée : ton lieu propose ce que ses espaces produisent et fait vivre le quartier.</div>
-      <div class="ob-bubble">Ton lieu a fait sa part : il a <b>promis</b> l'impact, c'est la <b>Vadance</b>. Pour la transformer en <b>Vadité prouvée</b>, place au réseau 🌱</div>
-      <div class="ob-bubble">🌿 Les <b>Bâtisseurs</b> vont venir <b>réaliser tes quêtes</b> et installer les solutions sur le terrain.<br>🌾 Les <b>Semeurs</b> vont <b>financer</b> ce qu'il faut.<br><br>En attendant qu'ils répondent, à toi de choisir 👇</div>
+      <div class="ob-bubble">${b2}</div>
+      <div class="ob-bubble">${b3}</div>
     </div>
     <div class="ob-actions" style="flex-direction:column;align-items:stretch;gap:.55rem">
       <button class="ob-next" style="margin-left:0" onclick="switchToBatisseur()">🌿 Devenir Bâtisseur et réaliser les quêtes →</button>
