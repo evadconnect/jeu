@@ -2713,8 +2713,7 @@ function pilotLieu(){
     h+=`<div style="height:.8rem"></div>
         <div class="sect-title" style="font-size:1rem">⏳ Boucles en attente · ${pending.length}</div>
         <div class="sect-sub" style="margin-bottom:.6rem">Leurs flux se répondent, mais leurs espaces ne se touchent pas encore. <b>Colle-les sur le terrain</b> de la 🧱 Modélisation pour fermer la boucle : la circularité, c'est physique.</div>
-        <div style="display:flex;flex-wrap:wrap;gap:.5rem">${pending.map(p=>pill(p,false)).join('')}</div>
-        ${(S.navUnlocked&&S.navUnlocked.has('modele'))?`<button class="btn btn-ghost" style="width:100%;margin-top:.7rem" onclick="switchTab('modele')">🧱 Rapprocher mes espaces →</button>`:''}`;
+        <div style="display:flex;flex-wrap:wrap;gap:.5rem">${pending.map(p=>pill(p,false)).join('')}</div>`;
   }
   return h;
 }
