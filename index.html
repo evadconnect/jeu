@@ -893,10 +893,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .mp-tools button:hover{border-color:var(--fern)}
 .mp-tools button.on{border-color:var(--amber);background:#fff7e6;color:var(--amber)}
 .mp-counts{font-size:.66rem;color:var(--moss);margin-top:.7rem;text-align:center}
-.mp-loops{background:var(--cream);border:1px solid rgba(1,130,98,.16);border-radius:12px;padding:.55rem .7rem;margin-bottom:.8rem}
-.mp-loops .mpl-t{font-size:.76rem;font-weight:800;color:var(--forest);margin-bottom:.2rem}
-.mp-loops .mpl-d{font-size:.66rem;color:var(--moss);line-height:1.45}
-.mp-loops .mpl-d b{color:var(--amber)}
+.model-loops{max-width:352px;margin:1rem auto 0}
 .marker{cursor:pointer;transition:transform .15s;transform-box:fill-box;transform-origin:center}
 .marker:hover{transform:scale(1.14)}
 .mkt-media{display:flex;align-items:center;justify-content:center}
@@ -2699,22 +2696,7 @@ function pilotLieu(){
   h+=`<div class="spaces-grid">`;
   S.spaces.forEach(sp=>{ h+=spaceCard(sp); });
   h+=`</div>`;
-  // boucles : fermées sur le terrain, ou en attente d'être rapprochées dans la Modélisation
-  const loops = activeLoops(), pending = pendingLoops();
-  const pill=(p,ok)=>`<span class="pill" style="background:${ok?'var(--cream)':'#fff5da'};color:${ok?'var(--moss)':'var(--amber)'};font-size:.68rem;padding:.35rem .7rem">${SOL[p.a].ic} ${SOL[p.a].name.split(' ')[0]} ➜ ${SOL[p.b].ic} ${SOL[p.b].name.split(' ')[0]}</span>`;
-  if(loops.length){
-    h+=`<div class="sect-title" style="font-size:1rem">🔄 Boucles circulaires actives · ${loops.length}</div>
-        <div class="sect-sub" style="margin-bottom:.6rem">${loopMultLabel(loops.length)} Chaque boucle rapporte des Graines à chaque saison.</div>
-        <div style="display:flex;flex-wrap:wrap;gap:.5rem">${loops.map(p=>pill(p,true)).join('')}</div>`;
-  } else {
-    h+=`<div class="hint">🔄 <b>Astuce boucles :</b> installe deux solutions dont les flux se répondent (ex. <b>Cuisine ➜ Composteur</b>, puis <b>Composteur ➜ Potager</b>), puis <b>rapproche leurs espaces</b> sur le terrain de la 🧱 Modélisation : une boucle qui se ferme rapporte des Graines chaque saison.</div>`;
-  }
-  if(pending.length){
-    h+=`<div style="height:.8rem"></div>
-        <div class="sect-title" style="font-size:1rem">⏳ Boucles en attente · ${pending.length}</div>
-        <div class="sect-sub" style="margin-bottom:.6rem">Leurs flux se répondent, mais leurs espaces ne se touchent pas encore. <b>Colle-les sur le terrain</b> de la 🧱 Modélisation pour fermer la boucle : la circularité, c'est physique.</div>
-        <div style="display:flex;flex-wrap:wrap;gap:.5rem">${pending.map(p=>pill(p,false)).join('')}</div>`;
-  }
+  // Les boucles circulaires sont désormais présentées dans l'onglet 🧱 Modélisation.
   return h;
 }
 function measureBtn(spaceId, solId, iciId){
@@ -4094,13 +4076,6 @@ function renderModele(){
   let panel=`<div class="model-panel">
     <div class="cp-title">🧱 Construis ton lieu d’impact</div>
     <div class="mp-hint">${hint}</div>
-    <div class="mp-loops">
-      <div class="mpl-t">🔄 Boucles circulaires · ${loops.length}</div>
-      <div class="mpl-d">${pending.length
-        ? `<b>${pending.length} boucle${pending.length>1?'s':''} en attente</b> : ${pending.map(p=>`${SOL[p.a].ic}➜${SOL[p.b].ic}`).join(' ')} : peins ces espaces l'un contre l'autre pour ${pending.length>1?'les':'la'} fermer 🌱`
-        : (loops.length ? `${loopMultLabel(loops.length,true)||'Tes boucles sont fermées'} 🌿 Chaque boucle rapporte des Graines à chaque saison.`
-                        : `Une boucle se ferme quand deux solutions dont les flux se répondent se touchent : même espace, ou deux blocs voisins sur le terrain.`)}</div>
-    </div>
     <div class="mp-sect mp-espaces">🏡 Tes espaces</div>`;
   if(!spaces.length) panel+=`<div class="hint">Aménage d'abord des espaces dans 🏡 Mon lieu : ils apparaîtront ici, prêts à peindre.</div>`;
   else panel+=spaces.map(sp=>{
@@ -4121,7 +4096,7 @@ function renderModele(){
     <div class="mp-counts">🏡 ${paintedN}/${spaces.length} espace(s) peint(s) · 🧱 ${terrainUsed()}/${TER_CELLS} blocs · 🔄 ${loops.length} boucle(s)</div>
   </div>`;
 
-  el.innerHTML=`<div class="model-wrap"><div><div class="${terWrapClass()}">${terrainGridHTML(true)}${terrainAmbientHTML()}<div class="ter-zoom"><button onclick="terrainZoom(-1)" title="Réduire">−</button><button onclick="terrainZoom(1)" title="Agrandir">+</button></div>${terrainLegendHTML(spaces)}</div></div>${panel}</div>`;
+  el.innerHTML=`<div class="model-wrap"><div><div class="${terWrapClass()}">${terrainGridHTML(true)}${terrainAmbientHTML()}<div class="ter-zoom"><button onclick="terrainZoom(-1)" title="Réduire">−</button><button onclick="terrainZoom(1)" title="Agrandir">+</button></div>${terrainLegendHTML(spaces)}</div><div class="model-loops">${loopsSectionHTML()}</div></div>${panel}</div>`;
   terrainBind(el.querySelector('.ter-grid'));
 }
 /* La grille : une cellule = un <div>, l'icône de l'espace ne s'affiche que sur son premier bloc. */
@@ -5191,6 +5166,26 @@ function loopMultLabel(n, short){
   if(n>=4) return short?'Écosystème vivant ×1,5 🌳':'🌳 Écosystème vivant : multiplicateur ×1,5.';
   return short?'':'4 boucles = Écosystème vivant (×1,5) · 7 boucles = Forêt nourricière (×2). La topologie paie plus que l\'accumulation.';
 }
+/* Section complète des boucles (actives + en attente), affichée dans la Modélisation */
+function loopsSectionHTML(){
+  const loops=activeLoops(), pending=pendingLoops();
+  const pill=(p,ok)=>`<span class="pill" style="background:${ok?'var(--cream)':'#fff5da'};color:${ok?'var(--moss)':'var(--amber)'};font-size:.68rem;padding:.35rem .7rem">${SOL[p.a].ic} ${SOL[p.a].name.split(' ')[0]} ➜ ${SOL[p.b].ic} ${SOL[p.b].name.split(' ')[0]}</span>`;
+  let h='';
+  if(loops.length){
+    h+=`<div class="sect-title" style="font-size:1rem">🔄 Boucles circulaires actives · ${loops.length}</div>
+        <div class="sect-sub" style="margin-bottom:.6rem">${loopMultLabel(loops.length)} Chaque boucle rapporte des Graines à chaque saison.</div>
+        <div style="display:flex;flex-wrap:wrap;gap:.5rem">${loops.map(p=>pill(p,true)).join('')}</div>`;
+  } else {
+    h+=`<div class="hint">🔄 <b>Astuce boucles :</b> peins côte à côte deux espaces dont les solutions se répondent (ex. <b>Cuisine ➜ Composteur</b>, puis <b>Composteur ➜ Potager</b>) : une boucle se ferme et rapporte des Graines chaque saison.</div>`;
+  }
+  if(pending.length){
+    h+=`<div style="height:.8rem"></div>
+        <div class="sect-title" style="font-size:1rem">⏳ Boucles en attente · ${pending.length}</div>
+        <div class="sect-sub" style="margin-bottom:.6rem">Leurs flux se répondent, mais leurs espaces ne se touchent pas encore. <b>Colle-les sur le terrain</b> pour fermer la boucle : la circularité, c'est physique.</div>
+        <div style="display:flex;flex-wrap:wrap;gap:.5rem">${pending.map(p=>pill(p,false)).join('')}</div>`;
+  }
+  return h;
+}
 
 /* ---- victoire ---- */
 function checkWin(){
@@ -5375,7 +5370,7 @@ function modelTourSteps(withNav){
      text:'Une grille de <b>120 blocs</b>, à toi. Choisis un <b>espace</b> dans la liste, puis <b>clique (ou glisse le doigt) sur la grille</b> pour peindre ses blocs : il occupe autant de cases que tu veux. Reclique son bouton pour <b>confirmer</b>. La <b>Gomme</b> 🧽 efface de la même façon.'},
     {sel:'.mp-espaces', side:'left', scroll:true, title:'🏡 Tes espaces',
      text:'Ce sont les espaces de ton lieu, ceux que tu as aménagés dans 🏡 Mon lieu. Chacun a sa <b>couleur</b> ; le compteur t\'indique combien de blocs il occupe. Sélectionne-en un pour commencer à le peindre 👆'},
-    {sel:'.mp-loops', side:'left', scroll:true, title:'🔄 Les boucles régénératives',
+    {sel:'.model-loops', side:'top', scroll:true, title:'🔄 Les boucles régénératives',
      text:'La <b>disposition</b> compte : quand deux espaces dont les solutions se répondent sont <b>voisins</b> (au moins un de leurs blocs se touche), une <b>boucle</b> se ferme et te rapporte des Graines à chaque saison. Colle les bons espaces côte à côte 🌿'},
     {sel:'.mp-deco-sect', side:'left', scroll:true, title:'🌿 Le décor',
      text:'Arbres, fleurs, chemins, mare… donne vie à ton lieu. Le décor n\'a pas d\'effet sur la partie : c\'est <b>ta</b> vision du lieu, celle que tu montrerais aux visiteurs 🌱'});
@@ -5487,23 +5482,11 @@ function gotoReseauPreuve(){
   switchTab('reseau');
   toast('🌿 Fais installer et mesurer par un Bâtisseur, ou financer la vérification par un Semeur : leur preuve fait décoller ta Vadité.','win');
 }
-function revealBiblioTab(){
-  if(S.navUnlocked && !S.navUnlocked.has('b')){ S.navUnlocked.add('b'); setupNav(); render(); }
-}
-/* Transition V→A : bulle blanche « visite guidée » pointant vers le bouton Deva, en 2 temps */
+/* Transition V→A : la Bibliothèque s'ouvre. Deva la présente dans la barre, mais on reste sur Mon lieu.
+   Le joueur clique lui-même l'onglet et sa visite guidée (biblioTour) démarre alors, comme la Modélisation. */
 function devaCoachActiver(){
-  // On enchaîne directement sur la présentation de la Bibliothèque : plus de double déclenchement.
-  S.biblioTourDone=true;
   S.catFilter='all'; S.capFilter='all';
-  S.tour={ steps:[
-    {sel:'#deva-pill', side:'top', title:'🎉 Valoriser validé !', text:'Chaque espace a désormais sa vocation 🌱 Cap sur <b>Activer</b> : installe des solutions de la <b>Bibliothèque</b> dans tes espaces. Je te la présente 👇',
-      onEnter:()=>{ revealBiblioTab(); if(S.tab!=='b'){ S.tab='b'; render(); } }},
-    ...biblioTourSteps(true),
-    {sel:'#deva-pill', side:'top', title:'À toi de jouer 🌿', text:'Choisis une solution dans la <b>Bibliothèque</b>, puis pose-la dans un espace compatible. La spirale se met en route.',
-      onEnter:()=>{ if(S.tourDemo){ S.tourDemo=false; closeModal(); } }},
-  ], i:0 };
-  document.getElementById('tour-overlay').classList.add('on');
-  showTourStep(0);
+  revealNav('b', '🎉 Valoriser validé !', 'Chaque espace a désormais sa vocation 🌱 Cap sur <b>Activer</b> : installe des solutions de la <b>Bibliothèque</b> dans tes espaces. <b>🎯 Objectif : ouvre la Bibliothèque</b> et pose ta première solution.');
 }
 // Coût estimé d'UNE question (ordre de grandeur, modèle frugal), fixe, comme le prototype.
 const ECO_PER_MSG={wh:1.5,water:18,co2:0.9};
