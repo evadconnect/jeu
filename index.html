@@ -3798,27 +3798,17 @@ function saveLieuEdit(){
 function publishLieu(){
   S.lieuPublished=true;
   S.vadeDShown=true; // la bulle « fiche publiée » tient lieu de message Développer
-  closeModal();
-  if(S.navUnlocked && !S.navUnlocked.has('reseau')) S.navUnlocked.add('reseau');
   S.badges.add('reseau');
-  switchTab('reseau');
-  setTimeout(()=>devaCoachPublie(),250);
+  closeModal();
+  render();
+  // Le Réseau s'ouvre : Deva le présente, mais on n'y bascule pas. L'utilisateur clique l'onglet,
+  // et sa visite guidée (reseauTour) démarre alors au clic, comme pour la Modélisation.
+  revealNav('reseau', '🎉 Ta fiche est publiée !', `« <b>${escapeHtml(S.lieuName||'Ton lieu')}</b> » est désormais visible par tout le réseau 🌿 Le <b>Réseau</b> s'ouvre : c'est là que Bâtisseurs et Semeurs vont te trouver. <b>🎯 Objectif : ouvre le Réseau</b> pour y publier tes quêtes.`);
 }
 function devaCoachDevelopper(){
   S.tour={ steps:[
     {sel:'#deva-pill', side:'top', title:'🌐 Cap sur Développer !', text:'Te voilà sur le <b>Réseau</b> 🌿 Seul, ton lieu plafonne. <b>🎯 Objectif : trouve un Bâtisseur</b> (qui installe et mesure sur le terrain) <b>et un Semeur</b> (qui finance) : c\'est comme ça que ta Vadance deviendra de la <b>Vadité</b> prouvée.'},
   ], i:0 };
-  document.getElementById('tour-overlay').classList.add('on');
-  showTourStep(0);
-}
-function devaCoachPublie(){
-  const steps=[
-    {sel:'#deva-pill', side:'top', title:'🎉 Ta fiche est publiée !', text:`« <b>${escapeHtml(S.lieuName||'Ton lieu')}</b> » est désormais visible par tout le réseau 🌿 Je t'ouvre le <b>Réseau</b> : c'est là que Bâtisseurs et Semeurs vont te trouver.`},
-  ];
-  // Publier ouvre le Réseau : on enchaîne sa visite ici, sinon elle écraserait la bulle ci-dessus
-  // (switchTab la programme avant que ce tour n'existe). Le drapeau bloque son propre déclenchement.
-  if(!S.reseauTourDone){ S.reseauTourDone=true; steps.push(...reseauTourSteps(false)); }
-  S.tour={ steps, i:0 };
   document.getElementById('tour-overlay').classList.add('on');
   showTourStep(0);
 }
