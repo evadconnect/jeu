@@ -4225,7 +4225,7 @@ function terrainGridHTML(live){
   }
   h+=lv.conns.join('');
   if(live) h+=walkerHTML(deco);
-  return `<div class="ter-grid ${live?'live':'ro'}" style="--rot:${m.rot||0}deg;--zoom:${m.zoom||1}">${h}</div>`;
+  return `<div class="ter-grid ${live?'live':'ro'}" style="--rot:${m.rot==null?24:m.rot}deg;--zoom:${m.zoom==null?0.9:m.zoom}">${h}</div>`;
 }
 /* Ambiance du cadre : crépuscule qui respire, papillon et oiseau, feuilles ou neige selon la saison */
 function terWrapClass(){ return 'ter-wrap season-'+['printemps','ete','automne','hiver'][S.seasonIdx%4]; }
@@ -4238,7 +4238,7 @@ function terrainAmbientHTML(){
 }
 function terrainZoom(d){
   const m=modelState();
-  m.zoom=Math.round(Math.max(.75,Math.min(1.4,(m.zoom||1)+d*.15))*100)/100;
+  m.zoom=Math.round(Math.max(.6,Math.min(1.4,(m.zoom==null?0.9:m.zoom)+d*.15))*100)/100;
   const gr=document.querySelector('.ter-grid.live'); if(gr) gr.style.setProperty('--zoom',m.zoom);
 }
 /* « 🍳 Cuisine : 18 blocs / 120 » */
@@ -4307,7 +4307,7 @@ function terrainBind(el){
     // orbite : le glissé hors des cases fait pivoter le plateau (±24°)
     const orbMove=(x)=>{ if(TER_ORB==null) return;
       const m=modelState();
-      m.rot=Math.round(Math.max(-24,Math.min(24, TER_ORB.base+(x-TER_ORB.x)*0.22))*10)/10;
+      m.rot=Math.round(Math.max(0,Math.min(48, TER_ORB.base+(x-TER_ORB.x)*0.22))*10)/10;
       const gr=document.querySelector('.ter-grid.live'); if(gr) gr.style.setProperty('--rot',m.rot+'deg'); };
     window.addEventListener('mousemove', e=>{ if(TER_ORB!=null && (e.buttons&1)) orbMove(e.clientX); });
     window.addEventListener('touchmove', e=>{ if(TER_ORB!=null && e.touches[0]) orbMove(e.touches[0].clientX); }, {passive:true});
@@ -4315,12 +4315,12 @@ function terrainBind(el){
   const wrap=el.closest('.ter-wrap');
   if(wrap){
     const orbStart=(t,x)=>{ if(t.closest('.ter-cell')||t.closest('.ter-zoom')) return false;
-      TER_ORB={x, base:(modelState().rot||0)}; return true; };
+      const mo=modelState(); TER_ORB={x, base:(mo.rot==null?24:mo.rot)}; return true; };
     wrap.addEventListener('mousedown', e=>{ if(e.button===0 && orbStart(e.target,e.clientX)) e.preventDefault(); });
     wrap.addEventListener('touchstart', e=>{ const t=e.touches[0]; if(t) orbStart(e.target,t.clientX); }, {passive:true});
     wrap.addEventListener('dblclick', e=>{ if(e.target.closest('.ter-cell')) return;
-      const m=modelState(); m.rot=0; m.zoom=1;
-      el.style.setProperty('--rot','0deg'); el.style.setProperty('--zoom','1'); });
+      const m=modelState(); m.rot=24; m.zoom=0.9;
+      el.style.setProperty('--rot','24deg'); el.style.setProperty('--zoom','0.9'); });
   }
   // le promeneur flâne de case chemin en case chemin
   if(window.TER_WALKT){ clearInterval(window.TER_WALKT); window.TER_WALKT=null; }
