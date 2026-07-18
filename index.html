@@ -288,6 +288,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   border:1.5px dashed rgba(1,130,98,.22);border-radius:12px;line-height:1.4}
 .sol-chip{display:flex;align-items:center;gap:.5rem;background:#fff;border:1.5px solid rgba(1,130,98,.14);
   border-radius:12px;padding:.5rem .6rem;margin-top:.45rem;position:relative}
+.sol-chip.clickable{cursor:pointer;transition:box-shadow .14s,transform .14s,border-color .14s}
+.sol-chip.clickable:hover{border-color:var(--forest);box-shadow:0 3px 10px rgba(13,43,34,.12);transform:translateY(-1px)}
 .sol-chip.vadance{border-style:dashed;border-color:var(--sun);background:linear-gradient(180deg,#fffdf4,#fff9e6)}
 .sol-chip.vadite{border-color:var(--forest);background:linear-gradient(180deg,#f2fbf6,#e6f6ee)}
 .sol-chip .sic{font-size:1.15rem}
@@ -2787,7 +2789,7 @@ function spaceCard(sp){
       ? `${pr.ic} ${pr.name} (×${pr.coef}) · Δ ${fmtDelta(inst.mesureVal!=null?inst.mesureVal:solDeltaProj(inst))} ${ici.unit} → ${round1(solProof(inst))}/100 de Vadité`
       : `✨ Δ projeté ${fmtDelta(solDeltaProj(inst))} ${ici.unit} · ${round1(solProm(inst))}/100 · ${ici.ic} à mesurer`;
     const stateCol = proven ? 'var(--forest)' : (meas ? 'var(--sky)' : 'var(--amber)');
-    h+=`<div class="sol-chip ${capClass(s.cat)} ${proven?'vadite':'vadance'}">
+    h+=`<div class="sol-chip clickable ${capClass(s.cat)} ${proven?'vadite':'vadance'}" onclick="event.stopPropagation();openSolutionDetail('${inst.id}')" title="Voir « ${escapeHtml(s.name)} »">
       ${proven?'<span class="seal">🌿</span>':''}
       <span class="sic">${s.ic}</span>
       <div class="sinfo"><div class="sname">${s.name}${s.quete?`<span class="q-badge ${questComplete(inst.id)?'done':''}" title="Quête : ${escapeHtml(s.quete.titre)}" onclick="event.stopPropagation();openSolutionDetail('${inst.id}')">${questComplete(inst.id)?'✅ Quête accomplie':'⚔️ '+questDone(inst.id)+'/'+questSteps(inst.id).length+' étapes'}</span>`:''}</div>
@@ -4714,12 +4716,12 @@ function seedQuestCands(){
   if(!qs.length) return;
   const bat=CARTE_BAT[Math.floor(Math.random()*CARTE_BAT.length)];
   const sem=CARTE_SEM[Math.floor(Math.random()*CARTE_SEM.length)];
-  const qBat=qs[0], qSem=qs[1]||qs[0];                   // deux quêtes si possible, sinon la même
+  const q=qs[0];                                        // Bâtisseur et Semeur se positionnent sur la même quête
   S.questCands=[
-    {prof:'batisseur', who:bat.name, lieu:bat.ville||'Bordeaux', solId:qBat.id,
-     text:`🙋 Je me positionne sur votre quête <b>${escapeHtml(qBat.sol.quete.titre)}</b> chez « ${escapeHtml(S.lieuName||'votre lieu')} » : ${escapeHtml(bat.metier)}, je viens la faire sur le terrain et vous rapporter la preuve 🌿`},
-    {prof:'semeur', who:sem.name, lieu:sem.ville||'Bordeaux', solId:qSem.id,
-     text:`🙋 On se positionne sur votre quête <b>${escapeHtml(qSem.sol.quete.titre)}</b> : on finance la vérification. Votre Vadité arrivera <b>auditée par un tiers</b>, sans décote 🌾`},
+    {prof:'batisseur', who:bat.name, lieu:bat.ville||'Bordeaux', solId:q.id,
+     text:`🙋 Je me positionne sur votre quête <b>${escapeHtml(q.sol.quete.titre)}</b> chez « ${escapeHtml(S.lieuName||'votre lieu')} » : ${escapeHtml(bat.metier)}, je viens la faire sur le terrain et vous rapporter la preuve 🌿`},
+    {prof:'semeur', who:sem.name, lieu:sem.ville||'Bordeaux', solId:q.id,
+     text:`🙋 On se positionne sur votre quête <b>${escapeHtml(q.sol.quete.titre)}</b> : on finance la vérification. Votre Vadité arrivera <b>auditée par un tiers</b>, sans décote 🌾`},
   ];
   render();
   toast(`🙋 Le réseau répond ! ${bat.name} (Bâtisseur) et ${sem.name} (Semeur) se positionnent sur tes quêtes`,'win');
