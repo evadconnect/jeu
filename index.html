@@ -2743,11 +2743,9 @@ function questPartnerSlot(spaceId, inst){
         <span class="qp-tx"><b>${escapeHtml(c.who)}</b><small>${pr.label} sur la quête</small></span>
         <span class="qp-go">Accepter →</span></button>`; }).join('')}</div>`;
   }
-  const iciId=inst.ici||SOL[inst.id].ici;
   return `<div class="qp-slot empty">
     <span class="qp-head"><span class="qp-ic">🔍</span>
-      <span class="qp-tx"><b>Aucun partenaire</b><small>ni Bâtisseur ni Semeur sur cette quête</small></span></span>
-    ${measureBtn(spaceId, inst.id, iciId)}</div>`;
+      <span class="qp-tx"><b>Aucun partenaire</b><small>ni Bâtisseur ni Semeur sur cette quête</small></span></span></div>`;
 }
 function spaceCard(sp){
   const selSol = S.sel&&S.sel.type==='solution';
