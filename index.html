@@ -2204,6 +2204,7 @@ function buildTourSteps(){
     ...(S.profile==='pilote' ? [
       {sel:'.season-btn', side:'bottom', title:'⏳ Le temps qui passe', text:'Ce bouton fait avancer la saison : tes espaces produisent, les revenus tombent, et les aléas climatiques arrivent.'},
       {sel:'#vade-bar', side:'bottom', title:'🌀 La spirale VADE', text:'Valoriser → Activer → Développer → Essaimer : le fil rouge de ta partie, phase après phase.'},
+      {sel:'.vade-mission-row', side:'bottom', title:'🎯 Ton objectif en cours', text:'Juste sous la spirale, je t\'indique <b>la prochaine action</b> à mener pour faire avancer ta phase. Le bouton <b>« y aller → »</b> t\'emmène directement au bon endroit.'},
       {sel:'.biblio-tab[data-sub="dash"]', side:'bottom', onEnter:()=>{ S.tab='a'; S.lieuSub='dash'; render(); }, title:'📊 Tableau de bord', text:'L\'état de ton lieu en un coup d\'œil : ta Vadance promise, ta Vadité prouvée, et le triptyque de tes <b>3 capitaux</b> (🌿 Écologie, 🤝 Social, 🪙 Économie locale).'},
       {sel:'.biblio-tab[data-sub="recompenses"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏅 Récompenses', text:`Ta <b>ligne d'arrivée</b>. Tu y suis tes badges et ta quête finale : atteindre <b>60/100 de Vadité</b> pour que « ${escapeHtml(S.lieuName||'ton lieu')} » rejoigne le réseau EVAD. C'est ça, finir le jeu.`},
       {sel:'.biblio-tab[data-sub="espaces"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏡 Espaces', text:`C'est ici que tout démarre 🌱 <b>Ta première action</b> : choisis une activité pour chacun de tes espaces, puis installe des solutions de la Bibliothèque, jusqu'à <b>${MAX_PER_SPACE} par espace</b>. La spirale se met en route.`},
@@ -2214,6 +2215,7 @@ function buildTourSteps(){
     ...(S.profile==='pilote' ? [] : [
       {sel:'.season-btn', side:'bottom', title:'⏳ Le temps qui passe', text:'Ce bouton fait avancer la saison : tes espaces produisent, les revenus tombent, et les aléas climatiques arrivent.'},
       {sel:'#vade-bar', side:'bottom', title:'🌀 La spirale VADE', text:'Valoriser → Activer → Développer → Essaimer : le fil rouge de ta partie, phase après phase.'},
+      {sel:'.vade-mission-row', side:'bottom', title:'🎯 Ton objectif en cours', text:'Juste sous la spirale, je t\'indique <b>la prochaine étape</b> à viser pour faire avancer ta phase, et combien il te reste pour l\'atteindre.'},
     ]),
     {sel:'#deva-pill', side:'top', title:'🌱 Moi, Deva', text:`Un doute, une question ? Clique-moi et demande. À toi de jouer${nm} !`},
   ];
