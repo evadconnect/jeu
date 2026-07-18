@@ -607,6 +607,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .rz-text{font-size:.85rem;line-height:1.5;color:#33564a;margin-bottom:.7rem}
 .rz-cta{border-radius:100px;padding:.45rem 1rem;font-size:.75rem;font-weight:800;background:var(--cream);color:var(--moss);border:1px solid rgba(1,130,98,.15);cursor:pointer;transition:background .15s;font-family:var(--font)}
 .rz-cta:hover{background:var(--mist)}
+.rzq-need{margin:.2rem 0 0;padding-left:1.15rem;font-size:.8rem;line-height:1.55;color:#33564a}
+.rzq-need li{margin-bottom:.2rem}
 .rz-offer{border:1.5px solid rgba(1,130,98,.2);border-radius:16px;padding:1rem 1.1rem;margin-bottom:.7rem;background:linear-gradient(135deg,var(--cream),#fff);max-width:640px;box-shadow:var(--shadow)}
 .rz-offer.bat{border-color:rgba(240,176,50,.45);background:linear-gradient(135deg,#fffaf0,#fff)}
 .rz-offer.sem{border-color:rgba(37,99,168,.32);background:linear-gradient(135deg,#f0f6fc,#fff)}
@@ -4566,25 +4568,32 @@ const RESEAU_PROF={
 };
 const RESEAU_FEED=[
   {prof:'pilote', author:"Darwin Écosystème", lieu:"Bordeaux", time:"il y a 1 h", vade:'d', cta:'quete',
-   text:"On agrandit la ferme urbaine 🌱 4 bras ce samedi pour planter et installer le compost des événements. Tous niveaux !"},
+   text:"On agrandit la ferme urbaine 🌱 4 bras ce samedi pour planter et installer le compost des événements. Tous niveaux !",
+   quete:{titre:"Agrandir la ferme urbaine", quand:"Ce samedi", besoin:["4 bras pour planter","Installer le compost des événements"], niveau:"Tous niveaux", recompense:"Graines partagées et un lien durable avec Darwin Écosystème."}},
   {prof:'batisseur', author:"Hugo D.", lieu:"Bègles", time:"il y a 3 h", vade:'v', cta:'rencontre',
    text:"Charpentier dispo ce week-end pour un chantier bois & paille 🔨 Un lieu près de Bordeaux a besoin d un coup de main ?"},
   {prof:'semeur', author:"Région Nouvelle-Aquitaine", lieu:"Bordeaux", time:"il y a 5 h", vade:'a', cta:'quete',
-   text:"On finance 5 quêtes énergie & alimentation ce trimestre 🌍 Lieux à impact, candidatez avant fin mars !"},
+   text:"On finance 5 quêtes énergie & alimentation ce trimestre 🌍 Lieux à impact, candidatez avant fin mars !",
+   quete:{titre:"5 quêtes énergie & alimentation à financer", quand:"Ce trimestre · avant fin mars", besoin:["Lieux à impact du territoire","Dossier de candidature"], recompense:"Financement régional de la solution ET de son impact vérifié."}},
   {prof:'pilote', author:"La Halle des Douves", lieu:"Bordeaux", time:"hier", vade:'a', cta:'quete',
-   text:"On rénove la cuisine partagée 🔧 Besoin de bricoleurs et de dons de matériel. On compte sur le réseau bordelais !"},
+   text:"On rénove la cuisine partagée 🔧 Besoin de bricoleurs et de dons de matériel. On compte sur le réseau bordelais !",
+   quete:{titre:"Rénover la cuisine partagée", besoin:["Bricoleurs et bricoleuses","Dons de matériel de cuisine"], recompense:"Une cuisine partagée remise en service pour tout le quartier."}},
   {prof:'batisseur', author:"Karim T.", lieu:"Bordeaux", time:"hier", vade:'v', cta:'rencontre',
    text:"Électricien solaire, je peux dimensionner une installation PV pour un lieu en transition ☀️ Qui démarre ?"},
   {prof:'semeur', author:"ADEME Nouvelle-Aquitaine", lieu:"Cenon", time:"il y a 2 j", vade:'a', cta:'quete',
-   text:"Appel à projets économie circulaire ouvert ♻️ Diagnostic déchets financé pour les lieux engagés."},
+   text:"Appel à projets économie circulaire ouvert ♻️ Diagnostic déchets financé pour les lieux engagés.",
+   quete:{titre:"Appel à projets économie circulaire", besoin:["Lieux engagés dans la réduction des déchets"], recompense:"Un diagnostic déchets financé pour ton lieu."}},
   {prof:'batisseur', author:"Manon L.", lieu:"Bordeaux", time:"il y a 2 j", vade:'e', cta:'quete',
-   text:"Atelier compostage de quartier terminé ✅ 12 foyers équipés. On remet ça le mois prochain, qui s inscrit ?"},
+   text:"Atelier compostage de quartier terminé ✅ 12 foyers équipés. On remet ça le mois prochain, qui s inscrit ?",
+   quete:{titre:"Atelier compostage de quartier", quand:"Le mois prochain", besoin:["Foyers à équiper en compostage","Un lieu d'accueil pour l'atelier"], recompense:"12 foyers déjà équipés lors de la dernière session."}},
   {prof:'pilote', author:"Le Jardin de ta Sœur", lieu:"Bordeaux", time:"il y a 3 j", vade:'d', cta:'quete',
-   text:"Quête verger 🌳 Tailler et pailler les 22 arbres fruitiers avant l hiver. 5 mains motivées recherchées !"},
+   text:"Quête verger 🌳 Tailler et pailler les 22 arbres fruitiers avant l hiver. 5 mains motivées recherchées !",
+   quete:{titre:"Quête verger", quand:"Avant l'hiver", besoin:["5 mains motivées","Tailler et pailler 22 arbres fruitiers"], recompense:"Un verger prêt à traverser l'hiver et à fructifier au printemps."}},
   {prof:'semeur', author:"MAIF", lieu:"Niort", time:"il y a 3 j", vade:'v', cta:'rencontre',
    text:"Notre fonds d’impact cherche des lieux à utilité sociale et écologique 💚 Présentez-nous vos projets !"},
 ];
 const VADE_KEY={v:0,a:1,d:2,e:3};
+let RZ_REG=[];   // posts du fil affichés, indexés pour rouvrir (modal de quête)
 function renderReseau(){
   const el=document.getElementById('view-reseau');
   const f=S.reseauFilter||'tous';
@@ -4597,7 +4606,8 @@ function renderReseau(){
   const cands=(S.questCands||[]).map(candPost).filter(p=>f==='tous'||p.prof===f);
   const mine=(S.myPosts||[]).filter(p=>f==='tous'||f==='pilote');
   const posts=cands.concat(mine, RESEAU_FEED.filter(p=>f==='tous'||p.prof===f));
-  h+=`<div class="reseau-feed">${posts.map(reseauPost).join('')}</div>`;
+  RZ_REG=posts;   // registre pour rouvrir un post (ex. le modal d'une quête)
+  h+=`<div class="reseau-feed">${posts.map((p,i)=>reseauPost(p,i)).join('')}</div>`;
   el.innerHTML=h;
 }
 /* ── Publier ses quêtes de terrain sur le Réseau ── */
@@ -4731,11 +4741,13 @@ function switchToProfile(p){
   else { SESSION=null; chooseProfile(p); }
 }
 function switchToBatisseur(){ switchToProfile('batisseur'); }
-function reseauPost(p){
+function reseauPost(p,idx){
   const pr=RESEAU_PROF[p.prof], vd=VADE[VADE_KEY[p.vade]];
-  const cta={quete:'Rejoindre la quête',rencontre:'Proposer un créneau',info:'Voir le lieu',you:'Voir ma fiche →',candidat:'🤝 Accepter son aide'}[p.cta]||'Voir';
+  const isQuete = p.cta==='quete';
+  const cta={quete:'⚔️ Voir la quête',rencontre:'Proposer un créneau',info:'Voir le lieu',you:'Voir ma fiche →',candidat:'🤝 Accepter son aide'}[p.cta]||'Voir';
   const onClick = p.cta==='you' ? `closeModal();switchTab('carte');openFicheLieu('you')`
     : p.cta==='candidat' ? `acceptCand(${p.candIdx})`
+    : isQuete ? `openReseauQuete(${idx})`
     : `reseauCta('${p.cta}',&quot;${escapeHtml(p.author)}&quot;)`;
   return `<div class="rz-post${p.you?' mine':''}">
     <div class="rz-head">
@@ -4751,6 +4763,27 @@ function reseauCta(kind,who){
   const m={quete:'🙌 Tu rejoins la quête de '+who+', rendez-vous sur place !',rencontre:'📅 Créneau proposé à '+who+', à confirmer.',info:'👀 Fiche du lieu bientôt disponible.'}[kind]||'Envoyé.';
   S.badges.add('reseau'); markFirstAct('reseau');
   toast(m,'win'); render();
+}
+/* Modal d'une quête du réseau : détaille l'annonce avant de la rejoindre */
+function openReseauQuete(idx){
+  const p=RZ_REG[idx]; if(!p) return;
+  const pr=RESEAU_PROF[p.prof], vd=VADE[VADE_KEY[p.vade]], q=p.quete||{};
+  const meta=[q.quand?`🗓️ ${escapeHtml(q.quand)}`:'', q.niveau?`💪 ${escapeHtml(q.niveau)}`:''].filter(Boolean).join(' · ');
+  const besoin=(q.besoin||[]).map(b=>`<li>${escapeHtml(b)}</li>`).join('');
+  openModal(`
+    <div class="rz-head" style="margin-bottom:.8rem">
+      <div class="rz-av" style="background:${pr.bg}">${pr.ic}</div>
+      <div class="rz-meta"><div class="rz-author">${escapeHtml(p.author)}</div><div class="rz-sub">${pr.label} · 📍 ${escapeHtml(p.lieu)} · ${p.time}</div></div>
+      <span class="rz-vade" style="background:${vd.color}1a;color:${vd.color}">${vd.k} · ${vd.label}</span>
+    </div>
+    <h2 style="margin:.1rem 0 .3rem">⚔️ ${escapeHtml(q.titre||'Quête de terrain')}</h2>
+    ${meta?`<div class="rz-sub" style="margin-bottom:.7rem">${meta}</div>`:''}
+    <div class="rz-text" style="margin-bottom:.9rem">${p.text}</div>
+    ${besoin?`<div class="det-sec"><div class="det-sec-t">🙌 Ce que la quête recherche</div><ul class="rzq-need">${besoin}</ul></div>`:''}
+    ${q.recompense?`<div class="det-flux" style="margin-top:.7rem">🌱 <b>En jouant le jeu :</b> ${escapeHtml(q.recompense)}</div>`:''}
+    <button class="btn btn-primary" style="width:100%;margin-top:1rem" onclick="closeModal();reseauCta('quete',&quot;${escapeHtml(p.author)}&quot;)">🙌 Rejoindre la quête</button>
+    <button class="btn btn-ghost" style="width:100%;margin-top:.5rem" onclick="closeModal()">Fermer</button>
+  `);
 }
 function reseauActions(){
   let h='';
