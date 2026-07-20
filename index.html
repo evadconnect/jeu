@@ -2317,8 +2317,8 @@ function endTour(){
 window.addEventListener('resize',()=>{ if(S&&S.tour){ const st=S.tour.steps[S.tour.i]; positionTip(document.getElementById('tour-tip'), document.querySelector(st.sel), st.side); } });
 
 /* ═══════════════ ONBOARDING DEVA ═══════════════ */
-/* Remontée anonyme des retours Bâtisseur vers Supabase (même table `feedback` que le prototype). */
-const EVAD_STATS_SUPABASE={ url:'https://lmhhrccmgebztioesmik.supabase.co', anonKey:'sb_publishable_M_1-SinRmo1T8exi8_gkvw_RTiHznag', table:'feedback' };
+/* Remontée anonyme des retours Bâtisseur vers Supabase (table dédiée au serious game, séparée du prototype). */
+const EVAD_STATS_SUPABASE={ url:'https://lmhhrccmgebztioesmik.supabase.co', anonKey:'sb_publishable_M_1-SinRmo1T8exi8_gkvw_RTiHznag', table:'feedback_jeu' };
 function sendStat(profile, comp, motivation, free, type){
   free=(free||'').trim();
   if(!motivation && !free) return;
