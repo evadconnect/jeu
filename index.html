@@ -2318,7 +2318,7 @@ window.addEventListener('resize',()=>{ if(S&&S.tour){ const st=S.tour.steps[S.to
 
 /* ═══════════════ ONBOARDING DEVA ═══════════════ */
 /* Remontée anonyme des retours Bâtisseur vers Supabase (table dédiée au serious game, séparée du prototype). */
-const EVAD_STATS_SUPABASE={ url:'https://lmhhrccmgebztioesmik.supabase.co', anonKey:'sb_publishable_M_1-SinRmo1T8exi8_gkvw_RTiHznag', table:'Motivation_profil' };
+const EVAD_STATS_SUPABASE={ url:'https://lmhhrccmgebztioesmik.supabase.co', anonKey:'sb_publishable_M_1-SinRmo1T8exi8_gkvw_RTiHznag', table:'motivation_profil' };
 function sendStat(profile, comp, motivation, free, type){
   free=(free||'').trim();
   if(!motivation && !free) return;
