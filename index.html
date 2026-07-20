@@ -2477,7 +2477,7 @@ function obNext(){
   const ob=S.ob, steps=obSteps(), key=steps[ob.step], last=ob.step===steps.length-1;
   if(key==='name'){ const v=(document.getElementById('ob-name').value||'').trim(); if(!v){ toast('Dis-moi juste ton prénom 🌱','warn'); return; } ob.name=v.slice(0,24); }
   if(key==='lieuName'){ const v=(document.getElementById('ob-lieu').value||'').trim(); if(!v){ toast('Donne un nom à ton lieu 🌿','warn'); return; } ob.lieuName=v.slice(0,40); }
-  if(key==='motivation'){ obCaptureFree(); if(!ob.motivation){ toast('Choisis ce qui te motive le plus 🌱','warn'); return; } }
+  if(key==='motivation'){ obCaptureFree(); if(!ob.motivation && !(ob.freeText||'').trim()){ toast('Choisis une réponse ou écris la tienne 🌱','warn'); return; } }
   if(last){ obFinish(); return; }
   ob.step++;
   renderOnboardingStep();
