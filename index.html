@@ -566,10 +566,11 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 
 /* ══════════════════ ONBOARDING DEVA ══════════════════ */
 .modal-box.deva-ob{background:linear-gradient(180deg,#123c2e 0%,#0b241b 100%);color:var(--mist);text-align:left;padding:0;max-width:440px;
-  display:flex;flex-direction:column;height:min(88vh,600px);overflow:hidden}
-.deva-ob .ob-head{padding:1.35rem 1.35rem 0}
-.deva-ob .ob-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;padding:0 1.35rem;overscroll-behavior:contain}
-.deva-ob .ob-actions{padding:.9rem 1.35rem 1.35rem;margin-top:0;border-top:1px solid rgba(130,184,148,.12)}
+  display:flex;flex-direction:column;height:min(88vh,600px);height:min(88dvh,600px);overflow:hidden}
+.deva-ob .ob-head{padding:1.35rem 1.35rem 0;flex:0 0 auto}
+.deva-ob .ob-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;padding:0 1.35rem;overscroll-behavior:contain}
+/* La barre d'actions reste collee en bas de la feuille (jamais dans le vide) */
+.deva-ob .ob-actions{flex:0 0 auto;padding:.9rem 1.35rem 1.35rem;margin-top:0;border-top:1px solid rgba(130,184,148,.12);background:#0b241b}
 .ob-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.9rem}
 .ob-skip-all{flex-shrink:0;background:rgba(255,255,255,.06);border:1px solid rgba(130,184,148,.2);color:var(--sage);border-radius:100px;padding:.32rem .7rem;font-size:.66rem;font-weight:800;cursor:pointer;font-family:var(--font);white-space:nowrap;transition:all .15s}
 .ob-skip-all:hover{background:rgba(255,255,255,.13);color:var(--cream)}
@@ -1036,7 +1037,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   display:none;align-items:center;justify-content:center;padding:1.2rem;animation:fade .2s}
 #modal.open{display:flex}
 .modal-box{background:#fff;border-radius:var(--r-xl);max-width:460px;width:100%;padding:1.6rem;
-  box-shadow:0 30px 80px rgba(0,0,0,.4);text-align:center;animation:pop .3s;max-height:88vh;overflow-y:auto}
+  box-shadow:0 30px 80px rgba(0,0,0,.4);text-align:center;animation:pop .3s;max-height:88vh;max-height:88dvh;overflow-y:auto}
 .modal-box .mb-ic{font-size:2.8rem;margin-bottom:.5rem}
 .modal-box h2{font-size:1.3rem;font-weight:900;margin-bottom:.5rem}
 .modal-box p{font-size:.9rem;line-height:1.6;color:#33564a;margin-bottom:1rem}
@@ -1104,9 +1105,34 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   .space{min-width:0;max-width:100%}
   /* Panneau Deva : feuille plein écran au-dessus de la barre */
   .deva-panel{left:.5rem;right:.5rem;bottom:.5rem;top:auto;width:auto;height:min(82vh,600px)}
-  /* Modales : un poil plus compactes */
-  #modal{padding:.7rem}
+  /* Modales : un poil plus compactes.
+     height:100dvh -> la fenetre visible, chrome du navigateur mobile exclu (inset:0 seul
+     retombe sur le viewport « large » et fait passer le bas de la modale sous la barre d'URL). */
+  #modal{padding:.7rem;height:100vh;height:100dvh}
   .modal-box{padding:1.15rem}
+  /* ── Onboarding Deva : feuille plein ecran ──
+     Sans ca la feuille fait 600px au milieu d'un viewport plus haut : grand vide en haut et en
+     bas, bouton « Continuer » flottant au milieu de rien, et barre de nav qui depasse dessous. */
+  .modal-box.deva-ob{max-width:none;height:calc(100vh - 1.4rem);height:calc(100dvh - 1.4rem);
+    max-height:calc(100vh - 1.4rem);max-height:calc(100dvh - 1.4rem)}
+  .deva-ob .ob-head{padding:1rem 1.1rem 0}
+  .deva-ob .ob-scroll{padding:0 1.1rem}
+  /* Etape courte : le fil est centre dans la hauteur dispo plutot que colle en haut, pour ne
+     pas laisser un grand vide entre le dernier message et le bouton. min-height:100% garde le
+     conteneur au moins aussi haut que la zone visible ; des que ca deborde il grandit et le
+     justify-content n'a plus d'effet (pas de haut de contenu inatteignable). */
+  .deva-ob .ob-thread{min-height:100%;justify-content:center}
+  /* Marge basse pour la barre de nav + le chrome du navigateur mobile */
+  .deva-ob .ob-actions{padding:.8rem 1.1rem calc(1.1rem + env(safe-area-inset-bottom))}
+  /* Cartes « type de lieu » / « competence » : rangee scrollable horizontalement.
+     En grille 2 colonnes sur un ecran court, une seule carte tenait dans la zone visible :
+     rien n'indiquait qu'il y avait d'autres choix. */
+  .ob-types{display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
+    scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;
+    padding-bottom:.45rem;margin-bottom:.2rem}
+  .ob-type{flex:0 0 43%;min-width:118px;max-width:200px;scroll-snap-align:start}
+  .ob-types::-webkit-scrollbar{height:4px}
+  .ob-types::-webkit-scrollbar-thumb{background:rgba(130,184,148,.3);border-radius:100px}
   /* Barre de session (mode découverte) */
   #session-bar .sb-right,#session-bar{flex-wrap:wrap}
 }
