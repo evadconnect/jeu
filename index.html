@@ -2267,6 +2267,9 @@ function buildTourSteps(){
       {sel:'.biblio-tab[data-sub="espaces"]', side:'bottom', onEnter:()=>{ S.tab='a'; render(); }, title:'🏡 Espaces', text:`C'est ici que tout démarre 🌱 <b>Ta première action</b> : choisis une activité pour chacun de tes espaces, puis installe des solutions de la Bibliothèque, jusqu'à <b>${MAX_PER_SPACE} par espace</b>. La spirale se met en route.`},
     ] : []),
     {sel:navSel('b'), side:'right', title:navBy('b').ic+' '+navBy('b').label, text:AB.b},
+    {sel: S.profile==='pilote'?navSel('modele'):navSel('b'), side:'right', title:'💶 Le modèle économique', text: S.profile==='pilote'
+      ? 'Chaque solution affiche désormais son <b>modèle économique</b> : recettes, frais de fonctionnement et résultat net estimé, par mois. Et ici, dans la <b>🧱 Modélisation</b>, une <b>Projection financière</b> additionne tout : les recettes, les frais et le résultat net de ton lieu, d\'un coup d\'œil.'
+      : 'Ouvre une solution : elle affiche désormais son <b>modèle économique</b> — recettes, frais de fonctionnement et résultat net estimé chaque mois. De quoi jauger sa viabilité avant de te lancer.'},
     {sel:navSel('carte'), side:'right', title:'🗺️ Carte de l\'écosystème', text:'Tu y retrouves tous les lieux de la communauté et leurs quêtes, près de chez toi.'},
     {sel:navSel('reseau'), side:'right', title:'🌐 Réseau EVAD', text:'La communauté des trois profils. C\'est ici qu\'un lieu propose une quête, qu\'un bâtisseur donne un coup de main, qu\'un semeur avance des fonds.'},
     ...(S.profile==='pilote' ? [] : [
