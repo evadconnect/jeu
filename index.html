@@ -798,6 +798,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .cp-ic{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
 .cp-nm{font-size:.78rem;font-weight:700;line-height:1.15}
 .cp-mt{font-size:.63rem;color:var(--moss);opacity:.8;line-height:1.2;margin-top:.05rem}
+.cp-comp{margin-left:auto;flex-shrink:0;font-size:.63rem;font-weight:700;color:var(--forest);text-align:right;max-width:42%;line-height:1.2}
 .cp-empty{font-size:.72rem;color:var(--moss);opacity:.6;padding:.3rem .2rem}
 .carte-legend{display:flex;flex-wrap:wrap;gap:.85rem;margin-top:.9rem;padding-top:.7rem;border-top:1px solid var(--line);font-size:.66rem;color:var(--moss);font-weight:700}
 .carte-legend span{display:inline-flex;align-items:center;gap:.32rem}
@@ -3707,17 +3708,17 @@ function goalLabel(){
 
 /* ═══════════════ CARTE DE L'ÉCOSYSTÈME ═══════════════ */
 const CARTE_BAT=[
-  {id:'h',name:'Hugo D.',metier:'Charpentier bois & paille',ville:'Bègles',x:392,y:300,
+  {id:'h',name:'Hugo D.',metier:'Charpentier bois & paille',competence:'Architecture bioclimatique',ville:'Bègles',x:392,y:300,
    niveau:4,bio:"Charpentier depuis 12 ans, passé au bois local et à l'isolation paille. Il monte des ateliers de chantier participatif où chacun repart avec un savoir-faire.",
    comps:['Charpente','Isolation paille','Réemploi bois','Chantier participatif'],
    graines:184,done:11,actif:2,dispo:'2 jours par semaine, chantiers dans un rayon de 30 km',
    lieux:['Darwin Écosystème','La Ferme du Coteau'],certifs:['Artisan RGE','Formateur paille']},
-  {id:'k',name:'Karim T.',metier:'Électricien solaire',ville:'Bordeaux',x:414,y:230,
+  {id:'k',name:'Karim T.',metier:'Électricien solaire',competence:'Énergie renouvelable',ville:'Bordeaux',x:414,y:230,
    niveau:5,bio:"Électricien reconverti dans le photovoltaïque en autoconsommation. Il dimensionne, installe et surtout apprend aux lieux à lire leurs propres courbes de production.",
    comps:['Photovoltaïque','Autoconsommation','Stockage batterie','Suivi de production'],
    graines:262,done:17,actif:1,dispo:'Disponible en semaine, interventions sous 15 jours',
    lieux:['Darwin Écosystème','La Halle des Douves'],certifs:['QualiPV','Habilitation B2V']},
-  {id:'m',name:'Manon L.',metier:'Maraîchère & semences',ville:'Bordeaux',x:316,y:206,
+  {id:'m',name:'Manon L.',metier:'Maraîchère & semences',competence:'Maraîchage biologique',ville:'Bordeaux',x:316,y:206,
    niveau:3,bio:"Maraîchère en sol vivant, elle transforme les friches et les cours bitumées en potagers nourriciers et anime la grainothèque du réseau.",
    comps:['Maraîchage sol vivant','Compostage','Semences paysannes','Animation d’ateliers'],
    graines:97,done:6,actif:3,dispo:'Mercredis et samedis, saison de mars à octobre',
@@ -3771,7 +3772,7 @@ function carteLieux(){
   if(S.profile==='pilote') arr.unshift({id:'you',name:S.lieuName||'La Friche des Possibles',ic:'🌟',ville:S.lieuVille||'Bordeaux',x:300,y:236,you:true,openM:0,openF:0});
   return arr;
 }
-function carteBats(){ const a=CARTE_BAT.slice(); if(S.profile==='batisseur') a.unshift({id:'you',name:'Toi',metier:'Bâtisseur d’impact',ville:'Bordeaux',x:356,y:224,you:true}); return a; }
+function carteBats(){ const a=CARTE_BAT.slice(); if(S.profile==='batisseur') a.unshift({id:'you',name:'Toi',metier:'Bâtisseur d’impact',competence:'Design régénératif',ville:'Bordeaux',x:356,y:224,you:true}); return a; }
 function carteSems(){ const a=CARTE_SEM.slice(); if(S.profile==='semeur') a.unshift({id:'you',name:'Toi',meta:'Semeur d’impact',x:360,y:252,you:true}); return a; }
 function hexPts(cx,cy,r){ let p=[]; for(let i=0;i<6;i++){ const a=(Math.PI/180)*(60*i-90); p.push((cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1)); } return p.join(' '); }
 function cityDot(x,y,name){ return `<g><circle cx="${x}" cy="${y}" r="2.4" fill="#7c8b81"/><text x="${x+5}" y="${y+3.2}" font-size="8.5" fill="#5c6c62" font-weight="600" style="paint-order:stroke;stroke:#e6f5ec;stroke-width:2.5px">${name}</text></g>`; }
@@ -3781,9 +3782,11 @@ function cpItem(type,o){
   if(type==='lieu') meta=(o.you?('Ton lieu · '+escapeHtml(S.lieuVille||'Bordeaux')+(S.lieuPublished?' · 🌐 publiée':' · 📝 brouillon')):(o.ville||'Bordeaux')+(o.fin?' · 🌿 '+o.fin+' financé(s)':(o.done?' · ✅ '+o.done+' quête(s)':((o.openM||o.openF)?' · ⚡ '+((o.openM||0)+(o.openF||0))+' quête(s)':''))));
   else if(type==='bat') meta=o.metier+' · '+o.ville;
   else meta=o.meta||'';
+  const comp=type==='bat'?(o.competence||o.metier||o.role||''):'';
   return `<div class="cp-item" onclick="carteClick('${type}','${o.id}')">
     <span class="cp-ic" style="background:${cfg.bg}">${cfg.ic}</span>
     <div style="min-width:0"><div class="cp-nm">${o.name}${o.you?' <span style="font-size:.58rem;color:var(--forest);font-weight:800">· toi</span>':''}</div><div class="cp-mt">${meta}</div></div>
+    ${comp?`<div class="cp-comp">${escapeHtml(comp)}</div>`:''}
   </div>`;
 }
 function setCarteFilter(f){ S.carteFilter=f; renderCarte(); }
