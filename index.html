@@ -1034,6 +1034,29 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .toast.gold{background:linear-gradient(135deg,var(--amber),#9a5620)}
 @keyframes toastIn{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
 
+/* ── Juice : gains de Vadins, confettis, paliers ── */
+.stat.pop{animation:statPop .55s cubic-bezier(.34,1.56,.64,1)}
+.stat.pop{box-shadow:0 0 0 3px rgba(240,176,50,.35),0 2px 6px rgba(0,0,0,.04)}
+.stat.spend{animation:statSpend .4s ease}
+@keyframes statPop{0%{transform:scale(1)}35%{transform:scale(1.22)}100%{transform:scale(1)}}
+@keyframes statSpend{0%,100%{transform:scale(1)}50%{transform:scale(.9)}}
+.gain-float{position:fixed;z-index:60;font-weight:900;font-size:.95rem;color:#8a5a12;
+  text-shadow:0 1px 2px rgba(255,255,255,.7);pointer-events:none;animation:gainFloat 1.1s ease-out forwards}
+@keyframes gainFloat{0%{opacity:0;transform:translate(-50%,0) scale(.7)}
+  20%{opacity:1;transform:translate(-50%,-10px) scale(1.1)}
+  100%{opacity:0;transform:translate(-50%,-52px) scale(1)}}
+.cfx{position:fixed;z-index:58;pointer-events:none;will-change:transform,opacity}
+.badges-progress{height:9px;border-radius:100px;background:rgba(1,130,98,.12);overflow:hidden;margin:.15rem 0 .8rem}
+.badges-progress > i{display:block;height:100%;border-radius:100px;
+  background:linear-gradient(90deg,var(--sun),var(--amber));transition:width .8s cubic-bezier(.22,1,.36,1)}
+.badge.fresh{animation:badgeShine 1.4s ease}
+@keyframes badgeShine{0%{transform:scale(.7) rotate(-6deg);box-shadow:0 0 0 6px rgba(240,200,74,.5)}
+  50%{transform:scale(1.12) rotate(2deg)}100%{transform:none;box-shadow:0 4px 14px rgba(240,200,74,.25)}}
+@media(prefers-reduced-motion:reduce){
+  .stat.pop,.stat.spend,.badge.fresh,.gain-float{animation:none}
+  .cfx{display:none}
+}
+
 #modal{position:fixed;inset:0;z-index:55;background:rgba(3,40,32,.55);backdrop-filter:blur(4px);
   display:none;align-items:center;justify-content:center;padding:1.2rem;animation:fade .2s}
 #modal.open{display:flex}
@@ -1668,7 +1691,7 @@ const SOLUTIONS = [
 ];
 const SOL = Object.fromEntries(SOLUTIONS.map(s=>[s.id,s]));
 
-/* ---------- Coûts d'installation (Graines) & verrous de compétence ---------- */
+/* ---------- Coûts d'installation (Vadins) & verrous de compétence ---------- */
 const SOL_COUT={potager:3,serre:5,rucher:2,poulailler:3,compost:2,'recup-eau':3,'mur-vegetal':3,ombriere:5,phyto:4,solaire:5,atelier:3,recyclerie:3,cuisine:3};
 const SOL_LOCK={}; // plus de verrou de compétence : toutes les solutions sont installables
 /* En quoi chaque solution est régénérative (répare le vivant, pas seulement « moins nuire ») */
@@ -1785,7 +1808,7 @@ const PCOMP={
 };
 
 /* ---------- Types d'espaces (personnalisation du lieu) ---------- */
-const MEASURE_COST=2, ADD_SPACE_COST=3, MAX_PER_SPACE=4, VADITE_CAP=3; // rééquilibrage : sinks de Graines & contrainte d'espace
+const MEASURE_COST=2, ADD_SPACE_COST=3, MAX_PER_SPACE=4, VADITE_CAP=3; // rééquilibrage : sinks de Vadins & contrainte d'espace
 /* Les 20 espaces qui composent un lieu (taxonomie officielle EVAD) */
 const TYPE_META={
   jardin:       {ic:'🌿', name:'Jardin',              bg:'#e7f6ec', outdoor:true},
@@ -1956,7 +1979,7 @@ const BADGES = {
   vade_d:     {ic:'🌐', name:'Développer validé', how:'Passe la phase 🌐 Développer : rejoins le Réseau, publie ta fiche et relie-toi à un Bâtisseur ou un Semeur.'},
   reseau:     {ic:'🔗', name:'Réseau tissé', how:'Publie une annonce sur le Réseau et relie-toi à un Bâtisseur ou à un Semeur.'},
   quetes:     {ic:'📣', name:'Réalisations partagées', how:'Publie tes quêtes de terrain sur le Réseau : le réseau voit ce que ton lieu a vraiment mis en place.'},
-  marche:     {ic:'🛒', name:'Marché animé', how:'Fais vivre la Place de marché : dépose une annonce avec ce que tes espaces produisent, ou échange tes Graines contre un avantage local.'},
+  marche:     {ic:'🤲', name:'Vaderie vivante', how:'Fais vivre la Vaderie : dépose une annonce avec ce que tes espaces produisent, ou ouvre un accès local avec tes Vadins.'},
   // Au fil des saisons, quand l'occasion se présente
   fraicheur:  {ic:'🌊', name:'Gardien de la fraîcheur', how:'Installe une solution 🌊 Fraîcheur (récupérateur d’eau, mur végétal, ombrière, phytoépuration), puis traverse une canicule : ton lieu devient un îlot de fraîcheur.'},
   triple:     {ic:'🏅', name:'Triple défi', how:'Réussis 3 défis de saison d’affilée, sans en manquer un seul entre-temps.'},
@@ -2001,7 +2024,7 @@ function makeSpaces(){ return []; }
 const SESSION_ACTS=[null,'pilote','batisseur','semeur'];
 const SESSION_META={
   pilote:{ic:'🏡',label:'Pilote d\'impact',goal:'Tu opères un lieu : compose tes espaces, installe des solutions et mesure-les.'},
-  batisseur:{ic:'🌿',label:'Bâtisseur d\'impact',goal:'Tu contribues par l\'action : relève des défis, prouve-les, gagne des Graines.'},
+  batisseur:{ic:'🌿',label:'Bâtisseur d\'impact',goal:'Tu contribues par l\'action : relève des défis, prouve-les, gagne des Vadins.'},
   semeur:{ic:'🌾',label:'Semeur d\'impact',goal:'Tu finances la régénération et récoltes de la Vadité vérifiée.'},
 };
 function setIntroDate(){
@@ -2050,7 +2073,7 @@ function introStep(n){
   const wName=c=>`<input class="ob-input${c?' ob-pop':''}" id="intro-name" placeholder="Ton prénom…" value="${nm}" maxlength="24" onkeydown="if(event.key==='Enter')introNameNext()">`;
   const wProfils=c=>`<div class="intro-profiles${c?' ob-pop':''}">
         <div class="intro-prof static"><span class="ip-ic">🏡</span><div class="ip-txt"><div class="ip-tag">Porteurs de lieu</div><div class="ip-name">Pilote d'impact</div><div class="ip-desc">Tiers-lieu, écolieu, ferme, association. Tu publies des quêtes, accueilles des Bâtisseurs et vérifies les preuves d'impact.</div></div></div>
-        <div class="intro-prof static"><span class="ip-ic">🌿</span><div class="ip-txt"><div class="ip-tag">Citoyens</div><div class="ip-name">Bâtisseur d'impact</div><div class="ip-desc">Membre, étudiant, entrepreneur. Tu rejoins des quêtes concrètes, tu contribues et tu gagnes des Graines à utiliser dans le réseau.</div></div></div>
+        <div class="intro-prof static"><span class="ip-ic">🌿</span><div class="ip-txt"><div class="ip-tag">Citoyens</div><div class="ip-name">Bâtisseur d'impact</div><div class="ip-desc">Membre, étudiant, entrepreneur. Tu rejoins des quêtes concrètes, tu contribues et tu gagnes des Vadins à utiliser dans le réseau.</div></div></div>
         <div class="intro-prof static"><span class="ip-ic">🌾</span><div class="ip-txt"><div class="ip-tag">Financeurs</div><div class="ip-name">Semeur d'impact</div><div class="ip-desc">Financeur, fondation, collectivité. Tu finances des projets contre des preuves d'impact vérifiées.</div></div></div>
       </div>`;
   const wSpirale=c=>`<div class="vade-schema-box${c?' ob-pop':''}">${VADE_SCHEMA}</div><div id="vade-hover" class="vade-hover">Survole une phase pour la découvrir 🌀</div>`;
@@ -2252,7 +2275,7 @@ function showOnboarding(){
     <h2>La spirale VADE commence</h2>
     <p style="margin-bottom:.8rem">Chaque partie suit quatre phases. Vous démarrez par <b style="color:var(--forest)">V · Valoriser</b> : reconnaître ce qui existe déjà.</p>
     <div class="vocab-grid">
-      <div class="vocab"><span class="v-ic">🌰</span><div><div class="v-t">Graines</div><div class="v-d">Monnaie de l'action. Non convertible en euros.</div></div></div>
+      <div class="vocab"><span class="v-ic">🌰</span><div><div class="v-t">Vadins</div><div class="v-d">Tes points de contribution reconnus. Se gagnent par l'action, jamais avec des euros.</div></div></div>
       <div class="vocab"><span class="v-ic">💶</span><div><div class="v-t">Euros</div><div class="v-d">Monnaie des financements. Circuit séparé.</div></div></div>
       <div class="vocab"><span class="v-ic">✨</span><div><div class="v-t">Vadance</div><div class="v-d">L'impact <i>promis</i>, installé, pas encore mesuré.</div></div></div>
       <div class="vocab"><span class="v-ic">🌿</span><div><div class="v-t">Vadité</div><div class="v-d">L'impact <i>prouvé</i> : un ICI est attaché et vérifié sur le terrain, pas seulement déclaré.</div></div></div>
@@ -2271,7 +2294,7 @@ function buildTourSteps(){
   const navBy=k=>nav.find(n=>n.k===k)||{ic:'',label:''};
   const AB={
     pilote:{a:'Ton tableau de bord et ton lieu réunis : compose tes espaces, installe des solutions et relève leurs mesures pour prouver ton impact.', b:`Le catalogue commun : toutes les solutions à installer dans tes espaces. Chaque carte arrive avec son <b>ICI</b> de mesure, et sa quête de terrain.`},
-    batisseur:{a:'Les quêtes ouvertes sur les trois lieux du réseau. Accepte une quête, réalise-la, gagne des Graines.', b:'Apprends de nouvelles compétences pour débloquer davantage de quêtes.'},
+    batisseur:{a:'Les quêtes ouvertes sur les trois lieux du réseau. Accepte une quête, réalise-la, gagne des Vadins.', b:'Apprends de nouvelles compétences pour débloquer davantage de quêtes.'},
     semeur:{a:'Finance des besoins en euros : la solution ET son ICI sont posés, ta Vadité arrive déjà vérifiée.', b:'Une seule saisie de terrain couvre tous les langages : ODD, ESRS, PCAET, RSE.'},
   }[S.profile];
   const nm=S.playerName&&S.playerName!=='toi'?(' '+escapeHtml(S.playerName)):'';
@@ -2282,7 +2305,7 @@ function buildTourSteps(){
       {sel:navSel('dash'), side:'right', title:'📊 Tableau de bord', text:'Ta progression, tes badges et ta quête finale, en un coup d\'œil.'},
     ]),
     {sel:navSel('a'), side:'right', title:navBy('a').ic+' '+navBy('a').label, text:AB.a},
-    {sel:'[data-stat="graines"]', side:'bottom', title:'🌰 Graines', text:'La <b>monnaie de l\'action</b>. Elle se gagne en agissant, jamais avec des euros. Les euros, eux, financent : c\'est un circuit à part, côté Semeurs.'},
+    {sel:'[data-stat="graines"]', side:'bottom', title:'🌰 Vadins', text:'Tes <b>points de contribution</b> reconnus. Ils se gagnent en agissant, jamais avec des euros. Les euros, eux, financent : c\'est un circuit à part, côté Semeurs.'},
     {sel:'[data-stat="vadance"]', side:'bottom', title:'✨ Vadance', text:'L\'impact <b>promis</b> : une solution est installée, mais pas encore mesurée. C\'est ce que ton lieu <i>annonce</i>.'},
     {sel:'[data-stat="vadite"]', side:'bottom', title:'🌿 Vadité', text:'L\'impact <b>prouvé</b> : un <b>ICI</b> (Indicateur de Changement d\'Impact) est attaché et vérifié. Un indicateur de terrain qui parle tous les langages (ODD, ESRS, PCAET, RSE). C\'est ta devise, ta ligne d\'arrivée.'},
     ...(S.profile==='pilote' ? [
@@ -2594,7 +2617,7 @@ function obFinish(){
 /* ═══════════════ NAVIGATION (sidebar) ═══════════════ */
 const CARTE_NAV = {k:'carte',ic:'🗺️',label:'Carte',title:'Carte de l\'écosystème',sub:'Découvre la communauté engagée près de chez toi et connecte-toi à l\'écosystème local.'};
 const RESEAU_NAV = {k:'reseau',ic:'🌐',label:'Réseau',title:'Réseau EVAD',sub:'La communauté des Pilotes, Bâtisseurs et Semeurs : c\'est ici que les trois profils se relient.'};
-const MARCHE_NAV = {k:'marche',ic:'🛒',label:'Place de marché',title:'Place de marché',sub:'Convertis tes Graines en avantages locaux proposés par les lieux du réseau EVAD.'};
+const MARCHE_NAV = {k:'marche',ic:'🤲',label:'Reconnaissances',title:'Reconnaissances · la Vaderie',sub:'Tes Vadins ouvrent des accès que les lieux proposent : tu ne règles rien en euros, tu ouvres une porte.'};
 const NAV = {
   pilote:[
     {k:'a',ic:'🏡',label:'Mon lieu',title:'Mon lieu · La Friche des Possibles',sub:'Ton tableau de bord et ton lieu réunis : suis ta progression, compose, installe et mesure.'},
@@ -2622,7 +2645,7 @@ const NAV = {
 };
 const ESPACE_TXT={
   pilote:'Crée, structure et pilote ton lieu avec les bons outils.',
-  batisseur:'Contribue avec tes compétences et récolte des Graines.',
+  batisseur:'Contribue avec tes compétences et récolte des Vadins.',
   semeur:'Finance la régénération et récolte de la Vadité vérifiée.',
 };
 function setupNav(){
@@ -2712,6 +2735,8 @@ function render(){
   else if(S.tab==='modele') renderModele();
   else if(S.tab==='marche') renderMarche();
   checkVade();
+  sweepBadges();
+  checkPaliers();
 }
 
 function renderTopbar(){
@@ -2722,7 +2747,7 @@ function renderTopbar(){
   const sz=SEASONS[S.seasonIdx%4], yr=2030+Math.floor(S.seasonIdx/4);
   document.getElementById('season-lab').textContent=`${sz.ic} ${sz.name} ${yr}`;
   // stats
-  let html=`<span class="stat" data-stat="graines">🌰 ${S.graines}<span class="lab">Graines</span></span>`;
+  let html=`<span class="stat" data-stat="graines">🌰 ${S.graines}<span class="lab">Vadins</span></span>`;
   if(S.profile==='semeur') html+=`<span class="stat" data-stat="euros">💶 ${S.euros}<span class="lab">€</span></span>`;
   // Pilote : Vadance et Vadité sont des notes sur 100. Batisseur/Semeur gardent leur compteur de points.
   if(S.profile==='pilote'){
@@ -2734,6 +2759,7 @@ function renderTopbar(){
     html+=`<span class="stat vadite" data-stat="vadite">🌿 ${round1(vad)} / ${PROFILS[S.profile].goal} points<span class="lab">Vadité</span></span>`;
   }
   document.getElementById('stats').innerHTML=html;
+  juiceVadins();
   // VADE bar
   document.getElementById('vade-bar').innerHTML = `<span class="vade-cycle">🌀 Cycle ${S.vadeCycle||1}/3</span>` + VADE.map((v,i)=>{
     const cls = i<S.vade?'done':(i===S.vade?'on':'');
@@ -3344,7 +3370,7 @@ function ecoSection(){
   const em=S.ecoMissions||{};
   const proven=Object.values(em).filter(v=>v==='proven').length;
   let h=`<div class="lieu-title" style="margin-top:.3rem">🌍 Défis écolo du quotidien <span style="font-size:.66rem;opacity:.7;font-weight:600">· ${proven} prouvé(s)</span></div>`;
-  h+=`<div class="hint">💡 La règle d'or d'EVAD, à vivre ici : <b>relever un défi = une promesse (Vadance ✨)</b>. <b>Fournir la preuve = de la Vadité 🌿 vérifiée</b>, et des Graines à dépenser à la place de marché.</div>`;
+  h+=`<div class="hint">💡 La règle d'or d'EVAD, à vivre ici : <b>relever un défi = une promesse (Vadance ✨)</b>. <b>Fournir la preuve = de la Vadité 🌿 vérifiée</b>, et des Vadins à faire valoir à la Vaderie.</div>`;
   h+=`<div class="cards-grid" style="margin-bottom:1.3rem">`;
   ECO_MISSIONS.forEach(m=>{
     const st=em[m.id];
@@ -3386,7 +3412,7 @@ function submitProof(id){
   const proven=Object.values(S.ecoMissions).filter(v=>v==='proven').length;
   if(proven>=3) S.badges.add('ecocitoyen');
   closeModal();
-  toast(`🌿 Preuve validée ! « ${m.t} » devient de la Vadité vérifiée · +${m.graines}🌰 à dépenser au marché`,'win');
+  toast(`🌿 Preuve validée ! « ${m.t} » devient de la Vadité vérifiée · +${m.graines}🌰 Vadins à faire valoir à la Vaderie`,'win');
   render();
 }
 function batisseurMissions(){
@@ -3450,7 +3476,7 @@ function acceptMission(id){
   render();
 }
 function learnComp(k){
-  if(S.graines<4){ toast('Pas assez de Graines (4🌰)','warn'); return; }
+  if(S.graines<4){ toast('Pas assez de Vadins (4🌰)','warn'); return; }
   S.graines-=4; S.comps.add(k);
   markFirstAct('learned');
   toast(`🎓 Nouvelle compétence : ${COMPETENCES[k].ic} ${COMPETENCES[k].name}`,'win');
@@ -3636,7 +3662,7 @@ function dashHTML(opts){
   // stats (masquées pour le Pilote : déjà couvertes par le panneau « État du lieu » et la barre du haut)
   if(S.profile!=='pilote'){
     h+=`<div class="dash-grid">`;
-    h+=dashStat('🌰',S.graines,'Graines');
+    h+=dashStat('🌰',S.graines,'Vadins');
     if(S.profile==='semeur') h+=dashStat('💶',S.euros,'Budget €');
     h+=dashStat('✨',round1(curVadance())+' '+pts(curVadance()),'Vadance (promise)');
     h+=dashStat('🌿',round1(vad)+' '+pts(vad),'Vadité (prouvée)');
@@ -3676,13 +3702,16 @@ function badgeTip(k){
   toast(`${got?'✅':'🔒'} ${b.ic} ${b.name} · ${b.how}`, got?'win':'');
 }
 function badgesHTML(){
-  let h=`<div class="sect-title" style="font-size:1rem">🏅 Badges · ${S.badges.size}/${Object.keys(BADGES).length}</div>
-    <div class="badges-grid">`;
+  const total=Object.keys(BADGES).length, got=S.badges.size, pct=Math.round(got/total*100);
+  const fresh=S._freshBadge; S._freshBadge=null;   // ne brille qu'une fois
+  let h=`<div class="sect-title" style="font-size:1rem">🏅 Badges · ${got}/${total}</div>
+    <div class="badges-progress"><i style="width:${pct}%"></i></div>`;
+  h+=`<div class="badges-grid">`;
   // Ordre d'obtention (celui de BADGES) : gagnés et verrouillés mêlés, la grille se lit comme une feuille de route.
   Object.keys(BADGES).forEach(k=>{
-    const b=BADGES[k]; const got=S.badges.has(k);
-    const tip=got?'✅ Débloqué ! '+b.how:'🔒 Comment l’obtenir : '+b.how;
-    h+=`<div class="badge ${got?'got':''}" tabindex="0" onclick="badgeTip('${k}')">
+    const b=BADGES[k]; const has=S.badges.has(k);
+    const tip=has?'✅ Débloqué ! '+b.how:'🔒 Comment l’obtenir : '+b.how;
+    h+=`<div class="badge ${has?'got':''}${k===fresh?' fresh':''}" tabindex="0" onclick="badgeTip('${k}')">
       <div class="b-ic">${b.ic}</div><div class="b-name">${b.name}</div>
       <div class="b-tip">${escapeHtml(tip)}</div>
     </div>`;
@@ -3944,7 +3973,7 @@ function openFicheBat(id){
       <div class="det-body">
         <p class="det-desc">Voilà ce que les Pilotes voient de toi quand ils cherchent quelqu’un pour une quête. Chaque quête accomplie et chaque compétence apprise enrichit cette fiche.</p>
         ${ficheStats([
-          {v:'🌰 '+S.graines, l:'Graines', c:'var(--amber)'},
+          {v:'🌰 '+S.graines, l:'Vadins', c:'var(--amber)'},
           {v:'✅ '+(S.missionsDone||0), l:'Quêtes accomplies', c:'var(--forest)'},
           {v:'🛠️ '+((S.missions||[]).length), l:'Quêtes en cours', c:'var(--sky)'},
         ])}
@@ -3958,7 +3987,7 @@ function openFicheBat(id){
     <div class="det-body">
       <p class="det-desc">${b.bio}</p>
       ${ficheStats([
-        {v:'🌰 '+b.graines, l:'Graines', c:'var(--amber)'},
+        {v:'🌰 '+b.graines, l:'Vadins', c:'var(--amber)'},
         {v:'✅ '+b.done, l:'Quêtes accomplies', c:'var(--forest)'},
         {v:'🛠️ '+b.actif, l:'En cours', c:'var(--sky)'},
       ])}
@@ -4540,7 +4569,7 @@ function modelLieuSvg(id){
 }
 
 
-/* ═══════════════ PLACE DE MARCHÉ (échange de Graines) ═══════════════ */
+/* ═══════════════ PLACE DE MARCHÉ (échange de Vadins) ═══════════════ */
 const MKT_CATS={
   alim:{label:'🥦 Alimentation',color:'#2e6b47'},
   formation:{label:'🎓 Formation',color:'#3a6e8c'},
@@ -4566,15 +4595,15 @@ const MKT_OFFERS=[
 function renderMarche(){
   const el=document.getElementById('view-marche');
   const f=S.mktFilter||'all';
-  let h=`<div class="sect-sub">La <b>place de marché</b> du réseau EVAD : convertis tes Graines gagnées en <b>avantages locaux</b> proposés par les lieux, alimentation, formation, artisanat, services. Les Graines circulent, l'économie locale vit. <i>Les Graines ne s'achètent pas en euros : elles se gagnent par l'action.</i></div>`;
-  h+=`<div style="font-size:.74rem;color:var(--moss);opacity:.85;margin-bottom:.7rem;font-weight:700">🌰 ${S.graines} Graines à dépenser${(S.purchases&&S.purchases.length)?' · 🎒 '+S.purchases.length+' échange(s) réalisé(s)':''}</div>`;
+  let h=`<div class="sect-sub">La <b>Vaderie</b>, le marché des reconnaissances du réseau EVAD : tes <b>Vadins</b> — tes points de contribution reconnus — ouvrent des <b>accès locaux</b> que les lieux proposent : alimentation, formation, artisanat, services. Tu ne règles rien en euros, tu ouvres une porte. <i>Les Vadins ne s'achètent pas : ils se gagnent par l'action.</i></div>`;
+  h+=`<div style="font-size:.74rem;color:var(--moss);opacity:.85;margin-bottom:.7rem;font-weight:700">🌰 ${S.graines} Vadins à ouvrir${(S.purchases&&S.purchases.length)?' · 🎒 '+S.purchases.length+' accès ouvert(s)':''}</div>`;
   // Pilote : ton lieu vend aussi, dépose une annonce avec ce que tes espaces produisent
   if(S.profile==='pilote'){
     const n=(S.myOffers||[]).length;
     h+=`<div class="card mq-card">
       <div class="mq-head">
         <div><div class="mq-t">📣 Déposer une annonce</div>
-        <div class="mq-sub">Propose ce que <b>tes espaces produisent</b> : récoltes, ateliers, services… Les Graines gagnées reviennent à ton lieu.</div></div>
+        <div class="mq-sub">Propose ce que <b>tes espaces produisent</b> : récoltes, ateliers, services… Les Vadins gagnés reviennent à ton lieu.</div></div>
         ${n?`<span class="mq-flag">📣 ${n} en ligne</span>`:''}
       </div>
       <button class="btn btn-primary mq-btn" onclick="openDeposeAnnonce()">📣 Déposer une annonce</button>
@@ -4606,7 +4635,7 @@ function mktCard(o){
 }
 function buyOffer(id){
   const o=MKT_OFFERS.find(x=>x.id===id); if(!o) return;
-  if(o.prix>0 && S.graines<o.prix){ toast('Pas assez de Graines pour cet échange','warn'); return; }
+  if(o.prix>0 && S.graines<o.prix){ toast('Pas assez de Vadins pour cet échange','warn'); return; }
   S.graines-=o.prix; if(!S.purchases) S.purchases=[]; S.purchases.push(id);
   S.badges.add('marche'); markFirstAct('marche');
   toast(`${o.ic} « ${o.t} » ${o.prix>0?'échangé pour '+o.prix+'🌰':'réservé (gratuit)'} · chez ${o.lieu} 🌿`,'win');
@@ -4684,10 +4713,10 @@ function openDeposeAnnonce(){
   openModal(`
     <div class="mb-ic">📣</div>
     <h2>Déposer une annonce</h2>
-    <p style="margin-bottom:.8rem">Choisis ce que ton lieu propose au réseau : chaque produit ou service vient d'une <b>activité de tes espaces</b>, les Graines reviennent à ton lieu.</p>
+    <p style="margin-bottom:.8rem">Choisis ce que ton lieu propose au réseau : chaque produit ou service vient d'une <b>activité de tes espaces</b>, les Vadins reviennent à ton lieu.</p>
     <div class="f-field"><label class="f-lab" for="ma-src">Ce que ton lieu propose</label>
       <select id="ma-src" class="f-inp">${prods.map((p,i)=>`<option value="${i}">${p.ic} ${escapeHtml(p.label)} · issu de ${escapeHtml(p.from)}</option>`).join('')}</select></div>
-    <div class="f-field"><label class="f-lab" for="ma-prix">Prix en Graines (0 = gratuit)</label>
+    <div class="f-field"><label class="f-lab" for="ma-prix">Prix en Vadins (0 = gratuit)</label>
       <input id="ma-prix" class="f-inp" type="number" min="0" max="200" value="5"></div>
     <button class="btn btn-primary" style="width:100%" onclick="publishAnnonce()">📣 Publier l'annonce</button>
     <button class="btn btn-ghost" style="width:100%;margin-top:.5rem" onclick="closeModal()">Annuler</button>
@@ -4699,7 +4728,7 @@ function publishAnnonce(){
   const prix=Math.max(0,Math.min(200,parseInt(document.getElementById('ma-prix').value,10)||0));
   S.myOffers=S.myOffers||[];
   S.myOfferSeq=(S.myOfferSeq||0)+1;
-  S.myOffers.unshift({id:'my'+S.myOfferSeq, cat:p.cat, t:p.label, lieu:S.lieuName||'Mon lieu', prix, unite:p.unit||`depuis « ${p.espace} »`, ic:p.ic, impact:`${escapeHtml(p.from)} · « ${escapeHtml(p.espace)} » les Graines reviennent au lieu.`, mine:true});
+  S.myOffers.unshift({id:'my'+S.myOfferSeq, cat:p.cat, t:p.label, lieu:S.lieuName||'Mon lieu', prix, unite:p.unit||`depuis « ${p.espace} »`, ic:p.ic, impact:`${escapeHtml(p.from)} · « ${escapeHtml(p.espace)} » les Vadins reviennent au lieu.`, mine:true});
   S.badges.add('marche'); markFirstAct('marche');
   closeModal();
   toast(`📣 Annonce publiée : ${p.ic} « ${p.label} » ${prix>0?'· '+prix+'🌰':'· gratuit'} 🌿`,'win');
@@ -4721,7 +4750,7 @@ const RESEAU_PROF={
 const RESEAU_FEED=[
   {prof:'pilote', author:"Darwin Écosystème", lieu:"Bordeaux", time:"il y a 1 h", vade:'d', cta:'quete',
    text:"On agrandit la ferme urbaine 🌱 4 bras ce samedi pour planter et installer le compost des événements. Tous niveaux !",
-   quete:{titre:"Agrandir la ferme urbaine", quand:"Ce samedi", besoin:["4 bras pour planter","Installer le compost des événements"], niveau:"Tous niveaux", recompense:"Graines partagées et un lien durable avec Darwin Écosystème."}},
+   quete:{titre:"Agrandir la ferme urbaine", quand:"Ce samedi", besoin:["4 bras pour planter","Installer le compost des événements"], niveau:"Tous niveaux", recompense:"Vadins partagés et un lien durable avec Darwin Écosystème."}},
   {prof:'batisseur', author:"Hugo D.", lieu:"Bègles", time:"il y a 3 h", vade:'v', cta:'rencontre',
    text:"Charpentier dispo ce week-end pour un chantier bois & paille 🔨 Un lieu près de Bordeaux a besoin d un coup de main ?"},
   {prof:'semeur', author:"Région Nouvelle-Aquitaine", lieu:"Bordeaux", time:"il y a 5 h", vade:'a', cta:'quete',
@@ -4889,7 +4918,7 @@ function devaProposeSaison(){
   devaReveal('.season-btn', '⏳ Avance d\'une saison',
     `Bravo${nm} 🌿 Un <b>Bâtisseur</b> et un <b>Semeur</b> ont rejoint ta quête.<br>Clique le bouton <b>Saison</b> : ils viendront <b>relever la mesure sur le terrain</b>, et ta Vadance deviendra Vadité prouvée.`);
 }
-/* Deva reprend la parole après la première annonce déposée à la Place de marché : le lieu a promis, le réseau va prouver */
+/* Deva reprend la parole après la première annonce déposée à la Vaderie : le lieu a promis, le réseau va prouver */
 function devaProposeRelais(){
   if(document.getElementById('modal').classList.contains('open')) return; // ne pas recouvrir une autre modale (on réessaiera à la prochaine annonce)
   S.relaisShown=true;
@@ -4904,7 +4933,7 @@ function devaProposeRelais(){
   openOnboarding(`
     <div class="ob-head"><div class="ob-av deva-av"></div><div class="ob-hmeta"><div class="ob-dname">Deva</div><div class="ob-dsub">🌐 Cap sur Développer</div></div></div>
     <div class="ob-scroll">
-      <div class="ob-bubble ob-pop">Belle annonce${nm} 📣 Ta <b>Place de marché</b> est lancée : ton lieu propose ce que ses espaces produisent et fait vivre le quartier.</div>
+      <div class="ob-bubble ob-pop">Belle annonce${nm} 📣 Ta <b>Vaderie</b> est lancée : ton lieu propose ce que ses espaces produisent et fait vivre le quartier.</div>
       <div class="ob-bubble">${b2}</div>
       <div class="ob-bubble">${b3}</div>
     </div>
@@ -5271,17 +5300,17 @@ function advanceSeason(){
   // 6) victoire ?
   const won = checkWin();
 
-  // 6.5) Pilote : premiere saison productive → la Place de marché s'ouvre (apres le récap)
+  // 6.5) Pilote : premiere saison productive → la Vaderie (Reconnaissances) s'ouvre (apres le récap)
   if(S.profile==='pilote' && S.navUnlocked && !S.navUnlocked.has('marche') && gains>0){
-    revealNav('marche', '🛒 Ouvre la Place de marché', 'Tes espaces ont produit 🌰 Il est temps de valoriser ce que ton lieu fait vivre. <b>🎯 Objectif : propose une formation sur ton lieu</b> et vends tes produits et services sur la Place de marché.', true);
+    revealNav('marche', '🤲 Ouvre les Reconnaissances', 'Tes espaces ont produit 🌰 Il est temps de valoriser ce que ton lieu fait vivre. <b>🎯 Objectif : propose une formation sur ton lieu</b> et ouvre tes produits et services à la Vaderie.', true);
   }
-  // 6.6) Bâtisseur : la Carte s'ouvre à la 1re quête accomplie, puis la Place de marché une saison plus tard
+  // 6.6) Bâtisseur : la Carte s'ouvre à la 1re quête accomplie, puis la Vaderie une saison plus tard
   // (une seule annonce différée à la fois : PENDING_REVEAL n'a qu'un créneau)
   if(S.profile==='batisseur' && S.navUnlocked){
     if(!S.navUnlocked.has('carte') && S.missionsDone>0){
       revealNav('carte', '🗺️ La Carte s\'ouvre', 'Première quête accomplie ✅ La <b>Carte</b> te montre les lieux du réseau près de chez toi et leurs quêtes ouvertes. <b>🎯 Objectif : repère ton prochain chantier</b> sur ton territoire.', true);
     } else if(S.navUnlocked.has('carte') && !S.navUnlocked.has('marche') && gains>0){
-      revealNav('marche', '🛒 Ouvre la Place de marché', 'Tes quêtes t\'ont rapporté des 🌰 <b>Graines</b>. La <b>Place de marché</b> les transforme en avantages locaux proposés par les lieux du réseau. <b>🎯 Objectif : échange tes Graines</b> contre un coup de pouce.', true);
+      revealNav('marche', '🤲 Ouvre les Reconnaissances', 'Tes quêtes t\'ont rapporté des 🌰 <b>Vadins</b>. La <b>Vaderie</b> les transforme en accès locaux proposés par les lieux du réseau. <b>🎯 Objectif : fais valoir tes Vadins</b> pour ouvrir un coup de pouce.', true);
     }
   }
 
@@ -5402,10 +5431,10 @@ function loopsSectionHTML(){
   let h='';
   if(loops.length){
     h+=`<div class="sect-title" style="font-size:1rem">🔄 Boucles circulaires actives · ${loops.length}</div>
-        <div class="sect-sub" style="margin-bottom:.6rem">${loopMultLabel(loops.length)} Chaque boucle rapporte des Graines à chaque saison.</div>
+        <div class="sect-sub" style="margin-bottom:.6rem">${loopMultLabel(loops.length)} Chaque boucle rapporte des Vadins à chaque saison.</div>
         <div style="display:flex;flex-wrap:wrap;gap:.5rem">${loops.map(p=>pill(p,true)).join('')}</div>`;
   } else {
-    h+=`<div class="hint">🔄 <b>Astuce boucles :</b> place côte à côte deux espaces dont les solutions se répondent (ex. <b>Cuisine ➜ Composteur</b>, puis <b>Composteur ➜ Potager</b>) : une boucle se ferme et rapporte des Graines chaque saison.</div>`;
+    h+=`<div class="hint">🔄 <b>Astuce boucles :</b> place côte à côte deux espaces dont les solutions se répondent (ex. <b>Cuisine ➜ Composteur</b>, puis <b>Composteur ➜ Potager</b>) : une boucle se ferme et rapporte des Vadins chaque saison.</div>`;
   }
   if(pending.length){
     h+=`<div style="height:.8rem"></div>
@@ -5441,7 +5470,7 @@ function seasonModal(sz, yr, gains, vaditeGain, msgs, hazMsg, won){
   }
   h+=`<div class="mb-detail">`;
   h+=`<div style="font-weight:800;margin-bottom:.4rem">📋 Bilan de saison</div>`;
-  h+=`<div>🌰 +${gains} Graines</div>`;
+  h+=`<div>🌰 +${gains} Vadins</div>`;
   if(vaditeGain>0) h+=`<div>🌿 +${round1(vaditeGain)} ${pts(vaditeGain)} de Vadité convertie</div>`;
   if(msgs.length) h+=msgs.map(m=>`<div style="margin-top:.25rem">${m}</div>`).join('');
   h+=`</div>`;
@@ -5543,7 +5572,22 @@ function toast(msg, kind){ const box=document.getElementById('toasts');
   const t=document.createElement('div'); t.className='toast '+(kind||''); t.innerHTML=msg; box.appendChild(t);
   setTimeout(()=>{ t.style.transition='opacity .4s,transform .4s'; t.style.opacity='0'; t.style.transform='translateY(-10px)'; setTimeout(()=>t.remove(),400); }, 3200);
 }
-function toastBadge(k){ toast(`🏅 Badge débloqué : ${BADGES[k].ic} ${BADGES[k].name}`,'gold'); }
+function toastBadge(k){
+  if(!BADGES[k]) return;
+  if(!S._toasted) S._toasted=new Set();
+  if(S._toasted.has(k)) return;   // une seule fanfare par badge
+  S._toasted.add(k); if(S._seenBadges) S._seenBadges.add(k);
+  S._freshBadge=k;
+  toast(`🏅 Badge débloqué : ${BADGES[k].ic} ${BADGES[k].name}`,'gold');
+  celebrateBanner({emojis:[BADGES[k].ic,'✨','🏅','🌿','🎉']});
+}
+/* Rattrape les badges ajoutés en silence (sans toastBadge) et leur donne la
+   même fanfare. Appelé à chaque render : la 1re passe fixe la référence. */
+function sweepBadges(){
+  if(!S) return;
+  if(!S._seenBadges){ S._seenBadges=new Set([...S.badges]); return; }
+  for(const k of S.badges){ if(!S._seenBadges.has(k)) toastBadge(k); }
+}
 
 /* ═══════════════ DEVA ═══════════════ */
 function toggleDeva(){
@@ -5650,7 +5694,7 @@ function modelTourSteps(withNav){
     {sel:'.mp-espaces', side:'left', scroll:true, title:'🏡 Tes espaces',
      text:'Ce sont les espaces de ton lieu, ceux que tu as aménagés dans 🏡 Mon lieu. Chacun a sa <b>couleur</b> ; le compteur t\'indique combien de blocs il occupe. Sélectionne-en un pour commencer à le placer 👆'},
     {sel:'.model-loops', side:'top', scroll:true, title:'🔄 Les boucles régénératives',
-     text:'La <b>disposition</b> compte : quand deux espaces dont les solutions se répondent sont <b>voisins</b> (au moins un de leurs blocs se touche), une <b>boucle</b> se ferme et te rapporte des Graines à chaque saison. Colle les bons espaces côte à côte 🌿'},
+     text:'La <b>disposition</b> compte : quand deux espaces dont les solutions se répondent sont <b>voisins</b> (au moins un de leurs blocs se touche), une <b>boucle</b> se ferme et te rapporte des Vadins à chaque saison. Colle les bons espaces côte à côte 🌿'},
     {sel:'.mp-deco-sect', side:'left', scroll:true, title:'🌿 Le décor',
      text:'Arbres, fleurs, chemins, mare… donne vie à ton lieu. Le décor n\'a pas d\'effet sur la partie : c\'est <b>ta</b> vision du lieu, celle que tu montrerais aux visiteurs 🌱'});
   return steps;
@@ -5696,20 +5740,20 @@ function batMissionsTourSteps(withNav){
   const nm=S.playerName&&S.playerName!=='toi'?(' '+escapeHtml(S.playerName)):'';
   const steps=[];
   if(withNav) steps.push({sel:'.nav-item[data-tab="a"]', side:'right', onEnter:()=>{ S.tab='a'; S.batSub='missions'; render(); },
-     title:'🛠️ Les quêtes du réseau', text:`Voici les <b>quêtes</b> du réseau${nm} : chacune vient d'une <b>solution de la Bibliothèque</b>, à installer, mesurer ou animer sur un lieu. Accepte-en une, réalise-la, gagne des Graines. Regardons de plus près 👇`});
+     title:'🛠️ Les quêtes du réseau', text:`Voici les <b>quêtes</b> du réseau${nm} : chacune vient d'une <b>solution de la Bibliothèque</b>, à installer, mesurer ou animer sur un lieu. Accepte-en une, réalise-la, gagne des Vadins. Regardons de plus près 👇`});
   steps.push({sel:'.mission', side:'left', scroll:true, title:'🧩 Une quête, c\'est quoi ?',
-     text:'Chaque quête vient d\'une <b>solution de la Bibliothèque</b> posée sur un lieu. Elle demande une <b>compétence</b>, rapporte des <b>🌰 Graines</b>, et se résout à la <b>fin de la saison</b> en modifiant durablement le lieu. Tu peux en mener <b>2 en parallèle</b>.'});
+     text:'Chaque quête vient d\'une <b>solution de la Bibliothèque</b> posée sur un lieu. Elle demande une <b>compétence</b>, rapporte des <b>🌰 Vadins</b>, et se résout à la <b>fin de la saison</b> en modifiant durablement le lieu. Tu peux en mener <b>2 en parallèle</b>.'});
   const acceptSel='.mission .m-cta.btn-primary:not([disabled])';
   const learnSel='.mission .m-cta.btn-ghost:not([disabled])';
   if(document.querySelector(acceptSel)){
     steps.push({sel:acceptSel, side:'left', scroll:true, title:'✋ Accepte ta première quête',
-      text:'Celle-ci correspond à une compétence que tu as <b>déjà</b>. Clique <b>« Accepter »</b> quand tu es prêt·e : tu t\'engages sur le chantier, il se résoudra à la prochaine saison et te rapportera des Graines 🌱'});
+      text:'Celle-ci correspond à une compétence que tu as <b>déjà</b>. Clique <b>« Accepter »</b> quand tu es prêt·e : tu t\'engages sur le chantier, il se résoudra à la prochaine saison et te rapportera des Vadins 🌱'});
   } else if(document.querySelector(learnSel)){
     steps.push({sel:learnSel, side:'left', scroll:true, title:'🎓 Apprends la compétence requise',
       text:'Ces quêtes demandent une compétence que tu n\'as pas encore. Clique <b>« Apprendre · 4🌰 »</b> pour la débloquer : tu pourras enchaîner sur la quête juste après 🌱'});
   } else {
     steps.push({sel:'.sect-sub', side:'bottom', scroll:true, title:'🛠️ À toi de jouer',
-      text:'Reviens ici dès que tu as des Graines ou une place libre pour accepter un nouveau chantier 🌿'});
+      text:'Reviens ici dès que tu as des Vadins ou une place libre pour accepter un nouveau chantier 🌿'});
   }
   return steps;
 }
@@ -5734,7 +5778,7 @@ function batCompTourSteps(withNav){
       text:'Clique <b>« Apprendre »</b> pour débloquer une compétence (<b>4🌰</b>) : tu pourras aussitôt accepter les quêtes qu\'elle ouvre, et ta spirale avance 🌱'});
   } else {
     steps.push({sel:'.comp-grid', side:'top', scroll:true, title:'🎓 Monte en compétence',
-      text:'Il te faut <b>4🌰</b> pour apprendre une compétence. Gagne des Graines en accomplissant des quêtes, puis reviens en débloquer 🌿'});
+      text:'Il te faut <b>4🌰</b> pour apprendre une compétence. Gagne des Vadins en accomplissant des quêtes, puis reviens en débloquer 🌿'});
   }
   return steps;
 }
@@ -5809,9 +5853,9 @@ function devaAnswer(qraw){
   if(has('vadance') && has('vadité','vadite')) return `<b>Vadance</b> ✨ = l'impact <i>promis</i> (installé mais pas mesuré). <b>Vadité</b> 🌿 = l'impact <i>prouvé</i> (un ICI le mesure). Le réseau ne fait confiance qu'à la Vadité : vérifié bat certifié.`;
   if(has('vadance')) return `La <b>Vadance</b> ✨ c'est l'impact <i>promis</i> : tu installes une solution, elle promet un impact. Relève la mesure de son ICI et cette promesse se convertit en <b>Vadité</b> prouvée, saison après saison.`;
   if(has('vadité','vadite')) return `La <b>Vadité</b> 🌿 c'est l'impact <i>prouvé</i> : dès que l'ICI d'une solution est mesuré et vérifié, sa Vadance devient Vadité. C'est la devise du réseau.<br><br>${devaTip()}`;
-  if(has('boucle','circulaire','flux')) return `Une <b>boucle circulaire</b> 🔄 s'active quand deux solutions dont les flux se répondent sont sur le même lieu (ex. <i>Cuisine → Composteur → Potager</i>). Elle rapporte des Graines chaque saison : 3 boucles = Écosystème vivant (×1,5), 5 = Forêt nourricière (×2).`;
+  if(has('boucle','circulaire','flux')) return `Une <b>boucle circulaire</b> 🔄 s'active quand deux solutions dont les flux se répondent sont sur le même lieu (ex. <i>Cuisine → Composteur → Potager</i>). Elle rapporte des Vadins chaque saison : 3 boucles = Écosystème vivant (×1,5), 5 = Forêt nourricière (×2).`;
   if(has('canicule','climat','aléa','alea','tempête','tempete','gel','sécheresse','secheresse','météo','meteo','saison')) return `Le climat se corse chaque année, mais chaque aléa a sa parade : 🌊 <b>Fraîcheur</b> (eau de pluie, mur végétal, ombrière, phytoépuration) contre la canicule, 🏡 serre contre le gel, 🔧 atelier contre la tempête, 💧 réserves d'eau contre la sécheresse. Bien équipé, un coup dur devient une heure de gloire.`;
-  if(has('graine')) return `Les <b>Graines</b> 🌰 récompensent l'action (quêtes, défis, boucles) et servent à agir : mesurer, aménager un espace, apprendre. Elles ne sont <b>pas convertibles</b> en euros, ni l'inverse : les deux circuits sont strictement séparés.`;
+  if(has('graine','vadin','contribution')) return `Les <b>Vadins</b> 🌰 sont tes <b>points de contribution</b> reconnus : ils récompensent l'action (quêtes, défis, boucles) et servent à agir — mesurer, aménager un espace, apprendre. À la <b>Vaderie</b>, ils t'ouvrent des accès locaux. Ils ne sont <b>pas convertibles</b> en euros, ni l'inverse : les deux circuits sont strictement séparés.`;
   if(has('euro','argent','financ','budget')) return `Les <b>euros</b> 💶 sont la monnaie des financements (profil Semeur). Un financement installe la solution <b>et</b> son ICI : la Vadité arrive déjà vérifiée. Ta Vadité financée renouvelle ton budget chaque saison, la preuve fidélise.`;
   if(has('quête','quete','mission')) return `Les <b>quêtes</b> 🛠️ (profil Bâtisseur) viennent des <b>solutions de la Bibliothèque</b> : elles exigent une compétence, se résolvent en fin de saison et transforment durablement le lieu. Max 2 en parallèle. En <b>canicule</b>, les quêtes de fraîcheur paient double !`;
   if(has('compétence','competence','apprendre')) return `Tu démarres avec 2 compétences ; les autres s'apprennent pour <b>4 🌰</b>. « Mesurer » débloque toutes les quêtes de mesure. Chaque compétence apprise fait avancer ta spirale VADE (A · Activer).`;
@@ -5831,7 +5875,7 @@ function devaTip(){
   if(S.profile==='pilote'){
     if(countProven()===0) return `Bienvenue 🌱 Commencez par <b>reconnaître l'existant</b> : votre lieu produit déjà de la Vadance, mais rien n'est prouvé. Cliquez « 📊 Mesurer » dessus pour la transformer en Vadité.`;
     if(installedIds().length<2) return `Ouvre la 📚 <b>Bibliothèque</b> et installe une solution dans un espace compatible : ça ne te coûte rien, ce sont les <b>Semeurs</b> qui financent la facture. Pense aux flux : Cuisine, Composteur et Potager forment une belle boucle.`;
-    if(activeLoops().length===0) return `Vous avez des solutions, mais pas encore de <b>boucle</b> 🔄. Cherchez deux cartes dont les flux se répondent (une qui produit ce qu'une autre consomme) : la boucle rapporte des Graines chaque saison.`;
+    if(activeLoops().length===0) return `Vous avez des solutions, mais pas encore de <b>boucle</b> 🔄. Cherchez deux cartes dont les flux se répondent (une qui produit ce qu'une autre consomme) : la boucle rapporte des Vadins chaque saison.`;
     if(!pilotHasFresh()) return `Un conseil pour l'été : installez une solution 🌊 <b>Fraîcheur</b> (eau de pluie, mur végétal, ombrière). En canicule, votre lieu deviendra un îlot de fraîcheur au lieu de perdre de la Vadance.`;
     return `Vous êtes à ${round1(vad)}/60 de Vadité 🌿. Continuez à <b>mesurer</b> ce que vous installez (chaque ICI convertit la Vadance) et à densifier vos boucles : 5 boucles = Forêt nourricière ×2.`;
   }
@@ -5851,15 +5895,90 @@ function round1(n){ return Math.round(n*10)/10; }
 function pts(n){ return Math.abs(round1(n))>=2 ? 'points' : 'point'; }
 function capLabel(t){ return (TYPE_META[t]&&TYPE_META[t].name)||t; }
 function hazName(h){ return {gel:'Gel',canicule:'Canicule',tempete:'Tempête',secheresse:'Sécheresse'}[h]||h; }
-function fireConfetti(){
-  const box=document.getElementById('modal-box');
-  for(let i=0;i<28;i++){ const c=document.createElement('div');
-    const ic=['🌿','🌱','✨','🌰','🍃','🌸'][i%6];
-    c.textContent=ic; c.style.cssText=`position:absolute;left:${Math.random()*100}%;top:-20px;font-size:${12+Math.random()*14}px;pointer-events:none;z-index:99;transition:transform 2.2s ease-in,opacity 2.2s`;
-    box.appendChild(c);
-    requestAnimationFrame(()=>{ c.style.transform=`translateY(${300+Math.random()*200}px) rotate(${Math.random()*360}deg)`; c.style.opacity='0'; });
-    setTimeout(()=>c.remove(),2300);
+/* ── Moteur de célébration (récompenses & juice) ─────────────────────────
+   Respecte prefers-reduced-motion : aucune particule ne part si l'usager a
+   demandé moins d'animations. Toutes les particules vivent en position:fixed
+   sur le body, se nettoient seules, ne bloquent jamais les clics. */
+function reducedMotion(){ try{ return matchMedia('(prefers-reduced-motion:reduce)').matches; }catch(e){ return false; } }
+// Éclat de confettis autour d'un point de l'écran (x,y en pixels).
+function celebrate(x, y, opts){
+  if(reducedMotion()) return;
+  opts=opts||{};
+  const n=opts.count||22, emojis=opts.emojis||['🌰','✨','🌿','🌱','🍃','🎉'];
+  for(let i=0;i<n;i++){
+    const c=document.createElement('div'); c.className='cfx';
+    c.textContent=emojis[i%emojis.length];
+    const sz=12+Math.random()*14;
+    c.style.cssText=`left:${x}px;top:${y}px;font-size:${sz}px;transform:translate(-50%,-50%)`;
+    document.body.appendChild(c);
+    const ang=Math.random()*Math.PI*2, dist=40+Math.random()*(opts.spread||120);
+    const dx=Math.cos(ang)*dist, dy=Math.sin(ang)*dist - (30+Math.random()*70);
+    const rot=(Math.random()*2-1)*360, dur=900+Math.random()*700;
+    c.animate(
+      [{transform:'translate(-50%,-50%) rotate(0deg)',opacity:1},
+       {transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) rotate(${rot}deg)`,opacity:0}],
+      {duration:dur, easing:'cubic-bezier(.18,.7,.3,1)', fill:'forwards'});
+    setTimeout(()=>c.remove(), dur+60);
   }
+}
+// Éclat centré haut, pour un badge / un palier / la victoire.
+function celebrateBanner(opts){
+  if(reducedMotion()) return;
+  celebrate(window.innerWidth*0.5, window.innerHeight*0.28, Object.assign({count:34, spread:window.innerWidth*0.32}, opts||{}));
+}
+// « +N 🌰 » qui s'envole depuis un point.
+function gainFloat(x, y, text){
+  if(reducedMotion()) return;
+  const g=document.createElement('div'); g.className='gain-float';
+  g.textContent=text; g.style.left=x+'px'; g.style.top=y+'px';
+  document.body.appendChild(g);
+  setTimeout(()=>g.remove(), 1200);
+}
+// Rétro-compat : la victoire appelait fireConfetti(). On garde le nom.
+function fireConfetti(){ celebrateBanner({count:40, emojis:['🌿','🌱','✨','🌰','🍃','🌸','🎉']}); }
+
+/* Compteur de Vadins vivant : à chaque render, on compare le solde affiché au
+   nouveau. Gain → le chiffre grimpe, la pastille rebondit, un « +N 🌰 » s'envole
+   et un éclat part de la pastille. Dépense → petit rebond discret, sans confetti. */
+function juiceVadins(){
+  const el=document.querySelector('[data-stat="graines"]'); if(!el) return;
+  const prev=S._shownG, now=S.graines; S._shownG=now;
+  if(prev==null || prev===now) return;
+  const num=el.firstChild;  // nœud texte « 🌰 N » avant le <span class="lab">
+  if(now>prev){
+    el.classList.remove('spend'); void el.offsetWidth; el.classList.add('pop');
+    setTimeout(()=>el.classList.remove('pop'), 620);
+    const r=el.getBoundingClientRect(), cx=r.left+r.width/2;
+    gainFloat(cx, r.top-4, `+${now-prev} 🌰`);
+    celebrate(cx, r.top+r.height/2, {count:Math.min(8+(now-prev)*2, 22), spread:90, emojis:['🌰','✨','🌿','🎉']});
+    if(!reducedMotion() && num){          // égrène le chiffre de prev → now
+      const t0=performance.now(), dur=Math.min(180+(now-prev)*70, 900);
+      (function step(t){
+        const k=Math.min(1,(t-t0)/dur), v=Math.round(prev+(now-prev)*(k<1?1-Math.pow(1-k,3):1));
+        if(num.parentNode===el) num.nodeValue=`🌰 ${v}`;
+        if(k<1) requestAnimationFrame(step);
+      })(t0);
+    }
+  } else {
+    el.classList.remove('pop'); void el.offsetWidth; el.classList.add('spend');
+    setTimeout(()=>el.classList.remove('spend'), 400);
+  }
+}
+
+/* Paliers vers l'objectif du profil : on célèbre le franchissement des 25 / 50
+   / 75 %. Le 100 % est déjà fêté par winModal, on ne le double pas. */
+function checkPaliers(){
+  if(!S) return;
+  const P=PROFILS[S.profile]; if(!P) return;
+  const pct=Math.min(100, progressValue()/P.goal*100);
+  if(!S._paliers) S._paliers=new Set();
+  [25,50,75].forEach(seuil=>{
+    if(pct>=seuil && !S._paliers.has(seuil)){
+      S._paliers.add(seuil);
+      toast(`🎯 Palier franchi : ${seuil} % vers ${goalLabel()} !`, 'gold');
+      celebrateBanner({count:26, emojis:['🎯','✨','🌿','🌰','🎉']});
+    }
+  });
 }
 // fermer deva si clic ailleurs
 document.addEventListener('click',(e)=>{
