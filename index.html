@@ -111,6 +111,51 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .vdc-legend>div:last-child .vdc-nm{color:#a8e6cf}
 .vdc-sub{font-size:.6rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--sage);opacity:.8;margin-top:.1rem}
 .vdc-cta{text-align:center;margin-top:.75rem;padding-top:.7rem;border-top:1px solid rgba(130,184,148,.14);font-size:.84rem;font-weight:700;color:var(--cream)}
+
+/* ── Étape « Annoncer ne suffit pas » : décote de la preuve ── */
+.deco-card{background:rgba(255,255,255,.04);border:1px solid rgba(130,184,148,.16);border-radius:16px;padding:1rem .9rem .85rem}
+.deco-plot{position:relative;height:150px;display:flex;justify-content:space-around;align-items:flex-end;gap:1rem;padding:0 .3rem}
+.deco-col{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;width:42%;max-width:96px;height:100%}
+.deco-val{font-size:1.35rem;font-weight:900;line-height:1;margin-bottom:4px;color:var(--cream)}
+.deco-col.said .deco-val{color:var(--sage)}
+.deco-said{width:100%;border:2px dashed rgba(130,184,148,.4);background:repeating-linear-gradient(180deg,rgba(255,255,255,.03) 0 24px,rgba(255,255,255,0) 24px 25px);border-radius:11px 11px 4px 4px}
+.deco-stack{width:100%;display:flex;flex-direction:column-reverse;gap:2px;border-radius:11px 11px 4px 4px;overflow:hidden}
+.deco-seg{width:100%;box-shadow:inset 0 0 10px rgba(0,0,0,.12)}
+.deco-labs{display:flex;justify-content:space-around;gap:1rem;margin-top:.5rem;padding:0 .3rem}
+.deco-lab{width:42%;max-width:110px;text-align:center}
+.deco-lab .dl-t{font-weight:800;font-size:.82rem;color:var(--cream)}
+.deco-lab .dl-s{font-size:.6rem;color:var(--sage);opacity:.8;line-height:1.25;margin-top:.1rem}
+.deco-legend{display:flex;flex-direction:column;gap:.3rem;margin-top:.75rem;padding-top:.7rem;border-top:1px solid rgba(130,184,148,.14)}
+.deco-lgrow{display:flex;align-items:center;gap:.5rem;font-size:.74rem;color:var(--mist)}
+.deco-sw{width:13px;height:13px;border-radius:4px;flex-shrink:0}
+.deco-lgrow b{color:var(--cream);font-weight:800}
+.deco-lgrow .dlg-pc{margin-left:auto;font-weight:800;color:var(--sage);font-size:.7rem}
+.deco-foot{text-align:center;margin-top:.7rem;font-size:.78rem;font-weight:700;color:var(--cream)}
+
+/* ── Étape « Vadins & Vaderie » : ce qui te revient ── */
+.vadmap{background:rgba(255,255,255,.04);border:1px solid rgba(130,184,148,.16);border-radius:16px;padding:1rem .9rem .85rem}
+.vadmap-top{text-align:center;font-size:.82rem;color:var(--cream);background:rgba(240,176,50,.12);border:1px solid rgba(240,176,50,.28);border-radius:100px;padding:.35rem .8rem;width:fit-content;margin:0 auto .85rem}
+.vadmap-hub{display:flex;flex-direction:column;align-items:center;margin-bottom:.2rem}
+.vadmap-coin{width:96px;height:96px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 38% 32%,#f6c453,#dd8a2e);color:#3a2606;box-shadow:0 0 34px rgba(240,176,50,.4),inset 0 -6px 14px rgba(0,0,0,.16)}
+.vadmap-coin b{font-size:1.7rem;font-weight:900;line-height:1}
+.vadmap-coin span{font-size:.66rem;font-weight:800;letter-spacing:.03em}
+.vadmap-sub{font-size:.66rem;color:var(--sage);opacity:.85;margin-top:.4rem}
+.vadmap-arrow{color:rgba(240,176,50,.6);text-align:center;font-size:1rem;line-height:1;margin:.35rem 0}
+.vadmap-doors{display:flex;flex-direction:column;gap:.45rem;margin-top:.3rem}
+.vad-door{display:flex;align-items:center;gap:.6rem;background:rgba(255,255,255,.05);border:1px solid rgba(130,184,148,.18);border-radius:13px;padding:.55rem .7rem}
+.vad-door .vd-ic{font-size:1.25rem;flex-shrink:0}
+.vad-door .vd-nm{font-weight:800;font-size:.85rem;color:var(--cream);flex:1}
+.vad-door .vd-cost{font-size:.72rem;font-weight:800;color:#f0c46a;white-space:nowrap}
+.vadmap-foot{text-align:center;margin-top:.75rem;padding-top:.7rem;border-top:1px solid rgba(130,184,148,.14);font-size:.8rem;font-weight:700;color:var(--cream)}
+
+/* ── Liste de 3 points explicatifs (sous un visuel d'étape) ── */
+.ob-points{display:flex;flex-direction:column;gap:.7rem;margin-top:.9rem}
+.ob-point{display:flex;gap:.6rem;align-items:flex-start}
+.ob-point .op-ic{font-size:1.15rem;flex-shrink:0;line-height:1.3}
+.ob-point .op-t{font-weight:800;font-size:.86rem;color:var(--cream)}
+.ob-point .op-d{font-size:.76rem;line-height:1.45;color:var(--mist);opacity:.9;margin-top:.1rem}
+
 /* Fil de conversation facon SMS (onboarding intro) */
 .ob-thread{display:flex;flex-direction:column;gap:.55rem}
 .ob-thread .ob-bubble{margin-bottom:0;align-self:flex-start;max-width:92%;border-bottom-left-radius:5px}
@@ -2050,7 +2095,7 @@ const VADE_DESC={
 };
 function vadeHover(k){ const el=document.getElementById('vade-hover'); if(!el) return; if(k&&VADE_DESC[k]){ const v=VADE_DESC[k]; el.style.borderLeftColor=v.c; el.innerHTML='<b>'+v.t+'</b><span class="vh-desc">'+v.d+'</span>'; } else { el.style.borderLeftColor='transparent'; el.innerHTML='Survole une phase pour la découvrir 🌀'; } }
 const VADE_SCHEMA=`<svg viewBox="-40 0 480 366" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto"><path d="M200 80 A112 112 0 0 1 312 192" fill="none" stroke="#2e8b6e" stroke-width="3.4"/><path d="M312 192 A112 112 0 0 1 200 304" fill="none" stroke="#2d6a9f" stroke-width="3.4"/><path d="M200 304 A112 112 0 0 1 88 192" fill="none" stroke="#c8732a" stroke-width="3.4"/><path d="M88 192 A128 128 0 0 1 140 70" fill="none" stroke="#6b5b95" stroke-width="3.4"/><polygon points="139,60 132,74 148,73" fill="#6b5b95"/><text x="120" y="44" text-anchor="middle" font-size="12.5" font-weight="700" fill="#018262">un cran plus haut</text><circle cx="200" cy="192" r="60" fill="#e6f4ec"/><text x="200" y="184" text-anchor="middle" font-size="9.5" font-weight="700" letter-spacing="3" fill="#4aab8f">SPIRALE</text><text x="200" y="205" text-anchor="middle" font-size="21" font-weight="900" fill="#0d2b22">VADE</text><text x="200" y="230" text-anchor="middle" font-size="15">🏡 🌿 🌾</text><g class="vnode" onmouseover="vadeHover('V')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Valoriser : reconnaître le potentiel déjà là et poser la Vadance, la promesse d'impact.</title><circle cx="200" cy="80" r="24" fill="#fff" stroke="#018262" stroke-width="2.6"/><text x="200" y="87" text-anchor="middle" font-size="20" font-weight="900" fill="#018262">V</text><text x="234" y="60" text-anchor="start" font-size="13" font-weight="800" fill="#2f4038">Valoriser</text></g><g class="vnode" onmouseover="vadeHover('A')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Activer : passer à l'action, installer, accomplir, financer. La promesse s'outille.</title><circle cx="312" cy="192" r="24" fill="#fff" stroke="#2d6a9f" stroke-width="2.6"/><text x="312" y="199" text-anchor="middle" font-size="20" font-weight="900" fill="#2d6a9f">A</text><text x="344" y="197" text-anchor="start" font-size="13" font-weight="800" fill="#2f4038">Activer</text></g><g class="vnode" onmouseover="vadeHover('D')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Développer : se relier sur le Réseau, Pilotes, Bâtisseurs et Semeurs ensemble.</title><circle cx="200" cy="304" r="24" fill="#fff" stroke="#c8732a" stroke-width="2.6"/><text x="200" y="311" text-anchor="middle" font-size="20" font-weight="900" fill="#c8732a">D</text><text x="200" y="338" text-anchor="middle" font-size="13" font-weight="800" fill="#2f4038">Développer</text></g><g class="vnode" onmouseover="vadeHover('E')" onmouseout="vadeHover('')" style="cursor:pointer"><title>Essaimer : faire vérifier les preuves d'impact, la Vadance devient Vadité, la spirale relance.</title><circle cx="88" cy="192" r="24" fill="#fff" stroke="#6b5b95" stroke-width="2.6"/><text x="88" y="199" text-anchor="middle" font-size="20" font-weight="900" fill="#6b5b95">E</text><text x="56" y="197" text-anchor="end" font-size="13" font-weight="800" fill="#2f4038">Essaimer</text></g></svg>`;
-const INTRO_STEPS=7;
+const INTRO_STEPS=9;
 function devaIntroModal(){ INTRO={step:0,name:''}; introStep(0); }
 function introStep(n){
   if(!INTRO) INTRO={step:0,name:''};
@@ -2067,6 +2112,8 @@ function introStep(n){
     `Trois profils font vivre EVAD. Ils jouent le même monde avec les mêmes règles de preuve, chacun à sa façon 🌱`,
     `Chaque projet suit la <b>spirale VADE</b> : quatre phases qui s'enchaînent, puis <b>recommencent un cran plus haut</b>. C'est le cœur d'EVAD.`,
     `À chaque tour, un lieu transforme ses <b>promesses</b> en <b>preuves</b>. Deux mots pour ça : la <b>Vadance</b> 💭, l'impact <b>promis</b> (installé, pas encore mesuré), et la <b>Vadité</b> 🌿, l'impact <b>prouvé</b>, vérifié.<br><br>Leur rapport, l'<b>Indice de Confiance</b> (Vadité ÷ Vadance), mesure à quel point un lieu tient ses promesses : notre garde-fou anti-greenwashing.`,
+    `Un lieu peut <b>annoncer</b> ce qu'il veut. EVAD ne compte que ce qu'il peut <b>montrer</b>, et rend l'écart visible par tous. C'est le garde-fou <b>anti-greenwashing</b> du réseau, et ta protection 🛡️`,
+    `Et ce que tu fais pousser <b>te revient</b> 🌰 Chaque contribution prouvée t'est reconnue en <b>Vadins</b>, qui te rouvrent des portes ailleurs dans le réseau, à la <b>Vaderie</b>.`,
     `Tu es prêt·e ✨ Le mieux pour tout comprendre : incarner les <b>trois profils</b> l'un après l'autre (session de ~30 min). Mais si tu préfères, va directement sur celui qui t'attire :`
   ];
   // Widgets attaches a certaines etapes
@@ -2105,6 +2152,57 @@ function introStep(n){
         <button class="intro-prof" onclick="startProfileDirect('batisseur')"><span class="ip-ic">🌿</span><div class="ip-txt"><div class="ip-name">Bâtisseur d'impact</div><div class="ip-role">Contribuer et prouver</div></div></button>
         <button class="intro-prof" onclick="startProfileDirect('semeur')"><span class="ip-ic">🌾</span><div class="ip-txt"><div class="ip-name">Semeur d'impact</div><div class="ip-role">Financer le vérifié</div></div></button>
       </div>`;
+  // Étape « Annoncer ne suffit pas » : la décote de la preuve + l'indice de confiance
+  const wDecote=c=>`<div class="deco-card${c?' ob-pop':''}">
+        <div class="vdc-top">⚖️ <b>Indice de confiance · 62 %</b></div>
+        <div class="deco-plot">
+          <div class="deco-col said"><div class="deco-val">100</div><div class="deco-said" style="height:100%"></div></div>
+          <div class="deco-col"><div class="deco-val" style="color:#a8e6cf">62</div>
+            <div class="deco-stack" style="height:62%">
+              <div class="deco-seg" style="flex:25;background:#35617a"></div>
+              <div class="deco-seg" style="flex:25;background:#4a8ca0"></div>
+              <div class="deco-seg" style="flex:25;background:#6db5c9"></div>
+              <div class="deco-seg" style="flex:25;background:#a8e6cf"></div>
+            </div>
+          </div>
+        </div>
+        <div class="deco-labs">
+          <div class="deco-lab"><div class="dl-t">Annoncé</div><div class="dl-s">ce que le lieu affirme</div></div>
+          <div class="deco-lab"><div class="dl-t">Compté</div><div class="dl-s">ce qu'il peut montrer</div></div>
+        </div>
+        <div class="deco-legend">
+          <div class="deco-lgrow"><span class="deco-sw" style="background:#a8e6cf"></span>🔎 <b>Audité</b><span class="dlg-pc">compte pour 100 %</span></div>
+          <div class="deco-lgrow"><span class="deco-sw" style="background:#6db5c9"></span>🤝 <b>Validé par les pairs</b><span class="dlg-pc">75 %</span></div>
+          <div class="deco-lgrow"><span class="deco-sw" style="background:#4a8ca0"></span>📄 <b>Documenté</b><span class="dlg-pc">50 %</span></div>
+          <div class="deco-lgrow"><span class="deco-sw" style="background:#35617a"></span>✍️ <b>Déclaré</b><span class="dlg-pc">25 %</span></div>
+        </div>
+        <div class="deco-foot">Chaque preuve est horodatée, tracée, opposable 🔍</div>
+        <div class="ob-points">
+          <div class="ob-point"><span class="op-ic">📉</span><div><div class="op-t">Une annonce est décotée</div><div class="op-d">Un résultat simplement déclaré ne compte que pour un quart. Documenté, la moitié. Validé par les pairs, trois quarts. Audité seulement, il compte en entier.</div></div></div>
+          <div class="ob-point"><span class="op-ic">⚖️</span><div><div class="op-t">L'indice de confiance</div><div class="op-d">La part de la promesse réellement prouvée, affichée sur chaque lieu. Un écart qui se creuse se voit, avant que tu engages quoi que ce soit.</div></div></div>
+          <div class="ob-point"><span class="op-ic">🔍</span><div><div class="op-t">Chaque preuve est opposable</div><div class="op-d">Horodatée, rattachée à un indicateur, rattachée à son auteur. Ce que tu inscris dans ton rapport, tu peux le montrer à un auditeur.</div></div></div>
+        </div>
+      </div>`;
+  // Étape « Ce qui te revient » : les Vadins et la Vaderie
+  const wVadins=c=>`<div class="vadmap${c?' ob-pop':''}">
+        <div class="vadmap-top">🌱 Une contribution prouvée</div>
+        <div class="vadmap-hub">
+          <div class="vadmap-coin"><b>40</b><span>Vadins</span></div>
+          <div class="vadmap-sub">en reconnaissance de ton acte</div>
+        </div>
+        <div class="vadmap-arrow">▾</div>
+        <div class="vadmap-doors">
+          <div class="vad-door"><span class="vd-ic">🎟️</span><span class="vd-nm">un atelier</span><span class="vd-cost">40 Vadins</span></div>
+          <div class="vad-door"><span class="vd-ic">🔧</span><span class="vd-nm">un outil prêté</span><span class="vd-cost">25 Vadins</span></div>
+          <div class="vad-door"><span class="vd-ic">🏡</span><span class="vd-nm">un hébergement</span><span class="vd-cost">60 Vadins</span></div>
+        </div>
+        <div class="vadmap-foot">Ce que tu fais pousser t'ouvre des portes 🌱</div>
+        <div class="ob-points">
+          <div class="ob-point"><span class="op-ic">🌰</span><div><div class="op-t">Les Vadins, la reconnaissance</div><div class="op-d">Chaque contribution réalisée et prouvée t'est reconnue en Vadins. Ils ne s'achètent pas, ne se convertissent pas en euros : ils disent ce que tu as fait pousser.</div></div></div>
+          <div class="ob-point"><span class="op-ic">🤲</span><div><div class="op-t">La Vaderie, les portes ouvertes</div><div class="op-d">Tes Vadins déverrouillent des accès que les lieux ouvrent : un atelier entre membres, un prêt d'outillage, un hébergement pendant un chantier. Tu ne règles rien, tu ouvres une porte.</div></div></div>
+          <div class="ob-point"><span class="op-ic">📊</span><div><div class="op-t">La preuve fait la mesure</div><div class="op-d">Déclaré, documenté, validé par les pairs, audité : plus ta preuve est solide, plus ta contribution compte. C'est la preuve qui fait la valeur, jamais le temps passé.</div></div></div>
+        </div>
+      </div>`;
   // Construit le fil : tous les messages de 0 a l'etape courante
   let thread='';
   for(let i=0;i<=n;i++){
@@ -2114,7 +2212,9 @@ function introStep(n){
     else if(i===3){ thread += wProfils(cur); }
     else if(i===4){ thread += wSpirale(cur); }
     else if(i===5){ thread += wVade(cur); }
-    else if(i===6){ thread += wChoix(cur); }
+    else if(i===6){ thread += wDecote(cur); }
+    else if(i===7){ thread += wVadins(cur); }
+    else if(i===8){ thread += wChoix(cur); }
   }
   const body=`<div class="ob-thread">${thread}</div>`;
   if(n===0) actions=`<button class="ob-next" onclick="introStep(1)">Suivant →</button>`;
@@ -2123,7 +2223,9 @@ function introStep(n){
   else if(n===3) actions=back(2)+`<button class="ob-next" onclick="introStep(4)">Suivant →</button>`;
   else if(n===4) actions=back(3)+`<button class="ob-next" onclick="introStep(5)">Suivant →</button>`;
   else if(n===5) actions=back(4)+`<button class="ob-next" onclick="introStep(6)">Suivant →</button>`;
-  else actions=back(5)+`<button class="ob-next" onclick="introLaunch()">Découvrir les 3 · session ~30 min →</button>`;
+  else if(n===6) actions=back(5)+`<button class="ob-next" onclick="introStep(7)">Suivant →</button>`;
+  else if(n===7) actions=back(6)+`<button class="ob-next" onclick="introStep(8)">Suivant →</button>`;
+  else actions=back(7)+`<button class="ob-next" onclick="introLaunch()">Découvrir les 3 · session ~30 min →</button>`;
   openOnboarding(head+`<div class="ob-scroll">${body}</div><div class="ob-actions">${actions}</div>`);
   setTimeout(()=>{
     const sc=document.querySelector('.deva-ob .ob-scroll');
